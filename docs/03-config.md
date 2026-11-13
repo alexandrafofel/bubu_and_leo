@@ -1,0 +1,146 @@
+# 03. CONFIG
+
+`CONFIG` este primul lucru din cod (`src/01-config.js`). A fost cerut explicit: "Put a CONFIG object at the top of the code ... so I can easily make changes the kids ask for". Aici sunt toate valorile care se pot schimba fara sa intelegi restul codului.
+
+Dupa o schimbare: salvezi, rulezi `./build.sh`, reincarci pagina. Daca modifici direct fisierul din `game/` (fara build), cauti `const CONFIG = {` la inceputul scriptului. Merge si asa, dar schimbarea se pierde la urmatorul build.
+
+Valorile exacte de acum sunt si in [anexa D](anexe/D-config.md), generata din cod.
+
+Unitatile: distantele sunt in unitati logice (ecranul are 1920 x 1080, un nivel 3200 x 1800). Timpii sunt in secunde. Vitezele sunt unitati pe secunda.
+
+## Nume si limba
+
+| Cheie | Valoare | Ce face | De ce |
+|---|---|---|---|
+| `villainName` | `'Ciori'` | Numele ciorii in vocea de la festival. | Numele din cerere. Celelalte texte cu Ciori sunt in `STR`. |
+| `language` | `'ro'` | Limba la prima pornire: `'ro'` sau `'en'`. | Cererea initiala: totul in romana. Engleza a fost ceruta mai tarziu ca optiune. Dupa prima alegere din Setari conteaza valoarea salvata. |
+
+## Eroii: `heroes[0]` este Bubu, `heroes[1]` este Leo
+
+| Cheie | Valoare | Ce face | De ce |
+|---|---|---|---|
+| `name` | `'Bubu'`, `'Leo'` | Numele afisat. | Din cerere. |
+| `color` (Bubu) | `#F08A3C` | Corpul lui Bubu, inelul de sub el, cardul de pe ecranul de start, insigna din HUD, sageata lui. | Portocaliu cald. Cerut: "Bubu = orange". |
+| `color2` (Bubu) | `#6FA35E` | Petele. | Verde salvie, cerut: "green spots". Mai stins decat un verde pur, ca sa ramana in paleta calda. |
+| `scarf` | `#D9463C` | Esarfa. | Rosu caramiziu, cerut: "tiny red scarf". |
+| `color` (Leo) | `#F6C63C` | Tricoul, inelul, insigna, sageata lui. | Galben miere, cerut: "yellow-and-blue kit". |
+| `color2` (Leo) | `#3F78C8` | Sortul, gulerul, al doilea inel. | Albastru. Al doilea inel albastru il deosebeste de Bubu chiar si pentru cine nu deosebeste bine portocaliul de galben. |
+| `headband` | `#D9463C` | Bentita. | Acelasi rosu ca esarfa, ca cei doi sa para din aceeasi carte. |
+| `speed` | 330 (Bubu), 350 (Leo) | Viteza de mers. | Leo e putin mai rapid. Bubu e mai greoi, ca un dinozaur. Diferenta e mica, ca cel mic sa nu ramana in urma. |
+| `stompRadius` | 280 | Raza in care tropaitul ameteste inamicii si scutura copacii. | Mare, ca un copil de 6 ani sa nimereasca fara sa tinteasca. |
+| `pullRadius` | 360 | Raza din care ouale zboara spre Bubu dupa tropait. | Mai mare decat raza de ametire: tropaitul e si unealta de adunat. |
+| `stompCooldown` | 0.7 | Pauza minima intre doua tropaituri. | Destul de scurta ca sa nu para ca butonul nu merge. Destul de lunga ca apasatul continuu sa nu acopere ecranul de unde. |
+| `stunTime` | 2.8 | Cat stau ametiti inamicii dupa tropait. Pe "Ușor" se inmulteste cu 1.3. | Timp sa treci pe langa ei. |
+| `kickSpeed` | 760 | Viteza mingii la o apasare scurta. | Utila fara indemanare. |
+| `kickSpeedMax` | 1400 | Viteza la sutul incarcat complet. | Aproape dubla, ca diferenta sa se simta. |
+| `chargeTime` | 0.9 | Cat tii ✕ ca sa incarci complet. | Sub o secunda: un copil de 8 ani are rabdare pentru asta. |
+| `ballLife`, `ballLifeMax` | 2.3, 3.8 | Cat zboara mingea dupa sut (scurt, plin). Apoi se intoarce singura la Leo. | Mingea nu se pierde niciodata. |
+
+## Lungimea jocului
+
+| Cheie | Valoare | Ce face | De ce |
+|---|---|---|---|
+| `levels` | 6 | Cate niveluri sunt inainte de boss (1 pana la 12). Peste 6, definitiile se repeta. | Cerere: 6 niveluri plus boss. |
+| `levelDuration` | 360 | Durata tinta a unui nivel. Numarul de oua se calculeaza din ea. Soarele din HUD apune in acest timp. Dupa ea indiciile apar mereu si raza de adunare creste x 1.5. | Cerere: 5 pana la 7 minute pe nivel. |
+| `eggsPerMinute` | 10 | Oua pe nivel = `levelDuration / 60 * eggsPerMinute` = 60. | La prima versiune era 8. Am crescut la 10 ca nivelul sa fie mai plin. |
+| `wavesPerLevel` | 3 | Ouale apar in atatea valuri, de la stanga la dreapta. Fiecare val e o treime din harta. | Copiii vad mereu un tinta apropiata, nu 60 de oua imprastiate. Le da si un ritm: val, Ciori trece pe cer, val nou. |
+| `starsPerLevel` | 3 | Stele bonus pe nivel (0 pana la 3). | Din cerere. |
+| `giantEggValue` | 20 | Cat valoreaza oul urias din pestera. | Destul ca sa merite cautat, nu atat incat sa conteze mai mult decat restul nivelului. |
+
+## Dificultatea: `difficulty.easy`, `.normal`, `.hard`
+
+Fiecare jucator alege a lui. Valorile se aplica jucatorului care le-a ales.
+
+| Cheie | Ușor | Normal | Greu | Ce face |
+|---|---|---|---|---|
+| `enemySpeed` | 0.55 | 1.0 | 1.3 | Inmultitor pentru viteza gandacilor si conurilor din jurul jucatorului (raza 460). Cand doi jucatori sunt aproape, conteaza cel mai bland. |
+| `pickupRadius` | 105 | 64 | 54 | Cat de aproape trebuie sa fii de un ou ca sa il iei. |
+| `dizzyTime` | 1.0 | 2.0 | 2.4 | Cat dureaza ameteala dupa o lovitura. |
+| `wakeRadius` | 0.75 | 1.0 | 1.25 | Inmultitor pentru distanta la care se trezesc gandacii. |
+| `wind` | 0.5 | 1.0 | 1.25 | Cat te impinge vantul. |
+| `aimAssist` | da | nu | nu | Sutul lui Leo se indreapta singur spre un ou, o stea, un copac care sclipeste sau un gandac treaz, daca e aproximativ in directia tintita. |
+
+Pe langa acestea, dificultatea mai schimba (in cod, nu in CONFIG):
+
+- Mini-luptele: inimile paznicului (-1 pe Ușor, +1 pe Greu, dupa cel mai greu jucator conectat), viteza lui, cat sta obosit, cate atacuri face la rand. Vezi `11-mini-lupte.md`.
+- Boss-ul: cat zboara conurile spre tine (1.9 s, 1.4 s, 1.15 s) si cat sta Ciori jos (x 1.35, x 1, x 0.8 dupa dificultatea lui Leo).
+
+| Cheie | Valoare | Ce face | De ce |
+|---|---|---|---|
+| `defaultDifficulty` | `['easy', 'normal']` | Dificultatea la prima pornire, pentru Bubu si Leo. | Bubu e jucat de cel mic. |
+| `guideArrow` | `[true, false]` | Sageata ajutatoare pornita sau nu, pentru Bubu si Leo. | Ceruta pentru cel de 6 ani. Cel de 8 ani nu are nevoie. Se schimba din Setari. |
+
+`"Greu"` a fost adaugat in al doilea update, cand cel de 8 ani a spus ca jocul nu e destul de provocator.
+
+## Obstacole
+
+| Cheie | Valoare | Ce face | De ce |
+|---|---|---|---|
+| `beetleSpeed` | 150 | Viteza gandacului care te urmareste. | Mai lent decat eroii (330, 350): poti mereu sa scapi. |
+| `beetleWakeRadius` | 205 | Distanta la care se trezeste un gandac. | Trebuie sa treci aproape ca sa il trezesti. Poti ocoli. |
+| `pineconeSpeed` | 165 | Viteza conurilor pe culoar. Unele niveluri o inmultesc (`coneSpeed` 0.75 pe pajiste). | Destul de lent ca sa vezi conul venind. |
+| `mudSlow` | 0.45 | Viteza in noroi. | Se simte clar, dar nu te opreste. |
+| `windEvery` | 9 | Secunde intre rafale (variaza intre x 0.8 si x 1.2). | Destul de rar ca vantul sa fie un eveniment, nu o pedeapsa continua. |
+| `windDuration` | 2.6 | Cat sufla o rafala. | |
+| `windForce` | 185 | Cat de tare impinge vantul (unitati pe secunda la putere 1). | Mai mic decat viteza eroilor: mersul impotriva vantului inca inainteaza. |
+
+Inainte de fiecare rafala este 1 secunda de avertizare (sunet "whoosh" si frunze).
+
+## Ajutoare
+
+| Cheie | Valoare | Ce face | De ce |
+|---|---|---|---|
+| `butterflyEvery` | `[40, 70]` | Fluturele apare la un interval intamplator intre 40 si 70 de secunde. Primul apare dupa 20 pana la 32 de secunde. | O surpriza de cateva ori pe nivel. |
+| `butterflyBoost` | 1.5 | Inmultitorul de viteza. | |
+| `butterflyTime` | 6 | Cat tine viteza. | |
+| `hintAfter` | 10 | Dupa atatea secunde fara un ou, apare sageata aurie spre cel mai apropiat ou. | Copiii nu raman blocati. |
+
+## Boss
+
+| Cheie | Valoare | Ce face | De ce |
+|---|---|---|---|
+| `boss.hits` | 3 | Cate suturi in cuib castiga lupta. | Din cerere: "Three successful hits win". |
+| `boss.shakes` | `[1, 2, 2]` | Cate tropaituri langa copac il dau jos pe Ciori, pe runda. | Prima runda usoara, ca sa se inteleaga mecanismul. |
+| `boss.downTime` | 7 | Cat sta Ciori jos (momentul pentru sut). | Timp pentru Leo sa ajunga si sa tinteasca. |
+| `boss.throwEvery` | `[3.4, 2.7, 2.2]` | Secunde intre conurile aruncate, pe runda. Pe runda 2 si 3 arunca 2, apoi 3 conuri odata. | Lupta creste in intensitate. |
+
+## Mini-lupte: `duel`
+
+| Cheie | Valoare | Ce face | De ce |
+|---|---|---|---|
+| `enabled` | `true` | `false` scoate mini-luptele. Cuibul se deschide imediat dupa ultimele oua. | Un comutator simplu daca nu plac. |
+| `hp` | `[3, 3, 4, 4, 4, 5]` | Inimile paznicului pe fiecare nivel. Pe Ușor una mai putin, pe Greu una mai mult, minim 2. | Cresc spre final. |
+| `tiredTime` | 2.4 | Cat sta paznicul obosit. Pe Ușor x 1.4, pe Greu x 0.75. Plus 0.7 daca s-a lovit de un perete. | Fereastra in care loviturile conteaza. |
+| `eggsPerHit` | 4 | Oua care sar la fiecare lovitura. | Cel mic are de adunat in timp ce cel mare se lupta. Cerut explicit. |
+| `eggsAtEnd` | 8 | Oua care sar la ultima lovitura. | Recompensa. |
+| `safeRadius` | 150 | Cat de aproape de cuib esti la adapost in timpul luptei. | Cerut: cel mic "sa stea ascuns in cuib". |
+
+## Control
+
+| Cheie | Valoare | Ce face | De ce |
+|---|---|---|---|
+| `deadzone` | 0.25 | Zona moarta a stick-ului. Codul foloseste minimum 0.25 chiar daca scrii mai putin. | Cerere: "deadzone at least 0.25". Controllerele vechi au stick-uri care nu revin perfect la centru. |
+| `vibration` | `true` | Vibratiile pornite la prima pornire. | Se schimba din Setari. |
+| `keys` | vezi mai jos | Tastele de la inceput, pentru jucatorul 1 si 2. | Din cerere: WASD + Spatiu, sageti + Enter. |
+
+`keys` foloseste numele `KeyboardEvent.code`: `KeyW`, `ArrowUp`, `Space`, `Enter`. Asa tastele sunt aceleasi pe orice aranjament de tastatura (inclusiv romana). Tastele se pot schimba din Setari. "Tastele de la început" din Setari revine la aceste valori.
+
+## Sunet
+
+| Cheie | Valoare | Ce face | De ce |
+|---|---|---|---|
+| `volume.music` | 0.5 | Volumul muzicii la prima pornire (0 pana la 1). | Cerere: muzica "low volume". In plus, muzica e inmultita cu 0.55 in cod. |
+| `volume.ambient` | 0.7 | Sunetele lumii: pasari, apa, vant, inamici, meniuri. | |
+| `volume.characters` | 0.8 | Sunetele eroilor: pasi, voci, puteri, oua. Si vocea care citeste povestea. | Cele mai importante pentru copii. |
+| `footsteps` | `true` | Pasii eroilor. | Ceruti in al doilea update. Se pot opri daca devin obositori. |
+| `voice` | `true` | Citirea cu voce a povestii nivelurilor. | Din cerere. Functioneaza doar daca macOS are o voce in limba aleasa. |
+| `voiceRate` | 0.9 | Viteza vocii. | Putin mai rar decat normal, pentru copii. |
+
+## Aspect
+
+| Cheie | Valoare | Ce face | De ce |
+|---|---|---|---|
+| `fontTitle` | `Georgia, "Times New Roman", serif` | Fontul titlurilor. | Un serif rotund, ca pe coperta unei carti. Exista pe orice Mac. |
+| `fontUI` | `"Avenir Next", "Trebuchet MS", ...` | Fontul textelor mici. | Avenir Next e pe orice Mac si se citeste usor de departe. Restul sunt rezerve. |
+| `maxRenderWidth` | 1920 | Latimea maxima reala a canvas-ului. | Pe un ecran Retina canvas-ul ar putea avea 3840 de pixeli latime. Limita tine jocul fluid. Coboara la 1600 sau 1280 daca Mac-ul se misca greu. |
+| `saveKey` | `'bubu-leo-oua-de-aur-v1'` | Numele salvarii in `localStorage`. | Daca il schimbi, jocul porneste de la zero (salvarea veche ramane, dar nu mai e citita). |
