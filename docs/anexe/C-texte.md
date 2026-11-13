@@ -4,7 +4,7 @@
 
 Textele sunt in `STR` din src/015-lang.js. Cheia este numele folosit in cod: `T('cheie')`. `{0}` si `{1}` sunt locuri completate de cod (un nume, un numar).
 
-Total: 141 texte in romana si 141 in engleza.
+Total: 143 texte in romana si 143 in engleza.
 
 | Cheie | Linia (ro) | Romana | Engleza |
 |---|---|---|---|
@@ -80,7 +80,7 @@ Total: 141 texte in romana si 141 in engleza.
 | `lvl.sunset.name` | 51 | Drumul Apusului | Sunset Road |
 | `lvl.sunset.intro` | 52 | Soarele apune și felinarele se aprind. Este ultimul drum până la copacul lui Ciori. Rămâneți împreună! | The sun is setting and the lanterns light up. This is the last road to Ciori's tree. Stay together! |
 | `lvl.boss.name` | 53 | Cuibul lui Ciori | Ciori's Nest |
-| `lvl.boss.intro` | 54 | Ciori stă în cuibul din cel mai înalt copac și aruncă conuri. Bubu, tropăie lângă copac ca să îl scuturi! Leo, când Ciori cade, șutează mingea în cuib! De trei ori! | Ciori sits in the nest in the tallest tree and throws pinecones. Bubu, stomp next to the tree to shake it! Leo, when Ciori falls, kick the ball into the nest! Three times! |
+| `lvl.boss.intro` | 54 | Ciori stă în cuibul din cel mai înalt copac și aruncă conuri. Bubu, tropăie lângă copac ca să îl scuturi! Leo, când Ciori cade, șutează mingea în cuib! De {0} ori! | Ciori sits in the nest in the tallest tree and throws pinecones. Bubu, stomp next to the tree to shake it! Leo, when Ciori falls, kick the ball into the nest! {0} times! |
 | `duel.beetle` | 55 | Regele Gândac | The Beetle King |
 | `duel.owl` | 55 | Bufnița Buhu | Buhu the Owl |
 | `duel.crab` | 55 | Racul Cleștișor | Snappy the Crab |
@@ -88,6 +88,8 @@ Total: 141 texte in romana si 141 in engleza.
 | `duel.frog` | 55 | Broscoiul Oac | Croak the Frog |
 | `duel.chick` | 55 | Ciorel | Ciorel |
 | `duel.guard` | 56 | {0} păzește cuibul! | {0} guards the nest! |
+| `duel.mid` | 56 | {0} vă stă în cale! | {0} blocks the way! |
+| `duel.midSay` | 56 | {0} vă stă în cale! Feriți-vă și loviți când obosește. | {0} blocks the way! Dodge, then strike when it gets tired. |
 | `duel.say` | 56 | {0} păzește cuibul! Feriți-vă și loviți când obosește. În cuib sunteți la adăpost. | {0} guards the nest! Dodge, then strike when it gets tired. You are safe inside the nest. |
 | `duel.hide` | 57 | Adăpost | Shelter |
 | `duel.now` | 57 | Acum! | Now! |

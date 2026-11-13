@@ -13,7 +13,7 @@ const boot = require('./common.js');
     for (const n of S.names()) {
       for (const k of (/^v|step/.test(n) ? [0, 1] : [0])) { S.play(n, n === 'step' ? k * 2 : /^v/.test(n) ? k : 1, k); out.fx[n + (/^v|step/.test(n) ? k : '')] = await peak(anM, n === 'giant' || n === 'win' ? 1300 : 650); await new Promise(r => setTimeout(r, 250)); }
     }
-    for (const key of ['l0', 'l4', 'l5', 'duel', 'boss']) { S.music(key); await new Promise(r => setTimeout(r, 400)); out['music_' + key] = await peak(anM, 4000); }
+    for (const key of ['l0', 'l4', 'l5', 'duel', 'duel2', 'boss']) { S.music(key); await new Promise(r => setTimeout(r, 400)); out['music_' + key] = await peak(anM, 4000); }
     S.music(null); S.ambience('l4'); await new Promise(r => setTimeout(r, 2500)); out.amb_l4 = await peak(anM, 3000);
     return out;
   });

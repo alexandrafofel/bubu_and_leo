@@ -67,6 +67,7 @@ Fiecare piesa este generata dintr-o samanta. Nu exista note scrise de mana.
 | `l5` | Drumul Apusului | 58 (Si bemol) | majora | 80 | flaut |
 | `boss` | Ciori | 62 (Re) | minora | 112 | shaker |
 | `duel` | mini-luptele | 64 (Mi) | minora | 104 | shaker |
+| `duel2` | lupta de la cuib (aceeasi melodie, mai repede) | 64 (Mi) | minora | 116 | shaker |
 | `ending` | festivalul | 60 (Do) | majora | 72 | flaut, clopotei |
 
 Scarile: `MAJ = [0, 2, 4, 7, 9]`, `MIN = [0, 3, 5, 7, 10]`, `SUS = [0, 2, 5, 7, 9]`. Toate sunt pentatonice: cinci note care suna bine in orice combinatie. Nu poate iesi o nota "gresita".
@@ -130,11 +131,7 @@ Efectele sunt in doua grupe. Grupa decide ce volum le controleaza si unde se aud
 | `drop` | eroul scapa un ou | trei note care coboara |
 | `squelch` | pas prin noroi | zgomot grav scurt |
 | `step` | fiecare pas | Bubu: un "bum" grav la 118 Hz. Leo: un "tic" mai sus la 205 Hz. Piciorul stang si drept au tonuri putin diferite. |
-| `vGo` | inainte de tropait sau de un sut puternic | silaba "hop!" |
-| `vOw` | lovit | "au-uu" |
-| `vYay` | serie de oua, paznic lovit, nivel terminat | "iu-huu!" |
-| `vWow` | stea, oul urias | "uaaau" |
-| `vHide` | intra in adapostul din cuib | "ih-ih" |
+| (fostele voci `vGo`, `vOw`, `vYay`, `vWow`, `vHide`) | inlocuite de limba personajelor, vezi mai jos | |
 
 **Lume** (volumul "Sunete ambientale"): `wake` (gandac trezit), `stun`, `pop`, `rustle` (frunze), `butterfly`, `wave` (val nou), `win`, `caw` (Ciori), `whoosh` (vant), `swish`, `lantern`, `firework`, `ui` (meniu), `ok`, `thud`, `goal`, `crack` (oul la festival), `splash`, `tonk` (mingea ricoseaza dintr-un paznic neobosit), `warn` (paznicul se pregateste), `squeak` (paznic lovit), `tired`, `duel` (inceputul luptei), `flee` (paznicul fuge).
 
@@ -186,3 +183,56 @@ Citeste cu voce povestea fiecarui nivel si cateva replici (Ciori isi cere iertar
 | `ready` | Adevarat daca sunetul ruleaza. |
 | `canSink`, `listOutputs`, `setSink`, `swapOuts` | Difuzorul controllerului. |
 | `names()`, `debug()` | Pentru teste. |
+
+## Limba personajelor (update 13 noiembrie 2026)
+
+Fiecare erou are 30 de cuvinte inventate. Nu sunt inregistrari: sunt sintetizate in Web Audio, ca toate celelalte sunete. Cuvintele stau in `BABBLE_WORDS` din `03-audio.js`, cate un tabel pentru Bubu si unul pentru Leo.
+
+**Un cuvant** este o lista de silabe. Fiecare silaba: `[vocala, semitonuri, durata, alunecare]`.
+
+- Vocala (`a`, `e`, `i`, `o`, `u`) dau doua filtre bandpass (formantii, din `FORM`). Pentru Bubu formantii sunt x 0.85 (mai rotund), pentru Leo x 1.15 (mai luminos).
+- Nota: `BASE` (Bubu: nota 43, Leo: nota 62) plus semitonurile silabei.
+- Sursa: triunghi, cu anvelopa 0.015 s atac si coada de 0.05 s. Nivel 0.3 pe silaba, ca sa iasa intre 0.07 si 0.34 la iesire (testat).
+
+**Personalitate.** Bubu: voce joasa, lenta, cu alunecari in jos. Leo: voce sus, rapida, cu alunecari in sus. Niciun cuvant nu are consoane: doar vocale, ca sa nu sune a vorbire reala.
+
+**Cuvinte cu mai multe variante.** `egg` are trei variante, alese la intamplare fara sa repete una imediat dupa alta.
+
+**Prioritate** (`TALK_PRIO`). 3 = taie orice cuvant in curs, 2 = taie doar cuvintele mai slabe, 1 = se aude doar daca eroul tace.
+
+| Cuvant | Prioritate | Cand se aude |
+|---|---|---|
+| `hello` | 3 | inceputul nivelului, dupa poveste |
+| `ready` | 3 | ✕ pe ecranul de start, sau cand alege pe ecranul controllerului |
+| `egg` | 1 | un ou luat (una din trei ori, ca sa nu oboseasca) |
+| `eggs5` | 2 | al patrulea ou luat repede, la rand |
+| `star` | 3 | o stea |
+| `giant` | 3 | oul urias |
+| `power` | 2 | tropait sau sut usor |
+| `powerBig` | 3 | sut incarcat (peste 0.8) |
+| `hurt` | 3 | eroul e lovit |
+| `dizzy` | 2 | dupa 0.9 s de la lovitura, cat se rotesc stelele |
+| `recover` | 2 | isi revine din ameteala |
+| `drop` | 2 | scapa un ou (aceeasi lovitura, de obicei taiat de `hurt`) |
+| `regain` | 2 | ia inapoi oul scapat |
+| `hide` | 2 | intra in cuib |
+| `unhide` | 1 | iese din cuib |
+| `beetleWake` | 2 | un gandac se trezeste langa erou |
+| `beetleStun` | 2 | un gandac e ametit de tropait sau de minge |
+| `wind` | 2 | incepe vantul (spune primul erou) |
+| `mud` | 1 | intra in noroi |
+| `bridge` | 1 | urca pe pod |
+| `butterfly` | 3 | fluturele il prinde |
+| `guardHit` | 3 | paznicul e lovit (fara ultima lovitura) |
+| `notYet` | 1 | lovitura nu conteaza inca |
+| `guardGone` | 3 | ultima lovitura, paznicul fuge |
+| `bored` | 1 | sta pe loc 8 s |
+| `callFriend` | 1 | prietenul e departe (peste 1200 unitati) de 5 s |
+| `together` | 2 | se regasesc (dupa ce au fost departe, acum sub 250) |
+| `nestOpen` | 3 | cuibul se deschide |
+| `levelWin` | 3 | nivelul e terminat |
+| `bossDown` | 3 | Ciori cade din copac |
+
+**Cum se apeleaza.** `Snd.talk(k, 'cuvant')`: eroul `k` spune cuvantul. Ruteaza ca restul sunetelor eroului (pe difuzorul controllerului, daca a ales unul) si merge pe volumul "Sunete personaje". `Snd.words()` da tabelele, ca sa se poata asculta si schimba usor.
+
+**Ce lipseste.** Optiunea "Personajele vorbesc" din Setari nu exista inca: se schimba doar `CONFIG.babble`. Vezi `19-limitari.md`.

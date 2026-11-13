@@ -58,7 +58,8 @@ Fiecare jucator alege a lui. Valorile se aplica jucatorului care le-a ales.
 | `dizzyTime` | 1.0 | 2.0 | 2.4 | Cat dureaza ameteala dupa o lovitura. |
 | `wakeRadius` | 0.75 | 1.0 | 1.25 | Inmultitor pentru distanta la care se trezesc gandacii. |
 | `wind` | 0.5 | 1.0 | 1.25 | Cat te impinge vantul. |
-| `aimAssist` | da | nu | nu | Sutul lui Leo se indreapta singur spre un ou, o stea, un copac care sclipeste sau un gandac treaz, daca e aproximativ in directia tintita. |
+| `ballSize` | 1.3 | 1.0 | 1.0 | Raza mingilor lui Leo se inmulteste cu aceasta valoare. Pe Ușor mingile sunt mai mari, ca sa le prinzi mai usor. (Inlocuieste vechiul `aimAssist`, scos din update.) |
+| `ballSpeed` | 0.85 | 1.0 | 1.0 | Viteza mingilor lui Leo se inmulteste cu aceasta valoare. Pe Ușor zboara mai incet. |
 
 Pe langa acestea, dificultatea mai schimba (in cod, nu in CONFIG):
 
@@ -99,10 +100,10 @@ Inainte de fiecare rafala este 1 secunda de avertizare (sunet "whoosh" si frunze
 
 | Cheie | Valoare | Ce face | De ce |
 |---|---|---|---|
-| `boss.hits` | 3 | Cate suturi in cuib castiga lupta. | Din cerere: "Three successful hits win". |
-| `boss.shakes` | `[1, 2, 2]` | Cate tropaituri langa copac il dau jos pe Ciori, pe runda. | Prima runda usoara, ca sa se inteleaga mecanismul. |
-| `boss.downTime` | 7 | Cat sta Ciori jos (momentul pentru sut). | Timp pentru Leo sa ajunga si sa tinteasca. |
-| `boss.throwEvery` | `[3.4, 2.7, 2.2]` | Secunde intre conurile aruncate, pe runda. Pe runda 2 si 3 arunca 2, apoi 3 conuri odata. | Lupta creste in intensitate. |
+| `boss.hits` | 5 | Cate suturi in cuib castiga lupta. (Era 3.) | Update 13 noiembrie: boss-ul mai greu. |
+| `boss.shakes` | `[2, 2, 3, 3, 3]` | Cate tropaituri langa copac il dau jos pe Ciori, pe runda. (Era `[1, 2, 2]`.) | Fiecare runda cere mai multe tropaituri. |
+| `boss.downTime` | 5 | Cat sta Ciori jos (momentul pentru sut). (Era 7.) | Fereastra mai scurta pentru sut. |
+| `boss.throwEvery` | `[3, 2.5, 2.1, 1.8, 1.6]` | Secunde intre conurile aruncate, pe runda. (Era `[3.4, 2.7, 2.2]`.) | Conurile vin mai des. |
 
 ## Mini-lupte: `duel`
 
@@ -113,7 +114,13 @@ Inainte de fiecare rafala este 1 secunda de avertizare (sunet "whoosh" si frunze
 | `tiredTime` | 2.4 | Cat sta paznicul obosit. Pe Ușor x 1.4, pe Greu x 0.75. Plus 0.7 daca s-a lovit de un perete. | Fereastra in care loviturile conteaza. |
 | `eggsPerHit` | 4 | Oua care sar la fiecare lovitura. | Cel mic are de adunat in timp ce cel mare se lupta. Cerut explicit. |
 | `eggsAtEnd` | 8 | Oua care sar la ultima lovitura. | Recompensa. |
-| `safeRadius` | 150 | Cat de aproape de cuib esti la adapost in timpul luptei. | Cerut: cel mic "sa stea ascuns in cuib". |
+| `finalHp` | `[5, 5, 6, 6, 7, 8]` | Inimile paznicului de la cuib, pe nivel (lupta a doua). | Update 13 noiembrie: lupta de la cuib e mai grea. |
+| `finalSize` | 1.3 | Paznicul de la cuib e desenat si se loveste de atat de ori mai mare. | Cerut: "lupta mai grea". |
+| `finalSpeed` | 1.25 | Inmultitor pentru viteza si atacurile paznicului de la cuib. | |
+| `finalPrep` | 0.75 | Inmultitor pentru timpul de avertizare inainte de atac (mai scurt). | |
+| `finalTired` | 0.75 | Inmultitor pentru cat sta paznicul obosit (fereastra mai scurta). | |
+| `finalExtra` | 1 | Un atac in plus la fiecare runda. In plus, cand e suparat, inca unul. | |
+| `angryAt` | 0.5 | Sub aceasta parte din inimi paznicul de la cuib se supara: un atac in plus si tremura ecranul putin. | |
 
 ## Control
 
@@ -144,3 +151,16 @@ Inainte de fiecare rafala este 1 secunda de avertizare (sunet "whoosh" si frunze
 | `fontUI` | `"Avenir Next", "Trebuchet MS", ...` | Fontul textelor mici. | Avenir Next e pe orice Mac si se citeste usor de departe. Restul sunt rezerve. |
 | `maxRenderWidth` | 1920 | Latimea maxima reala a canvas-ului. | Pe un ecran Retina canvas-ul ar putea avea 3840 de pixeli latime. Limita tine jocul fluid. Coboara la 1600 sau 1280 daca Mac-ul se misca greu. |
 | `saveKey` | `'bubu-leo-oua-de-aur-v1'` | Numele salvarii in `localStorage`. | Daca il schimbi, jocul porneste de la zero (salvarea veche ramane, dar nu mai e citita). |
+
+## Valori noi din update-ul din 13 noiembrie 2026
+
+| Cheie | Valoare | Ce face | De ce |
+|---|---|---|---|
+| `nestSafe` | `true` | Cuibul e adapost pe tot nivelul: un erou in cuib nu e lovit si nu e luat de vant. | Cerut: "sa nu il ia vantul, sa nu poata fi lovit in niciun stadiu". |
+| `nestSafeRadius` | 150 | Cat de aproape de centrul cuibului trebuie sa fii ca sa fii la adapost. (Era `duel.safeRadius`.) | |
+| `nestHideSoundGap` | 3 | Secunde intre doua "ih-ih" cand eroii intra si ies din cuib in graba. | Sa nu se repete. |
+| `heroes[1].ballsPerKick` | 8 | Cate mingi pleaca la o apasare de ✕, la distante egale in cerc. | Cerut: puterea in toate directiile. |
+| `heroes[1].ballsPerKickMax` | 12 | Cate mingi pleaca la sutul incarcat complet. | |
+| `heroes[1].kickCooldown` | 1.2 | Secunde dupa un sut in care o noua apasare cheama mingile inapoi. Dupa aceea, o apasare trage un sut nou. | |
+| `decorPerLevel` | 1700 | Cate lucruri mici de decor are fiecare nivel (iarba, flori, pietre...). 6 niveluri x 1700 = 10.200. | Cerut: minim 10.000 de elemente. |
+| `babble` | `true` | Personajele vorbesc in cuvintele lor inventate (30 pentru fiecare). `false` = doar sunetele efectelor. | Cerut: "un fel de limba a lor". |

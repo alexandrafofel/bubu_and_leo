@@ -17,11 +17,17 @@ Retete pas cu pas pentru schimbarile cele mai probabile. Dupa fiecare reteta: `.
 | Eroi mai rapizi | `heroes[k].speed` | Bubu 330, Leo 350. Peste 450 devine greu de controlat la 6 ani. |
 | Tropait mai mare | `heroes[0].stompRadius`, `pullRadius` | |
 | Sut mai puternic | `heroes[1].kickSpeed`, `kickSpeedMax`, `ballLife`, `ballLifeMax` | |
+| Mai multe sau mai putine mingi la un sut | `heroes[1].ballsPerKick` (sut scurt), `ballsPerKickMax` (sut incarcat), `kickCooldown` | |
+| Mingi mai mari sau mai lente pe o dificultate | `difficulty.*.ballSize`, `difficulty.*.ballSpeed` | |
+| Cuibul sa nu mai fie adapost | `nestSafe: false`. Raza: `nestSafeRadius` | |
+| Mai mult sau mai putin decor | `decorPerLevel`. Felurile si proportiile: `DECOR_WEIGHT` in `06-level.js` | Sub 1667 pe nivel, totalul scade sub 10.000 si `numara-elemente.js` pica. |
+| Personajele sa nu mai vorbeasca | `babble: false` | Nu e inca in meniul Setari. |
 | Gandaci mai lenti | `beetleSpeed` sau `difficulty.*.enemySpeed` | `enemySpeed` e pe jucator. |
 | Mai putin vant | `windForce`, `windEvery`, `windDuration` | |
-| Mini-lupte mai scurte | `duel.hp` (lovituri pe nivel), `duel.tiredTime` | |
+| Lupta din mijloc mai scurta | `duel.hp` (lovituri pe nivel), `duel.tiredTime` | |
+| Lupta de la cuib mai usoara | `duel.finalHp`, `finalSize`, `finalSpeed`, `finalPrep`, `finalTired`, `finalExtra`, `angryAt` | Cu `finalSpeed` 1, `finalPrep` 1, `finalTired` 1 si `finalExtra` 0 e la fel ca lupta din mijloc, doar cu mai multe inimi. |
 | Fara mini-lupte | `duel.enabled: false` | Cuibul se deschide dupa ultimul val. |
-| Boss mai usor | `boss.hits`, `boss.shakes`, `boss.downTime`, `boss.throwEvery` | |
+| Boss mai usor | `boss.hits`, `boss.shakes`, `boss.downTime`, `boss.throwEvery` | `shakes` si `throwEvery` au cate o valoare pe runda. Textul povestii ("De 5 ori!") si cercurile din HUD se potrivesc singure cu `hits`. Cate conuri arunca e in cod (`updateBoss`), nu in `CONFIG`. |
 | Alte nume | `heroes[k].name`, `villainName` | Numele apar si in texte prin `{0}`, nu trebuie schimbate textele. |
 | Alte culori ale eroilor | `heroes[k].color`, `color2`, `scarf`, `headband` | Respecta `15-culori.md`: fara negru, fara gri. |
 | Dificultatea de la inceput | `defaultDifficulty` | `'easy'`, `'normal'` sau `'hard'`. |
@@ -63,7 +69,7 @@ Dupa schimbare, ruleaza `nivele-bot-mers.js`. Generatorul respinge harti in care
 1. Adauga o definitie in `LEVEL_DEFS`, cu o `key` noua.
 2. Adauga `lvl.<key>.name` si `lvl.<key>.intro` in ambele limbi.
 3. Mareste `CONFIG.levels`.
-4. Adauga o valoare in `CONFIG.duel.hp` si un paznic in `DUEL_DEFS` (`075-duel.js`), sau lupta nivelului foloseste ultimul paznic.
+4. Adauga o valoare in `CONFIG.duel.hp` si una in `CONFIG.duel.finalHp`, si un paznic in `DUEL_DEFS` (`075-duel.js`), sau lupta nivelului foloseste ultimul paznic.
 5. Ruleaza `joc-complet-bot.js`.
 
 Atentie: salvarile vechi retin numarul nivelului. Un nivel nou in mijloc muta progresul copiilor.

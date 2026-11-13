@@ -75,15 +75,16 @@ De ce bula cu iconita: un copil de 6 ani intelege "acolo e un ou" mai repede dec
 
 Ceruta in al doilea update: "sa se vada cat din nivel este facut (progresul) si cat mai au de facut".
 
-Drumul nivelului are `n` parti: cele 3 valuri, mini-lupta (daca e pornita), cuibul. `levelProgress()` intoarce:
+Drumul nivelului are `n` parti, in ordinea asta: valul 1, valul 2, lupta din mijloc, valul 3, lupta de la cuib, cuibul. `levelProgress()` intoarce:
 
 | Camp | Ce este |
 |---|---|
-| `n` | Cate parti. Cu valorile de acum, 5. |
-| `cur` | Partea in care sunt jucatorii. |
+| `n` | Cate parti. Cu 3 valuri si doua lupte, 6 (`NW + 3`). Fara lupte, `NW + 1`. |
+| `cur` | Partea in care sunt jucatorii. Lupta din mijloc are segmentul ei (dupa valul 2), la fel si cea de la cuib. |
 | `frac` | Cat din partea curenta e gata (ouale luate din val, inimile luate paznicului). |
 | `left` | Cate oua mai sunt in val sau cate inimi mai are paznicul. |
 | `kind` | `eggs`, `duel` sau `nest`. |
+| `midSeg`, `fightSeg` | Al catelea segment e lupta din mijloc (2) si cea de la cuib (4). -1 daca nu exista. Dupa ele alege `drawProgress` intre ou si inima. |
 | `u` | Progresul total intre 0 si 1. |
 
 `drawProgress` deseneaza, sub contorul de oua:
@@ -100,9 +101,10 @@ Nu apare la boss. Acolo HUD-ul arata cele trei mingi (golurile).
 ## HUD: `drawHUD(c)` si `drawBadge(c, k, x, y)`
 
 - **Insignele** din colturi: portretul eroului (pictat o data), numele, dificultatea. Daca eroul nu e jucat, scrie ce trebuie apasat ("Apasă ✕" sau tasta). Un fluture mic cand are viteza.
-- **Cardul din mijloc**: oul cu numarul de oua al echipei (oul pulseaza la o serie), cele trei stele ale nivelului (pline cand sunt luate) si soarele care coboara spre deal in `levelDuration`. La boss: trei cercuri care se umplu cu mingi la fiecare gol.
+- **Cardul din mijloc**: oul cu numarul de oua al echipei (oul pulseaza la o serie), cele trei stele ale nivelului (pline cand sunt luate) si soarele care coboara spre deal in `levelDuration`. La boss: cercuri care se umplu cu mingi la fiecare gol.
 - **Bara de progres** (de mai sus).
-- **Bannerele**: "Mai departe!" (val nou, cu sageata), "La cuib!" (cu cuib si sageata), "Oul uriaș!" (cu ou), "Provocare!" (cu numele paznicului: "Regele Gândac păzește cuibul!"). Apar si dispar lin.
+- La boss, cercurile pentru goluri sunt cate `CONFIG.boss.hits` (5). Cand sunt mai mult de 3, sunt mai mici si cardul e mai lat, ca sa nu intre peste numarul de oua. Ouale din cuibul lui Ciori scad cu fiecare gol (`9 * (1 - faza / hits)`).
+- **Bannerele**: "Mai departe!" (val nou, cu sageata), "La cuib!" (cu cuib si sageata), "Oul uriaș!" (cu ou), "Provocare!" (cu numele paznicului: "Regele Gândac păzește cuibul!" la lupta de la cuib, "Regele Gândac vă stă în cale!" la lupta din mijloc). Apar si dispar lin.
 
 `pressLabel(k)`: "Apasă ✕" pentru controller sau numele tastei de putere pentru tastatura.
 

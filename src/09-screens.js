@@ -121,7 +121,7 @@ function updateTitle(dt) {
     const s = S[k];
     if (!s.joined) { UI.seen[k] = false; UI.ready[k] = false; continue; }
     if (!UI.seen[k]) { UI.seen[k] = true; Snd.play('ok'); continue; }
-    if (s.aP && !UI.ready[k]) { UI.ready[k] = true; Snd.play('ok'); Snd.play('vYay', k, k); Input.rumble(k, 0.3, 0.6, 120); }
+    if (s.aP && !UI.ready[k]) { UI.ready[k] = true; Snd.play('ok'); Snd.talk(k, 'ready'); Input.rumble(k, 0.3, 0.6, 120); }
     if (s.back && UI.ready[k]) { UI.ready[k] = false; UI.startT = -1; }
     if (s.left || s.right) cycleDiff(k, s.left ? -1 : 1);
     if ((s.up || s.down) && Save.hasProgress()) { UI.menuSel = 1 - UI.menuSel; Snd.play('ui'); }
@@ -401,7 +401,7 @@ function pickSpeaker(k, d) {
     if (!ok) { Opt.sink[k] = ''; sp.i[k] = -1; setMsg(T('spk.fail')); return; }
     Opt.sink[k] = dev ? dev.label : ''; Save.write();
     setMsg(T('spk.ok', name, dev ? dev.label : T('set.spkMain')));
-    Snd.play('vYay', k, k); Snd.play('egg', 3, k);
+    Snd.talk(k, 'ready'); Snd.play('egg', 3, k);
   });
 }
 function captureKey(k, f) {
@@ -466,7 +466,7 @@ function updateSettings(dt) {
     return;
   }
   s.cap = '';
-  if (s.page === 'pad' && Input.joinedNow === heroOf(s.p)) { const k = heroOf(s.p); Snd.play('ok'); Snd.play('vYay', k, k); Input.rumble(k, 0.6, 0.8, 300, true); setMsg(''); }
+  if (s.page === 'pad' && Input.joinedNow === heroOf(s.p)) { const k = heroOf(s.p); Snd.play('ok'); Snd.talk(k, 'ready'); Input.rumble(k, 0.6, 0.8, 300, true); setMsg(''); }
   if (Input.pause) { closeSettings(); return; }
   if (M.back) { settingsBack(); return; }
   menuNav(s.sel, s.page, settingsRows());

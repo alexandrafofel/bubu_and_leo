@@ -148,3 +148,15 @@ Un singur ecran (1920 x 1080), fara generare intamplatoare. Samanta 4242.
 - Cuibul la (960, 300), in coroana. Baza copacului la (960, 560), un trunchi solid de raza 70 prin care mingea nu trece (`noBall`).
 - Cerul la 1.05 (apus), soarele in stanga, patru felinare, o poiana luminata in fata copacului.
 - Copacul mare este un sprite separat de 1240 x 660 (`L.treeCv`): trunchi cu dungi si 8 pete mari de coroana plus 150 de frunze. Separat ca sa se poata scutura cand Bubu tropaie.
+
+## Decorul (update 13 noiembrie 2026)
+
+`makeDecor(L, seed)` (`06-level.js`) pune pe fiecare nivel `CONFIG.decorPerLevel` (1700) lucruri mici: iarba, trifoi, margarete, stuf, paapadii, frunze, melci, buburuze, ciuperci, pietre, tufisuri, betisoare si muschi. Locul e ales la intamplare, dar fara apa, fara stanca, fara nimic solid in jur (`L.solids`, la 12 unitati) si nu langa cuib (180).
+
+Greutatea fiecarui fel este in `DECOR_WEIGHT`. Cele care reactioneaza (`DECOR_REACT`: iarba, trifoi, margarete, stuful, paapadia, frunzele) sunt aproximativ o cincime din total, ca sa nu incarce cadrul. Melcii si buburuzele se misca, deci sunt desenate live, dar doar cand sunt pe ecran.
+
+- Decorul care sta pe loc e pictat o data in imaginea nivelului (`paintDecorStill`, in `paintLevel`), inainte de umbrele pietrelor.
+- Fiecare fel are patru aspecte (`paintDecor`), puse in cache cu `sprite('dec-tip-v')`.
+- Reactiile (`updateDecor` in `07-play.js`): cand un erou sau o minge trece la mai putin de 70 de unitati, o planta scoate un mic puf de frunze sau petale (`burst`) si are o pauza de 0.7 s. La un tropait, papadiile si frunzele sar mai sus (0.9 s). Iarba face un "fsss" scurt (`rustle`), cel mult o data la 0.8 s.
+- Melcul se retrage in coaja cand un erou e la mai putin de 90 de unitati. Buburuza zboara cand e atinsa (la 60), 2.2 s, apoi se intoarce.
+- Numarul total: 6 niveluri x 1700 = 10.200 de lucruri. Testat cu `numara-elemente.js`.

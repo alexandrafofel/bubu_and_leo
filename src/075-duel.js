@@ -16,19 +16,26 @@ const DUEL_DEFS = [
   { id: 'frog',   pat: 'hop',    hops: 3, shock: 170, r: 46 },                       // level 5
   { id: 'chick',  pat: 'fly',    lobs: 3, swoops: 2, r: 40 }                         // level 6
 ];
-function startDuel() {
-  const L = P.L, def = DUEL_DEFS[L.idx % DUEL_DEFS.length];
+/* kind 'mid': the middle fight, the same as before. kind 'nest': the harder one at the nest, bigger and quicker. */
+function startDuel(kind = 'nest') {
+  const L = P.L, def = DUEL_DEFS[L.idx % DUEL_DEFS.length], hard = kind === 'nest', F = CONFIG.duel;
   let top = -1; for (let k = 0; k < 2; k++) if (Input.slots[k].joined) top = Math.max(top, rank(k)); if (top < 0) top = 1;
-  const hp = clamp((CONFIG.duel.hp[L.idx % CONFIG.duel.hp.length] || 3) + (top === 0 ? -1 : top === 2 ? 1 : 0), 2, 9);
-  const want = { x: L.nest.x - 320, y: L.nest.y - 30 };
-  const cells = L.reachCells(want.x, want.y, 0, 220, 0).sort((a, b) => dist(a.x, a.y, want.x, want.y) - dist(b.x, b.y, want.x, want.y));
+  const base = hard ? F.finalHp[L.idx % F.finalHp.length] : F.hp[L.idx % F.hp.length];
+  const hp = clamp((base || 3) + (top === 0 ? -1 : top === 2 ? 1 : 0), 2, 9);
+  const want = hard ? { x: L.nest.x - 320, y: L.nest.y - 30 } : { x: (L.spawn.x + L.nest.x) / 2, y: (L.spawn.y + L.nest.y) / 2 };
+  const sc = hard ? F.finalSize : 1;
+  const cells = L.reachCells(want.x, want.y, 0, hard ? 220 : 420, hard ? 0 : 8);
+  // the nest guardian lands as close to its spot as it can; the middle one looks for the most open place near the middle (not the river bank, not a bridge)
+  const room = c => hard ? 0 : L.reachCells(c.x, c.y, 0, 280, 0).length * 6;
+  for (const c of cells) c.w = room(c) - dist(c.x, c.y, want.x, want.y) - (!hard && L.grid[L.ci(c.x, c.y)] === 1 ? 500 : 0);   // and not in the mud
+  cells.sort((a, b) => b.w - a.w);
   const sp = cells.length ? cells[0] : want;
-  P.duel = { def, x: sp.x, y: sp.y, px: sp.x, py: sp.y, z: 700, face: -1, hp, maxHp: hp, state: 'enter', t: 0, n: 0, tx: sp.x, ty: sp.y, sx: sp.x, sy: sp.y, ex: sp.x, ey: sp.y,
+  P.duel = { def, kind, hard, sc, R: def.r * sc, x: sp.x, y: sp.y, px: sp.x, py: sp.y, z: 700, face: -1, hp, maxHp: hp, state: 'enter', t: 0, n: 0, tx: sp.x, ty: sp.y, sx: sp.x, sy: sp.y, ex: sp.x, ey: sp.y,
     dx: -1, dy: 0, kx: 0, ky: 0, len: 0, run: 0, target: -1, proj: [], shots: [], rings: [], over: false, home: sp, land: null, landed: false, threw: false, bonk: false,
     stagCd: 0, flash: 0, hintT: 0, tonkT: 0, tiredDur: 2, tStart: P.time };
-  P.banner = { kind: 'duel', t: 3.6, id: def.id };
-  Snd.play('duel'); Snd.play('caw'); Snd.music('duel'); P.crow = { x: -200, y: 300, t: 0 };
-  Voice.say(T('duel.say', T('duel.' + def.id)));
+  P.banner = { kind: 'duel', t: 3.6, id: def.id, mid: !hard };
+  Snd.play('duel'); Snd.play('caw'); Snd.music(hard ? 'duel2' : 'duel'); P.crow = { x: -200, y: 300, t: 0 };
+  Voice.say(T(hard ? 'duel.say' : 'duel.midSay', T('duel.' + def.id)));
   Input.rumble(0, 0.5, 0.5, 250); Input.rumble(1, 0.5, 0.5, 250);
 }
 /* Who the guardian goes after: the bravest player who is not hidden in the nest. */
@@ -55,7 +62,7 @@ function duelEggs(n) {
 function duelHit(k) {
   const d = P.duel, h = P.heroes[k], last = d.hp <= 1;
   d.hp--; d.flash = 0.6; P.shake = Math.max(P.shake, 0.3);
-  Snd.play('goal'); Snd.play('squeak', 1 + (d.maxHp - d.hp) * 0.1); Snd.play('vYay', k, k);
+  Snd.play('goal'); Snd.play('squeak', 1 + (d.maxHp - d.hp) * 0.1); Snd.talk(k, last ? 'guardGone' : 'guardHit');
   Input.rumble(0, 0.6, 0.8, 260); Input.rumble(1, 0.6, 0.8, 260);
   burst(d.x, d.y - 40 - d.z, 34, { speed: 320, life: 1.1, size: 10 }); burst(d.x, d.y - 40 - d.z, 14, { kind: 'petal', cols: PETALS, speed: 240, life: 1.4, g: 90 });
   duelEggs(last ? CONFIG.duel.eggsAtEnd : CONFIG.duel.eggsPerHit);
@@ -67,20 +74,20 @@ function duelHit(k) {
 function duelBall(b) {
   const d = P.duel; if (d.over || d.state === 'enter' || d.state === 'flee' || d.state === 'hurt') return;
   if (d.z > 90 && rank(1) > 0) return;                       // too high: the ball flies under it
-  if (dist(b.x, b.y, d.x, d.y - 20) > d.def.r + b.r + 12) return;
+  if (dist(b.x, b.y, d.x, d.y - 20) > d.R + b.r + 12) return;
   if (duelCanHurt(1, 'ball')) { duelHit(1); b.state = 'return'; return; }
   const dx = b.x - d.x, dy = b.y - (d.y - 20), m = Math.hypot(dx, dy) || 1, v = Math.max(360, Math.hypot(b.vx, b.vy) * 0.8);
-  b.vx = dx / m * v; b.vy = dy / m * v; b.x = d.x + dx / m * (d.def.r + b.r + 14); b.y = d.y - 20 + dy / m * (d.def.r + b.r + 14);
+  b.vx = dx / m * v; b.vy = dy / m * v; b.x = d.x + dx / m * (d.R + b.r + 14); b.y = d.y - 20 + dy / m * (d.R + b.r + 14);
   if (d.tonkT <= 0) { Snd.play('tonk'); d.tonkT = 0.15; burst(b.x, b.y - 10, 5, { speed: 120, life: 0.35, cols: ['#FFF3C0', '#C9D6E8'] }); }
   d.flash = Math.max(d.flash, 0.2); d.hintT = 1.6;
 }
 function duelStomp(h) {
   const d = P.duel, cfg = CONFIG.heroes[0];
   if (d.over || d.z > 60 || d.state === 'enter' || d.state === 'flee' || d.state === 'hurt') return;
-  if (dist(h.x, h.y, d.x, d.y) > cfg.stompRadius + d.def.r) return;
+  if (dist(h.x, h.y, d.x, d.y) > cfg.stompRadius + d.R) return;
   if (duelCanHurt(0, 'stomp')) duelHit(0);
   else if (d.stagCd <= 0 && (d.state === 'move' || d.state === 'aim')) { d.state = 'stag'; d.t = 0; d.stagCd = 4.5; Snd.play('stun'); d.hintT = 0; }   // a stomp makes it wobble: Leo's ball counts now
-  else d.hintT = 1.6;
+  else { d.hintT = 1.6; Snd.talk(h.k, 'notYet'); }
 }
 function duelLob(n, slow) {                                  // throws n pinecones: the first where the target is going, the rest around
   const d = P.duel, L = P.L, tg = d.target >= 0 ? P.heroes[d.target] : null; if (!tg) return;
@@ -110,10 +117,13 @@ function updateDuel(dt) {
   if (d.over) return;
   d.px = d.x; d.py = d.y;
   let tg = d.target >= 0 ? P.heroes[d.target] : null;
-  const rk = tg ? rank(tg.k) : 1, slow = [1.5, 1, 0.8][rk], sf = [0.6, 1, 1.25][rk], more = rk === 2 ? 1 : 0;
+  const F = d.hard ? CONFIG.duel : null, angry = d.hard && d.hp <= d.maxHp * CONFIG.duel.angryAt;
+  const rk = tg ? rank(tg.k) : 1, slow = [1.5, 1, 0.8][rk] * (F ? F.finalPrep : 1), sf = [0.6, 1, 1.25][rk] * (F ? F.finalSpeed : 1);
+  const more = (rk === 2 ? 1 : 0) + (F ? F.finalExtra + (angry ? 1 : 0) : 0);     // the nest fight: one more attack, and one more when angry
+  if (angry) P.shake = Math.max(P.shake, 0.03);                                      // an angry guardian shakes the screen a little
   const go = st => { d.state = st; d.t = 0; };
   const cycle = () => { d.target = duelFighter(); d.n = 0; d.threw = false; go('move'); };
-  const tire = () => { go('tired'); Snd.play('tired'); d.tiredDur = CONFIG.duel.tiredTime * [1.4, 1, 0.75][rk] + (d.bonk ? 0.7 : 0); d.bonk = false; let lx = d.x, ly = d.y;
+  const tire = () => { go('tired'); Snd.play('tired'); d.tiredDur = CONFIG.duel.tiredTime * [1.4, 1, 0.75][rk] * (F ? F.finalTired : 1) + (d.bonk ? 0.7 : 0); d.bonk = false; let lx = d.x, ly = d.y;
     if (def.pat === 'fly' && tg) { const ex = d.x - tg.x, ey = d.y - tg.y, em = Math.hypot(ex, ey) || 1, es = Math.min(em, 250); lx = tg.x + ex / em * es; ly = tg.y + ey / em * es; }   // a tired flyer flops down close to the fighter
     const p = duelSnap(lx, ly); d.land = p && (p.x !== d.x || p.y !== d.y) ? p : null; };
   const st = d.state;
@@ -126,7 +136,7 @@ function updateDuel(dt) {
   if (st === 'flee') {
     d.z += 380 * dt; d.x += d.face * 420 * dt; d.y -= 60 * dt;
     if (Math.random() < dt * 20) part(d.x, d.y - d.z - 30, { life: 0.6, max: 0.6, size: 8, kind: 'spark' });
-    if (d.t > 1.7) { d.over = true; Snd.music(L.def.music); openNest(); }
+    if (d.t > 1.7) { d.over = true; Snd.music(L.def.music); if (d.kind === 'nest') openNest(); else P.nextWaveT = 1.0; }   // after the middle fight the next wave comes
     return;
   }
   if (st === 'hurt') {
@@ -204,7 +214,7 @@ function updateDuel(dt) {
   }
   // touching a guardian that is on the ground and not tired hurts
   if (d.z < 40 && (d.state === 'move' || d.state === 'aim' || d.state === 'dash'))
-    for (const h of P.heroes) if (!duelSpares(h) && dist(h.x, h.y, d.x, d.y) < def.r + HERO_R - 12) hitHero(h, d.x, d.y);
+    for (const h of P.heroes) if (!duelSpares(h) && dist(h.x, h.y, d.x, d.y) < d.R + HERO_R - 12) hitHero(h, d.x, d.y);
 }
 function duelSwoop(tg) {                                     // fly in a straight line through the place where the target stands
   const d = P.duel, L = P.L, side = d.x < tg.x ? -1 : 1;
@@ -296,29 +306,24 @@ function drawDuelBoss(c) {
   if (s === 'tired') { const br = Math.sin(t * 7) * 0.05; c.scale(1 + br, 1 - br); }
   if (s === 'flee') c.globalAlpha = clamp(1.7 - d.t, 0, 1);
   else if (d.flash > 0 && Math.sin(t * 45) > 0) c.globalAlpha = 0.5;
-  c.scale(d.face, 1);
+  c.scale(d.face * d.sc, d.sc);
   DUEL_PAINT[d.def.id](c, d, t, mood);
   c.restore(); c.globalAlpha = 1;
   if (s === 'tired' || s === 'stag') drawDizzyStars(c, d.x, d.y - d.z - 112, t);
 }
-/* Things on the ground: the shelter ring, where the next attack will land, shadows. */
+/* Things on the ground during a mini-fight: where the next attack will land, shadows. (The shelter ring is in drawNestShelter.) */
 function drawDuelGround(c) {
-  const d = P.duel, L = P.L, t = P.time, pulse = 0.5 + 0.5 * Math.sin(t * 9), R = CONFIG.duel.safeRadius;
-  if (!d.over) {
-    const inside = P.heroes.some(h => h.safe);
-    c.fillStyle = rgba('#BFE3A8', inside ? 0.3 : 0.16); c.beginPath(); c.ellipse(L.nest.x, L.nest.y, R, R * 0.7, 0, 0, TAU); c.fill();
-    c.strokeStyle = rgba('#7FB06A', 0.55 + 0.25 * Math.sin(t * 3)); c.lineWidth = 7; c.setLineDash([22, 16]); c.lineDashOffset = -t * 20; c.beginPath(); c.ellipse(L.nest.x, L.nest.y, R, R * 0.7, 0, 0, TAU); c.stroke(); c.setLineDash([]);
-  }
+  const d = P.duel, L = P.L, t = P.time, pulse = 0.5 + 0.5 * Math.sin(t * 9);
   const red = a => rgba('#D9463C', a);
   if (d.state === 'aim' || d.state === 'dash' || d.state === 'jump') {
     c.lineCap = 'round';
-    if (d.def.pat === 'charge') { c.strokeStyle = red(0.14 + pulse * 0.14); c.lineWidth = d.def.r * 1.7; c.beginPath(); c.moveTo(d.x, d.y); c.lineTo(d.x + d.dx * 600, d.y + d.dy * 600); c.stroke(); }
-    else if (d.def.pat === 'fly') { c.strokeStyle = red(0.14 + pulse * 0.14); c.lineWidth = d.def.r * 1.7; c.beginPath(); c.moveTo(d.sx, d.sy); c.lineTo(d.ex, d.ey); c.stroke(); }
+    if (d.def.pat === 'charge') { c.strokeStyle = red(0.14 + pulse * 0.14); c.lineWidth = d.R * 1.7; c.beginPath(); c.moveTo(d.x, d.y); c.lineTo(d.x + d.dx * 600, d.y + d.dy * 600); c.stroke(); }
+    else if (d.def.pat === 'fly') { c.strokeStyle = red(0.14 + pulse * 0.14); c.lineWidth = d.R * 1.7; c.beginPath(); c.moveTo(d.sx, d.sy); c.lineTo(d.ex, d.ey); c.stroke(); }
     else { const r = d.def.shock; c.fillStyle = red(0.1 + pulse * 0.1); c.beginPath(); c.ellipse(d.tx, d.ty, r, r * 0.6, 0, 0, TAU); c.fill(); c.strokeStyle = red(0.5); c.lineWidth = 5; c.setLineDash([16, 12]); c.stroke(); c.setLineDash([]); }
   }
   for (const r of d.rings) { const u = r.t / 0.45, rad = r.max * easeOut(u); c.strokeStyle = rgba('#FFF3C0', (1 - u) * 0.8); c.lineWidth = 12 * (1 - u) + 2; c.beginPath(); c.ellipse(r.x, r.y, rad, rad * 0.6, 0, 0, TAU); c.stroke(); }
   drawProjWarn(c, d.proj);
-  if (!d.over) { const k = clamp(1 - d.z / 500, 0.25, 1); c.fillStyle = rgba(SHADOW, 0.24 * k); c.beginPath(); c.ellipse(d.x, d.y + 3, d.def.r * 1.1 * k, d.def.r * 0.36 * k, 0, 0, TAU); c.fill(); }
+  if (!d.over) { const k = clamp(1 - d.z / 500, 0.25, 1); c.fillStyle = rgba(SHADOW, 0.24 * k); c.beginPath(); c.ellipse(d.x, d.y + 3, d.R * 1.1 * k, d.R * 0.36 * k, 0, 0, TAU); c.fill(); }
 }
 /* Things above everything: flying guardians, thrown pinecones, leaves, hearts. */
 function drawDuelTop(c) {

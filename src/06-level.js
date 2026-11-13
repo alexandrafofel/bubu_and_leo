@@ -362,10 +362,85 @@ function genLevel(idx, seed) {
   }
   for (let i = 0; i < G.length; i++) if (G[i] === 2) L.waterCells.push(i);
   L.reachCells = reachCells; L.ci = ci; L.pathDist = pathDist;
+  L.decor = makeDecor(L, L.seed);
   return L;
 }
 
 /* ---------------- painting ---------------- */
+/* ---------- decor: the small things of the meadow (update U6) ----------
+   Every level has about CONFIG.decorPerLevel of them: grass, clover, daisies, reeds, dandelions,
+   leaves, snails, ladybugs, mushrooms, pebbles, bushes, twigs, moss. All of them are painted once
+   into the level picture (L.bg). Grass, clover, daisies, reeds, dandelions and leaves react with
+   small puffs of leaves, petals or seeds and a rustle (updateDecor). Snails and ladybugs move, so
+   they are drawn live every frame, but only the ones on screen. Nothing here blocks a hero. */
+const DECOR_WEIGHT = { grass: 6, clover: 2, daisy: 3, reed: 1, dandelion: 2, leaf: 2, snail: 1, ladybug: 1, mushroom: 14, pebble: 18, bush: 12, twig: 12, moss: 12 };   // reacting kinds are about a fifth: they are drawn every frame
+const DECOR_REACT = { grass: 'puff', clover: 'puff', daisy: 'puff', reed: 'puff', dandelion: 'puff', leaf: 'puff', snail: 'hide', ladybug: 'fly' };
+function makeDecor(L, seed) {
+  const r = rng(seed + 555), out = [], types = Object.keys(DECOR_WEIGHT), total = types.reduce((a, t) => a + DECOR_WEIGHT[t], 0);
+  const pickType = () => { let x = r() * total; for (const t of types) { x -= DECOR_WEIGHT[t]; if (x < 0) return t; } return types[0]; };
+  let tries = 0;
+  while (out.length < CONFIG.decorPerLevel && tries++ < CONFIG.decorPerLevel * 8) {
+    const x = r() * L.W, y = lerp(L.top + 30, L.H - 24, r());
+    const g = L.grid[L.ci(x, y)]; if (g === 2 || g === 3) continue;                    // no decor in water or on the cliff
+    if (dist(x, y, L.nest.x, L.nest.y) < 180) continue;
+    let bad = false; for (const s of L.solids) if (dist(x, y, s.x, s.y) < s.r + 12) { bad = true; break; }
+    if (bad) continue;
+    const type = pickType();
+    out.push({ type, x, y, s: 0.8 + r() * 0.45, rot: (r() - 0.5) * 0.5, v: r() * 4 | 0, react: !!DECOR_REACT[type], live: type === 'snail' || type === 'ladybug', cool: 0, hide: 0, flyT: 0 });
+  }
+  return out;
+}
+/* One picture of a kind of decor, drawn once and cached. v = which of the 4 looks it has. */
+function paintDecor(cc, type, v, seed) {
+  const r = rng(seed * 31 + v * 7919 + type.length * 13), pick = a => a[Math.floor(r() * a.length)];
+  const GREEN = ['#8BB36B', '#6FA35E', '#A4C77A', '#7FA65C'], SH = a => rgba(SHADOW, a);
+  if (type === 'grass') {
+    for (let i = 0; i < 5; i++) { const x = 48 + (i - 2) * 7 + (r() - 0.5) * 4, h = 26 + r() * 22, lean = (r() - 0.5) * 16; cc.strokeStyle = rgba(pick(GREEN), 0.92); cc.lineWidth = 3.2; cc.lineCap = 'round'; cc.beginPath(); cc.moveTo(x, 80); cc.quadraticCurveTo(x + lean * 0.3, 80 - h * 0.6, x + lean, 80 - h); cc.stroke(); }
+  } else if (type === 'clover') {
+    for (let i = 0; i < 3; i++) { const a = i / 3 * TAU - 1.5; wash(cc, 48 + Math.cos(a) * 9, 72 + Math.sin(a) * 5, 9, 7, pick(GREEN), { a: 0.9, seed: v * 5 + i, edge: 1 }); }
+    cc.strokeStyle = rgba('#6FA35E', 0.8); cc.lineWidth = 2; cc.beginPath(); cc.moveTo(48, 78); cc.lineTo(46, 88); cc.stroke();
+  } else if (type === 'daisy') {
+    for (let i = 0; i < 7; i++) { const a = i / 7 * TAU; wash(cc, 48 + Math.cos(a) * 11, 66 + Math.sin(a) * 9, 6, 4, '#FFF8EA', { a: 0.95, seed: i + v, edge: 1 }); }
+    wash(cc, 48, 66, 4.5, 4.5, PETALS[v % PETALS.length] === '#FBE3BA' ? '#F6C63C' : '#F6C63C', { a: 0.95, seed: v, edge: 0 });
+    cc.strokeStyle = rgba('#6FA35E', 0.85); cc.lineWidth = 2.2; cc.beginPath(); cc.moveTo(48, 72); cc.lineTo(47, 88); cc.stroke();
+  } else if (type === 'reed') {
+    for (let i = 0; i < 3; i++) { const x = 40 + i * 8 + (r() - 0.5) * 3, h = 40 + r() * 16; cc.strokeStyle = rgba('#8DAA6A', 0.95); cc.lineWidth = 2.6; cc.beginPath(); cc.moveTo(x, 84); cc.lineTo(x + (r() - 0.5) * 4, 84 - h); cc.stroke(); wash(cc, x, 84 - h, 3, 6, '#9C6A46', { a: 0.9, seed: i + v, edge: 0 }); }
+  } else if (type === 'dandelion') {
+    cc.strokeStyle = rgba('#8DAA6A', 0.9); cc.lineWidth = 2; cc.beginPath(); cc.moveTo(48, 86); cc.lineTo(48, 42); cc.stroke();
+    for (let i = 0; i < 12; i++) { const a = r() * TAU, d = r() * 11; wash(cc, 48 + Math.cos(a) * d, 36 + Math.sin(a) * d, 3, 3, '#FFF8EA', { a: 0.9, seed: i + v, edge: 1 }); }
+  } else if (type === 'leaf') {
+    wash(cc, 48, 70, 17, 9, pick(['#D9913A', '#C96F4E', '#E2A04F']), { a: 0.95, seed: v + 3, edge: 1 });
+    cc.strokeStyle = rgba('#FBE3BA', 0.7); cc.lineWidth = 1.6; cc.beginPath(); cc.moveTo(34, 72); cc.lineTo(62, 68); cc.stroke();
+  } else if (type === 'snail') {
+    wash(cc, 46, 75, 17, 6, '#E9C9A0', { a: 0.95, seed: v + 1, edge: 1 });
+    wash(cc, 52, 66, 11, 10, '#B98A5A', { a: 0.95, seed: v + 2, edge: 1 });
+    cc.strokeStyle = SH(0.6); cc.lineWidth = 1.6; cc.beginPath(); cc.arc(52, 66, 5, 0, TAU * 0.8); cc.stroke(); cc.beginPath(); cc.arc(52, 66, 2, 0, TAU * 0.9); cc.stroke();
+  } else if (type === 'ladybug') {
+    wash(cc, 48, 72, 18, 10, '#79A866', { a: 0.95, seed: v + 4, edge: 1 });
+    wash(cc, 50, 63, 7, 6, '#D9463C', { a: 0.95, seed: v + 5, edge: 0 });
+    for (let i = 0; i < 3; i++) soft(cc, 47 + i * 3, 61 + (i % 2) * 4, 1.2, 1.2, SHADOW, 0.85, i + v);
+    soft(cc, 54, 56, 2.2, 2.2, SHADOW, 0.9, v);
+  } else if (type === 'mushroom') {
+    cc.fillStyle = rgba('#F3E2C0', 0.95); cc.fillRect(42, 66, 12, 16);
+    wash(cc, 48, 62, 17, 11, pick(['#E9703C', '#D9463C', '#E7A6A1']), { a: 0.95, seed: v + 6, edge: 1 });
+    for (let i = 0; i < 4; i++) wash(cc, 42 + i * 4 + (r() - 0.5) * 3, 58 + (r() - 0.5) * 6, 2.2, 2.2, '#FFF8EA', { a: 0.9, seed: i + v, edge: 0 });
+  } else if (type === 'pebble') {
+    wash(cc, 48, 74, 15, 9, pick(['#D8B7A0', '#CFA89A', '#E0C9B0']), { a: 0.95, seed: v + 7, edge: 1 });
+    wash(cc, 46, 79, 11, 3.5, SHADOW, { a: 0.3, seed: v + 8, edge: 0 });
+  } else if (type === 'bush') {
+    for (let i = 0; i < 5; i++) wash(cc, 36 + r() * 26, 60 + r() * 22, 10 + r() * 7, 7 + r() * 5, pick(GREEN), { a: 0.9, seed: i + v * 3, edge: 1 });
+  } else if (type === 'twig') {
+    cc.strokeStyle = rgba('#9C6A46', 0.95); cc.lineWidth = 4; cc.lineCap = 'round'; cc.beginPath(); cc.moveTo(30, 78); cc.lineTo(68, 70); cc.stroke();
+    cc.lineWidth = 2.5; cc.beginPath(); cc.moveTo(50, 74); cc.lineTo(58, 60); cc.stroke();
+  } else if (type === 'moss') {
+    for (let i = 0; i < 4; i++) wash(cc, 34 + i * 9 + (r() - 0.5) * 4, 76 + (r() - 0.5) * 4, 7, 4, pick(GREEN), { a: 0.9, seed: i + v * 2, edge: 1 });
+  }
+}
+const decorSprite = (type, v) => sprite('dec-' + type + '-' + v, 96, 96, cc => paintDecor(cc, type, v, 7));
+function paintDecorStill(c, L) {                          // all the decor that stays put goes into the level picture, once
+  for (const d of L.decor) if (!d.live) { c.save(); c.translate(d.x, d.y); c.rotate(d.rot); c.scale(d.s, d.s); c.drawImage(decorSprite(d.type, d.v), -48, -56, 96, 96); c.restore(); }
+}
+
 function paintTree(c, t, P, ox, oy) {
   const x = t.x - (ox || 0), y = t.y - (oy || 0), R = t.R, col = P.canopy[t.ci], r = rng(t.seed * 13 + 1);
   wash(c, x, y + R * 0.8, R * 0.17, R * 0.42, P.trunk, { a: 1, seed: t.seed, wob: 0.14, layers: 2 });
@@ -516,6 +591,7 @@ function paintLevel(L) {
     wash(c, x - 4, y - 10, 2.5, 2, '#FFF6E0', { a: 0.9, seed: i, layers: 1, edge: 0 }); wash(c, x + 5, y - 8, 2, 1.8, '#FFF6E0', { a: 0.9, seed: i, layers: 1, edge: 0 });
   }
   // long warm shadows, then everything solid
+  paintDecorStill(c, L);
   for (const s of L.solids) wash(c, s.x - s.r * 0.5 * sl, s.y + s.r * 0.42, s.r * 1.08 * sl, s.r * 0.62, SHADOW, { a: 0.3, seed: s.seed, wob: 0.18, edge: 0 });
   drawNest(c, L.nest.x, L.nest.y, 120, 17, 0);
   for (const s of L.solids) { if (s.kind === 'rock') paintRock(c, s.x, s.y, s.r, P.rock, s.seed); else if (s.kind === 'hay') paintHay(c, s.x, s.y, s.r, s.seed); }

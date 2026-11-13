@@ -4,7 +4,7 @@ Adaugate in al doilea update. Cererea: "sa existe niste challenge-uri la fiecare
 
 ## Ideea
 
-Dupa ultimul val de oua, un prieten al lui Ciori aterizeaza langa cuib si il pazeste. Lupta are un ritm simplu, la fel la toti paznicii:
+Pe fiecare nivel sunt doua lupte, cu acelasi paznic (ca la inceput): una la mijlocul drumului si una la cuib, mai grea (vezi "Doua lupte pe nivel" mai jos). Lupta are un ritm simplu, la fel la toti paznicii:
 
 1. **Pregatire** (`aim`): paznicul tremura si pe pamant apare in rosu unde va ataca. Sunet de avertizare.
 2. **Atac** (`dash`, `jump` sau `lob`): fuge, sare sau arunca.
@@ -61,10 +61,11 @@ Ce se intampla cand lovitura nu conteaza:
 ## Inimile
 
 ```
-inimi = CONFIG.duel.hp[nivel] + (-1 daca cel mai greu jucator e pe Ușor, +1 daca e pe Greu), minim 2, maxim 9
+inimi = CONFIG.duel.hp[nivel] + (-1 daca cel mai greu jucator e pe Ușor, +1 daca e pe Greu), minim 2, maxim 9      (lupta din mijloc)
+inimi = CONFIG.duel.finalHp[nivel] + acelasi reglaj                                                             (lupta de la cuib)
 ```
 
-Cu valorile de acum (`[3, 3, 4, 4, 4, 5]`), un copil pe Normal are 3 pana la 5 lovituri de dat.
+Cu valorile de acum (`[3, 3, 4, 4, 4, 5]`), un copil pe Normal are 3 pana la 5 lovituri de dat in lupta din mijloc, si `[5, 5, 6, 6, 7, 8]` la cuib.
 
 `duelHit(k)`: o inima mai putin, paznicul e aruncat inapoi (`hurt`, 1.1 s), "goal", "squeak", "iu-huu", vibratie la ambii, 4 oua sar in jur (8 la ultima lovitura). Ouale cad doar in celule atinse (`reachCells`), la 90 pana la 330 de unitati.
 
@@ -82,11 +83,44 @@ Valorile depind de dificultatea tintei (`rk`):
 | Timpul obosit (`tiredTime` x) | 1.4 | 1 | 0.75 |
 | Mingea trece pe sub un paznic zburator | nu | da | da |
 
+## Doua lupte pe nivel
+
+Ordinea pe nivel (`checkWave()` in `07-play.js`):
+
+1. valul 1, valul 2;
+2. **lupta din mijloc**, dupa valul 2 (`P.midFought`), exact ca lupta de dinainte, cu `CONFIG.duel.hp`. Paznicul aterizeaza aproape de mijlocul dintre start si cuib (`startDuel('mid')`): dintre celulele la care se poate ajunge, la cel mult 420 de mijloc, o alege pe cea cu cel mai mult loc liber in jur, nu pe pod si nu in noroi. Asa nu ajunge pe malul raului pe nivelurile 3 si 5. Bannerul spune "Racul Cleștișor vă stă în cale!" (`duel.mid`), iar vocea nu mai pomeneste cuibul (`duel.midSay`). Dupa ea urmeaza valul 3 (`P.nextWaveT`);
+3. valul 3;
+4. **lupta de la cuib** (`startDuel('nest')`, `P.nestFought`). Acelasi paznic, dar:
+   - `d.hard = true`, `d.sc = CONFIG.duel.finalSize` (1.3): desenat si lovit mai mare, `d.R = def.r * sc`;
+   - inimi din `CONFIG.duel.finalHp`;
+   - viteza x `finalSpeed`, avertizarea mai scurta x `finalPrep`, oboseala mai scurta x `finalTired`;
+   - un atac in plus la fiecare runda (`finalExtra`), inca unul cand e suparat (sub `angryAt` din inimi). Cand e suparat, ecranul tremura putin (`P.shake` 0.03);
+   - muzica e aceeasi melodie, mai repede (`duel2`, 116 batai pe minut in loc de 104);
+5. cuibul se deschide (`openNest()`).
+
+Dupa lupta din mijloc nu se deschide cuibul: `flee` pune `P.nextWaveT = 1.0`.
+
 ## Adapostul
 
-Un cerc verde punctat in jurul cuibului (raza `CONFIG.duel.safeRadius`, 150), care se misca usor. Cand un erou e inauntru, cercul devine mai luminos, eroul are un inel verde si spune "ih-ih". In adapost nu bate nici vantul.
+Un cerc verde punctat in jurul cuibului, raza `CONFIG.nestSafeRadius` (150). Din update-ul 13 noiembrie 2026 este pe tot nivelul, nu doar in mini-lupte, si se deseneaza mereu (`drawNestShelter(c)` in `08-draw.js`):
 
-Adapostul exista doar in timpul mini-luptei. Update-ul urmator cere ca el sa functioneze mereu (vezi `20-update-urmator.md`).
+- afara din mini-lupta, cercul e mai discret (alpha x 0.35 si x 0.6 pentru umplere);
+- cand un erou e inauntru, umplerea e mai luminoasa;
+- in mini-lupta, cercul e complet.
+
+Ce face adapostul pentru un erou aflat in cuib (`h.safe`, calculat in `updateHero`):
+
+- `hitHero` iese fara efect (nu pierde oua, nu ameteste, nu are invulnerabilitate);
+- vantul nu-l mai impinge (`P.wind` ignorat);
+- gandacii care il urmaresc se opresc (`near.safe` ii trimite inapoi, nu se trezesc pentru el), iar conurile trec pe langa el fara efect;
+- paznicii il ignora (`duelSpares`), iar pe Ușor eroul care doar ajuta e scutit;
+- sunetul "ih-ih" (`Snd.talk(h.k, 'hide')`) se aude la intrare, cel mult o data la `nestHideSoundGap` (3 s).
+
+Nivelul boss-ului: cuibul lui Ciori e in copac, unde eroii nu ajung. Nu s-a pus un cuib pe jos (raspunsul la intrebarea I1). Pe acest nivel `h.safe` e mereu fals si cercul nu se deseneaza (`L.boss`).
+
+Daca toti jucatorii stau in cuib, paznicul nu are pe cine ataca (`duelFighter()` intoarce -1): se duce la locul lui si asteapta. Nu oboseste, deci nu poate fi lovit. Lupta inainteaza abia cand cineva iese din cuib.
+
+Masurat cu `mini-lupte-bot.js` (72 de lupte, toate castigate): lupta din mijloc dureaza in medie 27 s, cea de la cuib 53 s. Pe niveluri, cea de la cuib e de 1.5 pana la 2.5 ori mai lunga.
 
 ## Sageata ajutatoare in lupta
 

@@ -59,9 +59,9 @@ In pagina, `window.__game` (din `src/10-main.js`) da acces la tot: `Game`, `Inpu
 | `pauza-setari-engleza.js` | Pauza, Setari din pauza, limba engleza in timpul jocului, schimbarea personajelor in timpul jocului. Capturi `q_*.png`. | `errors 0`. |
 | `capturi-ecran.js` | Capturi `p_*.png` cu bara de progres, sageata, fiecare paznic in fiecare stare, cuibul deschis, finalul de nivel cu medalii, povestea in engleza, pauza. | Verificate cu ochiul. |
 | `sunete-volum.js` | Porneste fiecare efect sonor, fiecare voce a personajelor, muzica si ambientul, si masoara varful semnalului la iesire. | Niciun sunet peste 0.7. Vocile intre 0.06 si 0.11 (inainte de cresterea x2.1). Muzica 0.16 pana la 0.20. |
-| `performanta.js` | Timpul mediu pe cadru, cu si fara cele doua desene pe tot ecranul. | 10.9 ms pe cadru, 4.3 ms fara cele doua desene mari. |
-| `performanta-lupta.js` | Timpul pe cadru in timpul unei mini-lupte. | 13.4 ms medie, 27 ms maxim. |
-| `numara-elemente.js` | Numara obiectele din fiecare nivel. Baza pentru cerinta "minim 10.000 de elemente" din update-ul urmator. | 1230 de obiecte in total (vezi `20-update-urmator.md`). |
+| `performanta.js` | Timpul mediu pe cadru, cu si fara cele doua desene pe tot ecranul. | 23.1 ms pe cadru, 6.7 ms fara cele doua desene mari. Versiunea dinainte de update, masurata in aceeasi zi pe aceeasi masina: 21.6 si 4.8 ms. Cifra veche din acest tabel (10.9 ms) era de pe o masina mai rapida. |
+| `performanta-lupta.js` | Timpul pe cadru in timpul unei mini-lupte. | 20.9 ms medie, 31.1 ms maxim (lupta de la cuib, aceeasi masina ca mai sus). |
+| `numara-elemente.js` | Numara obiectele din fiecare nivel. Baza pentru cerinta "minim 10.000 de elemente" din update-ul urmator. | 11.430 de obiecte in total, peste 10.000: OK (decorul e 1700 pe nivel, 10.200 din total). |
 
 ### Despre timpii masurati
 
@@ -81,3 +81,15 @@ Vezi `19-limitari.md`. Pe scurt: controllere reale, vibratia reala, sunetul ascu
 2. Pune un comentariu pe prima linie: ce verifica.
 3. Termina cu `await done()`, ca sa apara `errors N`.
 4. Adauga-l in tabelul de mai sus.
+
+Teste noi din update-ul 13 noiembrie 2026:
+
+| Test | Ce verifica | Rezultat |
+|---|---|---|
+| `cuib-adapost.js` | Cuibul protejeaza un erou: nu pierde oua, nu e impins de vant, nu e lovit. | OK |
+| `mingi-leo.js` | Sutul lui Leo trage 8 sau 12 mingi in cerc, le cheama inapoi, are cooldown. | OK |
+| `sunete-personaje.js` | 30 de cuvinte distincte per personaj, varfuri de volum in limita. Ruleaza ~2 min. | OK, varfuri intre 0.07 si 0.32. |
+| `ordine-nivel.js` | Ordinea pe nivel si pe bara de progres: val 1, val 2, lupta din mijloc, val 3, lupta de la cuib, cuib. Bannerul luptei din mijloc. | OK |
+| `mini-lupte-bot.js` (schimbat) | Joaca acum ambele lupte pe fiecare nivel, in 6 feluri: 72 de lupte. Scrie `mini-lupte OK` sau `NEREUSIT`. Al doilea argument alege lupta: `node tests/mini-lupte-bot.js 0,1 mid`. | 72 din 72 castigate. |
+
+Testele de sunet (`sunete-volum.js`, `sunete-personaje.js`) se ruleaza singure. Pornite in acelasi timp cu alte teste, masoara varfuri gresite si pot pica fara motiv.

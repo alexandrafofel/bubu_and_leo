@@ -60,7 +60,7 @@ Jucatorii pot schimba personajele intre ei (△ pe ecranul de start sau din Seta
 | 4 | Dealul Morilor | Windmill Hill | Vant, mori de vant | Vârtejel (sare si imprastie frunze) |
 | 5 | Cascada Secretă | The Secret Waterfall | Cascada, pestera ascunsa cu oul urias | Broscoiul Oac (sare de trei ori) |
 | 6 | Drumul Apusului | Sunset Road | Felinare care se aprind, totul la apus | Ciorel, nepotul lui Ciori (zboara si arunca) |
-| Final | Cuibul lui Ciori | Ciori's Nest | Boss-ul: Bubu scutura copacul, Leo suteaza in cuib de trei ori | |
+| Final | Cuibul lui Ciori | Ciori's Nest | Boss-ul: Bubu scutura copacul, Leo suteaza in cuib de cinci ori | |
 
 Dupa boss urmeaza Festivalul Apusului: felinare, artificii, oul care ecloseaza si scorul echipei.
 

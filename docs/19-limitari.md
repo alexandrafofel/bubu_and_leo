@@ -13,7 +13,7 @@ Tot jocul a fost facut si testat intr-un mediu Linux, cu Chrome fara fereastra. 
 | Sunetul in difuzorul controllerului | Ca alegerea difuzorului (`AudioContext.setSinkId`) porneste fara erori. | Daca Mac-ul vede DualShock 4 ca difuzor. Surse publice spun ca merge doar prin cablu USB, nu prin Bluetooth. |
 | Vocea care citeste povestea | Ca jocul alege o voce `ro-RO` sau `en-*` daca exista. In mediul de test nu exista, deci apare "Fără voce în română". | Ca vocea Ioana (romana) exista pe Mac si se aude. Se adauga din Setari sistem, Accesibilitate, Continut vorbit. |
 | Cum suna | Ca fiecare sunet porneste si varful nu depaseste 0.7. | Ca sunetele sunt placute, nu prea tari, nu prea incete. Nimeni nu le-a ascultat. |
-| Viteza pe Mac | 10.9 ms pe cadru fara placa video. | Pe Mac ar trebui sa fie mult sub 16.7 ms. Daca sacadeaza: `maxRenderWidth` 1600 sau 1280. |
+| Viteza pe Mac | Fara placa video, pe aceeasi masina: 23.1 ms pe cadru dupa update, 21.6 ms inainte. Update-ul costa aproximativ 1.5 ms. | Pe Mac ar trebui sa fie mult sub 16.7 ms. Daca sacadeaza: `maxRenderWidth` 1600 sau 1280, apoi `decorPerLevel` mai mic. |
 | Timpul de joc | Botii termina un nivel in 1 pana la 2 minute. | Cat dureaza pentru copii. Tinta este 6 minute pe nivel si aproximativ 45 de minute in total. |
 | Textele in romana | Scrise de Claude, verificate pentru diacritice. | Citite de un vorbitor nativ, mai ales povestile nivelurilor si textele pentru copii. |
 
@@ -26,6 +26,18 @@ Tot jocul a fost facut si testat intr-un mediu Linux, cu Chrome fara fereastra. 
 - Salvarea este in browserul de pe acel Mac (`localStorage`). Alt browser sau alt calculator nu o vede. Stergerea datelor din Chrome o sterge.
 - "Ecran complet: Da" in Setari arata starea reala a ecranului. Daca utilizatorul iese cu Esc, setarea devine "Nu".
 - Documentatia descrie fiecare fisier, functie, valoare de reglaj, culoare, text, sunet si decizie. Nu are cate un rand de explicatie pentru fiecare linie de cod. Codul are comentarii la fiecare bloc si fiecare valoare neobisnuita.
+
+## Update-ul din 13 noiembrie 2026: ce nu e verificat sau nu e facut
+
+- Limba personajelor (60 de cuvinte) nu a fost ascultata de nimeni. Testul verifica doar ca fiecare cuvant porneste, ca sunt diferite si ca nu sunt prea tari.
+- Lupta de la cuib e grea pentru boti pe ultimele niveluri: pe nivelul 6 dureaza in medie 104 s si eroii sunt loviti de 14 ori (lupta din mijloc: 48 s, 6 lovituri). Nu se stie cum e pentru copii. Reglaj: `duel.finalHp`, `finalSpeed`, `finalExtra`.
+- Daca toti jucatorii stau in cuib in timpul unei lupte, paznicul asteapta si lupta nu inainteaza. E intentionat (altfel s-ar castiga stand ascuns), dar un copil singur poate sa nu inteleaga. Nu exista un indiciu pe ecran pentru asta.
+- Ciori arunca 1 con in prima runda, 2 in rundele 2 si 3, 3 in ultimele doua. Cererea spunea "doua conuri deodata in ultimele 2 runde". Versiunea veche arunca deja 3 in ultima runda. De confirmat.
+- Din specificatie nu s-au facut: optiunea "Personajele vorbesc" in Setari (exista doar `CONFIG.babble`); decor diferit pe fiecare nivel (broscute, spice, lampioane mici, scaieti, gaze); coroana si culoarea mai calda pentru paznicul de la cuib (e doar mai mare si scutura putin ecranul cand e suparat); conurile care ricoseaza din marginea cuibului (trec pe langa erou fara efect).
+- Aproximativ o cincime din decor reactioneaza (iarba, trifoi, margarete, stuf, papadii, frunze, melci, buburuze). Restul (ciuperci, pietricele, tufisuri, betisoare, muschi) e pictat in fundal.
+- Tinta de 14 ms pe cadru fara placa video nu e atinsa. Nu era atinsa nici inainte pe masina de test de acum (21.6 ms).
+- `voc()` din `03-audio.js` foloseste o unda `sawtooth` trecuta printr-un filtru, pentru sunetele paznicilor. Exista dinainte de update. Regula 5 din `CLAUDE.md` cere sinus si triunghi. De ascultat si, daca e aspru, de schimbat in `triangle`.
+- Captura `05-paznici-ataca.jpg` e din versiunea dinainte de decor.
 
 ## Cereri ambigue, asteptand confirmare
 

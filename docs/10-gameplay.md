@@ -57,7 +57,7 @@ Functii ajutatoare:
 
 1. Scad toti timpii.
 2. Daca nimeni nu joaca eroul (`!joined`), el merge singur dupa prieten, la 85 de unitati in spatele lui. La boss face singur treaba lui: Bubu tropaie langa copac, Leo suteaza cand Ciori e jos. Asa un copil poate juca singur.
-3. Calculeaza `safe`: in timpul unei mini-lupte, mai aproape de cuib decat `CONFIG.duel.safeRadius`.
+3. Calculeaza `safe`: eroul e in cuib daca e mai aproape de centrul cuibului decat `CONFIG.nestSafeRadius` (150). Asta e valabil pe tot nivelul (vezi `CONFIG.nestSafe`). Detaliile sunt in `11-mini-lupte.md`, la "Adapostul".
 4. Viteza: `speed` x 0.45 in noroi, x 1.5 cu fluture, x 0.2 ametit, x 0.65 cat incarca sutul, x 0.35 in timpul tropaitului.
 5. Accelereaza lin spre directia dorita (12 pe secunda: aproape imediat, dar fara smucituri). Un stick putin inclinat inca da 45% din viteza (`0.45 + 0.55 * m`).
 6. Vantul il impinge (nu si cand e in adapost).
@@ -86,11 +86,16 @@ La ✕ (daca nu e in pauza de 0.7 s si nu e ametit): Bubu sare 0.2 s (`z` pana l
 
 - Apasare: incepe incarcarea. Un cerc albastru deasupra lui Leo se umple, sageata de tintire creste si trece de la galben la portocaliu.
 - Eliberare (sau dupa 1.2 s tinut la maxim): `kickBall(h, putere, ax, ay)`. Sub 0.22 conteaza ca sut scurt.
-- Pe Ușor, `aimAssist` indreapta mingea spre cea mai buna tinta aflata la cel mult aproximativ 37 de grade de directia tintita, la 50 pana la 640 de unitati.
-- Mingea: viteza intre 760 si 1400, sare de pereti si obstacole (pierde 10% la fiecare saritura), incetineste usor, se intoarce singura dupa `ballLife` sau cand e prea lenta. A doua apasare pe ✕ cat zboara o cheama inapoi.
-- Ce face mingea in zbor (`updateBall`): impinge gandacii si ii ameteste, sparge conurile, ia ouale si stelele atinse, scutura copacii (un sut peste 0.55 scoate steaua ascunsa), loveste paznicul sau intra in cuibul lui Ciori.
+- **Un sut trimite mai multe mingi, in cerc.** Numarul: `ballsPerKick` (8) la sut scurt, `ballsPerKickMax` (12) la sut incarcat, intre ele in functie de putere. Mingile pleaca la unghiuri egale (`i / n * TAU`), iar prima merge spre directia stick-ului. Puterea merge in toate directiile.
+- Fiecare minge are propria viata: `newBall(...)` o face, iar `stepFlyBall(b, dt, h)` o misca si o intoarce. Ea se intoarce la Leo si dispare cand ajunge la el (`m < 40`).
+- Viteza intre 760 si 1400 (x `ballSpeed` pe Ușor), sare de pereti si obstacole (pierde 10% la fiecare saritura), incetineste usor, se intoarce singura dupa `ballLife` sau cand e prea lenta. Pe Ușor mingea e mai mare (x `ballSize` 1.3).
+- **Cooldown si chemare.** Dupa un sut, `P.ballCool` = 1.2 s (`kickCooldown`). Cat timp mingile zboara si cooldown-ul merge, o apasare ✕ le cheama pe toate inapoi (`recallBalls()`). Dupa cooldown, o apasare trage un sut nou; mingile vechi zboara mai departe. Cand toate sunt acasa, `P.ball.state` devine `held` si Leo poate incarca iar.
+- `P.ball` este mingea de acasa (cea care sta la picioarele lui Leo). `P.flock` este lista mingilor din aer.
+- Ajutorul la tintire (`aimAssist`) a fost scos, impreuna cu valoarea lui din `difficulty`.
+- Ce face fiecare minge in zbor (`stepFlyBall`): impinge gandacii si ii ameteste, sparge conurile, ia ouale si stelele atinse, scutura copacii (un sut peste 0.55 scoate steaua ascunsa), loveste paznicul sau intra in cuibul lui Ciori.
+- Un ricoseu pe perete face sunetul `bounce` cel mult o data la 0.33 s, pentru toate mingile la un loc.
 
-Mingea se misca in pasi mici (maximum 11 unitati pe pas) ca sa nu treaca prin pereti la viteza mare.
+Fiecare minge se misca in pasi mici (maximum 11 unitati pe pas) ca sa nu treaca prin pereti la viteza mare.
 
 ## Ouale
 
@@ -169,14 +174,14 @@ Pe nivelul 6, un felinar se aprinde (cu un clopotel) cand un erou trece la sub 2
 ## Boss-ul: `updateBoss(dt)`, `bossBall(b)`
 
 ```
-up ──(destule tropaituri langa copac)──> falling (0.8 s) ──> down (7 s) ──> rising (1.1 s) ──> up
+up ──(destule tropaituri langa copac)──> falling (0.8 s) ──> down (5 s) ──> rising (1.1 s) ──> up
                                                               │
                                                     minge in cuib
                                                               v
                                        phase + 1 ── daca phase = 3 ──> won
 ```
 
-- `up`: Ciori sta in cuib si arunca conuri spre eroi la `throwEvery` secunde. Conurile tintesc unde va fi eroul (pozitia + viteza x 0.5). Pe pamant apare un cerc rosu unde vor cadea.
+- `up`: Ciori sta in cuib si arunca conuri spre eroi la `throwEvery` secunde (update 13 noiembrie: `[3, 2.5, 2.1, 1.8, 1.6]`). Cate un con in prima runda, doua din runda a doua, si inca unul in ultimele doua runde (`1 + min(1, faza) + (faza >= hits - 2 ? 1 : 0)`). Conurile tintesc unde va fi eroul (pozitia + viteza x 0.5). Pe pamant apare un cerc rosu unde vor cadea.
 - Mingea in cuib cat e `up`: Ciori o respinge cu aripa (ricoseaza).
 - `down`: Ciori ametit langa copac. Cuibul are un cerc galben-albastru. Mingea in cuib = gol: tremur, vibratie, 8 oua sar din cuib.
 - Dupa 3 goluri: muzica de final, Ciori zboara in fata, spune "Îmi pare rău!" (cu voce si pe un card). Dupa 3.5 s ✕ trece la festival (sau singur dupa 9 s).

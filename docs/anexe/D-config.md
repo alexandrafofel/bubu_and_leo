@@ -25,9 +25,13 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `heroes.1.kickSpeed` | `760` | quick tap on the button |
 | `heroes.1.kickSpeedMax` | `1400` | fully charged kick (hold the button) |
 | `heroes.1.chargeTime` | `0.9` | seconds to hold for a full kick |
-| `heroes.1.ballLife` | `2.3` | seconds the ball flies after a tap |
+| `heroes.1.ballsPerKick` | `8` | balls per tap, spread evenly around a circle (all directions) |
+| `heroes.1.ballsPerKickMax` | `12` | balls per fully charged kick |
+| `heroes.1.kickCooldown` | `1.2` | seconds before a new kick while the balls are still flying (pressing again then calls them back) |
+| `heroes.1.ballLife` | `2.3` | seconds the balls fly after a tap |
 | `heroes.1.ballLifeMax` | `3.8` | seconds after a full kick |
 | `levels` | `6` | levels before the boss (1 to 6) |
+| `decorPerLevel` | `1700` | small meadow things per level (grass, daisies, pebbles...). 6 x 1700 = 10,200 with the rest |
 | `levelDuration` | `360` | target seconds per level. Egg count scales with it. |
 | `eggsPerMinute` | `10` | eggs per level = levelDuration / 60 * eggsPerMinute |
 | `wavesPerLevel` | `3` | eggs appear in this many groups, left to right |
@@ -38,21 +42,27 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `difficulty.easy.dizzyTime` | `1` |  |
 | `difficulty.easy.wakeRadius` | `0.75` |  |
 | `difficulty.easy.wind` | `0.5` |  |
-| `difficulty.easy.aimAssist` | `true` |  |
+| `difficulty.easy.ballSize` | `1.3` |  |
+| `difficulty.easy.ballSpeed` | `0.85` |  |
 | `difficulty.normal.enemySpeed` | `1` |  |
 | `difficulty.normal.pickupRadius` | `64` |  |
 | `difficulty.normal.dizzyTime` | `2` |  |
 | `difficulty.normal.wakeRadius` | `1` |  |
 | `difficulty.normal.wind` | `1` |  |
-| `difficulty.normal.aimAssist` | `false` |  |
+| `difficulty.normal.ballSize` | `1` |  |
+| `difficulty.normal.ballSpeed` | `1` |  |
 | `difficulty.hard.enemySpeed` | `1.3` |  |
 | `difficulty.hard.pickupRadius` | `54` |  |
 | `difficulty.hard.dizzyTime` | `2.4` |  |
 | `difficulty.hard.wakeRadius` | `1.25` |  |
 | `difficulty.hard.wind` | `1.25` |  |
-| `difficulty.hard.aimAssist` | `false` |  |
+| `difficulty.hard.ballSize` | `1` |  |
+| `difficulty.hard.ballSpeed` | `1` |  |
 | `defaultDifficulty` | `["easy","normal"]` | Bubu, Leo |
 | `guideArrow` | `[true,false]` | the soft arrow that shows each player where to go (Bubu, Leo) |
+| `nestSafe` | `true` |  |
+| `nestSafeRadius` | `150` | how close to the nest (centre) a hero must stand to hide |
+| `nestHideSoundGap` | `3` | seconds between two "ih-ih" sounds when heroes keep stepping in and out |
 | `beetleSpeed` | `150` |  |
 | `beetleWakeRadius` | `205` |  |
 | `pineconeSpeed` | `165` |  |
@@ -64,16 +74,22 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `butterflyBoost` | `1.5` | speed multiplier |
 | `butterflyTime` | `6` | seconds of boost |
 | `hintAfter` | `10` | seconds without an egg before a golden arrow appears |
-| `boss.hits` | `3` | balls in the nest needed to win |
-| `boss.shakes` | `[1,2,2]` | stomps needed to shake Ciori down, per round |
-| `boss.downTime` | `7` | seconds Ciori stays down |
-| `boss.throwEvery` | `[3.4,2.7,2.2]` | seconds between pinecones, per round |
+| `boss.hits` | `5` | balls in the nest needed to win (3 before the update, now a harder fight) |
+| `boss.shakes` | `[2,2,3,3,3]` | stomps needed to shake Ciori down, per round |
+| `boss.downTime` | `5` | seconds Ciori stays down |
+| `boss.throwEvery` | `[3,2.5,2.1,1.8,1.6]` | seconds between pinecones, per round |
 | `duel.enabled` | `true` | false = no mini-fights, the nest opens right after the last eggs |
-| `duel.hp` | `[3,3,4,4,4,5]` | hits needed, per level (one less on Ușor, one more on Greu) |
+| `duel.hp` | `[3,3,4,4,4,5]` | hits needed in the middle fight, per level (one less on Ușor, one more on Greu) |
 | `duel.tiredTime` | `2.4` | seconds the guardian stays tired (the moment to hit it) |
 | `duel.eggsPerHit` | `4` | golden eggs that fly out at every hit |
 | `duel.eggsAtEnd` | `8` |  |
-| `duel.safeRadius` | `150` | standing this close to the nest = hidden, nothing can hit you |
+| `duel.finalHp` | `[5,5,6,6,7,8]` | hits needed at the nest, per level |
+| `duel.finalSize` | `1.3` | guardian drawn and hit this many times bigger |
+| `duel.finalSpeed` | `1.25` | multiplier on how fast it moves and attacks |
+| `duel.finalPrep` | `0.75` | multiplier on the warning time before an attack (shorter warning) |
+| `duel.finalTired` | `0.75` | multiplier on how long it stays tired (shorter window to hit) |
+| `duel.finalExtra` | `1` | one more attack in every round |
+| `duel.angryAt` | `0.5` | below this share of hits left it gets angry: one more attack, and it shakes |
 | `deadzone` | `0.25` | stick deadzone (0.25 or more) |
 | `vibration` | `true` |  |
 | `keys.0.up` | `"KeyW"` |  |
@@ -90,6 +106,7 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `volume.ambient` | `0.7` | starting values, 0 to 1. Changeable in Setări. |
 | `volume.characters` | `0.8` | starting values, 0 to 1. Changeable in Setări. |
 | `footsteps` | `true` |  |
+| `babble` | `true` | the heroes talk in their own invented words (30 each). false = only the sound effects |
 | `voice` | `true` | read level intros aloud (needs a system voice for the chosen language) |
 | `voiceRate` | `0.9` |  |
 | `fontTitle` | `"Georgia, \"Times New Roman\", serif"` |  |

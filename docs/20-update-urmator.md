@@ -6,7 +6,9 @@ Cererea proprietarei, 13 noiembrie 2026, cuvant cu cuvant:
 
 Mai jos, fiecare cerinta: ce inseamna, cum se face, unde in cod, ce trebuie testat. Ordinea recomandata de lucru este cea a sectiunilor. Toate regulile din `CLAUDE.md` raman valabile.
 
-Nimic din acest capitol nu este facut inca. Cand faci o parte, muta descrierea ei in capitolul potrivit (06, 10, 11, 12) si sterge-o de aici.
+Status: implementat (U1 cuib adapost, U2 mingi in cerc, U3 doua lupte si Ciori mai greu, U4 30 de cuvinte per personaj, U5 nimic de facut, U6 peste 10.000 de obiecte). Documentatia e in capitolele 03, 06, 09, 10, 11, 12, 16 si 17. Descrierea de mai jos e specificatia initiala, pastrata pentru istoric; unde e diferita (de ex. `CONFIG.duel.safeRadius`, acum `CONFIG.nestSafeRadius`), valoarea corecta e cea din cod si din capitolele de mai sus.
+
+Ramane de facut: vezi `19-limitari.md`, sectiunea "Update-ul din 13 noiembrie 2026".
 
 ---
 

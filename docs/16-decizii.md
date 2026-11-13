@@ -107,3 +107,43 @@ Fiecare decizie importanta, de ce a fost luata si ce alternativa a fost respinsa
 | Grila de 40 | Destul de fina pentru coliziuni si verificare, destul de mare pentru viteza. |
 | `window.__game` | Testele automate pot juca si verifica jocul. |
 | Erorile prinse si afisate pe ecran | Un parinte vede ce s-a intamplat si poate spune mai departe. |
+
+## Update 13 noiembrie 2026
+
+Cererea cuvant cu cuvant e in `prompts/02-cereri-ulterioare.md`. Raspunsurile la intrebari (I1 pana la I6) sunt in `20-update-urmator.md`.
+
+| Decizie | De ce |
+|---|---|
+| Cuibul e adapost pe tot nivelul, nu doar in mini-lupte | Cerut direct: "sa nu il ia vantul, sa nu poata fi lovit in niciun stadiu al jocului". |
+| Cercul adapostului se vede mereu, mai discret | Copilul trebuie sa stie unde e cuibul si ca e sigur. |
+| Gandacii si conurile nu lovesc un erou in cuib | Cerut, "sa nu poata fi lovit". Conurile trec pe langa el, fara efect. |
+| Cuibul de pe boss ramane in copac, fara cuib pe jos | Raspunsul la I1: "ramane in copac". |
+| Leo trage 8 mingi la un sut scurt, 12 la sutul incarcat, in cerc | Cerut: puterea in toate directiile, ca la saritura dinozaurului. |
+| O apasare cat zboara mingile le cheama inapoi; dupa 1.2 s o apasare trage un sut nou | Cerut: "a doua apasare cat zboara le cheama inapoi". Cooldown-ul ii da timp sa vada cercul. |
+| Paznicul ia o singura lovitura de la un sut | Cu 8 mingi, lupta s-ar termina dintr-o data. In `duelBall`, dupa o lovitura paznicul intra in starea "hurt", iar mingile care mai vin in acel moment trec pe langa el fara efect. |
+| Aimul (ajutorul la tintire) scos | Cu cercul de mingi nu mai e nevoie de el. Ii ramane marimea mingii pe Ușor. |
+| Doua lupte pe nivel, cea din mijloc ca acum, cea de la cuib mai grea | Cerut. "Boss fight-ul mai greu" a fost inteles ca lupta de la cuib, plus Ciori (I2: amandoua). |
+| Lupta de la cuib: acelasi paznic, mai mare (x 1.3), mai rapid, cu un atac in plus | Raspunsul la I3: "mai mare". Paznicul nou ramane pentru un update separat. |
+| Ciori: 5 lovituri (era 3), mai multe tropaituri, cade mai putin timp, conuri mai des | Cerut: "boss fight-ul sa fie mai greu". |
+| Ciori: 1 con in prima runda, 2 din runda a doua, 3 in ultimele doua | Cerinta spunea "2 conuri odata in ultimele 2 runde". Interpretarea e de confirmat cu proprietara. Formula e in cod (`1 + min(1, faza) + (faza >= hits - 2 ? 1 : 0)`), nu in `CONFIG`. |
+| Muzica nu se mai da mai incet in controller, nu se schimba nimic | Raspunsul la I4: "nu se adauga nimic". |
+| Decor de 1700 de lucruri pe nivel, ca in cartile cu Pettson si Findus | Raspunsul la I5: "decor, detalii ca in Pettson si Findus". Cerut: 10.000. |
+| Decorul care sta pe loc e pictat in fundal, o singura data | Performanta. Cu decorul desenat live in fiecare cadru, cadrul a ajuns la 63 ms in SwiftShader. |
+| Iarba, florile, papadiile si frunzele reactioneaza cu particule, nu cu miscare desenata | La fel de vizibil, dar fara sa se intarzie cadrul. Melcii si buburuzele, care se misca, sunt live si putini. |
+| Limba personajelor: silabe sintetizate, 30 de cuvinte fiecare, fara fisiere audio | Regula 1 din `CLAUDE.md`. Fiecare cuvant e o combinatie de vocale si note. |
+| Prioritate pe voci: un cuvant mai tare taie unul mai slab, nu invers | Ca sa nu se suprapuna "hurt" cu "bored" si alte cuvinte mici. |
+| Sunetul "ih-ih" la cel mult o data la 3 s | Cand copiii intra si ies repede din cuib, sunetul se repeta. |
+| Setarea "Personajele vorbesc" nu e in meniu inca | Nu s-a cerut explicit, doar un comutator in `CONFIG.babble`. De adaugat intr-un update. |
+
+### Dupa verificarea update-ului (13 noiembrie 2026)
+
+| Decizie | De ce |
+|---|---|
+| Pe nivelul boss-ului cuibul nu e adapost si cercul verde nu se deseneaza | Cercul aparea in jurul cuibului lui Ciori din copac, unde eroii nu ajung. Parea un loc sigur care nu exista. |
+| Paznicul din mijloc aterizeaza in locul cu cel mai mult spatiu de langa mijloc, nu pe pod, nu in noroi | Pe nivelurile 3 si 5 mijlocul hartii e raul. Paznicul ateriza pe mal si lupta era inghesuita. |
+| Lupta din mijloc are textul ei: "... vă stă în cale!" | Textul vechi spunea "păzește cuibul" si "În cuib sunteți la adăpost", dar cuibul e departe. |
+| Lupta de la cuib are muzica mai rapida (116 in loc de 104) | Era in specificatie si lipsea. |
+| Bara de progres: ou, ou, inima, ou, inima, cuib | Semnele erau desenate ou, ou, ou, inima, inima. Dupa lupta din mijloc bara ramanea pe "inima x 0" tot valul 3. |
+| Povestea boss-ului spune numarul de goluri din `CONFIG.boss.hits` ("De 5 ori!") | Textul spunea "De trei ori!" dupa ce numarul a devenit 5. |
+| Cercurile de goluri de la boss mai mici cand sunt peste 3; ouale din cuib scad pe toata lupta | Cu 5 cercuri, primul intra peste numarul de oua. Cuibul ramanea gol dupa al treilea gol. |
+| Botul din `mini-lupte-bot.js` iese din cuib cand paznicul asteapta | Botul statea in adapost si tropaia la nesfarsit. Jocul se poarta cum trebuie; botul nu. |

@@ -63,7 +63,7 @@ function update(dt) {
     }
   } else if (st === 'intro') {
     UI.introT += dt;
-    if (UI.introT > 0.8 && pressedGo()) { Voice.stop(); Snd.setDuck(1); Snd.play('ok'); Game.state = 'play'; }
+    if (UI.introT > 0.8 && pressedGo()) { Voice.stop(); Snd.setDuck(1); Snd.play('ok'); Game.state = 'play'; Snd.talk(0, 'hello'); Snd.talk(1, 'hello'); }
   } else if (st === 'play') {
     if (Game.paused) updatePause();
     else {
@@ -112,5 +112,5 @@ function frame(ts) {
 Save.load(); Save.apply(); setLanguage(Opt.lang);
 resize();
 initScreens();
-window.__game = { Game, Input, UI, Save, CONFIG, Opt, STR, T, Snd, Voice, Perf, get P() { return P; }, buildLevel, genLevel, startPlay, startDuel, duelHit, openNest, update, draw, openSettings, closeSettings, swapHeroes, settingsRows };
+window.__game = { Game, Input, UI, Save, CONFIG, Opt, STR, T, Snd, Voice, Perf, get P() { return P; }, buildLevel, genLevel, startPlay, startDuel, duelHit, openNest, hitHero, kickBall, recallBalls, update, draw, openSettings, closeSettings, swapHeroes, settingsRows };
 requestAnimationFrame(ts => { _last = ts; requestAnimationFrame(frame); });

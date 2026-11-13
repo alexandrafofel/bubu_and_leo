@@ -51,9 +51,9 @@ const STR = {
     'lvl.sunset.name': 'Drumul Apusului',
     'lvl.sunset.intro': 'Soarele apune și felinarele se aprind. Este ultimul drum până la copacul lui Ciori. Rămâneți împreună!',
     'lvl.boss.name': 'Cuibul lui Ciori',
-    'lvl.boss.intro': 'Ciori stă în cuibul din cel mai înalt copac și aruncă conuri. Bubu, tropăie lângă copac ca să îl scuturi! Leo, când Ciori cade, șutează mingea în cuib! De trei ori!',
+    'lvl.boss.intro': 'Ciori stă în cuibul din cel mai înalt copac și aruncă conuri. Bubu, tropăie lângă copac ca să îl scuturi! Leo, când Ciori cade, șutează mingea în cuib! De {0} ori!',
     'duel.beetle': 'Regele Gândac', 'duel.owl': 'Bufnița Buhu', 'duel.crab': 'Racul Cleștișor', 'duel.whirl': 'Vârtejel', 'duel.frog': 'Broscoiul Oac', 'duel.chick': 'Ciorel',
-    'duel.guard': '{0} păzește cuibul!', 'duel.say': '{0} păzește cuibul! Feriți-vă și loviți când obosește. În cuib sunteți la adăpost.',
+    'duel.guard': '{0} păzește cuibul!', 'duel.mid': '{0} vă stă în cale!', 'duel.midSay': '{0} vă stă în cale! Feriți-vă și loviți când obosește.', 'duel.say': '{0} păzește cuibul! Feriți-vă și loviți când obosește. În cuib sunteți la adăpost.',
     'duel.hide': 'Adăpost', 'duel.now': 'Acum!', 'duel.wait': 'Încă nu!',
     'set.title': 'Setări', 'set.lang': 'Limbă', 'set.langName': 'Română', 'set.fs': 'Ecran complet', yes: 'Da', no: 'Nu',
     'set.music': 'Muzică', 'set.amb': 'Sunete ambientale', 'set.chr': 'Sunete personaje', 'set.vib': 'Vibrații în controller',
@@ -112,9 +112,9 @@ const STR = {
     'lvl.sunset.name': 'Sunset Road',
     'lvl.sunset.intro': "The sun is setting and the lanterns light up. This is the last road to Ciori's tree. Stay together!",
     'lvl.boss.name': "Ciori's Nest",
-    'lvl.boss.intro': 'Ciori sits in the nest in the tallest tree and throws pinecones. Bubu, stomp next to the tree to shake it! Leo, when Ciori falls, kick the ball into the nest! Three times!',
+    'lvl.boss.intro': 'Ciori sits in the nest in the tallest tree and throws pinecones. Bubu, stomp next to the tree to shake it! Leo, when Ciori falls, kick the ball into the nest! {0} times!',
     'duel.beetle': 'The Beetle King', 'duel.owl': 'Buhu the Owl', 'duel.crab': 'Snappy the Crab', 'duel.whirl': 'Little Twister', 'duel.frog': 'Croak the Frog', 'duel.chick': 'Ciorel',
-    'duel.guard': '{0} guards the nest!', 'duel.say': '{0} guards the nest! Dodge, then strike when it gets tired. You are safe inside the nest.',
+    'duel.guard': '{0} guards the nest!', 'duel.mid': '{0} blocks the way!', 'duel.midSay': '{0} blocks the way! Dodge, then strike when it gets tired.', 'duel.say': '{0} guards the nest! Dodge, then strike when it gets tired. You are safe inside the nest.',
     'duel.hide': 'Shelter', 'duel.now': 'Now!', 'duel.wait': 'Not yet!',
     'set.title': 'Settings', 'set.lang': 'Language', 'set.langName': 'English', 'set.fs': 'Full screen', yes: 'Yes', no: 'No',
     'set.music': 'Music', 'set.amb': 'Ambient sounds', 'set.chr': 'Character sounds', 'set.vib': 'Controller vibration',
@@ -147,7 +147,7 @@ function T(k, a, b) {
   if (s == null) return k;
   return a == null ? s : s.replace('{0}', a).replace('{1}', b == null ? '' : b);
 }
-const lvlName = def => T('lvl.' + def.key + '.name'), lvlIntro = def => T('lvl.' + def.key + '.intro');
+const lvlName = def => T('lvl.' + def.key + '.name'), lvlIntro = def => T('lvl.' + def.key + '.intro', CONFIG.boss.hits);   // {0} = how many goals the boss needs
 const eggWord = n => T(n === 1 ? 'egg1' : 'eggN'), starWord = n => T(n === 1 ? 'star1' : 'starN');
 /* Readable name of a keyboard key, for the "choose the keys" screen. */
 function keyName(code) {

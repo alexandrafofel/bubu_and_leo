@@ -28,7 +28,7 @@ function drawHeroFull(c, h) {
   drawHero(c, h.k, h.x, h.y, heroOpts(h));
   c.globalAlpha = 1;
   if (h.dizzy > 0) drawDizzyStars(c, h.x + (h.k === 0 ? 30 * h.face : 0), h.y - (h.k === 0 ? 100 : 122), P.time);
-  if (h.k === 1 && P.ball.state === 'held' && h.dizzy <= 0) {       // aim arrow, grows while charging
+  if (h.k === 1 && ballReady() && h.dizzy <= 0) {       // aim arrow, grows while charging
     const pw = h.charging ? h.charge : 0, len = 62 + pw * 70;
     iconArrow(c, h.x + h.ax * len, h.y - 14 + h.ay * len * 0.8, Math.atan2(h.ay, h.ax), 13 + pw * 13, pw > 0.95 ? '#E9703C' : mix('#F6C63C', '#E9703C', pw));
     if (h.charging) { c.strokeStyle = rgba('#3F78C8', 0.8); c.lineWidth = 6; c.lineCap = 'round'; c.beginPath(); c.arc(h.x, h.y - 130, 17, -Math.PI / 2, -Math.PI / 2 + TAU * pw); c.stroke(); }
@@ -85,10 +85,12 @@ function drawWorld(c) {
     const bs = P.boss, sh = Math.sin(t * 38) * bs.treeShake * 0.022;
     c.save(); c.translate(L.treeBase.x, 600); c.rotate(sh); c.drawImage(L.treeCv, L.treeOff.x - L.treeBase.x, L.treeOff.y - 600); c.restore();
     c.save(); c.translate(L.nest.x + Math.sin(t * 38) * bs.treeShake * 9, L.nest.y); drawNest(c, 0, 0, 108, 31, 0);
-    const ne = Math.max(0, 9 - bs.phase * 3); for (let i = 0; i < ne; i++) { c.save(); c.translate(-44 + (i % 5) * 22, -6 + (i / 5 | 0) * 16); const g = c.createRadialGradient(-3, -6, 1, 0, 0, 16); g.addColorStop(0, '#FFF6C4'); g.addColorStop(1, '#E9A93A'); eggPath(c, 11); c.fillStyle = g; c.fill(); c.restore(); }
+    const ne = Math.max(0, Math.round(9 * (1 - bs.phase / CONFIG.boss.hits))); for (let i = 0; i < ne; i++) { c.save(); c.translate(-44 + (i % 5) * 22, -6 + (i / 5 | 0) * 16); const g = c.createRadialGradient(-3, -6, 1, 0, 0, 16); g.addColorStop(0, '#FFF6C4'); g.addColorStop(1, '#E9A93A'); eggPath(c, 11); c.fillStyle = g; c.fill(); c.restore(); }
     c.restore();
     drawBossTargets(c);
   }
+  drawDecor(c, l, tp, vw, vh);
+  drawNestShelter(c);
   if (P.duel) drawDuelGround(c);
   // eggs and stars lie on the ground
   for (const e of P.eggs) if (e.delay <= 0) {
@@ -103,7 +105,7 @@ function drawWorld(c) {
   for (const b of L.beetles) _sorted.push({ y: b.y, k: 1, o: b });
   for (const cn of L.cones) if (cn.state !== 'gone') _sorted.push({ y: cn.y, k: 2, o: cn });
   for (const s of L.sprites) _sorted.push({ y: s.y, k: 3, o: s });
-  if (P.ball.state !== 'held') _sorted.push({ y: P.ball.y, k: 4, o: P.ball });
+  for (const f of P.flock) _sorted.push({ y: f.y, k: 4, o: f });        // every ball in the air
   if (P.boss) _sorted.push({ y: P.boss.state === 'up' ? 0 : P.boss.y, k: 5, o: P.boss });
   if (P.duel && !P.duel.over && P.duel.z < 70) _sorted.push({ y: P.duel.y, k: 6, o: P.duel });
   _sorted.sort((a, b) => a.y - b.y);
@@ -266,13 +268,16 @@ function drawHints(c, v) {
 const pressLabel = k => Opt.ctrl[k] === 'kb' ? keyName(Opt.keys[k].a) : T('t.press');
 /* How far the level is: eggs in groups, then the guardian, then the nest. */
 function levelProgress() {
-  const NW = P.L.NW, n = NW + (CONFIG.duel.enabled ? 1 : 0) + 1;
+  // the bar: wave 1, wave 2, middle fight, wave 3, nest fight, nest. Without mini-fights there are no fight segments.
+  const NW = P.L.NW, on = CONFIG.duel.enabled, midSeg = on && NW >= 2 ? NW - 1 : -1, n = NW + (on ? 1 : 0) + (midSeg >= 0 ? 1 : 0) + 1;
+  const seg = k => (midSeg >= 0 && k >= midSeg ? k + 1 : k);
   let cur, frac, left = 0, kind;
   if (P.done) { cur = n - 1; frac = 1; kind = 'nest'; }
   else if (P.nestOpen) { cur = n - 1; frac = 0.2; kind = 'nest'; }
-  else if (P.duel) { cur = NW; frac = (P.duel.maxHp - P.duel.hp) / P.duel.maxHp; left = P.duel.hp; kind = 'duel'; }
-  else { cur = clamp(P.wave, 0, NW - 1); left = Math.max(0, P.waveNeed - P.waveGot); frac = P.nextWaveT >= 0 ? 1 : clamp(P.waveGot / Math.max(1, P.waveNeed), 0, 1); kind = 'eggs'; }
-  return { n, cur, frac, left, kind, u: clamp((cur + frac) / n, 0, 1) };
+  else if (P.duel && !P.duel.over) { cur = P.duel.kind === 'mid' && midSeg >= 0 ? midSeg : n - 2; frac = (P.duel.maxHp - P.duel.hp) / P.duel.maxHp; left = P.duel.hp; kind = 'duel'; }
+  else { cur = clamp(seg(clamp(P.wave, 0, NW - 1)), 0, n - 1); left = Math.max(0, P.waveNeed - P.waveGot); frac = P.nextWaveT >= 0 ? 1 : clamp(P.waveGot / Math.max(1, P.waveNeed), 0, 1); kind = 'eggs';
+    if (midSeg >= 0 && P.midFought && P.wave === midSeg - 1) { cur = midSeg; frac = 1; } }      // the moment after the middle fight: its part stays done
+  return { n, cur, frac, left, kind, midSeg, fightSeg: on ? n - 2 : -1, u: clamp((cur + frac) / n, 0, 1) };
 }
 function drawProgress(c) {
   const pr = levelProgress(), t = P.time, NW = P.L.NW, y = 184, x0 = W / 2 - 372, x1 = W / 2 + 392, len = x1 - x0;
@@ -292,7 +297,7 @@ function drawProgress(c) {
     if (i === pr.n - 1) { c.drawImage(sprite('gNest', 56, 44, cc => drawNest(cc, 28, 22, 21, 3, 0)), x - 30, y - 24, 60, 48); continue; }
     const pop = now ? 1 + Math.sin(t * 5) * 0.08 : 1;
     c.fillStyle = done ? '#F8C24E' : '#FFF6E2'; c.strokeStyle = done ? '#E3952F' : 'rgba(170,130,110,0.6)'; c.lineWidth = 3; c.beginPath(); c.arc(x, y, 19 * pop, 0, TAU); c.fill(); c.stroke();
-    if (i < NW) { c.save(); c.translate(x, y - 1); eggPath(c, 10 * pop); c.fillStyle = done ? '#FFF6C4' : 'rgba(233,169,58,0.55)'; c.fill(); c.restore(); }
+    if (i !== pr.midSeg && i !== pr.fightSeg) { c.save(); c.translate(x, y - 1); eggPath(c, 10 * pop); c.fillStyle = done ? '#FFF6C4' : 'rgba(233,169,58,0.55)'; c.fill(); c.restore(); }
     else { heartPath(c, x, y, 8.5 * pop); c.fillStyle = done ? '#FFF6C4' : '#E2574C'; c.fill(); }
   }
   // where the team is now
@@ -321,16 +326,17 @@ function drawBadge(c, k, x, y) {
 function drawHUD(c) {
   const L = P.L, t = P.time;
   drawBadge(c, 0, 36, 28); drawBadge(c, 1, W - 36 - 340, 28);
-  const cw = L.boss ? 560 : 660, cx = W / 2 - cw / 2;
+  const bh = CONFIG.boss.hits, bsp = bh > 3 ? 68 : 86, br = bh > 3 ? 25 : 30;      // the boss goals: smaller circles when there are many
+  const cw = L.boss ? Math.max(560, 320 + bh * bsp) : 660, cx = W / 2 - cw / 2;
   card(c, cx, 24, cw, 120, '#FFF3DC', 9);
   const pop = P.comboT > 1.0 ? 1 + (P.comboT - 1.0) * 0.6 : 1;
   c.save(); c.translate(cx + 74, 96); c.scale(pop, pop); const g = c.createRadialGradient(-8, -18, 2, 0, -6, 40); g.addColorStop(0, '#FFF6C4'); g.addColorStop(0.5, '#F8CC4E'); g.addColorStop(1, '#E3952F'); c.translate(0, -12); eggPath(c, 30); c.fillStyle = g; c.fill(); c.strokeStyle = 'rgba(190,110,50,0.4)'; c.lineWidth = 3; c.stroke(); c.restore();
   text(c, String(Game.team.eggs), cx + 122, 86, 72, '#B9702E', { align: 'left', halo: 0, weight: 'bold' });
   if (L.boss) {
-    for (let i = 0; i < CONFIG.boss.hits; i++) {
-      const x = cx + cw - 70 - (CONFIG.boss.hits - 1 - i) * 86, done = i < P.boss.phase;
-      c.fillStyle = done ? '#F8C24E' : 'rgba(180,140,120,0.3)'; c.beginPath(); c.arc(x, 84, 30, 0, TAU); c.fill();
-      if (done) drawBall(c, x, 84, 22, 0.4); else { c.strokeStyle = 'rgba(150,110,100,0.5)'; c.lineWidth = 4; c.setLineDash([8, 8]); c.beginPath(); c.arc(x, 84, 22, 0, TAU); c.stroke(); c.setLineDash([]); }
+    for (let i = 0; i < bh; i++) {
+      const x = cx + cw - 64 - (bh - 1 - i) * bsp, done = i < P.boss.phase;
+      c.fillStyle = done ? '#F8C24E' : 'rgba(180,140,120,0.3)'; c.beginPath(); c.arc(x, 84, br, 0, TAU); c.fill();
+      if (done) drawBall(c, x, 84, br - 8, 0.4); else { c.strokeStyle = 'rgba(150,110,100,0.5)'; c.lineWidth = 4; c.setLineDash([8, 8]); c.beginPath(); c.arc(x, 84, br - 8, 0, TAU); c.stroke(); c.setLineDash([]); }
     }
   } else {
     c.lineJoin = 'round';
@@ -353,7 +359,7 @@ function drawHUD(c) {
     if (b.kind === 'duel') {
       card(c, W / 2 - 480, y - 62, 960, 176, '#FFF6E2', 33);
       text(c, label, W / 2, y - 6, 64, '#C4573D', { title: true, halo: 0 });
-      text(c, T('duel.guard', T('duel.' + b.id)), W / 2, y + 66, 40, '#7A4A52', { halo: 0, shadow: 0, weight: 'bold' });
+      text(c, T(b.mid ? 'duel.mid' : 'duel.guard', T('duel.' + b.id)), W / 2, y + 66, 40, '#7A4A52', { halo: 0, shadow: 0, weight: 'bold' });
     } else {
     card(c, W / 2 - 330, y - 56, 660, 112, '#FFF6E2', 31);
     text(c, label, W / 2 - 10, y, 60, '#C4573D', { title: true, halo: 0 });
@@ -368,4 +374,28 @@ function drawPlay(c) {
   const v = drawWorld(c);
   drawHints(c, v);
   drawHUD(c);
+}
+/* The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. */
+function drawNestShelter(c) {
+  const L = P.L, t = P.time, R = CONFIG.nestSafeRadius, fight = !!(P.duel && !P.duel.over), inside = P.heroes.some(h => h.safe);
+  if (L.boss || !CONFIG.nestSafe) return;                                   // Ciori's nest in the tree is not a shelter
+  c.fillStyle = rgba('#BFE3A8', (inside ? 0.3 : 0.16) * (fight ? 1 : 0.6)); c.beginPath(); c.ellipse(L.nest.x, L.nest.y, R, R * 0.7, 0, 0, TAU); c.fill();
+  c.strokeStyle = rgba('#7FB06A', (0.55 + 0.25 * Math.sin(t * 3)) * (fight ? 1 : 0.35)); c.lineWidth = 7; c.setLineDash([22, 16]); c.lineDashOffset = -t * 20;
+  c.beginPath(); c.ellipse(L.nest.x, L.nest.y, R, R * 0.7, 0, 0, TAU); c.stroke(); c.setLineDash([]);
+}
+/* The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. */
+function drawDecor(c, l, tp, vw, vh) {
+  const L = P.L; if (!L.decor) return;
+  const x0 = l - 60, x1 = l + vw + 60, y0 = tp - 60, y1 = tp + vh + 60;
+  for (const d of L.decor) {
+    if (!d.live || d.x < x0 || d.x > x1 || d.y < y0 || d.y > y1) continue;
+    c.save();
+    let dy = 0, al = 1, sy = 1;
+    if (d.type === 'snail') sy = 1 - d.hide * 0.22;
+    if (d.type === 'ladybug' && d.flyT > 0) { const k = 1 - d.flyT / 2.2; dy -= Math.sin(k * Math.PI) * 90; al = 1 - k * 0.3; }
+    c.translate(d.x, d.y + dy); c.rotate(d.rot); c.scale(d.s, d.s * sy);
+    c.globalAlpha = al;
+    c.drawImage(decorSprite(d.type, d.v), -48, -56, 96, 96);
+    c.restore();
+  }
 }

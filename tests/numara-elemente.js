@@ -14,5 +14,6 @@ const boot = require('./common.js');
   });
   let tot = 0; for (const x of r) { tot += x.obiecte; console.log(JSON.stringify(x)); }
   console.log('total obiecte in liste, toate nivelurile:', tot);
+  console.log(tot >= 10000 ? 'peste 10.000: OK' : 'SUB 10.000: NEREUSIT');
   await done();
 })();

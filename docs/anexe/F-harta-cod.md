@@ -10,22 +10,23 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 |---|---|
 | 1-16 | tot fisierul |
 
-## 01-config.js (109 linii)
+## 01-config.js (126 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 2-7 | BUBU ȘI LEO: OUĂLE DE AUR |
 | 8-11 | Names (all other texts, Romanian and English, are in the STR table below CONFIG) |
-| 12-38 | Heroes (index 0 = Player 1, index 1 = Player 2) |
-| 39-46 | Game length |
-| 47-55 | Difficulty, chosen per player on the start screen |
-| 56-64 | Obstacles |
-| 65-70 | Helpers |
-| 71-78 | Boss |
-| 79-88 | Mini-fight before the nest, one per level |
-| 89-96 | Controls (keys and controller/keyboard are chosen in Setări) |
-| 97-102 | Sound |
-| 103-109 | Look |
+| 12-41 | Heroes (index 0 = Player 1, index 1 = Player 2) |
+| 42-50 | Game length |
+| 51-59 | Difficulty, chosen per player on the start screen |
+| 60-64 | Nest: a hero in it is hidden on every level, the wind does not move it, nothing can hit it |
+| 65-73 | Obstacles |
+| 74-79 | Helpers |
+| 80-87 | Boss |
+| 88-104 | Two mini-fights per level: one in the middle of the path, one at the nest |
+| 105-112 | Controls (keys and controller/keyboard are chosen in Setări) |
+| 113-119 | Sound |
+| 120-126 | Look |
 
 ## 015-lang.js (160 linii)
 
@@ -54,23 +55,25 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 267-268 | A painted card (panel) used by menus and story screens. |
 | 269-302 | Things that never change are painted once and then stamped: much faster per frame. |
 
-## 03-audio.js (313 linii)
+## 03-audio.js (372 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 2-63 | SOUND: everything is generated with the Web Audio API. |
 | 64-85 | building blocks: every sound is made on the bus it is given |
-| 86-101 | A tiny cartoon voice: a buzzy tone through a moving "mouth" filter. f0 -> f1 is the melody of the syllable. |
-| 102-116 | instruments |
-| 117-187 | music: calm pentatonic patterns, a different one per level |
-| 188-189 | sound effects |
-| 190-191 | Every effect gets: b = the bus to play on, t = the time now on that bus, x = an optional value. |
-| 192-211 | the heroes' own sounds (volume "Sunete personaje"; they can play in the controller) |
-| 212-238 | the world (volume "Sunete ambientale") |
-| 239-245 | play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. |
-| 246-247 | the controller's own speaker (only when the system shows it as an audio output) |
-| 248-281 | Chrome only tells the names of the speakers after the microphone permission was given (ask = true asks for it). |
-| 282-313 | Voice-over with a system voice in the chosen language, when one is installed. |
+| 86-99 | A tiny cartoon voice: a buzzy tone through a moving "mouth" filter. f0 -> f1 is the melody of the syllable. |
+| 100-114 | instruments |
+| 115-187 | music: calm pentatonic patterns, a different one per level |
+| 188-237 | the heroes' own language: 30 invented words each |
+| 238-251 | Talk(k, word): hero k says one of its words. Routed like the hero's other sounds (own speaker when one was chosen). |
+| 252-253 | sound effects |
+| 254-255 | Every effect gets: b = the bus to play on, t = the time now on that bus, x = an optional value. |
+| 256-270 | the heroes' own sounds (volume "Sunete personaje"; they can play in the controller) |
+| 271-297 | the world (volume "Sunete ambientale") |
+| 298-304 | play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. |
+| 305-306 | the controller's own speaker (only when the system shows it as an audio output) |
+| 307-340 | Chrome only tells the names of the speakers after the microphone permission was given (ask = true asks for it). |
+| 341-372 | Voice-over with a system voice in the chosen language, when one is installed. |
 
 ## 04-input.js (156 linii)
 
@@ -92,7 +95,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 281-296 | A woven nest seen from above. |
 | 297-319 | Small painted icons for hints (no words needed). |
 
-## 06-level.js (632 linii)
+## 06-level.js (708 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -106,42 +109,50 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 290-306 | beetles |
 | 307-332 | sparkling trees (hide eggs) and the treetop star |
 | 333-354 | golden eggs, in waves from left to right |
-| 355-367 | lanterns along the path (sunset level) |
-| 368-580 | painting |
-| 581-591 | Granulation speckles, watercolor blooms and the warm afternoon light. |
-| 592-632 | The boss arena: one screen, the tallest tree in the valley. |
+| 355-368 | lanterns along the path (sunset level) |
+| 369-392 | painting |
+| 393-656 | One picture of a kind of decor, drawn once and cached. v = which of the 4 looks it has. |
+| 657-667 | Granulation speckles, watercolor blooms and the warm afternoon light. |
+| 668-708 | The boss arena: one screen, the tallest tree in the valley. |
 
-## 07-play.js (543 linii)
-
-| Liniile | Sectiunea |
-|---|---|
-| 2-50 | GAMEPLAY: heroes, powers, eggs, stars, enemies, wind, butterfly, boss |
-| 51-72 | particles |
-| 73-97 | collisions |
-| 98-161 | eggs and stars |
-| 162-382 | powers |
-| 383-432 | boss: Ciori in the tallest tree |
-| 433-543 | Thrown things (pinecones, mud balls) fly in an arc and land on a marked spot. |
-
-## 075-duel.js (339 linii)
+## 07-play.js (614 linii)
 
 | Liniile | Sectiunea |
 |---|---|
-| 2-33 | MINI-FIGHTS: when the last eggs of a level are collected, one of Ciori's |
-| 34-43 | Who the guardian goes after: the bravest player who is not hidden in the nest. |
-| 44-150 | Nothing touches a hero hidden in the nest. A player on "Ușor" who only helps (the guardian is after the friend) is spared too. |
-| 151-217 | the three attack patterns |
-| 218-303 | drawing the guardians |
-| 304-322 | Things on the ground: the shelter ring, where the next attack will land, shadows. |
-| 323-339 | Things above everything: flying guardians, thrown pinecones, leaves, hearts. |
+| 2-51 | GAMEPLAY: heroes, powers, eggs, stars, enemies, wind, butterfly, boss |
+| 52-73 | particles |
+| 74-98 | collisions |
+| 99-120 | eggs and stars |
+| 121-166 | The order on a level: wave 1, wave 2, MIDDLE FIGHT (after the second-to-last wave), wave 3, NEST FIGHT, then the nest opens. |
+| 167-196 | powers |
+| 197-212 | One kick sends n balls out in a circle, so Leo's power goes in every direction. Stick direction = the first ball. |
+| 213-307 | A second press while the balls are still out (inside the cooldown) calls every ball back to Leo. |
+| 308-415 | One ball in the air. Returns false when the ball has come home to Leo and can go. |
+| 416-466 | boss: Ciori in the tallest tree |
+| 467-614 | Thrown things (pinecones, mud balls) fly in an arc and land on a marked spot. |
 
-## 08-draw.js (372 linii)
+## 075-duel.js (344 linii)
 
 | Liniile | Sectiunea |
 |---|---|
-| 2-191 | DRAWING THE GAME: world, heroes, effects, HUD |
-| 192-266 | The helper arrow: a soft arrow next to a hero that shows where to go and, in a small bubble, what waits there. |
-| 267-372 | How far the level is: eggs in groups, then the guardian, then the nest. |
+| 2-18 | MINI-FIGHTS: when the last eggs of a level are collected, one of Ciori's |
+| 19-40 | kind 'mid': the middle fight, the same as before. kind 'nest': the harder one at the nest, bigger and quicker. |
+| 41-50 | Who the guardian goes after: the bravest player who is not hidden in the nest. |
+| 51-160 | Nothing touches a hero hidden in the nest. A player on "Ușor" who only helps (the guardian is after the friend) is spared too. |
+| 161-227 | the three attack patterns |
+| 228-313 | drawing the guardians |
+| 314-327 | Things on the ground during a mini-fight: where the next attack will land, shadows. (The shelter ring is in drawNestShelter.) |
+| 328-344 | Things above everything: flying guardians, thrown pinecones, leaves, hearts. |
+
+## 08-draw.js (402 linii)
+
+| Liniile | Sectiunea |
+|---|---|
+| 2-193 | DRAWING THE GAME: world, heroes, effects, HUD |
+| 194-268 | The helper arrow: a soft arrow next to a hero that shows where to go and, in a small bubble, what waits there. |
+| 269-377 | How far the level is: eggs in groups, then the guardian, then the nest. |
+| 378-385 | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
+| 386-402 | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
 
 ## 09-screens.js (607 linii)
 

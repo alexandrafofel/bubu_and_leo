@@ -49,7 +49,7 @@ Anexele din `anexe/` sunt liste generate din cod. Ele sunt mereu exacte, pentru 
 
 ## Capturi de ecran
 
-In `capturi/` sunt 13 capturi din versiunea de acum, facute de testele automate. Foloseste-le ca sa vezi cum arata ce descriu capitolele:
+In `capturi/` sunt 15 capturi, facute de testele automate. Toate sunt din versiunea de acum, in afara de 05, care e dinainte de decor. Foloseste-le ca sa vezi cum arata ce descriu capitolele:
 
 | Captura | Ce arata |
 |---|---|
@@ -66,6 +66,8 @@ In `capturi/` sunt 13 capturi din versiunea de acum, facute de testele automate.
 | [11-setari-taste](capturi/11-setari-taste.jpg) | Alegerea tastelor |
 | [12-pauza](capturi/12-pauza.jpg) | Pauza in timpul unui nivel |
 | [13-poveste-engleza](capturi/13-poveste-engleza.jpg) | Povestea unui nivel, in engleza |
+| [14-lupta-din-mijloc](capturi/14-lupta-din-mijloc.jpg) | Lupta din mijlocul nivelului 3, bara de progres cu cele doua lupte |
+| [15-boss-cinci-goluri](capturi/15-boss-cinci-goluri.jpg) | Boss-ul: cinci goluri de dat |
 
 ## Prompturi
 
