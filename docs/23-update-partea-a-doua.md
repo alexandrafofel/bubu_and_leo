@@ -4,11 +4,11 @@ Status: **specificatie, neimplementata.** Nimic din acest capitol nu exista inca
 
 Cererea proprietarei, cuvant cu cuvant, este in `../prompts/05-cerere-16-noiembrie.md`. Promptul gata de lipit pentru cel care implementeaza este in `../prompts/06-prompt-partea-a-doua.md`.
 
-Specificatia are trei capitole. Citeste-le in ordine.
+Specificatia are trei capitole. Citeste-le in ordine. Promptul gata de lipit pentru fiecare dintre cele 12 sarcini este in `../prompts/06-prompt-partea-a-doua.md`.
 
 | Capitol | Ce contine |
 |---|---|
-| 23 (acesta) | Ce se cere, ce s-a hotarat, ce a ramas de intrebat, principiile luate din "It Takes Two", planul pe etape, regulile din `CLAUDE.md` care se schimba. |
+| 23 (acesta) | Ce se cere, ce s-a hotarat, ce a ramas de intrebat, principiile luate din "It Takes Two", planul in 12 sarcini, regulile din `CLAUDE.md` care se schimba. |
 | [24](24-sisteme-noi.md) | Sistemele noi, comune tuturor nivelurilor: butoane, fuga, a doua putere, cele 10 secunde, capitole si salvare, scrisul de sus, stilul grafic. |
 | [25](25-niveluri-7-12.md) | Povestea, mecanismele de colaborare, cele 6 niveluri noi, luptele cu George, lupta finala, texte, sunete, decor. |
 
@@ -93,43 +93,41 @@ Despre grafica, cinstit: "It Takes Two" este un joc 3D facut cu un motor mare. J
 
 ---
 
-## 5. Planul pe etape
+## 5. Planul: 12 sarcini
 
-Fiecare etapa se poate termina, testa si trimite separat. Ordinea conteaza: etapele de sus nu depind de cele de jos. Dupa fiecare etapa: `./build.sh`, `node tools/gen-docs.js`, `tests/toate.sh`, capturi de ecran privite cu ochiul, documentatia mutata in capitolul potrivit.
+Fiecare sarcina se poate termina, testa si trimite separat. Ordinea conteaza: fiecare se sprijina pe cea dinainte. Promptul gata de lipit pentru fiecare este in `../prompts/06-prompt-partea-a-doua.md`.
 
-| Etapa | Ce se face | Specificatia | Gata cand |
+Inainte de orice sarcina si dupa fiecare: `./build.sh`, `node tools/gen-docs.js`, `tests/toate.sh`, capturi privite cu ochiul, documentatia mutata in capitolul potrivit.
+
+| Nr | Ce se face | Specificatia | Gata cand |
 |---|---|---|---|
-| E0 | Ramura noua. `tests/toate.sh tot` trece inainte de orice schimbare. | - | Toate testele `OK`. |
-| E1 | Scrisul de sus nu mai acopera eroii. | 24, S6 | `tests/hud-acoperire.js` scrie 0% pentru toate cele trei coloane, in ambele jocuri. |
-| E2 | Butoanele: ○ ajuta, □ liber pentru a doua putere, L3 citit. Taste noi. Setari, texte, iconite. | 24, S1 | `tests/control-nou.js` trece. `controller-simulat.js` trece cu ○. |
-| E3 | Fuga. | 24, S2 | `tests/fuga.js` trece. Niciun erou nu trece printr-un perete la viteza x 3. |
-| E4 | Puterile devin "abilitati" (rotire, aruncare) pe care le poate avea orice erou. Apoi a doua putere pentru Boon si Killer. | 24, S3 | `tests/puteri-doi.js` trece. `mingi-leo.js` si `joc-complet-bot.js` trec neschimbate in primul joc. |
-| E5 | Cele 10 secunde si reinceperea. | 24, S4 | `tests/zece-secunde.js` trece. |
-| E6 | Salvare versiunea 4, lista de capitole, meniul de start, 12 niveluri in al doilea joc (deocamdata cu definitii provizorii). | 24, S5 | `tests/capitole.js` trece. O salvare veche (versiunea 3) isi pastreaza progresul. |
-| E7 | Stilul grafic: lumina, materiale, umbre, planul din fata, eroii repictati. | 24, S7 | Capturi comparate cu lista de verificare din S7. `performanta.js` cu cel mult 20% peste valoarea de dinainte. |
-| E8 | Cadrul pentru mecanisme (benzi, porti, intrari) si nivelul 7. | 25, sectiunile 3 si 4 | `tests/mecanisme.js` trece pentru nivelul 7. Botul termina nivelul. |
-| E9 | Nivelurile 8 si 9. | 25, sectiunea 4 | La fel, pentru 8 si 9. |
-| E10 | Nivelurile 10 si 11. | 25, sectiunea 4 | La fel, pentru 10 si 11. |
-| E11 | Nivelul 12 si atacurile noi ale lui George. | 25, sectiunile 4 si 5 | `mini-lupte-bot.js`: toate luptele castigate, pe 12 niveluri. |
-| E12 | Sala Tronului, scena "Va urma", finalul nou. | 25, sectiunile 6 si 7 | `joc-complet-bot.js` ajunge de la nivelul 1 la finalul nou. |
-| E13 | Sunete, muzica, cuvinte noi, decor, numaratoarea elementelor, capturi noi, toata documentatia. | 25, sectiunile 8 - 10 | `tests/toate.sh tot` trece. `numara-elemente.js` da peste 22.000 in al doilea joc. |
+| T1 | Scrisul de sus nu mai acopera eroii. | 24, S6 | `tests/hud-acoperire.js` cu `STRICT=1` scrie 0% pentru toate coloanele, in ambele jocuri, si intra in `tests/toate.sh`. |
+| T2 | Butoanele (○ ajuta, □ citit pentru a doua putere, L3) si fuga. | 24, S1 si S2 | `tests/control-nou.js` si `tests/fuga.js` trec. Niciun erou nu trece printr-un perete la viteza x 3. |
+| T3 | Puterile devin abilitati (rotire, aruncare) pe care le poate avea orice erou. Apoi oasele lui Boon si manusile lui Killer. | 24, S3 | `tests/puteri-doi.js` trece. Testele vechi trec neschimbate in primul joc. |
+| T4 | Cele 10 secunde si reinceperea nivelului. | 24, S4 | `tests/zece-secunde.js` trece. |
+| T5 | Capitole, meniul de start, salvarea versiunea 4. | 24, S5 | `tests/capitole.js` trece. O salvare veche isi pastreaza progresul. |
+| T6 | Stilul grafic: lumina, materiale, umbre, planul din fata, eroii repictati. | 24, S7 | Lista de verificare S7.8 bifata pe capturi. `tests/stil-grafic.js` trece. `performanta.js` cel mult 20% peste valoarea de dinainte. |
+| T7 | Cadrul mecanismelor (benzi, porti, intrari) si nivelul 7. | 25, 3 si 4 | `tests/mecanisme.js` trece pentru nivelul 7, cu regulile G1 - G10. Botul termina nivelul. |
+| T8 | Nivelurile 8 si 9 (tinte, benzi rulante, pluta). | 25, 4 | La fel, pentru 8 si 9. |
+| T9 | Nivelurile 10 si 11 (cristalul carat prin intuneric, bolovanul). | 25, 4 | La fel, pentru 10 si 11. |
+| T10 | Nivelul 12 si atacurile noi ale lui George. | 25, 4 si 5 | `mini-lupte-bot.js`: toate cele 144 de lupte castigate, niciuna peste 180 s. |
+| T11 | Sala Tronului, scena "Va urma", finalul nou. | 25, 6 si 7 | `tests/sala-tronului.js` trece. `joc-complet-bot.js` ajunge de la capitolul 1 la finalul nou. |
+| T12 | Sunete, muzica, cuvinte noi, decor, capturi, toata documentatia. | 25, 8 - 11 | `tests/toate.sh tot` trece. `numara-elemente.js` da peste 22.000 in al doilea joc. |
 
-Daca timpul e scurt, E1 - E6 sunt un update intreg si folositor chiar fara niveluri noi: toate regulile cerute merg pe cele 6 niveluri de acum.
-
----
+Dupa **T5** jocul are deja toate regulile cerute, pe nivelurile de acum: butoane, fuga, a doua putere, cele 10 secunde, capitole, scrisul reparat. Este cel mai bun moment sa il incerce copiii si sa primim raspunsurile la intrebarile I1 - I9 de mai sus, inainte de nivelurile noi. T1 - T5 sunt un update intreg si folositor chiar fara nimic dupa el.
 
 ## 6. Regulile din `CLAUDE.md` care se schimba
 
-Se rescriu in `CLAUDE.md` in etapa in care devin adevarate, nu inainte.
+Se rescriu in `CLAUDE.md` in sarcina in care devin adevarate, nu inainte.
 
-| Regula | Acum | Dupa update | Etapa |
+| Regula | Acum | Dupa update | Sarcina |
 |---|---|---|---|
-| 4 | "Stilul vizual: pictura in acuarela dintr-o carte pentru copii." | Se adauga: "Nivelurile 7 - 12 ale celui de-al doilea joc sunt pictate ca o diorama cu lumina (vezi `docs/24`, S7). Ramane valabil peste tot: fara contururi negre, fara gri, fara negru." | E7 |
-| 6 | "Un erou lovit (...) asteapta pe loc pana il ajuta prietenul cu □. (...) daca amandoi sunt loviti se ridica amandoi dupa cateva secunde." | "Jocul nu spune niciodata 'Game Over'. Un erou lovit asteapta pe loc. Prietenul are 10 secunde sa il ajute cu ○. Daca nu, nivelul reincepe de la inceput, cu mesajul 'Încă o dată!'. Un copil care joaca singur se ridica singur." | E5 |
-| 8 | "✕ pentru putere, □ pentru a ajuta prietenul" | "✕ prima putere, □ a doua putere, ○ ajuta prietenul, L3 (apasarea stick-ului) fuga, OPTIONS pauza." | E2 |
-| 9 | "6 niveluri + lupta finala" | "Primul joc: 6 niveluri si o lupta finala. Al doilea: 12 niveluri si doua lupte mari. Minimum 10.000 de elemente pentru fiecare 6 niveluri." | E6 |
+| 4 | "Stilul vizual: pictura in acuarela dintr-o carte pentru copii." | Se adauga: "Nivelurile 7 - 12 ale celui de-al doilea joc sunt pictate ca o diorama cu lumina (vezi `docs/24`, S7). Ramane valabil peste tot: fara contururi negre, fara gri, fara negru." | T6 |
+| 6 | "Un erou lovit (...) asteapta pe loc pana il ajuta prietenul cu □. (...) daca amandoi sunt loviti se ridica amandoi dupa cateva secunde." | "Jocul nu spune niciodata 'Game Over'. Un erou lovit asteapta pe loc. Prietenul are 10 secunde sa il ajute cu ○. Daca nu, nivelul reincepe de la inceput, cu mesajul 'Încă o dată!'. Un copil care joaca singur se ridica singur." | T4 |
+| 8 | "✕ pentru putere, □ pentru a ajuta prietenul" | "✕ prima putere, □ a doua putere, ○ ajuta prietenul, L3 (apasarea stick-ului) fuga, OPTIONS pauza." | T2 |
+| 9 | "6 niveluri + lupta finala" | "Primul joc: 6 niveluri si o lupta finala. Al doilea: 12 niveluri si doua lupte mari. Minimum 10.000 de elemente pentru fiecare 6 niveluri." | T5 (numarul de capitole), T12 (elementele) |
 | 10 | "Nivelul se termina doar cand amandoi jucatorii sunt in cuib." | Neschimbata. | - |
-| noua, 11 | - | "In nivelurile 7 - 12 fiecare poarta are nevoie de amandoi eroii. Cu un singur jucator, jocul face singur partea celuilalt." | E8 |
+| noua, 11 | - | "In nivelurile 7 - 12 fiecare poarta are nevoie de amandoi eroii. Cu un singur jucator, jocul face singur partea celuilalt." | T7 |
 
 ---
 
@@ -153,6 +151,6 @@ Se rescriu in `CLAUDE.md` in etapa in care devin adevarate, nu inainte.
 | Portile pot bloca un erou de o parte si pe celalalt de alta. | Regulile de siguranta din capitolul 25, sectiunea 3.6. Testul `mecanisme.js` le verifica pe fiecare. |
 | Lumina si planul din fata incetinesc jocul. | Bugetul din 24, S7.6. Harta de lumina e la un sfert din rezolutie. |
 | Fisierul creste (acum 440 KB). | Nu e o problema pentru Chrome. Se estimeaza 750 - 850 KB la final. |
-| Nimic din toate acestea nu poate fi incercat de un asistent pe un controller real. | La fiecare etapa se spune ce nu a fost verificat, ca in `19-limitari.md`. |
+| Nimic din toate acestea nu poate fi incercat de un asistent pe un controller real. | La fiecare sarcina se spune ce nu a fost verificat, ca in `19-limitari.md`. |
 
 Surse despre "It Takes Two": pagina jocului pe Steam (`store.steampowered.com/app/1426210/It_Takes_Two/`) si interviul echipei Hazelight publicat de Unreal Engine ("It Takes Two lovingly marries story and gameplay together"). Principiile din sectiunea 4 sunt formulate de noi, pe baza jocului.

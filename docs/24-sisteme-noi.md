@@ -1,18 +1,18 @@
 # 24. Partea a doua: sistemele noi
 
-Status: **specificatie, neimplementata.** Vezi `23-update-partea-a-doua.md` pentru cerere, hotarari si etape.
+Status: **specificatie, neimplementata.** Vezi `23-update-partea-a-doua.md` pentru cerere, hotarari si cele 12 sarcini, si `../prompts/06-prompt-partea-a-doua.md` pentru promptul fiecareia.
 
 Sapte sisteme. Fiecare are: cerinta, ce e acum in cod, ce se face, valorile din `CONFIG`, cazurile de margine si testul.
 
-| Nr | Sistem | Etapa | Jocuri |
+| Nr | Sistem | Sarcina | Jocuri |
 |---|---|---|---|
-| S1 | Butoane si taste | E2 | ambele |
-| S2 | Fuga (L3) | E3 | ambele |
-| S3 | A doua putere | E4 | doar "Cea mai grea luptă" |
-| S4 | Cele 10 secunde | E5 | ambele |
-| S5 | Capitole, meniu de start, salvare | E6 | ambele |
-| S6 | Scrisul de sus | E1 | ambele |
-| S7 | Stilul grafic | E7 | nivelurile 7 - 12 si eroii celui de-al doilea joc |
+| S1 | Butoane si taste | T2 | ambele |
+| S2 | Fuga (L3) | T2 | ambele |
+| S3 | A doua putere | T3 | doar "Cea mai grea luptă" |
+| S4 | Cele 10 secunde | T4 | ambele |
+| S5 | Capitole, meniu de start, salvare | T5 | ambele |
+| S6 | Scrisul de sus | T1 | ambele |
+| S7 | Stilul grafic | T6 | nivelurile 7 - 12 si eroii celui de-al doilea joc |
 
 ---
 
@@ -75,7 +75,7 @@ Tastatura. Campul `b` isi pastreaza intelesul (ajutor), ca salvarile vechi sa ra
 Cu controllere false, ca in `controller-simulat.js`:
 
 1. Butonul 1 apasat de prieten ridica eroul lovit. Butonul 2 nu il mai ridica.
-2. Butonul 2 porneste a doua putere (dupa E4; pana atunci testul verifica doar `s.cP`).
+2. Butonul 2 porneste a doua putere (dupa sarcina T3; in T2 testul verifica doar ca `s.cP` se aprinde).
 3. Butonul 10 seteaza `runP` o singura data pe apasare.
 4. Cu tastatura: `KeyE` ajuta, `KeyQ` da `cP`, `ShiftLeft` da `runP`.
 5. O salvare cu `keys` fara `c` si `r` se incarca si jucatorii au tastele din `CONFIG`.
@@ -450,7 +450,7 @@ Primul joc are 7 capitole: 6 niveluri si lupta cu Ciori.
 | Loc | Acum | Dupa |
 |---|---|---|
 | `buildLevel(idx)` (`07-play.js`) | `if (idx >= levelCount()) boss` | `const ch = chapters()[idx]; if (ch.kind === 'boss') return ch.gen(); ... genLevel(ch.n, ...)` |
-| `levelCount()` (`06-level.js`) | `clamp(CONFIG.levels, 1, 12)` | `clamp(isLupta() ? CONFIG.lupta.levels : CONFIG.levels, 1, 12)`. `CONFIG.lupta.levels: 12`. |
+| `levelCount()` (`06-level.js`) | `clamp(CONFIG.levels, 1, 12)` | `clamp(isLupta() ? CONFIG.lupta.levels : CONFIG.levels, 1, 12)`. `CONFIG.lupta.levels` este numarul de niveluri care exista: 6 cand se face sarcina T5, apoi creste cu fiecare nivel nou, pana la 12. Lista de capitole creste singura dupa el, deci nu sunt niveluri provizorii. |
 | `skyTOf(idx)` | impartit la `levelCount() - 1` | Pentru al doilea joc cerul nu mai depinde de numar: fiecare nivel nou isi are paleta lui. `skyTOf` ramane pentru nivelurile 0 - 5 si primeste 6 ca numitor fix. |
 | `Save.hasProgress` (`09-screens.js`) | `level > 0 && level <= levelCount()` | `level > 0 && level < chapters().length` |
 | `drawSelect`, `drawTitle` | `sl.level >= levelCount() ? T('t.final') : T('t.level', sl.level + 1)` | `chapterLabel(sl.level)` (mai jos) |
@@ -801,7 +801,7 @@ look: {
 
 ### S7.8 Lista de verificare pentru capturi
 
-Dupa E7, pentru fiecare captura a unui nivel nou, raspunsul trebuie sa fie "da" la toate:
+Dupa sarcina T6, pentru fiecare captura a unui nivel nou, raspunsul trebuie sa fie "da" la toate:
 
 1. Se vede dintr-o privire de unde vine lumina?
 2. Fiecare obiect mare are umbra pe pamant, in aceeasi directie?
