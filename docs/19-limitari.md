@@ -10,7 +10,7 @@ Tot jocul a fost facut si testat intr-un mediu Linux, cu Chrome fara fereastra. 
 |---|---|---|
 | Doua DualShock 4 pe macOS | Controllere false prin `navigator.getGamepads`, cu aceeasi asezare a butoanelor (`standard`). | Ca Chrome pe Mac raporteaza ambele controllere ca `standard`, cu ✕ pe butonul 0 si OPTIONS pe 9. |
 | Vibratia | Ca jocul cere vibratia (`vibrationActuator.playEffect`) la momentele potrivite. | Ca DualShock 4 chiar vibreaza in Chrome pe Mac. Daca nu, pagina controllerului spune "Acest controller nu poate vibra în Chrome." |
-| Sunetul in difuzorul controllerului | Ca alegerea difuzorului (`AudioContext.setSinkId`) porneste fara erori. | Daca Mac-ul vede DualShock 4 ca difuzor. Surse publice spun ca merge doar prin cablu USB, nu prin Bluetooth. |
+| Sunetul in difuzorul controllerului | Cu doua iesiri audio false: ca fiecare efect si fiecare cuvant ajunge in iesirea aleasa si nu in boxe (`sunete-controller.js`). | Daca Mac-ul vede DualShock 4 ca difuzor. Surse publice spun ca merge doar prin cablu USB, nu prin Bluetooth. |
 | Vocea care citeste povestea | Ca jocul alege o voce `ro-RO` sau `en-*` daca exista. In mediul de test nu exista, deci apare "Fără voce în română". | Ca vocea Ioana (romana) exista pe Mac si se aude. Se adauga din Setari sistem, Accesibilitate, Continut vorbit. |
 | Cum suna | Ca fiecare sunet porneste si varful nu depaseste 0.7. | Ca sunetele sunt placute, nu prea tari, nu prea incete. Nimeni nu le-a ascultat. |
 | Viteza pe Mac | Fara placa video, pe aceeasi masina: 23.1 ms pe cadru dupa update, 21.6 ms inainte. Update-ul costa aproximativ 1.5 ms. | Pe Mac ar trebui sa fie mult sub 16.7 ms. Daca sacadeaza: `maxRenderWidth` 1600 sau 1280, apoi `decorPerLevel` mai mic. |
@@ -42,3 +42,20 @@ Tot jocul a fost facut si testat intr-un mediu Linux, cu Chrome fara fereastra. 
 ## Cereri ambigue, asteptand confirmare
 
 Vezi sectiunea "Intrebari deschise" din `20-update-urmator.md`.
+
+## Bug cunoscut, nereparat: scrisul de sus acopera eroii
+
+Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js`: bannerul de la inceputul unei lupte acopera un erou in jumatate din locuri, iar HUD-ul il acopera pe cel de sus in peste o treime din asezari cand eroii sunt departe unul de altul. Repararea e specificata in `24-sisteme-noi.md`, S6, si e prima etapa (E1) a update-ului urmator.
+
+## Update-ul din 14 noiembrie 2026: ce nu e verificat sau nu e facut
+
+- **Difuzorul unui DualShock 4 real.** Bug-ul "nu se aud sunetele personajelor" a fost gasit prin masuratoare: vocile erau de 10 pana la 15 ori mai incete decat efectele. Acum se aud tare in boxele calculatorului. Ca se aud si in difuzorul controllerului nu a putut fi verificat fara un controller. Conditia ramane cablul USB. Prin Bluetooth, macOS nu arata controllerul ca difuzor si browserul nu are alta cale.
+- **Cum suna vocile noi.** Sunt mai tari si mai pline (cele mai tari cuvinte sunt acum cam cat tropaitul). Un limitator la iesire impiedica sunetul sa se rupa. Nimeni nu le-a ascultat. Daca sunt prea tari fata de muzica: "Sunete personaje" din Setari, sau castigul din `VOICES` in `03-audio.js`.
+- **Cat de grea e regula ajutorului pentru copii.** Botii ajuta in 1 pana la 3 secunde. Un copil de 6 ani poate avea nevoie de mult mai mult ca sa ajunga la fratele lui, iar cel lovit sta in acest timp. Reglaje: `rescue.autoAfter`, `reachNear`, `reachFar`.
+- **Durata celui de-al doilea joc.** Botul termina un nivel in 1 pana la 3 minute. Tinta de 45 de minute e reglata la fel ca in primul joc (`levelDuration` 360), nu masurata cu copii.
+- **George cel Rău, cat de greu e.** Luptele sunt castigate de boti in toate cele 72 de situatii, in 11 pana la 114 secunde. "Mai greu de învins" e adevarat fata de paznicii primului joc (mai multe inimi, trucuri noi). Daca e prea greu sau prea usor pentru copii se vede doar jucand.
+- **Desenele.** Boon, Killer si George sunt pictati dupa fotografiile desenelor, in stilul acuarela al jocului. Copiii pot vrea alte detalii. Pictorii sunt in `055-lupta.js`.
+- **Butonul □ pe un controller real.** E butonul 2 in asezarea `standard`. Verificat doar cu controllere false.
+- **Capturile 01 pana la 15** din `docs/capturi/` sunt dinainte de acest update.
+- **Nu s-au facut**, din update-ul trecut: optiunea "Personajele vorbesc" in Setari, decor diferit pe fiecare nivel al primului joc.
+- **`mini-lupte-bot.js`**: cand botul care ajuta ramane blocat intr-un obstacol mai mult de 6 secunde, testul il muta langa prieten. E o limita a botului (merge in linie dreapta), nu a jocului.

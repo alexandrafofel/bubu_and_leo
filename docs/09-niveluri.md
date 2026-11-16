@@ -160,3 +160,10 @@ Greutatea fiecarui fel este in `DECOR_WEIGHT`. Cele care reactioneaza (`DECOR_RE
 - Reactiile (`updateDecor` in `07-play.js`): cand un erou sau o minge trece la mai putin de 70 de unitati, o planta scoate un mic puf de frunze sau petale (`burst`) si are o pauza de 0.7 s. La un tropait, papadiile si frunzele sar mai sus (0.9 s). Iarba face un "fsss" scurt (`rustle`), cel mult o data la 0.8 s.
 - Melcul se retrage in coaja cand un erou e la mai putin de 90 de unitati. Buburuza zboara cand e atinsa (la 60), 2.2 s, apoi se intoarce.
 - Numarul total: 6 niveluri x 1700 = 10.200 de lucruri. Testat cu `numara-elemente.js`.
+
+## Update 14 noiembrie 2026
+
+- `levelDefs()` da definitiile jocului ales: `LEVEL_DEFS` sau `LEVEL_DEFS_L`. `levelCount()` e acelasi (6). Codul nu mai citeste `LEVEL_DEFS` direct.
+- Nivelurile celui de-al doilea joc folosesc acelasi generator si aceeasi verificare a drumului. Campurile noi din definitii (`night`, `robots`, `snails`, `birds`, `pits`, `vines`, `quick`, `door`, `rocket`), paletele de noapte si arena lui George (`genArena`) sunt descrise in `21-cea-mai-grea-lupta.md`.
+- Gandacii si conurile au acum `hp` (vezi `10-gameplay.md`). Generatorul nu s-a schimbat: `hp` se pune la prima lovitura.
+- Numarate cu `tests/numara-elemente.js`: 11.430 de obiecte in primul joc, 11.462 in al doilea.

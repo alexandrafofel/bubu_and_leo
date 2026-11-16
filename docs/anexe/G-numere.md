@@ -4,29 +4,30 @@
 
 | Ce | Cate |
 |---|---|
-| Fisiere sursa | 13 |
-| Linii de cod | 4243 |
-| Functii si metode | 337 |
-| Culori hex diferite | 311 |
-| Texte (romana) | 143 |
-| Texte (engleza) | 143 |
-| Efecte sonore | 34 |
-| Valori in CONFIG | 107 |
+| Fisiere sursa | 14 |
+| Linii de cod | 5720 |
+| Functii si metode | 448 |
+| Culori hex diferite | 530 |
+| Texte (romana) | 180 |
+| Texte (engleza) | 180 |
+| Efecte sonore | 38 |
+| Valori in CONFIG | 157 |
 
 ## Linii pe fisier
 
 | Fisier | Linii |
 |---|---|
 | 00-head.html | 16 |
-| 01-config.js | 126 |
-| 015-lang.js | 160 |
-| 02-core.js | 302 |
-| 03-audio.js | 372 |
-| 04-input.js | 156 |
-| 05-chars.js | 319 |
-| 06-level.js | 708 |
-| 07-play.js | 614 |
-| 075-duel.js | 344 |
-| 08-draw.js | 402 |
-| 09-screens.js | 607 |
-| 10-main.js | 117 |
+| 01-config.js | 189 |
+| 015-lang.js | 222 |
+| 02-core.js | 354 |
+| 03-audio.js | 524 |
+| 04-input.js | 157 |
+| 05-chars.js | 338 |
+| 055-lupta.js | 371 |
+| 06-level.js | 942 |
+| 07-play.js | 790 |
+| 075-duel.js | 376 |
+| 08-draw.js | 514 |
+| 09-screens.js | 801 |
+| 10-main.js | 126 |

@@ -164,3 +164,46 @@ Inainte de fiecare rafala este 1 secunda de avertizare (sunet "whoosh" si frunze
 | `heroes[1].kickCooldown` | 1.2 | Secunde dupa un sut in care o noua apasare cheama mingile inapoi. Dupa aceea, o apasare trage un sut nou. | |
 | `decorPerLevel` | 1700 | Cate lucruri mici de decor are fiecare nivel (iarba, flori, pietre...). 6 niveluri x 1700 = 10.200. | Cerut: minim 10.000 de elemente. |
 | `babble` | `true` | Personajele vorbesc in cuvintele lor inventate (30 pentru fiecare). `false` = doar sunetele efectelor. | Cerut: "un fel de limba a lor". |
+
+## Valori noi din update-ul din 14 noiembrie 2026
+
+Toate sunt comune celor doua jocuri, in afara de blocul `lupta`.
+
+### Ajutorul: `rescue`
+
+| Cheie | Valoare | Ce face | De ce |
+|---|---|---|---|
+| `enabled` | `true` | Un erou lovit asteapta pana il ajuta prietenul cu □. `false` = regula veche: se ridica singur dupa `dizzyTime`. | Cerut. |
+| `reachNear` | 180 | Cat de aproape trebuie sa vina primul erou (Bubu, Boon) ca sa ajute. | Cerut: "tb sa vina aproape si îl vindeca cu mâinile". 180 = cam trei latimi de erou. La 130 botii nimereau greu locul langa un perete. |
+| `reachFar` | 620 | De la ce distanta poate ajuta al doilea erou (Leo, Killer). | Cerut: "poate sta mai departe si ii da o minge magică". 620 = cam o treime din latimea ecranului. |
+| `ballSpeed` | 900 | Viteza mingii magice. | Ajunge in mai putin de o secunda. |
+| `safeAfter` | 2.6 | Secunde in care nimic nu il atinge pe eroul abia ridicat. | Cu 1.6 era lovit din nou inainte sa plece de langa inamic. |
+| `bothDown` | 3 | Amandoi loviti: dupa atatea secunde se ridica singuri. | Altfel jocul s-ar opri. |
+| `autoAfter` | 0 | Dupa cate secunde se ridica singur un erou. 0 = niciodata. | Cererea spune "pana când celălalt jucător nu vine". Reglajul exista daca asteptarea e prea lunga pentru cel mic. |
+| `callEvery` | 5 | Secunde intre doua strigate dupa ajutor. | |
+
+### Inamicii mici: `smallEnemy`
+
+| Cheie | Valoare | Ce face |
+|---|---|---|
+| `hits` | 2 | Lovituri pana dispare un gandac sau un con (robot, melc, pasare in al doilea joc). |
+| `respawn` | 22 | Secunde pana apare altul in locul lui. |
+
+### Mila in mini-lupte: `duel.mercy`, `duel.mercyMax`
+
+| Cheie | Valoare | Ce face |
+|---|---|---|
+| `mercy` | 0.06 | Pentru fiecare erou lovit intr-o lupta, paznicul avertizeaza cu 6% mai mult, e cu 3.6% mai incet si sta obosit cu 12% mai mult. 0 = oprit. |
+| `mercyMax` | 10 | Se numara cel mult atatea lovituri. De la acest numar in sus, orice lovitura pe paznic conteaza, ca pe Ușor. |
+
+De ce: cu regula ajutorului o lovitura costa mult mai mult timp decat inainte. Vezi `11-mini-lupte.md`.
+
+### Tastele: `keys[k].b`
+
+Tasta "Ajută prietenul": `KeyE` pentru primul jucator, `ShiftRight` pentru al doilea. Butonul □ al controllerului nu se regleaza (este butonul 2).
+
+### Al doilea joc: `lupta`
+
+Cat se joaca "Cea mai grea luptă", `lupta.heroes`, `lupta.villainName` si `lupta.boss` iau locul valorilor cu acelasi nume. Restul din `CONFIG` e comun. Fiecare valoare din `lupta` e explicata in `21-cea-mai-grea-lupta.md`, sectiunea "Reglaje".
+
+Atentie: `heroes[0]` si `heroes[1]` din tabelele de mai sus sunt eroii primului joc. Pentru Boon si Killer schimbi `lupta.heroes[0]` si `lupta.heroes[1]`.

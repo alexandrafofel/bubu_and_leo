@@ -1,4 +1,4 @@
-// settings: real key presses and fake controllers, screenshots of every page
+// settings: real key presses and fake controllers, screenshots of every page. Jocul: variabila JOC (bubu sau lupta).
 const boot = require('./common.js');
 (async () => {
   const { page, shot, done } = await boot({ manual: false, init: () => {
@@ -12,7 +12,10 @@ const boot = require('./common.js');
   const pad = async (i, b, ms = 80) => { await page.evaluate(([i, b]) => { fakePads[i].buttons[b].pressed = true; }, [i, b]); await page.waitForTimeout(ms); await page.evaluate(([i, b]) => { fakePads[i].buttons[b].pressed = false; }, [i, b]); await page.waitForTimeout(90); };
   const info = (lbl) => page.evaluate((lbl) => { const G = __game, s = G.UI.set; return lbl + ' ' + JSON.stringify({ st: G.Game.state, set: s ? [s.page, s.p, s.sel[s.page], s.msg, s.cap] : null, lang: G.Opt.lang, ctrl: G.Opt.ctrl, swap: G.Opt.swap, keys: G.Opt.keys.map(k => Object.values(k).join(',')), diff: G.Game.diff, guide: G.Opt.guide, vol: G.Snd.vol, pads: G.Input.slots.map(s => s.pad), joined: G.Input.slots.map(s => s.joined), seen: G.UI.seen, vib: G.Opt.vibration }); }, lbl);
   await shot('u_boot');
-  await page.mouse.click(900, 500); await page.waitForTimeout(400); console.log(await info('boot->title'));
+  await page.mouse.click(900, 500); await page.waitForTimeout(1500); console.log(await info('boot->select (alege jocul)'));
+  await shot('u_select');
+  if (require('./pw.js').game === 'lupta') await key('ArrowRight');
+  await key('Enter'); await page.waitForTimeout(300); console.log(await info('Enter: jocul ales -> title'));
   await shot('u_title0');
   await key('KeyP'); console.log(await info('P opens settings')); await shot('u_set_main');
   await key('ArrowRight'); console.log(await info('language -> en')); await shot('u_set_main_en');
@@ -27,7 +30,8 @@ const boot = require('./common.js');
   await key('KeyI'); console.log(await info('up = I'));
   await key('ArrowDown'); await key('Enter'); await key('ArrowUp'); console.log(await info('down = ArrowUp (was player 2 up): swapped')); await shot('u_set_keys2');
   await key('ArrowDown'); await key('Enter'); await key('KeyP'); console.log(await info('left = P (reserved): refused'));
-  await key('ArrowDown'); await key('ArrowDown'); await key('ArrowDown'); await key('Enter'); console.log(await info('reset keys'));
+  await key('ArrowDown'); await key('ArrowDown'); await key('ArrowDown'); await key('Enter'); await key('KeyQ'); console.log(await info('help the friend (the square) = Q'));
+  await key('ArrowDown'); await key('Enter'); console.log(await info('reset keys'));
   await key('Backspace'); console.log(await info('back to player'));
   await key('ArrowUp'); await key('ArrowLeft'); console.log(await info('p1 plays with controller'));
   await key('ArrowDown'); await key('Enter'); console.log(await info('pad page (no pad yet)')); await shot('u_set_pad0');

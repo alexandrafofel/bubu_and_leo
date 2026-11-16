@@ -24,6 +24,32 @@ const LEVEL_DEFS = [
     stars: ['treetop', 'guarded', 'islet'] }
 ];
 const BOSS_DEF = { key: 'boss', music: 'boss', icons: ['bubu', 'ciori', 'leo'], };
+/* The six levels of the second game, "Cea mai grea luptă": the jungle at night, in rainbow colors.
+   The same building blocks as above, with other things in them:
+   beetles = George's robots, lanes = sticky snails, mud = slime / quicksand / tangled vines (slowKind),
+   pond + pit = a deep pit, mills = totems with a rainbow pinwheel, lanterns = torches, cliff + door = the hideout behind the vines,
+   birds = big birds that carry a hero a little way. */
+const LEVEL_DEFS_L = [
+  { key: 'glade', music: 'l0', pal: 'glade', night: true, icons: ['egg', 'boon', 'killer'],
+    trees: 30, rocks: 6, hay: 8, beetles: [0, 0, 0], lanes: [0, 1, 1], conesPerLane: 1, coneSpeed: 0.5, mud: [0, 0, 0], sparkle: [0, 1, 1],
+    pond: true, pit: true, stars: ['islet', 'nook', 'treetop'] },
+  { key: 'robots', music: 'l1', pal: 'robots', night: true, icons: ['robot', 'tree', 'egg'],
+    trees: 100, rocks: 8, bigTrees: true, beetles: [2, 4, 5], lanes: [0, 0, 1], conesPerLane: 1, coneSpeed: 0.55, mud: [0, 0, 0], sparkle: [2, 3, 3],
+    stars: ['guarded', 'treetop', 'nook'] },
+  { key: 'snails', music: 'l2', pal: 'snails', night: true, icons: ['mud', 'cone', 'egg'],
+    trees: 40, rocks: 10, beetles: [1, 1, 2], lanes: [1, 2, 2], conesPerLane: 1, coneSpeed: 0.55, mud: [3, 5, 4], slowKind: 'slime', sparkle: [1, 1, 2], river: 'v',
+    stars: ['guarded', 'islet', 'treetop'] },
+  { key: 'ridge', music: 'l3', pal: 'ridge', night: true, icons: ['wind', 'bird', 'mud'],
+    trees: 18, rocks: 20, mills: 4, beetles: [1, 2, 3], lanes: [1, 1, 1], conesPerLane: 1, coneSpeed: 0.55, mud: [1, 2, 2], slowKind: 'sand', slow: 0.32, sparkle: [1, 1, 2], wind: 1, birds: 2,
+    stars: ['nook', 'guarded', 'treetop'] },
+  { key: 'vines', music: 'l4', pal: 'vines', night: true, icons: ['vine', 'door', 'star'],
+    trees: 46, rocks: 12, beetles: [2, 2, 3], lanes: [1, 1, 2], conesPerLane: 1, coneSpeed: 0.55, mud: [1, 2, 2], slowKind: 'vines', sparkle: [1, 1, 2], cliff: true, river: 'fall', door: true,
+    stars: ['guarded', 'islet', 'nook'], pathY: [1100, 1420] },
+  { key: 'road', music: 'l5', pal: 'road', night: true, icons: ['lantern', 'butterfly', 'egg'],
+    trees: 50, rocks: 10, beetles: [2, 3, 4], lanes: [1, 2, 2], conesPerLane: 2, coneSpeed: 0.55, mud: [1, 2, 2], slowKind: 'sand', slow: 0.32, sparkle: [2, 2, 2], wind: 0.5, lanterns: true, pond: true, pit: true, birds: 1,
+    stars: ['treetop', 'guarded', 'islet'] }
+];
+const BOSS_DEF_L = { key: 'arena', music: 'boss', night: true, icons: ['boon', 'ciori', 'killer'] };
 
 const PALS = {
   meadow: { g0: '#CBD08F', g1: '#B4C283', tints: ['#E6D58A', '#A9BF7E', '#DCC47C', '#C7D39A', '#EBCB9C', '#B9CC8A'], canopy: ['#8FAF6A', '#A3BC72', '#7E9F63', '#B9C77A'], flowers: ['#E7A6A1', '#F3D36B', '#FBF3DE', '#E58F6B'], path: '#EBCB9E', trunk: '#9A6B4C', rock: '#C8AE98' },
@@ -31,11 +57,22 @@ const PALS = {
   river:  { g0: '#C6C389', g1: '#B3B57D', tints: ['#D8B987', '#A9B97F', '#C9A979', '#BFC98E'], canopy: ['#93AD6E', '#A9B878', '#829D66'], flowers: ['#FBF3DE', '#E7A6A1', '#F3D36B'], path: '#E5C597', trunk: '#96684A', rock: '#C2A994' },
   hill:   { g0: '#D9C985', g1: '#C8BE7C', tints: ['#E8CE86', '#BFC480', '#E5B97C', '#D9D08E', '#EBD59A'], canopy: ['#A7B56B', '#BFBF73', '#96A965'], flowers: ['#E58F6B', '#F3D36B', '#FBF3DE', '#E7A6A1'], path: '#F0D3A3', trunk: '#9A6B4C', rock: '#CDB39A' },
   fall:   { g0: '#B6C18C', g1: '#A2B382', tints: ['#C8C08A', '#93AE84', '#D2B48A', '#A9BC8E'], canopy: ['#7E9F6B', '#96AE74', '#6E9068', '#A6B67A'], flowers: ['#FBF3DE', '#E7A6A1', '#F3D36B'], path: '#E0C295', trunk: '#8A6048', rock: '#BFA090' },
+  // the second game: the jungle at night. Deep blue and violet ground, plants and paths that glow.
+  glade:  { night: true, g0: '#4A4A92', g1: '#3B3C7C', tints: RAINBOW, canopy: ['#2F9A84', '#3FB094', '#4A78C8', '#8A62C0', '#2F8AB0'], flowers: ['#FF8AB8', '#FFD84A', '#7AF0C8', '#B09AFF', '#FF9A5A'], path: '#8D8ACC', trunk: '#6A4A82', rock: '#9490D0' },
+  robots: { night: true, g0: '#2F6274', g1: '#285262', tints: RAINBOW, canopy: ['#7A58B8', '#5A6FC8', '#2F9A8A', '#A060B8', '#3F88B8'], flowers: ['#7AF0C8', '#FFD84A', '#FF8AB8', '#9AD8FF'], path: '#7AA6B8', trunk: '#5A4A7A', rock: '#8AA0C8' },
+  snails: { night: true, g0: '#4E4484', g1: '#40386E', tints: RAINBOW, canopy: ['#2F9A84', '#58B078', '#3F7AB8', '#7A62B8'], flowers: ['#B7F0A0', '#FF8AB8', '#FFD84A', '#9AD8FF'], path: '#9088C4', trunk: '#6A4A82', rock: '#8E8AC8' },
+  ridge:  { night: true, g0: '#44578E', g1: '#394A7C', tints: RAINBOW, canopy: ['#3F9AA8', '#5A82C8', '#8A6AC0', '#38A08A'], flowers: ['#FFD84A', '#FF9A5A', '#FF8AB8', '#B09AFF'], path: '#93A0D0', trunk: '#5E4E86', rock: '#98A2D4' },
+  vines:  { night: true, g0: '#2F6066', g1: '#275258', tints: RAINBOW, canopy: ['#2F9A6A', '#48B078', '#2F8A8A', '#6AB86A', '#3F7A9A'], flowers: ['#FF8AB8', '#FFD84A', '#B09AFF', '#7AF0C8'], path: '#7FB0A8', trunk: '#4E5A6A', rock: '#84A8B8' },
+  road:   { night: true, g0: '#5C417C', g1: '#4C366C', tints: RAINBOW, canopy: ['#B0589A', '#8A58B8', '#D8704A', '#5A6FC8', '#C8508A'], flowers: ['#FFD84A', '#FF9A5A', '#FF8AB8', '#7AF0C8'], path: '#A88AC4', trunk: '#5E3E6E', rock: '#A088C0' },
   sunset: { g0: '#D6B87E', g1: '#C5A674', tints: ['#E4A771', '#DB9C79', '#CBB47C', '#E2BB8C', '#D8A07A'], canopy: ['#D98A52', '#E2A04F', '#C96F4E', '#E6B65A', '#B98A5A'], flowers: ['#F3D36B', '#E58F6B', '#FBF3DE'], path: '#EECFA2', trunk: '#8A5A48', rock: '#C4A08E' }
 };
 const HERO_R = 27;                       // collision radius of the heroes
 const levelCount = () => clamp(CONFIG.levels | 0, 1, 12);
-const levelDef = idx => LEVEL_DEFS[idx % LEVEL_DEFS.length];
+const levelDefs = () => isLupta() ? LEVEL_DEFS_L : LEVEL_DEFS;
+const levelDef = idx => levelDefs()[idx % levelDefs().length];
+/* What the slow ground looks like: mud in the first game; slime, quicksand or tangled vines in the second. [dark rim, body, light, blotch 1, blotch 2, shine] */
+const SLOW_COLS = { mud: ['#7E5A4C', '#A07A5C', '#B08A68', '#8A6452', '#B8926E', '#DCC0A0'], slime: ['#3F8A62', '#6FD08A', '#A8EC98', '#58BF7A', '#B7F0A0', '#EEFFD8'],
+  sand: ['#8A7AA0', '#D6C592', '#E8DAAC', '#C8B486', '#EADCA8', '#FFF6D8'], vines: ['#1F5A4A', '#2F7A5A', '#4E9A6A', '#2A6A52', '#62B07A', '#B7E6B0'] };
 const skyTOf = idx => levelCount() === 1 ? 0.4 : idx / (levelCount() - 1) * 0.95;
 
 function spline(pts, stepLen) {          // Catmull-Rom through points, resampled evenly
@@ -62,7 +99,7 @@ function genLevel(idx, seed) {
   const def = levelDef(idx), r = rng(seed), WW = 3200, WH = 1800, cols = WW / CS, rows = WH / CS;
   const NW = clamp(CONFIG.wavesPerLevel | 0, 1, 5);
   const top = def.cliff ? 520 : 280;
-  const L = { idx, def, seed, W: WW, H: WH, cols, rows, top, skyH: def.cliff ? 160 : 280, pal: PALS[def.pal], skyT: skyTOf(idx),
+  const L = { idx, def, seed, night: !!def.night, W: WW, H: WH, cols, rows, top, skyH: def.cliff ? 160 : 280, pal: PALS[def.pal], skyT: skyTOf(idx),
     grid: new Uint8Array(cols * rows), flag: new Uint8Array(cols * rows), solids: [], trees: [], dynTrees: [], beetles: [], lanes: [], cones: [],
     bridges: [], stones: [], mills: [], lanterns: [], stars: [], waves: [], waterCells: [], sprites: [],
     spawn: { x: 240, y: 1080 }, nest: { x: 2950, y: 1040 }, NW, minZoom: 0.6 };
@@ -105,7 +142,8 @@ function genLevel(idx, seed) {
       const nx = ((cx + 0.5) * CS - 1620) / 330, ny = ((cy + 0.5) * CS - 790) / 132;
       if (nx * nx + ny * ny < 1) setWater(cx, cy);
     }
-    L.fall = { x: 1620, w: 250, y0: 160, y1: 668 };
+    if (def.door) L.vines = { x: 1620, w: 290, y0: 150, y1: 520 };    // second game: a curtain of vines hides the door to the hideout
+    else L.fall = { x: 1620, w: 250, y0: 160, y1: 668 };
     L.cave = { x0: 1440, y0: 240, x1: 1760, y1: 520, reveal: 0, egg: { x: 1600, y: 335 } };
     L.cover = { x: 1400, y: 215, w: 400, h: 310 };
   }
@@ -361,6 +399,7 @@ function genLevel(idx, seed) {
     }
   }
   for (let i = 0; i < G.length; i++) if (G[i] === 2) L.waterCells.push(i);
+  if (def.birds) { L.birds = []; for (let i = 0; i < def.birds; i++) L.birds.push({ state: 'gone', t: 6 + i * 7 + r() * 4, x: 0, y: 0, dir: 1, hp: 2, wing: 0, rest: 0, grab: null }); }   // big birds come later, one after the other
   L.reachCells = reachCells; L.ci = ci; L.pathDist = pathDist;
   L.decor = makeDecor(L, L.seed);
   return L;
@@ -375,9 +414,13 @@ function genLevel(idx, seed) {
    they are drawn live every frame, but only the ones on screen. Nothing here blocks a hero. */
 const DECOR_WEIGHT = { grass: 6, clover: 2, daisy: 3, reed: 1, dandelion: 2, leaf: 2, snail: 1, ladybug: 1, mushroom: 14, pebble: 18, bush: 12, twig: 12, moss: 12 };   // reacting kinds are about a fifth: they are drawn every frame
 const DECOR_REACT = { grass: 'puff', clover: 'puff', daisy: 'puff', reed: 'puff', dandelion: 'puff', leaf: 'puff', snail: 'hide', ladybug: 'fly' };
+/* The decor of the second game: as many kinds, with the same ways of reacting, but the things of a jungle at night. */
+const DECOR_WEIGHT_L = { fern: 6, orchid: 3, glowcap: 2, bellflower: 2, puffball: 2, bigleaf: 1, glowworm: 1, firefly: 1, gem: 14, bolt: 12, root: 12, mossglow: 12, pawprint: 12 };
+const DECOR_REACT_L = { fern: 'puff', orchid: 'puff', glowcap: 'puff', bellflower: 'puff', puffball: 'puff', bigleaf: 'puff', glowworm: 'hide', firefly: 'fly' };
 function makeDecor(L, seed) {
-  const r = rng(seed + 555), out = [], types = Object.keys(DECOR_WEIGHT), total = types.reduce((a, t) => a + DECOR_WEIGHT[t], 0);
-  const pickType = () => { let x = r() * total; for (const t of types) { x -= DECOR_WEIGHT[t]; if (x < 0) return t; } return types[0]; };
+  const WT = L.night ? DECOR_WEIGHT_L : DECOR_WEIGHT, RE = L.night ? DECOR_REACT_L : DECOR_REACT;
+  const r = rng(seed + 555), out = [], types = Object.keys(WT), total = types.reduce((a, t) => a + WT[t], 0);
+  const pickType = () => { let x = r() * total; for (const t of types) { x -= WT[t]; if (x < 0) return t; } return types[0]; };
   let tries = 0;
   while (out.length < CONFIG.decorPerLevel && tries++ < CONFIG.decorPerLevel * 8) {
     const x = r() * L.W, y = lerp(L.top + 30, L.H - 24, r());
@@ -386,7 +429,7 @@ function makeDecor(L, seed) {
     let bad = false; for (const s of L.solids) if (dist(x, y, s.x, s.y) < s.r + 12) { bad = true; break; }
     if (bad) continue;
     const type = pickType();
-    out.push({ type, x, y, s: 0.8 + r() * 0.45, rot: (r() - 0.5) * 0.5, v: r() * 4 | 0, react: !!DECOR_REACT[type], live: type === 'snail' || type === 'ladybug', cool: 0, hide: 0, flyT: 0 });
+    out.push({ type, x, y, s: 0.8 + r() * 0.45, rot: (r() - 0.5) * 0.5, v: r() * 4 | 0, react: !!RE[type], rk: RE[type] || '', live: RE[type] === 'hide' || RE[type] === 'fly', cool: 0, hide: 0, flyT: 0 });   // rk: how it reacts (puff, hide, fly)
   }
   return out;
 }
@@ -434,6 +477,56 @@ function paintDecor(cc, type, v, seed) {
     cc.lineWidth = 2.5; cc.beginPath(); cc.moveTo(50, 74); cc.lineTo(58, 60); cc.stroke();
   } else if (type === 'moss') {
     for (let i = 0; i < 4; i++) wash(cc, 34 + i * 9 + (r() - 0.5) * 4, 76 + (r() - 0.5) * 4, 7, 4, pick(GREEN), { a: 0.9, seed: i + v * 2, edge: 1 });
+  } else paintDecorL(cc, type, v, r, pick);
+}
+/* The decor of the second game (the jungle at night). Glowing things get a soft halo of their own color. */
+function paintDecorL(cc, type, v, r, pick) {
+  const JG = ['#3FB094', '#58C89A', '#2F9A84', '#7AD6A8'], glow = (x, y, rad, col, a) => { const g = cc.createRadialGradient(x, y, 1, x, y, rad); g.addColorStop(0, rgba(col, a)); g.addColorStop(1, rgba(col, 0)); cc.fillStyle = g; cc.beginPath(); cc.arc(x, y, rad, 0, TAU); cc.fill(); };
+  if (type === 'fern') {
+    for (let i = 0; i < 5; i++) { const a = -Math.PI / 2 + (i - 2) * 0.42 + (r() - 0.5) * 0.15, l = 26 + r() * 16; cc.strokeStyle = rgba(pick(JG), 0.95); cc.lineWidth = 3; cc.lineCap = 'round'; cc.beginPath(); cc.moveTo(48, 82); cc.quadraticCurveTo(48 + Math.cos(a) * l * 0.5, 82 + Math.sin(a) * l * 0.8, 48 + Math.cos(a) * l, 82 + Math.sin(a) * l * 0.8); cc.stroke(); }
+  } else if (type === 'orchid') {
+    const col = RAINBOW[(v * 2 + 6) % 7]; glow(48, 62, 26, col, 0.35);
+    cc.strokeStyle = rgba('#3FB094', 0.9); cc.lineWidth = 2.2; cc.beginPath(); cc.moveTo(48, 68); cc.lineTo(47, 88); cc.stroke();
+    for (let i = 0; i < 5; i++) { const a = i / 5 * TAU - 1.57; wash(cc, 48 + Math.cos(a) * 9, 62 + Math.sin(a) * 8, 7, 5, col, { a: 0.95, seed: i + v, edge: 1 }); }
+    wash(cc, 48, 62, 3.5, 3.5, '#FFF6D0', { a: 1, seed: v, edge: 0 });
+  } else if (type === 'glowcap') {
+    const col = RAINBOW[(v * 3 + 2) % 7]; glow(48, 62, 30, col, 0.4);
+    cc.fillStyle = rgba('#EDE6FF', 0.95); cc.fillRect(44, 66, 8, 16);
+    wash(cc, 48, 62, 15, 10, col, { a: 0.95, seed: v + 6, edge: 1 }); wash(cc, 44, 59, 4, 3, '#FFFFFF', { a: 0.7, seed: v, edge: 0 });
+  } else if (type === 'bellflower') {
+    const col = RAINBOW[(v + 4) % 7]; glow(52, 56, 22, col, 0.3);
+    cc.strokeStyle = rgba('#58C89A', 0.9); cc.lineWidth = 2.2; cc.beginPath(); cc.moveTo(46, 88); cc.quadraticCurveTo(44, 60, 54, 50); cc.stroke();
+    for (let i = 0; i < 3; i++) wash(cc, 50 + i * 4, 56 + i * 7, 5, 6, col, { a: 0.95, seed: i + v, edge: 1 });
+  } else if (type === 'puffball') {
+    glow(48, 38, 22, '#E8E0FF', 0.3);
+    cc.strokeStyle = rgba('#58C89A', 0.9); cc.lineWidth = 2; cc.beginPath(); cc.moveTo(48, 86); cc.lineTo(48, 44); cc.stroke();
+    for (let i = 0; i < 12; i++) { const a = r() * TAU, d = r() * 11; wash(cc, 48 + Math.cos(a) * d, 38 + Math.sin(a) * d, 3, 3, i % 3 ? '#F4EEFF' : RAINBOW[i % 7], { a: 0.9, seed: i + v, edge: 1 }); }
+  } else if (type === 'bigleaf') {
+    wash(cc, 48, 70, 19, 10, pick(JG), { a: 0.95, seed: v + 3, edge: 1 });
+    cc.strokeStyle = rgba('#C8FFE0', 0.7); cc.lineWidth = 1.6; cc.beginPath(); cc.moveTo(32, 72); cc.lineTo(64, 68); cc.stroke();
+  } else if (type === 'glowworm') {
+    glow(48, 72, 24, '#B7F0A0', 0.35);
+    for (let i = 0; i < 5; i++) wash(cc, 38 + i * 5, 74 - Math.sin(i * 0.9) * 4, 4.5, 4, i % 2 ? '#B7F0A0' : '#7AD68A', { a: 0.95, seed: i + v, edge: 1 });
+    soft(cc, 60, 71, 1.4, 1.4, SHADOW, 0.9, v);
+  } else if (type === 'firefly') {
+    glow(50, 60, 22, '#FFE88A', 0.6);
+    wash(cc, 50, 61, 4.5, 3.5, '#FFE88A', { a: 1, seed: v + 5, edge: 0 });
+    wash(cc, 46, 57, 4, 2.2, '#EAF2FF', { a: 0.7, seed: v + 6, edge: 0 }); wash(cc, 54, 57, 4, 2.2, '#EAF2FF', { a: 0.7, seed: v + 7, edge: 0 });
+  } else if (type === 'gem') {
+    const col = RAINBOW[(v * 2 + 1) % 7]; glow(48, 72, 16, col, 0.3);
+    cc.fillStyle = rgba(col, 0.95); cc.beginPath(); cc.moveTo(48, 62); cc.lineTo(55, 72); cc.lineTo(50, 82); cc.lineTo(42, 76); cc.closePath(); cc.fill();
+    cc.fillStyle = 'rgba(255,255,255,0.6)'; cc.beginPath(); cc.moveTo(48, 62); cc.lineTo(51, 70); cc.lineTo(45, 71); cc.closePath(); cc.fill();
+  } else if (type === 'bolt') {
+    wash(cc, 48, 74, 9, 7, '#A6B0DE', { a: 0.95, seed: v + 7, edge: 1 }); wash(cc, 48, 74, 3.5, 3, '#56609E', { a: 0.9, seed: v + 8, edge: 0 });
+    wash(cc, 46, 79, 8, 2.5, SHADOW, { a: 0.3, seed: v + 9, edge: 0 });
+  } else if (type === 'root') {
+    cc.strokeStyle = rgba('#6A4A82', 0.9); cc.lineWidth = 4.5; cc.lineCap = 'round'; cc.beginPath(); cc.moveTo(28, 78); cc.quadraticCurveTo(46, 62, 68, 74); cc.stroke();
+    cc.lineWidth = 2.5; cc.beginPath(); cc.moveTo(48, 68); cc.lineTo(54, 58); cc.stroke();
+  } else if (type === 'mossglow') {
+    for (let i = 0; i < 4; i++) wash(cc, 34 + i * 9 + (r() - 0.5) * 4, 76 + (r() - 0.5) * 4, 7, 4, i % 2 ? '#58C89A' : '#7AF0C8', { a: 0.85, seed: i + v * 2, edge: 1 });
+  } else if (type === 'pawprint') {
+    cc.fillStyle = rgba(SHADOW, 0.3); cc.beginPath(); cc.ellipse(48, 76, 8, 6, 0, 0, TAU); cc.fill();
+    for (let i = 0; i < 3; i++) { cc.beginPath(); cc.ellipse(40 + i * 8, 66 - (i === 1 ? 3 : 0), 3, 4.5, (i - 1) * 0.3, 0, TAU); cc.fill(); }
   }
 }
 const decorSprite = (type, v) => sprite('dec-' + type + '-' + v, 96, 96, cc => paintDecor(cc, type, v, 7));
@@ -453,6 +546,60 @@ function paintTree(c, t, P, ox, oy) {
     const a = r() * TAU, d = R * (0.45 + r() * 0.52);
     wash(c, x + Math.cos(a) * d, y + Math.sin(a) * d * 0.92, R * (0.1 + r() * 0.08), R * (0.07 + r() * 0.06), shade(col, (r() - 0.55) * 0.6), { a: 0.5, seed: k + t.seed, layers: 1, edge: 0 });
   }
+  if (P.night) {                         // second game: giant jungle plants. Big leaves all around, a glowing heart, little lights.
+    const n = 7 + (t.seed | 0) % 3, a0 = r() * TAU, fc = P.flowers[(t.seed | 0) % P.flowers.length];
+    for (let k = 0; k < n; k++) { const a = a0 + k / n * TAU; c.save(); c.translate(x + Math.cos(a) * R * 0.62, y + Math.sin(a) * R * 0.56); c.rotate(a); wash(c, 0, 0, R * 0.42, R * 0.17, shade(col, 0.22), { a: 0.75, seed: k + t.seed, wob: 0.1, edgeA: 0.22 }); c.strokeStyle = rgba(shade(col, 0.55), 0.5); c.lineWidth = 2; c.beginPath(); c.moveTo(-R * 0.34, 0); c.lineTo(R * 0.36, 0); c.stroke(); c.restore(); }
+    const g = c.createRadialGradient(x, y, 2, x, y, R * 0.5); g.addColorStop(0, rgba(fc, 0.75)); g.addColorStop(1, rgba(fc, 0)); c.fillStyle = g; c.beginPath(); c.arc(x, y, R * 0.5, 0, TAU); c.fill();
+    wash(c, x, y, R * 0.15, R * 0.14, '#FFF6D0', { a: 0.9, seed: t.seed + 7, edge: 0 });
+    for (let k = 0; k < 6; k++) { const a = r() * TAU, d = R * (0.3 + r() * 0.6); wash(c, x + Math.cos(a) * d, y + Math.sin(a) * d * 0.9, 3.5, 3.5, P.flowers[k % P.flowers.length], { a: 0.95, seed: k, layers: 1, edge: 0 }); }
+  }
+}
+/* Second game: a rock with little crystals growing on it, a big glowing mushroom, a torch, a totem with a rainbow pinwheel. */
+function paintCrystalRock(c, x, y, R, col, seed) {
+  paintRock(c, x, y, R, col, seed);
+  const r = rng(seed * 3 + 5);
+  for (let i = 0; i < 3; i++) { const a = -2.6 + i * 0.9 + r() * 0.3, px = x + Math.cos(a) * R * 0.5, py = y + Math.sin(a) * R * 0.45, h = R * (0.5 + r() * 0.3), cl = RAINBOW[(seed + i * 2 | 0) % 7]; c.fillStyle = rgba(cl, 0.92); c.beginPath(); c.moveTo(px - R * 0.14, py); c.lineTo(px, py - h); c.lineTo(px + R * 0.14, py); c.closePath(); c.fill(); c.fillStyle = 'rgba(255,255,255,0.5)'; c.beginPath(); c.moveTo(px - R * 0.14, py); c.lineTo(px, py - h); c.lineTo(px - R * 0.03, py); c.closePath(); c.fill(); }
+}
+function paintShroom(c, x, y, R, seed) {
+  const col = RAINBOW[(seed | 0) % 7], g = c.createRadialGradient(x, y - R * 0.2, R * 0.3, x, y - R * 0.2, R * 1.9);
+  g.addColorStop(0, rgba(col, 0.4)); g.addColorStop(1, rgba(col, 0)); c.fillStyle = g; c.beginPath(); c.arc(x, y - R * 0.2, R * 1.9, 0, TAU); c.fill();
+  wash(c, x, y + R * 0.35, R * 0.32, R * 0.6, '#EDE6FF', { a: 1.1, seed: seed + 1, wob: 0.08, edgeA: 0.25 });
+  wash(c, x, y - R * 0.25, R * 1.05, R * 0.78, col, { a: 1.2, seed, wob: 0.08, n: 12, edgeA: 0.3 });
+  wash(c, x + R * 0.25, y - R * 0.5, R * 0.5, R * 0.3, shade(col, 0.5), { a: 0.5, seed: seed + 2, edge: 0 });
+  const r = rng(seed * 7 + 3);
+  for (let i = 0; i < 7; i++) { const a = r() * TAU, d = r() * R * 0.75; wash(c, x + Math.cos(a) * d, y - R * 0.25 + Math.sin(a) * d * 0.7, R * 0.1, R * 0.08, '#FFFBEA', { a: 0.9, seed: i, layers: 1, edge: 0 }); }
+}
+function paintTorch(c, x, y) {
+  c.strokeStyle = '#6A4A6A'; c.lineWidth = 8; c.lineCap = 'round'; c.beginPath(); c.moveTo(x, y); c.lineTo(x, y - 78); c.stroke();
+  c.strokeStyle = '#E0A04A'; c.lineWidth = 3; for (const yy of [y - 22, y - 46]) { c.beginPath(); c.moveTo(x - 5, yy); c.lineTo(x + 5, yy - 3); c.stroke(); }
+  wash(c, x, y - 82, 15, 9, '#C8784A', { a: 1.1, seed: 8, wob: 0.06 });
+}
+function drawFlame(c, x, y, t, s, lit) {    // a torch flame that flickers (lit: 0 to 1)
+  if (lit <= 0) return;
+  const fl = 0.85 + Math.sin(t * 11 + x) * 0.1 + Math.sin(t * 23 + x * 2) * 0.06, h = 46 * s * fl * lit;
+  const g = c.createRadialGradient(x, y - h * 0.4, 4, x, y - h * 0.4, 150 * s); g.addColorStop(0, 'rgba(255,214,140,' + 0.7 * lit + ')'); g.addColorStop(0.35, 'rgba(255,170,90,' + 0.25 * lit + ')'); g.addColorStop(1, 'rgba(255,150,80,0)');
+  c.fillStyle = g; c.beginPath(); c.arc(x, y - h * 0.4, 150 * s, 0, TAU); c.fill();
+  const sway = Math.sin(t * 7 + x) * 5 * s;
+  c.fillStyle = '#F58A3C'; c.beginPath(); c.moveTo(x - 13 * s, y); c.quadraticCurveTo(x - 16 * s, y - h * 0.5, x + sway, y - h); c.quadraticCurveTo(x + 16 * s, y - h * 0.5, x + 13 * s, y); c.closePath(); c.fill();
+  c.fillStyle = '#FFE08A'; c.beginPath(); c.moveTo(x - 7 * s, y); c.quadraticCurveTo(x - 8 * s, y - h * 0.4, x + sway * 0.6, y - h * 0.62); c.quadraticCurveTo(x + 8 * s, y - h * 0.4, x + 7 * s, y); c.closePath(); c.fill();
+}
+function paintTotem(c, x, y) {           // x,y = base center. The totem rises about 200 px; the pinwheel turns on top.
+  wash(c, x, y + 6, 54, 24, '#6A5A9A', { a: 0.9, seed: 3, edge: 0 });
+  const cols = ['#8E86C8', '#3FB094', '#E45AA0', '#F6CE46'];
+  for (let i = 0; i < 4; i++) {
+    const yy = y - 20 - i * 46, w = 44 - i * 3;
+    wash(c, x, yy, w, 26, cols[i], { a: 1.15, seed: i + 4, wob: 0.05, n: 10, edgeA: 0.3 });
+    wash(c, x - w * 0.4, yy + 4, w * 0.4, 18, shade(cols[i], -0.35), { a: 0.3, seed: i + 9, edge: 0 });
+    for (const sd of [-1, 1]) { wash(c, x + sd * w * 0.38, yy - 3, 6.5, 6.5, '#FFF6D0', { a: 1, seed: i + sd, layers: 1, edge: 0 }); wash(c, x + sd * w * 0.38, yy - 2, 3, 3, '#3A3F78', { a: 1, seed: i, layers: 1, edge: 0 }); }
+    c.strokeStyle = 'rgba(60,50,110,0.6)'; c.lineWidth = 3; c.lineCap = 'round'; c.beginPath(); c.arc(x, yy + 6, 9, 0.2, Math.PI - 0.2); c.stroke();
+  }
+  c.strokeStyle = '#6A4A6A'; c.lineWidth = 6; c.beginPath(); c.moveTo(x, y - 176); c.lineTo(x, y - 204); c.stroke();
+}
+function drawPinwheel(c, x, y, ang) {    // the rainbow pinwheel on top of a totem: it turns faster when the wind blows
+  c.save(); c.translate(x, y); c.rotate(ang);
+  for (let i = 0; i < 7; i++) { c.rotate(TAU / 7); c.fillStyle = rgba(RAINBOW[i], 0.92); c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(34, -18, 14, -92); c.quadraticCurveTo(-4, -50, 0, 0); c.closePath(); c.fill(); c.strokeStyle = 'rgba(255,255,255,0.35)'; c.lineWidth = 2; c.stroke(); }
+  c.restore();
+  puff(c, x, y, 10, 10, '#FFF6D0', 6);
 }
 function paintRock(c, x, y, R, col, seed) {
   wash(c, x, y, R * 1.1, R * 0.95, col, { a: 1.2, seed, wob: 0.16, n: 9, edgeA: 0.3 });
@@ -512,13 +659,14 @@ function cellBlobs(c, L, type, rad, col, alpha, seed, jit) {
   }
 }
 
+const NIGHT_HILLS = ['#5A56A8', '#4A4A98', '#3E4288'];
 function paintLevel(L) {
-  const cv = makeCanvas(L.W, L.H), c = cv.getContext('2d'), P = L.pal, r = rng(L.seed + 999), G = L.grid, top = L.top, sl = 1 + L.skyT * 0.7;
+  const cv = makeCanvas(L.W, L.H), c = cv.getContext('2d'), P = L.pal, r = rng(L.seed + 999), G = L.grid, top = L.top, sl = 1 + L.skyT * 0.7, N = !!L.night;
   const typeAt = (x, y) => G[L.ci(x, y)];
   // ground: gradient, then many wet washes
   let g = c.createLinearGradient(0, top, 0, L.H); g.addColorStop(0, P.g0); g.addColorStop(1, P.g1);
   c.fillStyle = g; c.fillRect(0, 0, L.W, L.H);
-  for (let i = 0; i < 110; i++) wash(c, r() * L.W, top - 40 + r() * (L.H - top + 40), 130 + r() * 280, 80 + r() * 190, P.tints[i % P.tints.length], { a: 0.1 + r() * 0.12, seed: i + 1, wob: 0.28, edge: 2, edgeA: 0.05 });
+  for (let i = 0; i < 110; i++) wash(c, r() * L.W, top - 40 + r() * (L.H - top + 40), 130 + r() * 280, 80 + r() * 190, P.tints[i % P.tints.length], { a: (N ? 0.07 : 0.1) + r() * (N ? 0.08 : 0.12), seed: i + 1, wob: 0.28, edge: 2, edgeA: 0.05 });
   if (L.def.key === 'hill') {            // terraced contour lines
     c.lineCap = 'round';
     for (let k = 0; k < 9; k++) { const pts = []; for (let x = -50; x <= L.W + 50; x += 80) pts.push([x, top + 120 + k * 165 + Math.sin(x / 420 + k * 1.7) * 70 + Math.sin(x / 150 + k) * 16]); brushLine(c, pts, 10, k % 2 ? '#B9A868' : '#F1DFA8', 0.28, k + 3); }
@@ -536,24 +684,30 @@ function paintLevel(L) {
   brushLine(c, pp, 120, shade(P.path, -0.18), 0.3, 11); brushLine(c, pp, 96, P.path, 0.75, 12); brushLine(c, pp, 56, shade(P.path, 0.4), 0.4, 13);
   for (const p of L.path) for (let k = 0; k < 2; k++) { const x = p[0] + (r() - 0.5) * 90, y = p[1] + (r() - 0.5) * 80; wash(c, x, y, 3 + r() * 5, 2.5 + r() * 3, r() < 0.5 ? shade(P.path, -0.3) : '#FFF6E0', { a: 0.4, seed: x, layers: 1, edge: 0 }); }
   // pinecone lanes: a worn track
-  for (const l of L.lanes) { const pts = []; for (let y = l.y0 - 60; y <= l.y1 + 40; y += 60) pts.push([l.x + Math.sin(y / 130) * 8, y]); brushLine(c, pts, 78, '#A8875E', 0.28, l.x); brushLine(c, pts, 40, '#C9A878', 0.25, l.x + 1); }
+  for (const l of L.lanes) { const pts = []; for (let y = l.y0 - 60; y <= l.y1 + 40; y += 60) pts.push([l.x + Math.sin(y / 130) * 8, y]); brushLine(c, pts, 78, N ? '#58BF7A' : '#A8875E', 0.28, l.x); brushLine(c, pts, 40, N ? '#B7F0A0' : '#C9A878', N ? 0.3 : 0.25, l.x + 1); }      // second game: the shiny trail of the snails
   // mud
   if (G.includes(1)) {
-    cellBlobs(c, L, 1, 33, '#7E5A4C', 0.28, 21, 16); cellBlobs(c, L, 1, 27, '#A07A5C', 0.9, 22, 12); cellBlobs(c, L, 1, 20, '#B08A68', 0.5, 23, 16);
+    const SK = L.def.slowKind || 'mud', M = SLOW_COLS[SK];
+    cellBlobs(c, L, 1, 33, M[0], 0.28, 21, 16); cellBlobs(c, L, 1, 27, M[1], 0.9, 22, 12); cellBlobs(c, L, 1, 20, M[2], 0.5, 23, 16);
     for (let i = 0; i < G.length; i++) if (G[i] === 1) {
       const x = (i % L.cols + 0.5) * CS, y = ((i / L.cols | 0) + 0.5) * CS;
-      if (hash(34, i) < 0.35) wash(c, x + (hash(35, i) - 0.5) * 30, y + (hash(36, i) - 0.5) * 30, 34 + hash(37, i) * 30, 18 + hash(38, i) * 16, hash(39, i) < 0.5 ? '#8A6452' : '#B8926E', { a: 0.3, seed: i, wob: 0.25, layers: 2, edge: 2, edgeA: 0.1 });
-      if (hash(31, i) < 0.22) wash(c, x + 6, y - 6, 15, 6, '#DCC0A0', { a: 0.4, seed: i, layers: 1, edge: 0 });
-      if (hash(32, i) < 0.16) { c.strokeStyle = 'rgba(110,70,62,0.35)'; c.lineWidth = 2; c.beginPath(); c.arc(x - 8, y + 6, 4 + hash(33, i) * 4, 0, TAU); c.stroke(); }
+      if (hash(34, i) < 0.35) wash(c, x + (hash(35, i) - 0.5) * 30, y + (hash(36, i) - 0.5) * 30, 34 + hash(37, i) * 30, 18 + hash(38, i) * 16, hash(39, i) < 0.5 ? M[3] : M[4], { a: 0.3, seed: i, wob: 0.25, layers: 2, edge: 2, edgeA: 0.1 });
+      if (hash(31, i) < 0.22) wash(c, x + 6, y - 6, 15, 6, M[5], { a: 0.4, seed: i, layers: 1, edge: 0 });
+      if (SK === 'vines') { if (hash(32, i) < 0.5) { c.strokeStyle = rgba(hash(33, i) < 0.5 ? M[4] : M[0], 0.7); c.lineWidth = 3.5; c.lineCap = 'round'; c.beginPath(); c.moveTo(x - 20, y + (hash(40, i) - 0.5) * 30); c.bezierCurveTo(x - 6, y - 22, x + 6, y + 22, x + 22, y + (hash(41, i) - 0.5) * 30); c.stroke(); } }      // tangled vines on the ground
+      else if (SK === 'sand') { if (hash(32, i) < 0.3) { c.strokeStyle = rgba(M[0], 0.35); c.lineWidth = 2; c.beginPath(); c.ellipse(x, y, 12 + hash(33, i) * 8, 6 + hash(33, i) * 4, 0, 0, TAU); c.stroke(); } }                                                                                                                                         // rings where the sand sinks
+      else if (hash(32, i) < 0.16) { c.strokeStyle = rgba(shade(M[0], -0.2), 0.35); c.lineWidth = 2; c.beginPath(); c.arc(x - 8, y + 6, 4 + hash(33, i) * 4, 0, TAU); c.stroke(); }
     }
   }
   // water
   if (L.waterCells.length) {
-    cellBlobs(c, L, 2, 35, mix(P.g1, '#7A6A52', 0.4), 0.3, 41, 12); cellBlobs(c, L, 2, 29, '#82B5AE', 1, 42, 9); cellBlobs(c, L, 2, 21, '#9CCBC0', 0.45, 43, 14);
+    // water by day; at night (second game) deep blue water, or a pit: dark, with a glowing rim and far little lights
+    const pit = !!L.def.pit, WC = pit ? ['#B09AFF', '#2E2862', '#3C3480', '#7A6AC8'] : N ? ['#27306E', '#3F74C4', '#62A0E4', '#BFE0FF'] : [mix(P.g1, '#7A6A52', 0.4), '#82B5AE', '#9CCBC0', '#CDE8DA'];
+    cellBlobs(c, L, 2, 35, WC[0], pit ? 0.5 : 0.3, 41, 12); cellBlobs(c, L, 2, 29, WC[1], 1, 42, 9); cellBlobs(c, L, 2, 21, WC[2], 0.45, 43, 14);
     for (const i of L.waterCells) {
       const x = (i % L.cols + 0.5) * CS, y = ((i / L.cols | 0) + 0.5) * CS;
-      if (hash(51, i) < 0.22) wash(c, x, y, 46, 22, '#CDE8DA', { a: 0.26, seed: i, layers: 2, edge: 0 });
-      if (hash(52, i) < 0.3) { c.strokeStyle = 'rgba(244,251,240,0.5)'; c.lineWidth = 2.2; c.beginPath(); c.arc(x, y + 10, 14 + hash(53, i) * 10, Math.PI * 1.15, Math.PI * 1.85); c.stroke(); }
+      if (hash(51, i) < 0.22) wash(c, x, y, 46, 22, WC[3], { a: pit ? 0.14 : 0.26, seed: i, layers: 2, edge: 0 });
+      if (pit) { if (hash(52, i) < 0.25) wash(c, x + (hash(53, i) - 0.5) * 30, y + (hash(54, i) - 0.5) * 30, 2.5, 2.5, RAINBOW[i % 7], { a: 0.9, seed: i, layers: 1, edge: 0 }); }
+      else if (hash(52, i) < 0.3) { c.strokeStyle = 'rgba(244,251,240,0.5)'; c.lineWidth = 2.2; c.beginPath(); c.arc(x, y + 10, 14 + hash(53, i) * 10, Math.PI * 1.15, Math.PI * 1.85); c.stroke(); }
     }
   }
   for (const b of L.bridges) {
@@ -581,8 +735,9 @@ function paintLevel(L) {
       for (let k = -1; k <= 1; k++) { c.beginPath(); c.moveTo(x, y); c.quadraticCurveTo(x + k * 4, y - 9, x + k * 9, y - 14 - r() * 6); c.stroke(); }
     } else {
       const col = P.flowers[i % P.flowers.length], s = 4 + r() * 5;
+      if (N) { const gg = c.createRadialGradient(x, y, 1, x, y, s * 3.4); gg.addColorStop(0, rgba(col, 0.32)); gg.addColorStop(1, rgba(col, 0)); c.fillStyle = gg; c.beginPath(); c.arc(x, y, s * 3.4, 0, TAU); c.fill(); }      // night flowers glow
       for (let k = 0; k < 5; k++) { const a = k / 5 * TAU + i; wash(c, x + Math.cos(a) * s * 0.8, y + Math.sin(a) * s * 0.8, s * 0.62, s * 0.62, col, { a: 0.9, seed: i + k, layers: 1, edge: 0 }); }
-      wash(c, x, y, s * 0.42, s * 0.42, '#F3D36B', { a: 1, seed: i, layers: 1, edge: 0 });
+      wash(c, x, y, s * 0.42, s * 0.42, N ? '#FFF6D0' : '#F3D36B', { a: 1, seed: i, layers: 1, edge: 0 });
     }
   }
   if (L.def.key === 'forest') for (let i = 0; i < 70; i++) {   // mushrooms
@@ -594,8 +749,8 @@ function paintLevel(L) {
   paintDecorStill(c, L);
   for (const s of L.solids) wash(c, s.x - s.r * 0.5 * sl, s.y + s.r * 0.42, s.r * 1.08 * sl, s.r * 0.62, SHADOW, { a: 0.3, seed: s.seed, wob: 0.18, edge: 0 });
   drawNest(c, L.nest.x, L.nest.y, 120, 17, 0);
-  for (const s of L.solids) { if (s.kind === 'rock') paintRock(c, s.x, s.y, s.r, P.rock, s.seed); else if (s.kind === 'hay') paintHay(c, s.x, s.y, s.r, s.seed); }
-  for (const l of L.lanterns) { wash(c, l.x - 16, l.y + 4, 22, 8, SHADOW, { a: 0.3, seed: 2, edge: 0 }); paintLantern(c, l.x, l.y); }
+  for (const s of L.solids) { if (s.kind === 'rock') (N ? paintCrystalRock : paintRock)(c, s.x, s.y, s.r, P.rock, s.seed); else if (s.kind === 'hay') (N ? paintShroom : paintHay)(c, s.x, s.y, s.r, s.seed); }
+  for (const l of L.lanterns) { wash(c, l.x - 16, l.y + 4, 22, 8, SHADOW, { a: 0.3, seed: 2, edge: 0 }); (N ? paintTorch : paintLantern)(c, l.x, l.y); }
   const trees = L.trees.slice().sort((a, b) => a.y - b.y);
   for (const t of trees) if (!t.dyn) paintTree(c, t, P);
   // sprites that are drawn every frame, sorted with the heroes
@@ -605,23 +760,25 @@ function paintLevel(L) {
     t.sprite = sc; L.sprites.push({ kind: 'tree', ref: t, y: t.y + t.R * 1.1 });
   }
   for (const m of L.mills) {
-    const sc = makeCanvas(160, 320); paintMillTower(sc.getContext('2d'), 80, 280);
+    const sc = makeCanvas(160, 320); (N ? paintTotem : paintMillTower)(sc.getContext('2d'), 80, 280);
     m.sprite = sc; L.sprites.push({ kind: 'mill', ref: m, y: m.y + 10 });
   }
   // top band: sky and far hills, or the cliff with the waterfall
-  paintSky(c, 0, 0, L.W, L.skyH + 40, L.skyT, L.seed, { sunR: L.def.cliff ? 46 : 62, clouds: 9 });
-  paintHills(c, 0, L.skyH + 20, L.W, L.def.cliff ? 110 : 170, L.skyT, L.seed + 5);
+  if (N) { paintNightSky(c, 0, 0, L.W, L.skyH + 40, L.seed, { sunR: L.def.cliff ? 46 : 62, clouds: 9 }); paintHills(c, 0, L.skyH + 20, L.W, L.def.cliff ? 110 : 170, 0, L.seed + 5, NIGHT_HILLS, true); }
+  else { paintSky(c, 0, 0, L.W, L.skyH + 40, L.skyT, L.seed, { sunR: L.def.cliff ? 46 : 62, clouds: 9 }); paintHills(c, 0, L.skyH + 20, L.W, L.def.cliff ? 110 : 170, L.skyT, L.seed + 5); }
   if (L.def.cliff) {
-    const y0 = L.skyH, y1 = top;
-    g = c.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, '#CDAF98'); g.addColorStop(1, '#93747E');
+    const y0 = L.skyH, y1 = top, CL = N ? ['#7E72B8', '#4E4486', '#6E62A8', '#9A8ED0', '#4A3F80', '#8478BC', '#3E356E', '#B9AEE6', '#3A3268'] : ['#CDAF98', '#93747E', '#B8948A', '#D9BFA6', '#8E6E7C', '#C4A090', '#7A5A6C', '#E9D2B8', '#7A5A6C'];
+    g = c.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, CL[0]); g.addColorStop(1, CL[1]);
     c.fillStyle = g; c.fillRect(0, y0, L.W, y1 - y0 + 6);
-    for (let i = 0; i < 260; i++) { const x = r() * L.W, y = y0 + r() * (y1 - y0); wash(c, x, y, 40 + r() * 90, 20 + r() * 50, ['#B8948A', '#D9BFA6', '#8E6E7C', '#C4A090'][i % 4], { a: 0.22, seed: i, wob: 0.3, edge: 2, edgeA: 0.08 }); }
+    for (let i = 0; i < 260; i++) { const x = r() * L.W, y = y0 + r() * (y1 - y0); wash(c, x, y, 40 + r() * 90, 20 + r() * 50, CL[2 + i % 4], { a: 0.22, seed: i, wob: 0.3, edge: 2, edgeA: 0.08 }); }
     c.lineCap = 'round';
-    for (let i = 0; i < 420; i++) { const x = r() * L.W, y = y0 + r() * (y1 - y0 - 40); c.strokeStyle = rgba(i % 2 ? '#7A5A6C' : '#E9D2B8', 0.22); c.lineWidth = 2 + r() * 3; c.beginPath(); c.moveTo(x, y); c.lineTo(x + (r() - 0.5) * 14, y + 30 + r() * 60); c.stroke(); }
+    for (let i = 0; i < 420; i++) { const x = r() * L.W, y = y0 + r() * (y1 - y0 - 40); c.strokeStyle = rgba(i % 2 ? CL[6] : CL[7], 0.22); c.lineWidth = 2 + r() * 3; c.beginPath(); c.moveTo(x, y); c.lineTo(x + (r() - 0.5) * 14, y + 30 + r() * 60); c.stroke(); }
     for (let x = 0; x < L.W; x += 46) { wash(c, x + r() * 30, y0 + 4 + r() * 10, 50 + r() * 30, 24 + r() * 14, P.canopy[r() * P.canopy.length | 0], { a: 0.95, seed: x, wob: 0.2, edgeA: 0.2 }); }
-    for (let x = 0; x < L.W; x += 60) wash(c, x + r() * 40, y1 + 6, 46 + r() * 30, 16, '#7A5A6C', { a: 0.3, seed: x + 3, edge: 0 });
+    for (let x = 0; x < L.W; x += 60) wash(c, x + r() * 40, y1 + 6, 46 + r() * 30, 16, CL[8], { a: 0.3, seed: x + 3, edge: 0 });
+    if (L.vines) for (let k = 0; k < 9; k++) { const vx = 140 + k * 340 + r() * 120; if (Math.abs(vx - L.vines.x) < 330) continue; paintVines(c, vx, y0 + 6, 150 + r() * 120, y1 - y0 - 60 - r() * 120, k * 7 + 3, 0, P); }      // vines hang all along the cliff; only one bunch hides a door
     // remember the plain cliff over the cave, then paint the cave itself
     const cvr = L.cover, cc = makeCanvas(cvr.w, cvr.h); cc.getContext('2d').drawImage(cv, cvr.x, cvr.y, cvr.w, cvr.h, 0, 0, cvr.w, cvr.h); L.coverCv = cc;
+    if (L.def.door) paintDoor(cc.getContext('2d'), 1620 - cvr.x, top - cvr.y);                                                                                                                                   // the door of the hideout, at the foot of the cliff
     const cvx = L.cave;
     c.save(); c.beginPath(); c.rect(cvr.x, cvr.y, cvr.w, cvr.h); c.clip();
     const room = (grow, col, al) => {       // rounded cave room plus the short tunnel to the waterfall
@@ -649,17 +806,41 @@ function paintLevel(L) {
     wash(c, x, y, 50 + r() * 40, 36 + r() * 26, shade(col, -0.1), { a: 0.95, seed: i + 5, wob: 0.22, edgeA: 0.2 });
     wash(c, x + 8, y - 10, 22, 14, shade(col, 0.35), { a: 0.35, seed: i + 6, edge: 0 });
   }
-  finishPaint(c, L.W, L.H, L.skyT, r);
+  finishPaint(c, L.W, L.H, L.skyT, r, N);
   L.bg = cv;
-  L.overlay = makeOverlay(mix('#FFF4E0', '#FFC08C', L.skyT), 0.1 + L.skyT * 0.16, 0.42);
+  L.overlay = N ? makeOverlay('#C8D0FF', 0.1, 0.5, true) : makeOverlay(mix('#FFF4E0', '#FFC08C', L.skyT), 0.1 + L.skyT * 0.16, 0.42);
   return L;
 }
-/* Granulation speckles, watercolor blooms and the warm afternoon light. */
-function finishPaint(c, w, h, skyT, r) {
+/* A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). */
+function paintVines(c, x, y, w, len, seed, sway, P) {
+  const n = Math.max(5, w / 22 | 0);
+  c.lineCap = 'round';
+  for (let i = 0; i < n; i++) {
+    const vx = x - w / 2 + (i + 0.5) * w / n + (hash(seed, i) - 0.5) * 14, vl = len * (0.62 + hash(seed + 1, i) * 0.38), sw = Math.sin(sway + i * 0.9) * 12 * (sway ? 1 : 0), col = P.canopy[i % P.canopy.length];
+    c.strokeStyle = rgba(shade(col, -0.18), 0.95); c.lineWidth = 6 + hash(seed + 2, i) * 4;
+    c.beginPath(); c.moveTo(vx, y); c.quadraticCurveTo(vx + (hash(seed + 3, i) - 0.5) * 30 + sw * 0.4, y + vl * 0.5, vx + sw, y + vl); c.stroke();
+    for (let k = 1; k < 7; k++) { const u = k / 7, lx = vx + sw * u * u + (k % 2 ? 9 : -9), ly = y + vl * u; c.fillStyle = rgba(k % 3 ? col : shade(col, 0.3), 0.95); c.beginPath(); c.ellipse(lx, ly, 10, 5.5, k % 2 ? 0.5 : -0.5, 0, TAU); c.fill(); }
+    if (i % 3 === 0) { const fc = P.flowers[i % P.flowers.length], fy = y + vl; const g = c.createRadialGradient(vx + sw, fy, 1, vx + sw, fy, 20); g.addColorStop(0, rgba(fc, 0.7)); g.addColorStop(1, rgba(fc, 0)); c.fillStyle = g; c.beginPath(); c.arc(vx + sw, fy, 20, 0, TAU); c.fill(); c.fillStyle = fc; c.beginPath(); c.arc(vx + sw, fy, 5.5, 0, TAU); c.fill(); }
+  }
+}
+/* The door of the hideout: an arched wooden door with a rainbow knob. x = middle, y = the ground line. */
+function paintDoor(c, x, y) {
+  c.fillStyle = '#3A2F5E'; c.beginPath(); c.moveTo(x - 54, y + 4); c.lineTo(x - 54, y - 62); c.quadraticCurveTo(x, y - 122, x + 54, y - 62); c.lineTo(x + 54, y + 4); c.closePath(); c.fill();
+  c.save(); c.beginPath(); c.moveTo(x - 46, y + 4); c.lineTo(x - 46, y - 60); c.quadraticCurveTo(x, y - 112, x + 46, y - 60); c.lineTo(x + 46, y + 4); c.closePath(); c.clip();
+  for (let i = 0; i < 5; i++) { c.fillStyle = i % 2 ? '#A8744E' : '#B98458'; c.fillRect(x - 46 + i * 18.4, y - 120, 18.6, 126); }
+  c.fillStyle = 'rgba(90,50,70,0.25)'; c.fillRect(x - 46, y - 120, 30, 126);
+  c.restore();
+  c.strokeStyle = '#E0A04A'; c.lineWidth = 5; c.lineCap = 'round'; for (const yy of [y - 66, y - 22]) { c.beginPath(); c.moveTo(x - 42, yy); c.lineTo(x + 6, yy); c.stroke(); }
+  const g = c.createRadialGradient(x + 26, y - 44, 1, x + 26, y - 44, 22); g.addColorStop(0, 'rgba(255,240,200,0.8)'); g.addColorStop(1, 'rgba(255,240,200,0)'); c.fillStyle = g; c.beginPath(); c.arc(x + 26, y - 44, 22, 0, TAU); c.fill();
+  for (let i = 0; i < 7; i++) { c.fillStyle = RAINBOW[i]; c.beginPath(); c.moveTo(x + 26, y - 44); c.arc(x + 26, y - 44, 8, i / 7 * TAU, (i + 1) / 7 * TAU); c.closePath(); c.fill(); }
+}
+/* Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). */
+function finishPaint(c, w, h, skyT, r, night) {
   for (let i = 0; i < 7000; i++) { c.fillStyle = i % 2 ? 'rgba(110,70,90,0.07)' : 'rgba(255,250,235,0.1)'; c.beginPath(); c.arc(r() * w, r() * h, 0.6 + r() * 1.6, 0, TAU); c.fill(); }
   for (let i = 0; i < 260; i++) { blobPath(c, r() * w, r() * h, 14 + r() * 50, 10 + r() * 36, i, 0.3, 11); c.strokeStyle = 'rgba(255,250,232,0.09)'; c.lineWidth = 2 + r() * 3; c.stroke(); }
   c.save(); c.globalCompositeOperation = 'soft-light';
   const g = c.createRadialGradient(w * 0.74, 0, 100, w * 0.6, h * 0.3, Math.max(w, h) * 0.95);
+  if (night) { g.addColorStop(0, 'rgba(225,235,255,0.7)'); g.addColorStop(0.5, 'rgba(170,190,255,0.22)'); g.addColorStop(1, 'rgba(60,40,130,0.4)'); c.fillStyle = g; c.fillRect(0, 0, w, h); c.restore(); return; }
   g.addColorStop(0, 'rgba(255,232,170,0.75)'); g.addColorStop(0.5, 'rgba(255,214,160,0.25)'); g.addColorStop(1, 'rgba(120,80,140,' + (0.3 + skyT * 0.25) + ')');
   c.fillStyle = g; c.fillRect(0, 0, w, h);
   c.restore();
@@ -703,5 +884,58 @@ function genBoss() {
   for (let k = 0; k < 150; k++) { const b = blobs[k % blobs.length], a = tr() * TAU, d = 0.3 + tr() * 0.7; wash(t, bx + b[0] + Math.cos(a) * b[2] * d, by + b[1] + Math.sin(a) * b[3] * d, 14 + tr() * 22, 10 + tr() * 14, shade(P.canopy[k % P.canopy.length], (tr() - 0.5) * 0.6), { a: 0.5, seed: k, layers: 1, edge: 0 }); }
   L.treeCv = tc; L.treeOff = { x: 960 - bx, y: 580 - by };
   L.overlay = makeOverlay('#FFBE8C', 0.2, 0.45);
+  return L;
+}
+
+/* The last level of the second game: George's arena. A clearing with mountains behind it, torches of fire all around,
+   soldiers with spears, and in the middle the stone throne on which George sits. */
+function genArena() {
+  const WW = 1920, WH = 1080, cols = WW / CS, rows = WH / CS, P = PALS.road;
+  const L = { idx: levelCount(), def: BOSS_DEF_L, boss: true, arena: true, night: true, seed: 5151, W: WW, H: WH, cols, rows, top: 480, skyH: 420, pal: P, skyT: 1,
+    grid: new Uint8Array(cols * rows), flag: new Uint8Array(cols * rows), solids: [], trees: [], dynTrees: [], beetles: [], lanes: [], cones: [], bridges: [], stones: [],
+    mills: [], lanterns: [], stars: [], waves: [[]], waterCells: [], sprites: [], spawn: { x: 760, y: 820 }, nest: { x: 960, y: 300 }, NW: 1, minZoom: 1, totalEggs: 0, torches: [], soldiers: [] };
+  for (let cy = 0; cy < 12; cy++) for (let cx = 0; cx < cols; cx++) L.grid[cy * cols + cx] = 4;   // heroes stay below the throne, the ball flies over
+  L.ci = (x, y) => clamp(y / CS | 0, 0, rows - 1) * cols + clamp(x / CS | 0, 0, cols - 1);
+  L.reach = new Uint8Array(cols * rows);
+  for (let cy = 13; cy < rows - 1; cy++) for (let cx = 1; cx < cols - 1; cx++) L.reach[cy * cols + cx] = 1;
+  L.treeBase = { x: 960, y: 560 };                 // the foot of the throne: this is where the claws shake it
+  for (const sx of [-110, 0, 110]) L.solids.push({ x: 960 + sx, y: 540, r: 62, kind: 'trunk', noBall: true, seed: 1 });
+  for (const x of [170, 430, 690, 1230, 1490, 1750]) L.torches.push({ x, y: 548 });
+  L.torches.push({ x: 64, y: 800 }, { x: 1856, y: 800 });
+  const sol = [[300, 540, 1], [560, 540, 1], [1360, 540, -1], [1620, 540, -1], [70, 660, 1], [84, 950, 1], [1850, 660, -1], [1836, 950, -1]];
+  sol.forEach((s, i) => { L.soldiers.push({ x: s[0], y: s[1], face: s[2], seed: i * 1.7, col: ['#6FA88A', '#5E9AA8', '#7AA86A'][i % 3], throwT: 0 }); L.solids.push({ x: s[0], y: s[1] - 8, r: 22, kind: 'soldier', noBall: true, seed: i }); });
+  const cv = makeCanvas(WW, WH), c = cv.getContext('2d'), r = rng(88);
+  paintNightSky(c, 0, 0, WW, 520, 9, { sunX: 0.2, sunR: 66, clouds: 6 });
+  paintMountains(c, 0, 470, WW, 300, 12);
+  for (let x = -20; x < WW + 40; x += 44) { const col = P.canopy[r() * P.canopy.length | 0]; wash(c, x, 466 + r() * 14, 44 + r() * 30, 26 + r() * 16, shade(col, -0.2), { a: 1.05, seed: x + 1, wob: 0.22, edgeA: 0.2 }); }      // the jungle at the foot of the mountains
+  let g = c.createLinearGradient(0, 440, 0, WH); g.addColorStop(0, P.g0); g.addColorStop(1, P.g1);
+  c.fillStyle = g; c.beginPath(); c.moveTo(0, 486); for (let x = 0; x <= WW; x += 60) c.lineTo(x, 480 + Math.sin(x / 300) * 10); c.lineTo(WW, WH); c.lineTo(0, WH); c.closePath(); c.fill();
+  for (let i = 0; i < 60; i++) wash(c, r() * WW, 490 + r() * 590, 120 + r() * 240, 60 + r() * 150, RAINBOW[i % 7], { a: 0.06 + r() * 0.07, seed: i + 1, wob: 0.28, edge: 2, edgeA: 0.05 });
+  // the floor of the arena: pale trodden sand, a ring of stones around it
+  wash(c, 960, 800, 900, 282, '#8E7AB0', { a: 0.55, seed: 3, wob: 0.05, n: 20, edge: 0 });
+  wash(c, 960, 800, 860, 262, '#C6B4D8', { a: 0.7, seed: 4, wob: 0.05, n: 20, edge: 0 });
+  wash(c, 960, 790, 640, 180, '#E0D2E4', { a: 0.4, seed: 5, wob: 0.1, n: 18, edge: 0 });
+  for (let i = 0; i < 64; i++) { const a = i / 64 * TAU, x = 960 + Math.cos(a) * 880, y = 800 + Math.sin(a) * 272; if (y < 540 && Math.abs(x - 960) < 260) continue; wash(c, x, y, 22 + r() * 8, 14 + r() * 5, i % 4 ? '#9A90D0' : RAINBOW[i % 7], { a: 1.05, seed: i + 9, wob: 0.12, n: 9, edgeA: 0.3 }); wash(c, x + 4, y - 4, 9, 5, '#EDE8FF', { a: 0.4, seed: i, edge: 0 }); }
+  c.lineCap = 'round';
+  for (let i = 0; i < 1500; i++) { const x = r() * WW, y = 490 + r() * 590, e = Math.pow((x - 960) / 880, 2) + Math.pow((y - 800) / 272, 2); if (e < 1.08) continue; c.strokeStyle = rgba(i % 3 ? shade(P.g1, -0.22) : shade(P.g0, 0.3), 0.16 + r() * 0.12); c.lineWidth = 1.2 + r() * 1.6; c.beginPath(); c.moveTo(x, y); c.lineTo(x + (r() - 0.5) * 8, y - 8 - r() * 16); c.stroke(); }
+  for (let i = 0; i < 260; i++) { const x = r() * WW, y = 500 + r() * 570, e = Math.pow((x - 960) / 880, 2) + Math.pow((y - 800) / 272, 2); if (e < 1.1) continue; const col = P.flowers[i % P.flowers.length], s = 4 + r() * 5; const gg = c.createRadialGradient(x, y, 1, x, y, s * 3.4); gg.addColorStop(0, rgba(col, 0.32)); gg.addColorStop(1, rgba(col, 0)); c.fillStyle = gg; c.beginPath(); c.arc(x, y, s * 3.4, 0, TAU); c.fill(); for (let k = 0; k < 5; k++) { const a = k / 5 * TAU + i; wash(c, x + Math.cos(a) * s * 0.8, y + Math.sin(a) * s * 0.8, s * 0.62, s * 0.62, col, { a: 0.9, seed: i + k, layers: 1, edge: 0 }); } }
+  for (let i = 0; i < 70; i++) { const x = 200 + r() * 1520, y = 600 + r() * 400; wash(c, x, y, 3 + r() * 5, 2.5 + r() * 3, r() < 0.5 ? '#9A88B8' : '#F4ECF8', { a: 0.4, seed: x, layers: 1, edge: 0 }); }
+  wash(c, 900, 606, 300, 46, SHADOW, { a: 0.32, seed: 6, wob: 0.14, edge: 0 });
+  for (const tc of L.torches) { wash(c, tc.x - 14, tc.y + 4, 20, 7, SHADOW, { a: 0.3, seed: 2, edge: 0 }); paintTorch(c, tc.x, tc.y); }
+  finishPaint(c, WW, WH, 1, r, true);
+  L.bg = cv;
+  // the throne is its own sprite so that it can shake
+  const tw = 560, th = 500, tc = makeCanvas(tw, th), t = tc.getContext('2d'), bx = tw / 2, by = th - 20, st = '#C6BAEA';      // pale moonstone, so the throne stands out against the dark mountains
+  const slab = (w, y0, h, col) => { wash(t, bx, y0 - h / 2, w / 2, h / 2 + 6, col, { a: 1.3, seed: w, wob: 0.03, n: 14, edgeA: 0.3 }); wash(t, bx, y0 - h + 6, w / 2 - 8, 9, shade(col, 0.45), { a: 0.55, seed: w + 1, wob: 0.04, edge: 0 }); wash(t, bx - w * 0.3, y0 - h / 2 + 4, w * 0.16, h / 2, shade(col, -0.35), { a: 0.3, seed: w + 2, edge: 0 }); };
+  wash(t, bx, by - 250, 108, 200, shade(st, -0.12), { a: 1.3, seed: 31, wob: 0.03, n: 14, edgeA: 0.3 });                     // the tall back of the throne
+  wash(t, bx + 30, by - 300, 40, 130, shade(st, 0.3), { a: 0.35, seed: 32, edge: 0 });
+  for (let i = 0; i < 5; i++) { t.fillStyle = i % 2 ? '#F6CE46' : '#E4583C'; t.beginPath(); t.ellipse(bx, by - 150 - i * 44, 62 - i * 6, 9, 0, 0, TAU); t.fill(); }   // stripes like his crown
+  for (let i = -1; i <= 1; i++) { const cl = RAINBOW[(i + 1) * 3], px = bx + i * 66, py = by - 430 + Math.abs(i) * 26; t.fillStyle = cl; t.beginPath(); t.moveTo(px - 17, py + 44); t.lineTo(px, py - 14); t.lineTo(px + 17, py + 44); t.closePath(); t.fill(); t.fillStyle = 'rgba(255,255,255,0.45)'; t.beginPath(); t.moveTo(px - 17, py + 44); t.lineTo(px, py - 14); t.lineTo(px - 4, py + 44); t.closePath(); t.fill(); }
+  slab(440, by, 54, shade(st, -0.1)); slab(360, by - 50, 54, st); slab(288, by - 100, 58, shade(st, 0.08));
+  slab(250, by - 156, 84, shade(st, 0.14));                                                                                  // the seat
+  for (const sd of [-1, 1]) wash(t, bx + sd * 132, by - 250, 26, 44, shade(st, 0.05), { a: 1.25, seed: 40 + sd, wob: 0.05, edgeA: 0.3 });   // armrests
+  for (let i = 0; i < 16; i++) { t.strokeStyle = 'rgba(60,50,120,0.25)'; t.lineWidth = 2.5; t.lineCap = 'round'; t.beginPath(); const x = bx - 200 + r() * 400, y = by - 20 - r() * 200; t.moveTo(x, y); t.lineTo(x + (r() - 0.5) * 30, y + 14 + r() * 16); t.stroke(); }
+  L.treeCv = tc; L.treeOff = { x: 960 - bx, y: 600 - by };
+  L.overlay = makeOverlay('#C8D0FF', 0.1, 0.52, true);
   return L;
 }

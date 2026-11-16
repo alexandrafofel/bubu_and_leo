@@ -1,5 +1,7 @@
 # 20. Update urmator: specificatie
 
+> Nota din 14 noiembrie 2026: acest capitol este specificatia update-ului din 13 noiembrie, care a fost facut. Update-ul de dupa el (doua jocuri, ajutorul cu □) este in `22-update-14-noiembrie.md`. Doua lucruri de aici s-au schimbat de atunci: eroul lovit asteapta acum prietenul, iar nivelul se termina doar cu amandoi in cuib.
+
 Cererea proprietarei, 13 noiembrie 2026, cuvant cu cuvant:
 
 > personajele sa aiba fiecare cate 30 de sunete diferite pentru diverse actiuni - un fel de limba a lor, draguta, amuzanta. nu ma intereseaza sa dau mai incet muzica din controller, ambele personaje cand isi folosesc puterea (cum e saritul dinozaurului si aruncatul mingii) puterea se duce in toate directiile (cum e la saritul dinozaurului) de ex - in cazul fotbalistului ar fi trebuit sa arunce cu mingi in toate directiile. lupta ca grad de dificultate cum e acum sa fie cand personajele ajung la mijlocul drumului si "boss" fight-ul sa fie mai greu. cand un personaj ajunge in "cuib" sa nu il ia vantul, sa nu poata fi lovit in niciun stadiu al jocului. sa existe minim 10.000 de elemente in joc.

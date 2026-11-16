@@ -43,7 +43,8 @@ Paznicul alege jucatorul cu dificultatea cea mai mare care nu e in adapost. La e
 `duelSpares(h)`: nimic nu atinge un erou care:
 
 - e in adapostul din cuib, sau
-- e pe Ușor, nu este tinta acum, iar prietenul lui joaca.
+- e pe Ușor, nu este tinta acum, iar prietenul lui joaca, sau
+- oricine, cat un erou asteapta ajutor (`duelWaiting()`, de la update-ul din 14 noiembrie).
 
 Al doilea punct a fost adaugat dupa teste: conurile aruncate in jurul tintei il loveau pe cel mic in timp ce aduna ouale.
 
@@ -147,3 +148,30 @@ Masurat cu `mini-lupte-bot.js` (72 de lupte, toate castigate): lupta din mijloc 
 ## Testat
 
 `tests/mini-lupte-bot.js` joaca fiecare paznic in 6 situatii (ambii jucatori Ușor/Normal, Ușor/Greu, Ușor/Ușor, doar Bubu pe Normal, doar Leo, un bot care suteaza la intamplare). Toate 36 de lupte se termina. Rezultate tipice: 6 pana la 45 de secunde pe Ușor/Normal, pana la 75 de secunde pe Ușor/Greu pentru Bufnita.
+
+## Update 14 noiembrie 2026: lupta si regula ajutorului
+
+Regula noua (un erou lovit asteapta prietenul) a schimbat mult luptele. In teste, pe Greu si la paznicii care sar, eroii erau loviti din nou chiar cand veneau sa ajute si unele lupte nu se mai terminau. Trei schimbari:
+
+**1. Lupta se odihneste cat un erou asteapta.** `duelWaiting()` = cel putin un erou are `down`.
+
+- `duelSpares(h)` e adevarat pentru toti: nimic nu mai loveste pe nimeni.
+- Paznicul nu incepe alt atac. Un atac in curs (fuga, saritura, plonjonul) se opreste si paznicul trece in `tired`.
+- Conurile si frunzele nu mai sunt aruncate.
+- Paznicul nu poate fi lovit "pe gratis" cat doar asteapta: pe Ușor lovitura conteaza doar daca nimeni nu e jos. Un paznic `tired` poate fi lovit oricand.
+
+**2. Mila** (`CONFIG.duel.mercy`, `mercyMax`). `P.duel.downs` numara eroii loviti in lupta asta. Cu `mz = min(mercyMax, downs) x mercy`:
+
+| Ce | Cum se schimba |
+|---|---|
+| Viteza paznicului | inmultita cu `1 - 0.6 x mz` |
+| Timpul de avertizare | inmultit cu `1 + mz` |
+| Timpul cat sta obosit | inmultit cu `1 + 2 x mz` |
+| Atacuri pe runda | cu unul mai putin la fiecare 4 lovituri primite de eroi (minimum 1) |
+| De la `mercyMax` lovituri | orice lovitura pe paznic conteaza, ca pe Ușor |
+
+Cu valorile de acum, dupa 10 eroi loviti: paznicul are 64% din viteza, avertizeaza cu 60% mai mult si sta obosit de 2.2 ori mai mult. O lupta in care copiii nu se feresc deloc se termina si ea.
+
+**3. Inimile lui George** in al doilea joc vin din `CONFIG.lupta.duelHp` (lupta din mijloc) si `duelFinalHp` (lupta de la cuib), nu din `duel.hp`. Vezi `21-cea-mai-grea-lupta.md`.
+
+Rezultat (`mini-lupte-bot.js`, 72 de lupte pe joc): toate castigate in ambele jocuri. Primul joc: 9 pana la 124 s, jumatate din ele sub 31 s. Al doilea: 11 pana la 114 s, jumatate sub 30 s. Cele mai lungi sunt luptele de la cuib de pe nivelul 6.

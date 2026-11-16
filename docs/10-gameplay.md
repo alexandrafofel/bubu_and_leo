@@ -113,9 +113,10 @@ Fiecare minge se misca in pasi mici (maximum 11 unitati pe pas) ca sa nu treaca 
 
 ## Cand un erou e lovit: `hitHero(h, sx, sy)`
 
-Nu se intampla daca eroul e deja ametit, invulnerabil, in adapost sau daca nimeni nu il joaca. Altfel:
+Nu se intampla daca eroul e deja ametit, invulnerabil, in adapost, daca asteapta deja ajutor sau daca nimeni nu il joaca. Altfel:
 
-- ameteste `dizzyTime` si e invulnerabil inca 1.6 s dupa aceea (clipeste);
+- daca prietenul lui e jucat de cineva: ramane pe loc (`h.down`) pana e ajutat cu □. Vezi "Ajutorul" la sfarsitul capitolului;
+- daca joaca singur: ameteste `dizzyTime` si e invulnerabil inca 1.6 s dupa aceea (clipeste), ca inainte;
 - e impins putin in spate;
 - "bonk", "au-uu", vibratie, stele deasupra;
 - daca echipa are oua, scapa unul. Oul sare intr-o celula atinsa la 80 pana la 200 de unitati si poate fi luat dupa 0.9 s.
@@ -140,7 +141,7 @@ stun (tropait) ──> return       knock (minge) ──> stun 3 s ──> retur
 
 ### Conurile
 
-Se rostogolesc de sus in jos pe culoar. La capat dispar 1.4 s si pornesc din nou de sus, aparand treptat. Un erou atins e lovit si conul se sparge. Tropaitul le opreste 2.8 s, mingea le sparge.
+Se rostogolesc de sus in jos pe culoar. La capat dispar 1.4 s si pornesc din nou de sus, aparand treptat. Un erou atins e lovit si conul se sparge. Tropaitul le opreste 2.8 s. Prima lovitura (tropait sau sut) il opreste, a doua il face sa dispara: vezi "Inamicii mici" la sfarsitul capitolului.
 
 ## Vantul
 
@@ -157,7 +158,9 @@ La nivelul 5, primul fluture zboara spre cascada si sta acolo pana la 40 s. Este
 Dupa mini-lupta, cuibul se deschide: banner "La cuib!", lumina aurie. Nivelul se termina cand:
 
 - ambii eroi sunt langa cuib (sub 185 de unitati), sau
-- unul singur, daca celalalt nu e jucat, sau daca a asteptat 7 s.
+- unul singur, doar daca celalalt nu e jucat de nimeni.
+
+Regula "unul singur dupa 7 s" a fost scoasa pe 14 noiembrie 2026: se asteapta amandoi. Cat lipseste unul, deasupra cuibului scrie `ban.wait` cu numele lui. Un erou care asteapta ajutor departe de cuib tine nivelul deschis pana e ajutat si ajunge.
 
 Dar numai daca nu mai sunt oua pe jos sau au trecut 14 s de la deschidere. Asa ouale scoase din paznic au timp sa fie adunate.
 
@@ -195,3 +198,44 @@ Urmareste mijlocul dintre eroi (putin mai sus). Zoom-ul se potriveste ca amandoi
 ## Particule
 
 `part(x, y, o)` adauga o particula, `burst(x, y, n, o)` mai multe. Tipuri: `spark` (steluta), `dust` (praf), `petal`, `leaf`, `dot`. Cel mult 520 odata (cele vechi dispar). `PETALS` si `LEAVES` sunt culorile lor.
+
+## Update 14 noiembrie 2026
+
+### Ajutorul: `hitHero`, `tryRescue`, `getUp`, `updateRescue`
+
+Starea eroului lovit:
+
+| Camp | Ce este |
+|---|---|
+| `h.down` | Adevarat cat asteapta ajutor. Nu merge, nu foloseste puterea, nu aduna, nu poate fi lovit. |
+| `h.downT` | De cate secunde asteapta. |
+| `h.callT` | Pana la urmatorul strigat `help`. |
+| `h.reachHint` | Timp in care se arata cercul "vino mai aproape" dupa un □ apasat de prea departe. |
+
+Pasii:
+
+1. `hitHero(h, sx, sy)`: oul scapat, impingerea, sunetele sunt ca inainte. Daca regula e pornita si prietenul e jucat, `h.down = true`. In mini-lupta creste `P.duel.downs` (pentru mila).
+2. `updateRescue(dt)`, in fiecare cadru: numara timpul, striga dupa ajutor, misca mingile magice (`P.heal`), si ridica eroii singuri in cazurile de siguranta: amandoi jos de `bothDown` secunde, prieten plecat din joc, `autoAfter` trecut.
+3. `tryRescue(h)`: chemat cand eroul `h` apasa □ (`bP`) si prietenul e jos. Verifica distanta: `reachNear` pentru eroul 0, `reachFar` pentru eroul 1. Prea departe: `notYet` si cercul de indiciu. Destul de aproape: eroul 0 il ridica pe loc (`getUp`), eroul 1 trimite o minge in `P.heal` (cu sunetul de sut), care il ridica atunci cand ajunge.
+4. `getUp(h, by)`: `h.down = false`, `h.inv = safeAfter`, inimioare, sunetul `heal`, `thanks`, vibratie pe ambele controllere. `P.rescues` numara ajutoarele (apare la finalul nivelului doar in teste).
+
+Un erou nejucat (care merge singur dupa prieten) nu poate fi lovit, deci nu ajunge niciodata sa astepte.
+
+In al doilea joc `h.small` scade marimea desenata la `CONFIG.lupta.shrink` cat eroul e jos si creste lin la loc dupa ajutor.
+
+### Inamicii mici: `hurtSmall(e)`
+
+Gandacii (`P.beetles`), conurile (`P.cones`) si, in al doilea joc, robotii, melcii si pasarile au `e.hp`, pornit de la `smallEnemy.hits`.
+
+- `hurtSmall(e)` scade o inima si intoarce `true` daca a fost ultima. Daca mai are, inamicul ameteste ca inainte si arata doua inimioare deasupra (`drawSmallHp`).
+- La zero: norisor, sunetul `poof`, starea devine `dead` (gandac) sau `gone` (con, pasare), cu `e.t = smallEnemy.respawn`. Nu mai e desenat, nu mai loveste.
+- `updateEnemies` numara `e.t` in jos. La zero inamicul reapare, cu `hp` plin. Un gandac asteapta pana cand niciun erou nu e la mai putin de 380 de unitati de casa lui. Un con porneste din capul cararii.
+- O lovitura = un sut sau un tropait, nu o minge. Fiecare sut are un numar (`b.kick`), tinut minte pe inamic in `e.kickHit`: cele 8 mingi ale aceluiasi sut scad o singura inima. La fel, `powerSweep(h, id)` atinge fiecare inamic o data pe tropait (sau pe rotire a ghearelor).
+
+### Cuibul asteapta pe amandoi
+
+Vezi sectiunea "Cuibul si finalul nivelului" de mai sus, schimbata.
+
+### Boss-ul
+
+Cat un erou asteapta ajutor, `bs.throwT` nu mai scade: Ciori (sau George) nu arunca nimic nou. Ce e deja in aer cade.

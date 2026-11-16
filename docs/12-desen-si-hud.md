@@ -111,3 +111,25 @@ Nu apare la boss. Acolo HUD-ul arata cele trei mingi (golurile).
 ## `drawPlay(c)`
 
 `drawWorld`, apoi `drawHints`, apoi `drawHUD`.
+
+## Update 14 noiembrie 2026
+
+Ce se deseneaza in plus, in ambele jocuri:
+
+| Ce | Unde | Cand |
+|---|---|---|
+| Butonul □ si un punct in culoarea prietenului, deasupra eroului | `drawHeroFull` | cat eroul asteapta ajutor |
+| Inel punctat care pulseaza, in culoarea prietenului | `drawHeroFull`, sub erou | la fel |
+| Cercul plin, palid, in care trebuie sa intre primul erou (`reachNear`) | `drawHeroFull`, sub erou | cat asteapta ajutor al doilea erou (cel pe care il ajuta Bubu sau Boon) |
+| □ mare deasupra celui care poate ajuta | `drawHeroFull` | cand e destul de aproape |
+| Sageata spre prietenul lovit, cu □ in bula | `drawGuides`, `guideTarget` | mereu, si pentru jucatorul cu sageata oprita. Are prioritate fata de orice alta tinta. |
+| Mingea magica, cu o inimioara si o dara | `drawWorld`, din `P.heal` | cat zboara |
+| Doua inimioare mici deasupra unui inamic mic | `drawSmallHp` | dupa prima lovitura |
+| "Îl așteptăm pe Leo în cuib!" deasupra cuibului | `drawWorld` | cuibul e deschis si doar un erou e in el |
+
+In al doilea joc, in plus:
+
+- Lumina calda in jurul fiecarui erou (`drawHeroFull`, cand `P.L.night`): un gradient rotund, desenat sub erou. Fara ea eroii se pierdeau in decorul colorat de noapte.
+- Totemurile au o morisca in culorile curcubeului (`drawPinwheel`) in locul palelor de moara.
+- La boss, sageata si indiciul (minge + sageata in jos) arata spre George cazut (`bossGoal()`), nu spre varful tronului.
+- HUD-ul arata cristalul in locul oului si culorile curcubeului adunate (sapte puncte). Vezi `21-cea-mai-grea-lupta.md`.

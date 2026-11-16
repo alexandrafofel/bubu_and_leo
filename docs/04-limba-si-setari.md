@@ -62,7 +62,7 @@ Cererea initiala cere romana corecta ("Apasă ✕ pe controller"). Chrome pe Mac
 
 ## `T(cheie, a, b)`
 
-Da textul in limba din `Opt.lang`. Daca o cheie lipseste in engleza, foloseste romana. Daca lipseste si acolo, intoarce cheia insasi (asa o greseala se vede pe ecran, nu strica jocul). `{0}` se inlocuieste cu `a`, `{1}` cu `b`.
+Da textul in limba din `Opt.lang`. Cand se joaca al doilea joc, cauta intai cheia cu prefixul `L:` (vezi mai jos). Daca o cheie lipseste in engleza, foloseste romana. Daca lipseste si acolo, intoarce cheia insasi (asa o greseala se vede pe ecran, nu strica jocul). `{0}` se inlocuieste cu `a`, `{1}` cu `b`.
 
 ```js
 T('t.level', 3)              // "Nivelul 3" sau "Level 3"
@@ -93,3 +93,26 @@ T('fest.bravo', 'Bubu', 'Leo') // "Bravo, Bubu și Leo!"
 3. In randul "Limbă" din `settingsRows()` (tot acolo) treci prin cele trei limbi in loc de doua.
 4. In `Voice.pick()` din `03-audio.js` adaugi expresia pentru vocea noua (`/^de/i`).
 5. In `Save.apply()` accepti noua valoare din salvare.
+
+## Update 14 noiembrie 2026: jocul ales si textele lui
+
+`GAME` este jocul ales: `'bubu'` sau `'lupta'`. `GAME_IDS = ['bubu', 'lupta']`. `isLupta()` spune daca e al doilea. Se schimba doar prin `setGame(id)` din `09-screens.js`, care schimba si eroii din `CONFIG`, muzica si fundalul ecranului de start.
+
+**Texte diferite pe joc.** Un text care difera in al doilea joc are inca o cheie, cu prefixul `L:`:
+
+```js
+'ban.nest': 'La cuib!',            // primul joc
+'L:ban.nest': 'La adăpost!',       // al doilea joc
+```
+
+`T('ban.nest')` alege singur. Daca nu exista `L:cheie`, se foloseste textul comun. Asa cele mai multe texte (meniuri, Setari, pauza) sunt scrise o singura data.
+
+`TG(id, cheie, a, b)` da textul unui joc anume, oricare ar fi `GAME`. E folosit pe ecranul "Alege jocul", unde apar titlurile ambelor jocuri.
+
+`applyGameConfig()` pune in `CONFIG.heroes`, `CONFIG.villainName` si `CONFIG.boss` valorile jocului ales. Originalele primului joc raman in `GAME_BASE`.
+
+**Texte noi comune**: `sel.*` (ecranul "Alege jocul"), `ban.wait` ("Îl așteptăm pe {0} în cuib!"), `key.b` ("Ajută prietenul (butonul □)"), `spk.lost`, `spk.test`. Toate sunt in anexa C.
+
+**Cand adaugi un text**: daca are sens doar in primul joc (vorbeste de oua, de Ciori, de cuib), adauga si varianta `L:` in ambele limbi. `tests/alege-jocul.js` nu verifica asta. Uita-te la ecran in al doilea joc.
+
+**Tasta noua** in `Opt.keys[k]`: `b` = ajuta prietenul. O salvare veche, fara `b`, primeste tasta din `CONFIG.keys`.

@@ -13,6 +13,14 @@ const Snd = (() => {
   let amb = null, bedW = null, bedA = null, cricketT = 0;
   const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
 
+  /* The last thing before any speaker: a limiter. A loud word, a stomp and the music at the same moment would otherwise
+     go over what a speaker can play and sound harsh (clipping). Measured by tests/sunete-limita.js. */
+  function toSpeaker(a, node) {
+    const lim = a.createDynamicsCompressor(), trim = a.createGain();
+    lim.threshold.value = -8; lim.knee.value = 4; lim.ratio.value = 20; lim.attack.value = 0.002; lim.release.value = 0.12;
+    trim.gain.value = 0.85;
+    node.connect(lim); lim.connect(trim); trim.connect(a.destination);
+  }
   function init() {
     if (ac) { if (ac.state === 'suspended') ac.resume(); for (const id in sinks) if (sinks[id].ac.state === 'suspended') sinks[id].ac.resume(); return; }
     const AC = window.AudioContext || window.webkitAudioContext;
@@ -22,7 +30,7 @@ const Snd = (() => {
     comp.threshold.value = -16; comp.ratio.value = 3; comp.attack.value = 0.01; comp.release.value = 0.25;
     const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 6500; lp.Q.value = 0.3;
     master = ac.createGain(); master.gain.value = 1.3;
-    master.connect(lp); lp.connect(comp); comp.connect(ac.destination);
+    master.connect(lp); lp.connect(comp); toSpeaker(ac, comp);
     const rev = ac.createConvolver(); rev.buffer = impulse(2.6);
     const revOut = ac.createGain(); revOut.gain.value = 0.55; rev.connect(revOut); revOut.connect(master);
     musicBus = ac.createGain(); ambBus = ac.createGain(); chrBus = ac.createGain();
@@ -62,8 +70,11 @@ const Snd = (() => {
   }
 
   // ---- building blocks: every sound is made on the bus it is given -----------
+  /* A controller's speaker is tiny: it cannot play low notes. On such a speaker (bus.small) anything low goes one or two octaves up. */
+  const smallUp = (bus, f) => !bus.small || f >= 260 ? 1 : f >= 130 ? 2 : 4;
   function osc(bus, type, f, t, g, att, dec, o) {
-    const a = bus.context, os = a.createOscillator(), gn = a.createGain();
+    const a = bus.context, os = a.createOscillator(), gn = a.createGain(), up = smallUp(bus, f);
+    if (up > 1) { f *= up; if (o) o = Object.assign({}, o, { f2: o.f2 ? o.f2 * up : 0, lp: o.lp ? o.lp * up : 0 }); }
     os.type = type; os.frequency.setValueAtTime(f, t);
     if (o && o.f2) os.frequency.exponentialRampToValueAtTime(o.f2, t + (o.gt || dec));
     gn.gain.setValueAtTime(0.0001, t);
@@ -76,6 +87,7 @@ const Snd = (() => {
   }
   function noise(bus, t, g, att, dec, type, f, f2, q) {
     const a = bus.context, s = a.createBufferSource(); s.buffer = nbuf(a); s.loop = true;
+    if (bus.small && f < 700) { f *= 2.5; if (f2) f2 *= 2.5; }
     const fl = a.createBiquadFilter(); fl.type = type; fl.frequency.setValueAtTime(f, t); fl.Q.value = q || 0.7;
     if (f2) fl.frequency.exponentialRampToValueAtTime(f2, t + att + dec);
     const gn = a.createGain();
@@ -86,6 +98,7 @@ const Snd = (() => {
   /* A tiny cartoon voice: a buzzy tone through a moving "mouth" filter. f0 -> f1 is the melody of the syllable. */
   function voc(bus, t, f0, f1, dur, g, m0, m1) {
     const a = bus.context, os = a.createOscillator(), o2 = a.createOscillator(), fl = a.createBiquadFilter(), gn = a.createGain();
+    if (bus.small && f0 < 260) { f0 *= 2; f1 *= 2; }
     os.type = 'sawtooth'; o2.type = 'triangle';
     os.frequency.setValueAtTime(f0, t); os.frequency.exponentialRampToValueAtTime(f1, t + dur);
     o2.frequency.setValueAtTime(f0, t); o2.frequency.exponentialRampToValueAtTime(f1, t + dur);
@@ -95,6 +108,18 @@ const Snd = (() => {
     const g2 = a.createGain(); g2.gain.value = 0.45;
     os.connect(fl); fl.connect(gn); o2.connect(g2); g2.connect(gn); gn.connect(bus);
     os.start(t); o2.start(t); os.stop(t + dur + 0.1); o2.stop(t + dur + 0.1);
+  }
+  /* A soft roar or growl: a low triangle that slides down, with a quick tremble (the "rrr"). Warm, never harsh. */
+  function growl(bus, t, f0, f1, dur, g, rate) {
+    const a = bus.context, up = smallUp(bus, f1), os = a.createOscillator(), o2 = a.createOscillator(), fl = a.createBiquadFilter(), gn = a.createGain(), tr = a.createGain(), lfo = a.createOscillator(), lg = a.createGain();
+    os.type = 'triangle'; o2.type = 'sine'; fl.type = 'lowpass'; fl.frequency.value = 1100 * up; fl.Q.value = 0.6;
+    for (const [o, m] of [[os, 1], [o2, 2]]) { o.frequency.setValueAtTime(f0 * up * m, t); o.frequency.exponentialRampToValueAtTime(f1 * up * m, t + dur); }
+    gn.gain.setValueAtTime(0.0001, t); gn.gain.linearRampToValueAtTime(g, t + 0.06); gn.gain.setValueAtTime(g, t + dur * 0.55); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.05);
+    lfo.frequency.value = rate || 23; lg.gain.value = 0.38; tr.gain.value = 0.62; lfo.connect(lg); lg.connect(tr.gain);
+    const g2 = a.createGain(); g2.gain.value = 0.3;
+    os.connect(fl); o2.connect(g2); g2.connect(fl); fl.connect(gn); gn.connect(tr); tr.connect(bus);
+    for (const o of [os, o2, lfo]) { o.start(t); o.stop(t + dur + 0.12); }
+    noise(bus, t, g * 0.18, 0.05, dur * 0.8, 'lowpass', 500, 220);
   }
   // Bubu speaks low and round, Leo higher and brighter.
   // ---- instruments ---------------------------------------------------------
@@ -125,8 +150,21 @@ const Snd = (() => {
     boss:   { root: 62, sc: MIN, bpm: 112, seed: 83, shaker: 1 },
     duel:   { root: 64, sc: MIN, bpm: 104, seed: 71, shaker: 1 },
     duel2:  { root: 64, sc: MIN, bpm: 116, seed: 71, shaker: 1 },      // the nest fight: the same tune, a little faster
-    ending: { root: 60, sc: MAJ, bpm: 72,  seed: 97, flute: 1, chimes: 1 }
+    ending: { root: 60, sc: MAJ, bpm: 72,  seed: 97, flute: 1, chimes: 1 },
+    // the second game has its own tunes: glass bells instead of the kalimba, and a soft jungle drum
+    'L:title':  { root: 57, sc: MIN, bpm: 84,  seed: 105, flute: 1, glass: 1 },
+    'L:l0':     { root: 62, sc: SUS, bpm: 88,  seed: 111, glass: 1 },
+    'L:l1':     { root: 59, sc: MIN, bpm: 92,  seed: 123, glass: 1, drum: 1 },
+    'L:l2':     { root: 64, sc: SUS, bpm: 82,  seed: 131, flute: 1, glass: 1 },
+    'L:l3':     { root: 55, sc: MIN, bpm: 96,  seed: 147, flute: 1, drum: 1 },
+    'L:l4':     { root: 60, sc: SUS, bpm: 78,  seed: 159, flute: 1, glass: 1, chimes: 1 },
+    'L:l5':     { root: 57, sc: MIN, bpm: 90,  seed: 167, glass: 1, drum: 1 },
+    'L:boss':   { root: 57, sc: MIN, bpm: 118, seed: 183, shaker: 1, drum: 1 },
+    'L:duel':   { root: 59, sc: MIN, bpm: 108, seed: 171, shaker: 1, drum: 1 },
+    'L:duel2':  { root: 59, sc: MIN, bpm: 120, seed: 171, shaker: 1, drum: 1 },
+    'L:ending': { root: 62, sc: MAJ, bpm: 96,  seed: 197, flute: 1, chimes: 1, glass: 1, drum: 1 }
   };
+  const setKey = key => (GAME === 'lupta' && key ? 'L:' : '') + key;      // the name of a tune or of an ambience in the game being played
   function makeSong(p) {
     const r = rng(p.seed);
     const motif = () => {
@@ -145,7 +183,8 @@ const Snd = (() => {
   function schedule(st, t) {
     const p = song.p, bar = (st >> 3) % 8, s = st & 7, hum = () => (Math.random() - 0.5) * 0.012;
     const n = song.mel[bar][s];
-    if (n != null) kalimba(musicBus, mtof(deg(p, n) + 12), t + hum(), (s % 4 === 0 ? 0.17 : 0.12) + Math.random() * 0.03);
+    if (n != null) { if (p.glass) chime(musicBus, mtof(deg(p, n) + 12), t + hum(), (s % 4 === 0 ? 0.1 : 0.07) + Math.random() * 0.02); else kalimba(musicBus, mtof(deg(p, n) + 12), t + hum(), (s % 4 === 0 ? 0.17 : 0.12) + Math.random() * 0.03); }
+    if (p.drum) { if (s === 0) osc(musicBus, 'sine', 84, t, 0.3, 0.005, 0.2, { f2: 52 }); else if (s === 3 || s === 6) osc(musicBus, 'sine', 150, t + hum(), 0.12, 0.004, 0.11, { f2: 104 }); }
     const b = song.bass[bar];
     if (s === 0) marimba(musicBus, mtof(deg(p, b) - 12), t, 0.24);
     if (s === 4) marimba(musicBus, mtof(deg(p, b + 2) - 12), t + hum(), 0.15);
@@ -168,6 +207,9 @@ const Snd = (() => {
       }
       if (amb.crickets) { cricketT -= 0.05; if (cricketT <= 0) { cricketT = 1.1 + Math.random() * 1.6; const f = 4100 + Math.random() * 500; for (let i = 0; i < 7; i++) osc(ambBus, 'sine', f, t + i * 0.045, 0.007, 0.006, 0.025); } }
       if (amb.owl && Math.random() < 0.0035) { osc(ambBus, 'sine', 370, t, 0.03, 0.05, 0.3, { f2: 340 }); osc(ambBus, 'sine', 350, t + 0.45, 0.035, 0.05, 0.5, { f2: 300 }); }
+      if (amb.frogs && Math.random() < amb.frogs * 0.012) { const f = 190 + Math.random() * 90; for (let i = 0; i < 2; i++) osc(ambBus, 'triangle', f, t + i * 0.16, 0.03, 0.01, 0.09, { f2: f * 1.25, lp: 900 }); }
+      if (amb.robots && Math.random() < amb.robots * 0.01) { const n = 2 + (Math.random() * 3 | 0); for (let i = 0; i < n; i++) osc(ambBus, 'triangle', mtof(79 + PENT[Math.random() * 6 | 0]), t + i * 0.1, 0.014, 0.004, 0.06, { lp: 2600 }); }
+      if (amb.fire && Math.random() < 0.09) noise(ambBus, t, 0.03 + Math.random() * 0.03, 0.002, 0.03, 'bandpass', 1400 + Math.random() * 1200, 0, 2);
     }
     if (!song) return;
     if (nextT < ac.currentTime) nextT = ac.currentTime + 0.05;
@@ -175,22 +217,32 @@ const Snd = (() => {
   }
   const AMBS = {
     title: { birds: 0.3 }, l0: { birds: 0.4 }, l1: { birds: 0.5, owl: 1 }, l2: { birds: 0.25, water: 0.6 }, l3: { birds: 0.15, wind: 0.7 },
-    l4: { birds: 0.2, water: 1 }, l5: { birds: 0.08, crickets: 1, wind: 0.25 }, boss: { crickets: 1, wind: 0.35 }, ending: { crickets: 1 }
+    l4: { birds: 0.2, water: 1 }, l5: { birds: 0.08, crickets: 1, wind: 0.25 }, boss: { crickets: 1, wind: 0.35 }, ending: { crickets: 1 },
+    // the jungle at night: crickets, frogs, an owl, George's robots beeping far away, the fire of the torches
+    'L:title': { crickets: 1, frogs: 0.5 }, 'L:l0': { crickets: 1, frogs: 0.5, owl: 1 }, 'L:l1': { crickets: 0.6, robots: 1 }, 'L:l2': { water: 0.6, frogs: 1, crickets: 0.5 }, 'L:l3': { wind: 0.8, owl: 1 },
+    'L:l4': { water: 0.5, crickets: 1, frogs: 0.6 }, 'L:l5': { crickets: 1, wind: 0.3, robots: 0.6, fire: 1 }, 'L:boss': { wind: 0.3, fire: 1 }, 'L:ending': { crickets: 1, frogs: 0.3 }
   };
-  function ambience(key) { amb = AMBS[key] || null; applyAmb(); }
+  function ambience(key) { amb = AMBS[setKey(key)] || AMBS[key] || null; applyAmb(); }
   function music(key) {
-    if (key === songKey) return;
-    songKey = key; song = key && SONGS[key] ? makeSong(SONGS[key]) : null; step = 0; nextT = 0;
+    const k2 = key && SONGS[setKey(key)] ? setKey(key) : key;
+    if (k2 === songKey) return;
+    songKey = k2; song = k2 && SONGS[k2] ? makeSong(SONGS[k2]) : null; step = 0; nextT = 0;
     if (key !== 'duel' && key !== 'duel2') ambience(key);
   }
 
 
-  // ---- the heroes' own language: 30 invented words each -----------------------
+  // ---- the heroes' own language: 33 invented words each -------------------------
   // A word is a list of syllables [vowel, semitones from the hero's base note, length in seconds, slide in semitones].
-  // Bubu: low, round, slow, sliding down. Leo: high, quick, bright, sliding up. Nothing is recorded: all is synthesized.
-  const BASE = [{ note: 43, form: 0.85 }, { note: 62, form: 1.15 }];
+  // Bubu: low, round, slow, sliding down. Leo: high, quick, bright, sliding up.
+  // Boon: a little dinosaur who growls his words. Killer: short, sporty shouts. Nothing is recorded: all is synthesized.
+  // note = the base note, form = how "big" the mouth is, gain = how loud, growl = how fast the voice trembles (a soft "rrr").
+  const VOICES = {
+    bubu:  [{ note: 43, form: 0.85, gain: 1.5 }, { note: 62, form: 1.15, gain: 0.95 }],
+    lupta: [{ note: 47, form: 0.8, gain: 1.45, growl: 24 }, { note: 66, form: 1.25, gain: 0.9 }]
+  };
   const FORM = { a: [800, 1200], e: [500, 1900], i: [300, 2300], o: [500, 900], u: [320, 800] };
-  const BABBLE_WORDS = [
+  const BABBLE = {
+    bubu: [
     { hello: [['u', 0, 0.22, 4], ['o', 5, 0.3, -3]], ready: [['o', -2, 0.14, 0], ['a', 3, 0.2, 5]],
       egg: [[['o', 2, 0.14, 2]], [['u', 4, 0.12, 3]], [['a', 0, 0.12, 4]]], eggs5: [['o', 2, 0.1, 0], ['o', 4, 0.1, 0], ['o', 6, 0.1, 0], ['u', 8, 0.25, -2]],
       star: [['u', 7, 0.2, 4], ['a', 12, 0.25, -4]], giant: [['o', 0, 0.3, -5], ['a', -2, 0.3, -5], ['a', -4, 0.35, -6], ['u', -6, 0.45, -8]],
@@ -205,7 +257,8 @@ const Snd = (() => {
       bored: [['u', 0, 0.3, 0], ['u', 0, 0.3, 0], ['u', -1, 0.4, -2]], callFriend: [['o', 7, 0.25, 4], ['u', 10, 0.3, 2]],
       together: [['u', 3, 0.16, 2], ['a', 5, 0.25, 4]], nestOpen: [['a', 2, 0.14, 2], ['a', 4, 0.14, 2], ['o', 6, 0.4, -3]],
       levelWin: [['u', 0, 0.16, 2], ['u', 3, 0.16, 2], ['u', 5, 0.16, 2], ['u', 7, 0.5, 3]],
-      bossDown: [['a', -2, 0.15, -2], ['a', -2, 0.15, -2], ['a', -2, 0.15, -2], ['a', -5, 0.4, -6]] },
+      bossDown: [['a', -2, 0.15, -2], ['a', -2, 0.15, -2], ['a', -2, 0.15, -2], ['a', -5, 0.4, -6]] ,
+      help: [['u', 5, 0.3, -4], ['u', 3, 0.36, -5]], rescue: [['o', 0, 0.12, 3], ['a', 4, 0.18, 2], ['u', 7, 0.3, -2]], thanks: [['a', 2, 0.14, 3], ['u', 5, 0.3, 2]] },
     { hello: [['e', 0, 0.08, 7], ['o', 5, 0.25, 2]], ready: [['i', 0, 0.07, 5], ['a', 7, 0.14, 8]],
       egg: [[['i', 0, 0.07, 3]], [['e', 3, 0.08, 2]], [['i', 5, 0.07, 3]]], eggs5: [['i', 2, 0.06, 0], ['i', 4, 0.06, 0], ['i', 6, 0.06, 0], ['a', 9, 0.16, 5]],
       star: [['u', 9, 0.1, 4], ['e', 12, 0.16, 6]], giant: [['o', 0, 0.12, 6], ['o', 4, 0.12, 7], ['o', 7, 0.12, 8], ['o', 10, 0.42, 9]],
@@ -221,31 +274,82 @@ const Snd = (() => {
       bored: [['i', 9, 0.1, 0], ['i', 11, 0.1, -2], ['i', 12, 0.22, -3]], callFriend: [['u', 0, 0.12, 6], ['u', 5, 0.22, 6]],
       together: [['i', 7, 0.1, 4], ['a', 11, 0.2, 6]], nestOpen: [['a', 5, 0.1, 3], ['a', 7, 0.1, 3], ['e', 9, 0.2, 2], ['a', 12, 0.2, 3]],
       levelWin: [['e', 2, 0.1, 4], ['o', 4, 0.1, 4], ['e', 7, 0.1, 4], ['o', 9, 0.1, 4], ['e', 11, 0.3, 3]],
-      bossDown: [['a', 5, 0.1, -3], ['a', 5, 0.1, -3], ['a', 5, 0.1, -3], ['a', 2, 0.3, -6]] }
-  ];
+      bossDown: [['a', 5, 0.1, -3], ['a', 5, 0.1, -3], ['a', 5, 0.1, -3], ['a', 2, 0.3, -6]] ,
+      help: [['e', 9, 0.16, -4], ['e', 9, 0.16, -4], ['o', 6, 0.3, -6]], rescue: [['a', 4, 0.07, 5], ['i', 9, 0.07, 3], ['a', 12, 0.22, 4]], thanks: [['i', 7, 0.08, 2], ['e', 10, 0.2, 5]] }
+    ],
+    lupta: [
+      // Boon
+      { hello: [['a', 0, 0.18, 3], ['o', 4, 0.16, 0], ['a', 7, 0.3, -5]], ready: [['a', 2, 0.1, 0], ['a', 2, 0.1, 0], ['o', 7, 0.28, 3]],
+        egg: [[['i', 9, 0.1, 3]], [['a', 7, 0.1, 4]], [['o', 5, 0.11, 5]]], eggs5: [['a', 0, 0.09, 2], ['a', 3, 0.09, 2], ['a', 7, 0.09, 2], ['o', 10, 0.28, 2]],
+        star: [['o', 5, 0.16, 7], ['i', 14, 0.3, -2]], giant: [['a', -3, 0.25, 3], ['o', 2, 0.25, 3], ['a', 7, 0.25, 3], ['o', 12, 0.5, -4]],
+        power: [['a', 3, 0.14, -6], ['a', 0, 0.16, -5]], powerBig: [['a', 5, 0.2, -7], ['o', 0, 0.2, -5], ['a', -4, 0.45, -8]],
+        hurt: [['i', 12, 0.14, -9], ['u', 4, 0.32, -7]], dizzy: [['o', 3, 0.2, 2], ['u', 1, 0.2, -2], ['o', 3, 0.2, 2], ['u', -1, 0.3, -3]],
+        recover: [['a', 0, 0.12, 5], ['a', 7, 0.22, 0]], drop: [['u', 2, 0.14, -4], ['o', -3, 0.24, -5]], regain: [['o', 2, 0.1, 4], ['a', 8, 0.2, 1]],
+        hide: [['u', 5, 0.12, 0], ['u', 5, 0.12, 0], ['i', 3, 0.2, -2]], unhide: [['a', 4, 0.2, 4]],
+        beetleWake: [['o', 7, 0.1, 5], ['a', 9, 0.28, -3]], beetleStun: [['a', 5, 0.1, -4], ['a', 2, 0.1, -4], ['a', -1, 0.22, -5]],
+        wind: [['o', 0, 0.55, 6]], mud: [['u', -5, 0.14, -6], ['o', -8, 0.28, -8]], bridge: [['a', 4, 0.08, 0], ['u', 1, 0.08, 0], ['a', 4, 0.08, 0], ['u', 1, 0.08, 0]],
+        butterfly: [['i', 10, 0.09, 2], ['a', 12, 0.09, 3], ['i', 15, 0.16, 5]], guardHit: [['a', -2, 0.14, 2], ['o', -5, 0.42, -9]],
+        notYet: [['o', 6, 0.16, 5], ['a', 3, 0.22, -4]], guardGone: [['a', 2, 0.14, -2], ['a', 0, 0.14, -2], ['o', -3, 0.34, -7]],
+        bored: [['o', 2, 0.34, -1], ['u', 0, 0.34, -1], ['o', -2, 0.44, -3]], callFriend: [['a', 9, 0.26, 5], ['o', 12, 0.34, 1]],
+        together: [['o', 5, 0.16, 3], ['a', 9, 0.26, 3]], nestOpen: [['a', 0, 0.14, 3], ['o', 4, 0.14, 3], ['a', 9, 0.42, -2]],
+        levelWin: [['a', 2, 0.16, 2], ['a', 5, 0.16, 2], ['a', 9, 0.16, 2], ['o', 12, 0.52, 2]],
+        bossDown: [['a', 0, 0.16, -3], ['a', 0, 0.16, -3], ['o', -3, 0.44, -7]],
+        help: [['i', 10, 0.22, -3], ['i', 8, 0.3, -4]], rescue: [['o', 2, 0.12, 4], ['a', 7, 0.14, 3], ['o', 11, 0.3, -2]], thanks: [['a', 6, 0.14, 4], ['o', 11, 0.3, 0]] },
+      // Killer
+      { hello: [['a', 0, 0.09, 5], ['i', 7, 0.09, 0], ['a', 3, 0.2, 4]], ready: [['e', 4, 0.07, 0], ['e', 4, 0.07, 0], ['a', 9, 0.18, 5]],
+        egg: [[['a', 2, 0.07, 4]], [['i', 6, 0.07, 3]], [['e', 9, 0.07, 2]]], eggs5: [['a', 0, 0.06, 0], ['e', 3, 0.06, 0], ['a', 7, 0.06, 0], ['i', 12, 0.18, 3]],
+        star: [['i', 7, 0.1, 5], ['a', 14, 0.2, 2]], giant: [['a', 0, 0.1, 5], ['a', 5, 0.1, 5], ['a', 9, 0.1, 5], ['i', 14, 0.4, 5]],
+        power: [['a', 2, 0.07, 7], ['e', 7, 0.11, 2]], powerBig: [['e', 0, 0.09, 8], ['a', 7, 0.09, 6], ['e', 12, 0.36, 4]],
+        hurt: [['i', 8, 0.12, -9], ['a', 2, 0.22, -7]], dizzy: [['a', 3, 0.1, -3], ['e', 1, 0.1, 3], ['a', 3, 0.1, -3], ['e', 1, 0.14, -4]],
+        recover: [['e', 5, 0.07, 2], ['i', 10, 0.14, 2]], drop: [['o', 6, 0.1, -3], ['e', 3, 0.1, -3], ['o', 0, 0.14, -5]],
+        regain: [['e', 2, 0.08, 5], ['i', 9, 0.18, 1]], hide: [['e', 0, 0.12, -2], ['i', -2, 0.16, 0]],
+        unhide: [['e', 3, 0.09, 5], ['a', 8, 0.14, 2]], beetleWake: [['a', 9, 0.09, 4], ['e', 12, 0.16, 2]],
+        beetleStun: [['e', 6, 0.08, -4], ['a', 2, 0.12, -4]], wind: [['a', 5, 0.22, 7], ['e', 10, 0.36, 5]],
+        mud: [['e', 0, 0.1, -5], ['a', -3, 0.16, -6]], bridge: [['e', 5, 0.06, 0], ['e', 7, 0.06, 0], ['e', 5, 0.06, 0], ['e', 7, 0.06, 0]],
+        butterfly: [['a', 10, 0.06, 3], ['i', 14, 0.06, 3], ['a', 17, 0.12, 4]], guardHit: [['a', 7, 0.1, 5], ['i', 14, 0.36, 5]],
+        notYet: [['e', 7, 0.11, 0], ['e', 4, 0.16, -3]], guardGone: [['a', 5, 0.1, 4], ['a', 9, 0.1, 4], ['i', 14, 0.32, 4]],
+        bored: [['e', 7, 0.12, -1], ['e', 5, 0.12, -1], ['a', 3, 0.24, -2]], callFriend: [['a', 2, 0.12, 5], ['e', 7, 0.24, 5]],
+        together: [['e', 5, 0.1, 5], ['i', 12, 0.2, 3]], nestOpen: [['e', 2, 0.09, 3], ['a', 5, 0.09, 3], ['e', 9, 0.09, 3], ['i', 14, 0.24, 2]],
+        levelWin: [['a', 0, 0.09, 4], ['e', 4, 0.09, 4], ['a', 7, 0.09, 4], ['e', 11, 0.09, 4], ['i', 14, 0.32, 2]],
+        bossDown: [['e', 7, 0.09, -3], ['e', 7, 0.09, -3], ['a', 3, 0.3, -6]],
+        help: [['a', 10, 0.14, -5], ['a', 10, 0.14, -5], ['e', 6, 0.26, -5]], rescue: [['e', 2, 0.07, 5], ['a', 7, 0.07, 4], ['e', 12, 0.2, 3]], thanks: [['a', 5, 0.08, 3], ['i', 12, 0.2, 2]] }
+    ]
+  };
   // How loud a voice is: a quiet one never cuts in on a louder one that is still talking.
   const TALK_PRIO = { hello: 3, ready: 3, egg: 1, eggs5: 2, star: 3, giant: 3, power: 2, powerBig: 3, hurt: 3, dizzy: 2, recover: 2, drop: 2, regain: 2, hide: 2, unhide: 1,
-    beetleWake: 2, beetleStun: 2, wind: 2, mud: 1, bridge: 1, butterfly: 3, guardHit: 3, notYet: 1, guardGone: 3, bored: 1, callFriend: 1, together: 2, nestOpen: 3, levelWin: 3, bossDown: 3 };
+    beetleWake: 2, beetleStun: 2, wind: 2, mud: 1, bridge: 1, butterfly: 3, guardHit: 3, notYet: 1, guardGone: 3, bored: 1, callFriend: 1, together: 2, nestOpen: 3, levelWin: 3, bossDown: 3,
+    help: 3, rescue: 3, thanks: 3 };
   const talkBusy = [{ until: 0, prio: 0, last: -1 }, { until: 0, prio: 0, last: -1 }];
-  function syl(b, t, k, s) {
-    const [v, st, d, sl] = s, A = b.context, f0 = mtof(BASE[k].note + st), f1 = f0 * Math.pow(2, sl / 12);
-    const o = A.createOscillator(), g = A.createGain(); o.type = 'triangle';
-    o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + d);
-    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.3, t + 0.015); g.gain.setValueAtTime(0.3, t + d * 0.6); g.gain.exponentialRampToValueAtTime(0.0001, t + d + 0.05);
-    for (const F of FORM[v]) { const bp = A.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = F * BASE[k].form; bp.Q.value = 4; o.connect(bp); bp.connect(g); }
-    g.connect(b); o.start(t); o.stop(t + d + 0.1);
+  /* One syllable. Two triangle waves (the note and its octave) go through two "mouth" filters; a little of the plain note
+     keeps the tune clear. Loud enough to be heard next to the other sounds, also in a controller's small speaker. */
+  function syl(b, t, k, s, V) {
+    const [v, st, d, sl] = s, A = b.context, up = b.small && V.note + st < 56 ? 12 : 0, f0 = mtof(V.note + st + up), f1 = f0 * Math.pow(2, sl / 12);
+    const g = A.createGain(), G = 0.62 * (V.gain || 1);
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(G, t + 0.015); g.gain.setValueAtTime(G, t + d * 0.6); g.gain.exponentialRampToValueAtTime(0.0001, t + d + 0.05);
+    for (const [mul, lev] of [[1, 1], [2, 0.55]]) {
+      const o = A.createOscillator(), og = A.createGain(); o.type = 'triangle'; og.gain.value = lev;
+      o.frequency.setValueAtTime(f0 * mul, t); o.frequency.exponentialRampToValueAtTime(f1 * mul, t + d);
+      o.connect(og);
+      for (const F of FORM[v]) { const bp = A.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = F * V.form; bp.Q.value = 2.2; og.connect(bp); bp.connect(g); }
+      if (mul === 1) { const lp = A.createBiquadFilter(), dg = A.createGain(); lp.type = 'lowpass'; lp.frequency.value = 1500; dg.gain.value = 0.22; o.connect(lp); lp.connect(dg); dg.connect(g); }
+      o.start(t); o.stop(t + d + 0.1);
+    }
+    if (V.growl) {                       // Boon: the voice trembles quickly, a soft little roar
+      const tr = A.createGain(), lfo = A.createOscillator(), lg = A.createGain(); tr.gain.value = 0.68; lfo.frequency.value = V.growl; lg.gain.value = 0.32;
+      lfo.connect(lg); lg.connect(tr.gain); g.connect(tr); tr.connect(b); lfo.start(t); lfo.stop(t + d + 0.1);
+    } else g.connect(b);
   }
   /* Talk(k, word): hero k says one of its words. Routed like the hero's other sounds (own speaker when one was chosen). */
   function talk(k, key) {
     if (!ac || ac.state !== 'running' || !CONFIG.babble) return;
-    const tb = talkBusy[k], w = BABBLE_WORDS[k] && BABBLE_WORDS[k][key]; if (!w) return;
+    const tb = talkBusy[k], set = BABBLE[GAME] || BABBLE.bubu, w = set[k] && set[k][key]; if (!w) return;
     const pr = TALK_PRIO[key] || 1, now = ac.currentTime;
     if (now < tb.until && pr < tb.prio) return;
     let syls = w;
     if (Array.isArray(w[0][0])) { let i; do { i = Math.random() * w.length | 0; } while (w.length > 1 && i === tb.last); tb.last = i; syls = w[i]; }
-    const b = (outs[k] && outs[k].context.state === 'running') ? outs[k] : chrBus;
-    let t = b.context.currentTime + 0.01;
-    for (const s of syls) { syl(b, t, k, s); t += s[2] * 0.85; }
+    const b = (outs[k] && outs[k].context.state === 'running') ? outs[k] : chrBus, V = (VOICES[GAME] || VOICES.bubu)[k];
+    let t = b.context.currentTime + 0.01 + (b.lead || 0);
+    for (const s of syls) { syl(b, t, k, s, V); t += s[2] * 0.85; }
     tb.until = now + (t - b.context.currentTime); tb.prio = pr;
   }
 
@@ -292,14 +396,55 @@ const Snd = (() => {
     squeak(b, t, p) { const f = 520 * (p || 1); voc(b, t, f * 1.4, f * 0.7, 0.24, 0.12, 1700, 900); },                                   // a guardian got hit
     tired(b, t) { voc(b, t, 300, 190, 0.5, 0.07, 700, 450); },
     duel(b, t) { [0, 3, 7, 10, 12].forEach((d, i) => marimba(b, mtof(57 + d), t + i * 0.09, 0.3)); osc(b, 'sine', 110, t, 0.3, 0.01, 0.5, { f2: 70 }); },
-    flee(b, t) { for (let i = 0; i < 5; i++) voc(b, t + i * 0.1, 700 + i * 90, 900 + i * 90, 0.07, 0.08, 1500, 2200); }
+    flee(b, t) { for (let i = 0; i < 5; i++) voc(b, t + i * 0.1, 700 + i * 90, 900 + i * 90, 0.07, 0.08, 1500, 2200); },
+    heal(b, t) { [0, 4, 7, 12].forEach((d, i) => kalimba(b, mtof(72 + d), t + i * 0.06, 0.2)); chime(b, mtof(91), t + 0.26, 0.1); },                    // a friend helped a hero up
+    grab(b, t) { osc(b, 'sine', 300, t, 0.3, 0.02, 0.3, { f2: 760, gt: 0.3 }); noise(b, t, 0.12, 0.04, 0.3, 'bandpass', 700, 1900, 1.2); },                 // a bird picks a hero up
+    poof(b, t) { noise(b, t, 0.22, 0.01, 0.22, 'lowpass', 1400, 300); osc(b, 'sine', 520, t, 0.2, 0.004, 0.16, { f2: 210 }); },                              // a small enemy disappears
+    bird(b, t) { for (let i = 0; i < 3; i++) osc(b, 'triangle', 1250 - i * 140, t + i * 0.13, 0.09, 0.01, 0.1, { f2: 900 - i * 100, lp: 3200 }); }            // a big bird is coming
   };
-  const CHR = { egg: 1, star: 1, giant: 1, stomp: 1, kick: 1, bounce: 1, bonk: 1, drop: 1, squelch: 1, step: 1, swish: 1 };
+  /* The second game has its own sounds for the same moments: glass crystals, claws, bouncy balls, robots, George's roar.
+     A name that is not here uses the sound of the first game. */
+  const fx2 = {
+    egg(b, t, n) { const f = mtof(76 + PENT[(n || 0) % 10]); chime(b, f, t, 0.16); chime(b, f * 1.5, t + 0.05, 0.09); osc(b, 'sine', f * 4, t, 0.03, 0.002, 0.12); },          // a crystal rings like glass
+    star(b, t) { [0, 7, 12, 19, 24].forEach((d, i) => chime(b, mtof(74 + d), t + i * 0.08, 0.11)); },
+    giant(b, t) { [0, 2, 4, 7, 9, 12, 14, 16, 19, 24].forEach((d, i) => { chime(b, mtof(69 + d), t + i * 0.07, 0.12); if (i % 2) kalimba(b, mtof(57 + d), t + i * 0.07, 0.12); }); },
+    stomp(b, t) { for (let i = 0; i < 3; i++) noise(b, t + i * 0.09, 0.24, 0.015, 0.1, 'bandpass', 900, 2800, 1.4); osc(b, 'sine', 150, t, 0.4, 0.01, 0.4, { f2: 95, gt: 0.35 }); chime(b, mtof(88), t + 0.05, 0.05); },   // Boon's claws: three quick swishes
+    kick(b, t, p) { const f = 250 + (p || 0) * 70; osc(b, 'sine', f, t, 0.45, 0.004, 0.2, { f2: f * 2.1, gt: 0.12 }); osc(b, 'triangle', f * 1.5, t + 0.02, 0.14, 0.003, 0.08, { lp: 2000 }); },                        // Killer's kick: a springy "boing"
+    bounce(b, t) { osc(b, 'sine', 380, t, 0.15, 0.003, 0.1, { f2: 640, gt: 0.08 }); },
+    bonk(b, t) { osc(b, 'sine', 760, t, 0.4, 0.01, 0.36, { f2: 170, gt: 0.34 }); osc(b, 'triangle', 380, t + 0.03, 0.14, 0.01, 0.3, { f2: 110, lp: 1600 }); },                                                        // a hero shrinks
+    heal(b, t) { osc(b, 'sine', 180, t, 0.36, 0.01, 0.34, { f2: 760, gt: 0.3 }); [0, 7, 12].forEach((d, i) => chime(b, mtof(79 + d), t + 0.24 + i * 0.06, 0.1)); },                                                    // a hero grows back
+    drop(b, t) { chime(b, mtof(84), t, 0.1); chime(b, mtof(79), t + 0.08, 0.09); chime(b, mtof(72), t + 0.16, 0.08); },
+    squelch(b, t) { noise(b, t, 0.18, 0.015, 0.14, 'lowpass', 800, 260); osc(b, 'sine', 190, t, 0.18, 0.01, 0.12, { f2: 120 }); },
+    step(b, t, x) {
+      const k = x >> 1, alt = x & 1 ? 1.1 : 0.94;
+      if (k === 0) { osc(b, 'sine', 150 * alt, t, 0.12, 0.004, 0.07, { f2: 95 }); osc(b, 'sine', 135 * alt, t + 0.05, 0.07, 0.004, 0.06, { f2: 90 }); }
+      else { osc(b, 'sine', 240 * alt, t, 0.07, 0.003, 0.05, { f2: 170 }); osc(b, 'triangle', 900 * alt, t, 0.012, 0.003, 0.03, { lp: 2600 }); }
+    },
+    wake(b, t) { osc(b, 'triangle', 880, t, 0.16, 0.004, 0.09, { lp: 2800 }); osc(b, 'triangle', 1175, t + 0.13, 0.16, 0.004, 0.12, { lp: 2800 }); },                                                               // a robot switches on: beep-beep
+    stun(b, t) { osc(b, 'triangle', 880, t, 0.16, 0.004, 0.34, { f2: 220, gt: 0.32, lp: 2600 }); },                                                                                                                  // a robot runs down
+    poof(b, t) { noise(b, t, 0.2, 0.01, 0.22, 'lowpass', 1400, 300); [988, 740, 494].forEach((f, i) => osc(b, 'triangle', f, t + i * 0.07, 0.1, 0.004, 0.07, { lp: 2600 })); },
+    caw(b, t) { growl(b, t, 150, 88, 0.75, 0.42, 21); },                                                                                                                                                            // George's roar: low and warm, never harsh
+    pop(b, t) { osc(b, 'sine', 520, t, 0.22, 0.003, 0.12, { f2: 940, gt: 0.1 }); },
+    rustle(b, t) { noise(b, t, 0.3, 0.02, 0.45, 'lowpass', 420, 150); },
+    butterfly(b, t) { noise(b, t, 0.22, 0.05, 0.6, 'bandpass', 400, 2600, 1.1); osc(b, 'sine', 220, t, 0.2, 0.03, 0.55, { f2: 990, gt: 0.5 }); },                                                                  // the rocket
+    wave(b, t) { [0, 3, 7, 10].forEach((d, i) => marimba(b, mtof(62 + d), t + i * 0.11, 0.28)); chime(b, mtof(86), t + 0.44, 0.1); },
+    win(b, t) { [0, 5, 7, 12, 7, 12, 17, 19, 24].forEach((d, i) => { marimba(b, mtof(62 + d), t + i * 0.12, 0.3); if (i % 2 === 0) chime(b, mtof(86 + d), t + i * 0.12, 0.07); }); },
+    lantern(b, t) { noise(b, t, 0.2, 0.02, 0.28, 'lowpass', 1100, 320); osc(b, 'sine', 330, t, 0.1, 0.01, 0.2, { f2: 210 }); },                                                                                      // a torch catches fire
+    warn(b, t) { osc(b, 'triangle', 392, t, 0.2, 0.005, 0.12, { lp: 1800 }); osc(b, 'triangle', 392, t + 0.16, 0.2, 0.005, 0.12, { lp: 1800 }); },
+    tonk(b, t) { osc(b, 'triangle', 660, t, 0.2, 0.002, 0.08, { f2: 540, lp: 2400 }); osc(b, 'sine', 1320, t, 0.05, 0.002, 0.05); },
+    squeak(b, t, p) { const f = 300 * (p || 1); voc(b, t, f * 1.3, f * 0.7, 0.28, 0.13, 1000, 600); },                                                                                                              // George got hit
+    tired(b, t) { growl(b, t, 130, 80, 0.5, 0.2, 9); },
+    duel(b, t) { [0, 0, 3].forEach((d, i) => marimba(b, mtof(50 + d), t + i * 0.14, 0.32)); growl(b, t + 0.35, 150, 90, 0.7, 0.4, 21); },
+    flee(b, t) { for (let i = 0; i < 5; i++) voc(b, t + i * 0.11, 520 - i * 50, 380 - i * 40, 0.08, 0.09, 1200, 800); },
+    goal(b, t) { [0, 7, 12, 17].forEach((d, i) => marimba(b, mtof(64 + d), t + i * 0.08, 0.34)); chime(b, mtof(88), t + 0.3, 0.12); }
+  };
+  const CHR = { egg: 1, star: 1, giant: 1, stomp: 1, kick: 1, bounce: 1, bonk: 1, drop: 1, squelch: 1, step: 1, swish: 1, heal: 1, grab: 1 };
   /* play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. */
   function play(name, arg, k) {
-    if (!ac || ac.state !== 'running' || !fx[name]) return;
+    const f = (GAME === 'lupta' && fx2[name]) || fx[name];
+    if (!ac || ac.state !== 'running' || !f) return;
     let b = CHR[name] ? ((k === 0 || k === 1) && outs[k] && outs[k].context.state === 'running' ? outs[k] : chrBus) : ambBus;
-    try { fx[name](b, b.context.currentTime, arg); } catch (e) { console.error('sound ' + name, e); }
+    try { f(b, b.context.currentTime + (b.lead || 0), arg); } catch (e) { console.error('sound ' + name, e); }      // lead: see setSink
   }
 
   // ---- the controller's own speaker (only when the system shows it as an audio output) ----
@@ -320,7 +465,14 @@ const Snd = (() => {
       let s = sinks[dev.id];
       if (!s) {
         const c2 = new AudioContext(); await c2.setSinkId(dev.id);
-        const bus = c2.createGain(), comp = c2.createDynamicsCompressor(); bus.connect(comp); comp.connect(c2.destination);
+        // a small speaker: nothing below 200 Hz (it could not play it anyway), a little more "presence", then a compressor
+        const bus = c2.createGain(), hp = c2.createBiquadFilter(), pk = c2.createBiquadFilter(), comp = c2.createDynamicsCompressor();
+        hp.type = 'highpass'; hp.frequency.value = 200; pk.type = 'peaking'; pk.frequency.value = 2400; pk.Q.value = 0.8; pk.gain.value = 4;
+        bus.connect(hp); hp.connect(pk); pk.connect(comp); toSpeaker(c2, comp);
+        bus.small = !/built-?in|macbook|imac|display|hdmi|airpods|headphone|c[aă]ști|boxe/i.test(dev.label || '');      // low notes are moved up on small speakers (a controller), not on real ones
+        // A second audio output is filled in big blocks. A short sound that starts "now" would begin in a block that is already on its way
+        // and would be cut or lost (steps, kicks, short words). So every sound on this output starts a moment later: one block ahead.
+        bus.lead = Math.max(0.04, (c2.baseLatency || 0) + 0.03);
         s = sinks[dev.id] = { ac: c2, bus }; applyVol();
       }
       if (s.ac.state === 'suspended') await s.ac.resume();
@@ -330,7 +482,7 @@ const Snd = (() => {
   function swapOuts() { const t = outs[0]; outs[0] = outs[1]; outs[1] = t; }
 
   return {
-    init, play, talk, music, ambience, canSink, listOutputs, setSink, swapOuts, names: () => Object.keys(fx), words: () => BABBLE_WORDS, debug: () => ({ ac, master, outs, sinks, chrBus, ambBus }),
+    init, play, talk, music, ambience, canSink, listOutputs, setSink, swapOuts, names: () => Object.keys(fx), names2: () => Object.keys(fx2), words: id => BABBLE[id || GAME] || BABBLE.bubu, debug: () => ({ ac, master, outs, sinks, chrBus, ambBus }),
     get ready() { return !!ac && ac.state === 'running'; },
     vol,
     setVol(k, v) { if (!(k in vol) || !isFinite(v)) return; vol[k] = clamp(Math.round(v * 10) / 10, 0, 1); applyVol(); },

@@ -12,9 +12,11 @@ In `localStorage`, sub `CONFIG.saveKey`, ca text JSON:
 
 ```text
 {
-  "v": 2,
-  "level": 3,            // urmatorul nivel de jucat
+  "v": 3,
+  "game": "lupta",       // jocul jucat ultima data
+  "level": 3,            // primul joc: urmatorul nivel de jucat
   "eggs": 187, "stars": 6, "results": [ ... ],
+  "g2": { "level": 1, "eggs": 64, "stars": 2, "results": [ ... ] },   // progresul celui de-al doilea joc
   "diff": ["easy", "normal"],
   "vol": { "music": 0.5, "amb": 0.7, "chr": 0.8 },
   "opt": { "lang": "ro", "fullscreen": true, "vibration": true, "swap": false,
@@ -25,9 +27,10 @@ In `localStorage`, sub `CONFIG.saveKey`, ca text JSON:
 | Functie | Ce face |
 |---|---|
 | `load()` | Citeste. Daca nu exista sau e stricata, `null`. |
-| `write(level)` | Scrie setarile. Cu `level`, scrie si progresul (dupa fiecare nivel terminat). |
+| `write(level)` | Scrie setarile. Cu `level`, scrie si progresul jocului ales (dupa fiecare nivel terminat). |
+| `slot(id)` | Progresul unui joc: salvarea insasi pentru primul, `g2` pentru al doilea. Fara `id`, jocul ales. |
 | `apply()` | Pune la loc setarile salvate. Verifica fiecare valoare (o tasta rezervata sau o limba necunoscuta sunt ignorate). Citeste si salvarile din prima versiune (`v` 1), care aveau un singur volum `sfx`. |
-| `hasProgress()` | Exista un nivel inceput si neterminat. |
+| `hasProgress()` | Exista un nivel inceput si neterminat in jocul ales. |
 
 De ce dupa fiecare nivel si nu in timpul nivelului: un nivel e scurt. Salvarea in mijlocul lui ar fi trebuit sa pastreze pozitia fiecarui ou si inamic. Iesirea in mijlocul unui nivel reia nivelul de la inceput, cu ouale nivelurilor dinainte.
 
@@ -154,3 +157,36 @@ Dupa conectare:
 - Vocea: "Festivalul Apusului a început! Ciori și-a cerut iertare și a rămas la petrecere." apoi "Din oul de aur a ieșit un pui de dinozaur! Bravo, Bubu și Leo!"
 - La 8 s: "Bravo, Bubu și Leo!", ouale echipei si stelele (din totalul posibil).
 - La 12 s: "Sfârșit" si "Apasă ✕". Apasarea sterge progresul si duce la ecranul de start.
+
+## Update 14 noiembrie 2026
+
+### De ce progresul primului joc a ramas sus in salvare
+
+O salvare veche (`v` 2) are `level`, `eggs`, `stars` direct in obiect. Daca le-as fi mutat intr-un `g1`, copiii si-ar fi pierdut progresul. Asa, salvarea veche se citeste fara nicio conversie, iar al doilea joc are locul lui, `g2`. Cheia din `localStorage` e aceeasi.
+
+### Ecranul "Alege jocul": `drawSelect`, `updateSelect`
+
+- Fundalul e impartit: stanga pajistea de zi a primului joc, dreapta jungla de noapte a celui de-al doilea (`titleBackdrop(id)` picteaza fiecare jumatate o data).
+- Doua cartonase. Fiecare: titlul si subtitlul jocului (`TG`), cei doi eroi cu personajul rau intre ei, doua randuri despre joc, si "Continuă: Nivelul N" daca exista progres in jocul acela. Al doilea are eticheta "Joc inventat de copii".
+- Cartonasul ales e mai mare, are rama aurie si eroii lui se misca.
+- `UI.gameSel` = 0 sau 1. Stanga / dreapta (`Input.menu`: orice controller sau tastele de mers) schimba. Si mouse-ul trecut peste un cartonas. ✕, Enter, Spatiu sau clic pe cartonas alege: `setGame(id)`, apoi `Game.toTitle()`.
+- Primele 0.4 s apasarile sunt ignorate, ca primul clic (cel care porneste sunetul) sa nu aleaga si jocul.
+- OPTIONS sau P deschide Setarile.
+
+`setGame(id)`: schimba `GAME`, cheama `applyGameConfig()`, goleste desenele pastrate care depind de joc (`SPR`: oul sau cristalul, portretele din HUD, cuibul), schimba fundalul ecranului de start si reseteaza "Gata!". Jocul ales se scrie in salvare (`game`) la prima salvare de dupa: cand porneste jocul sau cand se schimba o setare.
+
+### Ecranul de start
+
+La fel pentru ambele jocuri, cu eroii, titlul si fundalul jocului ales. In plus: butonul "Alege jocul" sus in stanga. ○ sau Backspace fac acelasi lucru, daca nimeni nu e "Gata!".
+
+Daca un difuzor salvat nu a fost gasit, jos apare 14 secunde textul `spk.lost`.
+
+### Setari
+
+- "Alege tastele" are un rand nou: "Ajută prietenul (butonul □)".
+- "Conectează controllerul": randul "Încearcă sunetul" canta pe iesirea eroului. Dupa "Caută difuzorul controllerului", un difuzor care pare al unui controller e ales singur.
+- Setarile sunt comune celor doua jocuri. "Cine joacă pe cine" schimba eroii in amandoua.
+
+### Finalul celui de-al doilea joc
+
+`startEnding` si `drawEnding` trimit la `drawEndingL` cand `isLupta()`: petrecerea din jungla, cutia de cadou cu cristale, medaliile, stelutele care imbratiseaza eroii. Vezi `21-cea-mai-grea-lupta.md`.

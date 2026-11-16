@@ -22,6 +22,12 @@ Retete pas cu pas pentru schimbarile cele mai probabile. Dupa fiecare reteta: `.
 | Cuibul sa nu mai fie adapost | `nestSafe: false`. Raza: `nestSafeRadius` | |
 | Mai mult sau mai putin decor | `decorPerLevel`. Felurile si proportiile: `DECOR_WEIGHT` in `06-level.js` | Sub 1667 pe nivel, totalul scade sub 10.000 si `numara-elemente.js` pica. |
 | Personajele sa nu mai vorbeasca | `babble: false` | Nu e inca in meniul Setari. |
+| Eroul lovit sa se ridice singur (regula veche) | `rescue.enabled: false` | |
+| Eroul lovit sa se ridice singur dupa un timp | `rescue.autoAfter` (secunde, 0 = niciodata) | Pentru cazul in care cel mic asteapta prea mult. |
+| Ajutorul de mai aproape sau de mai departe | `rescue.reachNear` (primul erou), `rescue.reachFar` (al doilea) | |
+| Inamicii mici sa dispara mai greu sau sa revina mai repede | `smallEnemy.hits`, `smallEnemy.respawn` | |
+| Lupte care nu se inmoaie cand copiii sunt loviti | `duel.mercy: 0` | |
+| Orice la Boon, Killer sau George | blocul `lupta` | Vezi `21-cea-mai-grea-lupta.md`, "Reglaje". |
 | Gandaci mai lenti | `beetleSpeed` sau `difficulty.*.enemySpeed` | `enemySpeed` e pe jucator. |
 | Mai putin vant | `windForce`, `windEvery`, `windDuration` | |
 | Lupta din mijloc mai scurta | `duel.hp` (lovituri pe nivel), `duel.tiredTime` | |
@@ -108,3 +114,19 @@ Sunetele personajelor trebuie trecute in lista `CHR` (merg pe volumul "Sunete pe
 ## Prompt pentru un cont nou de Claude
 
 Vezi `prompts/03-prompt-update-urmator.md`. Principiul: lipesti promptul, atasezi depozitul (sau ii dai acces pe GitHub), si ii ceri sa citeasca `CLAUDE.md` si `docs/00-cuprins.md` inainte sa schimbe ceva.
+
+## Update 14 noiembrie 2026: retete pentru doua jocuri
+
+**Testezi ambele jocuri.** Orice schimbare in reguli atinge amandoua. `tests/toate.sh` ruleaza toate testele pentru fiecare. Un test singur: `JOC=lupta node ../salvare-prieten.js`, din `tests/out/`.
+
+**Schimbi un text doar in al doilea joc.** Adaugi sau schimbi cheia `'L:cheie'` in `STR.ro` si `STR.en`.
+
+**Schimbi un nivel din al doilea joc.** `LEVEL_DEFS_L` in `06-level.js`. Aceleasi campuri ca `LEVEL_DEFS`, plus cele descrise in `21-cea-mai-grea-lupta.md`.
+
+**Schimbi cum arata Boon, Killer sau George.** `drawBoon`, `drawKiller`, `drawGeorge` in `055-lupta.js`. Ruleaza `capturi-ecran.js` cu `JOC=lupta` si uita-te la capturi.
+
+**Schimbi un sunet doar in al doilea joc.** Tabelul `fx2` din `03-audio.js`. Un nume care exista si in `fx` il inlocuieste doar acolo.
+
+**Adaugi un al treilea joc.** Nu e pregatit ca reglaj simplu. Ai nevoie de: un id nou in `GAME_IDS`, un bloc in `CONFIG` ca `lupta`, texte cu alt prefix in `T()`, definitii de niveluri si paznici, pictori, `BABBLE` si `VOICES`, un loc in salvare (`Save.slot`), un al treilea cartonas in `drawSelect`.
+
+**Daca un difuzor de controller nu se aude.** Setari, "Conectează controllerul", "Caută difuzorul controllerului", apoi "Încearcă sunetul". Controllerul trebuie legat cu cablu USB. Vezi `19-limitari.md`.

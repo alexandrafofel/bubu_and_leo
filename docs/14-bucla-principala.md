@@ -24,6 +24,7 @@ Mouse-ul dispare cat se joaca (clasa CSS `playing`, `cursor: none`) si reapare i
 
 | Functie | Ce face |
 |---|---|
+| `Game.toSelect()` | Ecranul "Alege jocul": inchide meniurile, opreste intrarea in joc cu tastatura (`kbJoin = false`), muzica de start. |
 | `Game.toTitle()` | Ecranul de start: reseteaza "Gata!", inchide meniurile, reporneste atribuirea automata a controllerelor, opreste vocea, citeste salvarea, muzica de start. |
 | `Game.startGame(cont)` | Cu `cont`: reia de la nivelul salvat, cu scorul salvat. Fara: scor 0, salveaza nivelul 0, incepe nivelul 1. |
 | `Game.goLevel(idx)` | Trece la `loading` pentru nivelul `idx`. |
@@ -34,8 +35,9 @@ Mouse-ul dispare cat se joaca (clasa CSS `playing`, `cursor: none`) si reapare i
 
 | Stare | Ce face |
 |---|---|
-| `boot` | Asteapta o tasta, un clic sau un controller. Apoi porneste sunetul si vocea, cauta difuzoarele salvate, merge la start. |
+| `boot` | Asteapta o tasta, un clic sau un controller. Apoi porneste sunetul si vocea, cauta difuzoarele salvate, alege jocul jucat ultima data (`Save.data.game`) si merge la "Alege jocul". |
 | meniul Setari deschis | Doar `updateSettings`. Jocul din spate sta pe loc. |
+| `select` | `updateSelect`. |
 | `title` | `updateTitle`. |
 | `loading` | Al treilea cadru: construieste nivelul, trece la `intro`, coboara muzica, citeste povestea. |
 | `intro` | Dupa 0.8 s, orice "mai departe" porneste jocul. |
@@ -43,7 +45,7 @@ Mouse-ul dispare cat se joaca (clasa CSS `playing`, `cursor: none`) si reapare i
 | `levelEnd` | Particulele continua. Dupa 1.5 s, "mai departe" trece la nivelul urmator. |
 | `ending` | `updateEnding`. |
 
-La sfarsitul fiecarui `update`, clicul si pozitia mouse-ului se sterg.
+La sfarsitul fiecarui `update`, clicul si pozitia mouse-ului se sterg, iar `UI.spkLostT` (cat mai sta pe ecran mesajul despre difuzorul negasit) scade.
 
 ## `draw()`
 
@@ -62,6 +64,6 @@ La incarcarea paginii, in ordine:
 
 ## `window.__game`
 
-Folosit doar de teste. Contine `Game`, `Input`, `UI`, `Save`, `CONFIG`, `Opt`, `STR`, `T`, `Snd`, `Voice`, `Perf` (timpii de cadru), `P` (nivelul curent), si functiile `buildLevel`, `genLevel`, `startPlay`, `startDuel`, `duelHit`, `openNest`, `update`, `draw`, `openSettings`, `closeSettings`, `swapHeroes`, `settingsRows`.
+Folosit doar de teste. Contine `Game`, `Input`, `UI`, `Save`, `CONFIG`, `Opt`, `STR`, `T`, `Snd`, `Voice`, `Perf` (timpii de cadru), `P` (nivelul curent), `GAME` (jocul ales) si functiile `setGame`, `buildLevel`, `genLevel`, `startPlay`, `startDuel`, `duelHit`, `openNest`, `hitHero`, `getUp`, `tryRescue`, `hurtSmall`, `kickBall`, `recallBalls`, `update`, `draw`, `openSettings`, `closeSettings`, `swapHeroes`, `settingsRows`.
 
 Daca adaugi o functie pe care vrei sa o folosesti intr-un test, o adaugi aici.

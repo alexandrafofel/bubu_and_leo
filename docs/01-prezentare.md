@@ -1,5 +1,7 @@
 # 01. Prezentare
 
+In fisier sunt doua jocuri. Acest capitol descrie primul, "Bubu și Leo: Ouăle de Aur". Al doilea, "Cea mai grea luptă", are aceleasi reguli si alta lume: vezi `21-cea-mai-grea-lupta.md`. La pornire, familia alege unul din ele.
+
 ## Pentru cine
 
 Doi frati. Cel mic are 6 ani si nu a mai tinut un controller in mana. Cel mare are 8 ani si vrea provocari. Joaca impreuna, pe acelasi ecran, pe un Mac legat la televizor sau pe monitorul Mac-ului.
@@ -7,7 +9,7 @@ Doi frati. Cel mic are 6 ani si nu a mai tinut un controller in mana. Cel mare a
 Din asta vin aproape toate deciziile:
 
 - Jocul este cooperativ. Toate ouale sunt ale echipei. Nu exista scor separat.
-- Nu exista "Game Over". Un erou lovit ameteste putin si scapa un ou.
+- Nu exista "Game Over". Un erou lovit scapa un ou si asteapta pe loc pana il ajuta prietenul, cu □. Daca joaca un singur copil, se ridica singur.
 - Fiecare jucator are dificultatea lui. Cel mic poate juca pe "Ușor" in timp ce cel mare joaca pe "Normal" sau "Greu", in acelasi nivel.
 - Vederea este de sus. Nu trebuie sarit cu precizie.
 - Textele sunt foarte scurte. Unde se poate, sunt iconite in loc de propozitii.
@@ -40,6 +42,7 @@ Jucatorii pot schimba personajele intre ei (△ pe ecranul de start sau din Seta
 - Noroi: incetineste mersul (viteza x 0.45).
 - Conuri de brad care se rostogolesc pe culoare de sus in jos.
 - Gandaci morocanosi care dorm. Se trezesc daca treci prea aproape si te urmaresc.
+- Gandacii si conurile dispar dupa doua lovituri. Dupa un timp apar altii.
 - Rafale de vant pe dealul cu mori.
 - Paznicul cuibului (mini-lupta) la finalul fiecarui nivel.
 
@@ -68,8 +71,8 @@ Dupa boss urmeaza Festivalul Apusului: felinare, artificii, oul care ecloseaza s
 
 1. Ecranul de poveste: numele nivelului, trei iconite, o propozitie citita cu voce (daca exista o voce de sistem in limba aleasa).
 2. Trei valuri de oua, de la stanga la dreapta. Cand un val e adunat, apare urmatorul si Ciori trece in zbor pe cer.
-3. Provocarea: un paznic apare langa cuib. Fiecare lovitura scoate oua. Cand pierde toate inimile, fuge.
-4. Cuibul se deschide. Cand ambii eroi ajung la cuib (sau unul singur dupa 7 secunde), nivelul e gata.
+3. Doua mini-lupte cu paznicul: una in mijloc, dupa al doilea val, si una la cuib, dupa al treilea, mai grea. Fiecare lovitura scoate oua. Cand paznicul pierde toate inimile, fuge.
+4. Cuibul se deschide. Nivelul e gata cand amandoi eroii sunt in cuib. Cat e doar unul, scrie "Îl așteptăm pe Leo în cuib!". Un copil care joaca singur termina singur.
 5. Ecranul "Bravo!": ouale nivelului, stelele, trei medalii, totalul echipei.
 
 Bara de progres de sus arata drumul: trei oua, inima paznicului, cuibul, plus procentul.
@@ -82,5 +85,5 @@ Tinta initiala a fost 45 de minute in total. Un bot care merge perfect termina u
 
 - Google Chrome pe macOS. Alte browsere nu au fost testate.
 - Controllere DualShock 4 prin Gamepad API, cu "standard mapping". Prin cablu USB sau Bluetooth.
-- Tastatura ca rezerva: W A S D + Spatiu si sageti + Enter. Tastele se pot schimba din Setari.
-- Progresul si setarile se salveaza in `localStorage` al browserului, sub cheia `bubu-leo-oua-de-aur-v1`.
+- Tastatura ca rezerva: W A S D + Spatiu (E = ajuta prietenul) si sageti + Enter (Shift dreapta = ajuta prietenul). Tastele se pot schimba din Setari.
+- Progresul si setarile se salveaza in `localStorage` al browserului, sub cheia `bubu-leo-oua-de-aur-v1`. Fiecare joc are progresul lui. Setarile sunt comune.
