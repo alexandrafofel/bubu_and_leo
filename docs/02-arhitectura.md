@@ -1,17 +1,18 @@
 # 02. Arhitectura
 
-## Un singur fisier, construit din 13 bucati
+## Un singur fisier, construit din 14 bucati
 
-Cererea a fost un singur fisier HTML, fara nimic extern. Un fisier de 270 KB este greu de citit si de modificat. De aceea codul sta in 13 fisiere in `src/`, iar `build.sh` le lipeste unul dupa altul.
+Cererea a fost un singur fisier HTML, fara nimic extern. Un fisier de 440 KB este greu de citit si de modificat. De aceea codul sta in 14 fisiere in `src/`, iar `build.sh` le lipeste unul dupa altul.
 
 ```
 src/00-head.html     <!DOCTYPE>, stilul paginii, <canvas id="game">, deschide <script>
 src/01-config.js     CONFIG: toate valorile de reglaj
-src/015-lang.js      Opt (setarile alese), STR (texte ro + en), T(), keyName()
+src/015-lang.js      Opt (setarile alese), GAME (jocul ales), STR (texte ro + en), T(), TG(), keyName()
 src/02-core.js       matematica, culori, pictura in acuarela, hartie, cer, text, carduri, sprite-uri
 src/03-audio.js      Snd (muzica, efecte, ambient, difuzorul controllerului) si Voice (citire cu voce)
 src/04-input.js      Input: controllere, tastatura, navigarea prin meniuri, vibratii
 src/05-chars.js      cum se deseneaza Bubu, Leo, Ciori, gandacii, conurile, ouale, stelele, cuibul, iconitele
+src/055-lupta.js     al doilea joc: cum se deseneaza Boon, Killer, George cel Rău, robotii, melcii, pasarile, cristalele, racheta
 src/06-level.js      definitiile nivelurilor, generatorul, verificarea drumului, pictura fundalurilor, arena boss-ului
 src/07-play.js       Game, P (nivelul curent), regulile: eroi, puteri, oua, inamici, vant, fluture, boss
 src/075-duel.js      mini-luptele cu paznicii cuibului si desenul lor
@@ -22,7 +23,7 @@ src/10-main.js       canvas, starile jocului, bucla de cadre, mouse, ecran compl
 
 `build.sh` adauga la final `</script></body></html>`. Apoi pune aceleasi fisiere JS intr-un singur `tests/tmp/all.js` si ruleaza `node --check` pe el. Asa o greseala de sintaxa opreste construirea.
 
-Numele `015` si `075` sunt alese ca sa intre in ordinea corecta intre `01` si `02`, respectiv `07` si `08`, fara sa renumerotez restul. Ordinea reala este cea din variabila `FILES` din `build.sh`, nu ordinea alfabetica.
+Numele `015`, `055` si `075` sunt alese ca sa intre in ordinea corecta intre `01` si `02`, `05` si `06`, respectiv `07` si `08`, fara sa renumerotez restul. Ordinea reala este cea din variabila `FILES` din `build.sh`, nu ordinea alfabetica.
 
 ### De ce ordinea conteaza
 
@@ -40,7 +41,9 @@ Toate numele de sus sunt globale. Cele importante:
 |---|---|---|
 | `CONFIG` | 01-config.js | Valorile de reglaj. Nu se schimba in timpul jocului. |
 | `Opt` | 015-lang.js | Setarile alese de jucatori. Se salveaza. |
-| `STR`, `T()` | 015-lang.js | Textele si functia care le alege dupa limba. |
+| `STR`, `T()` | 015-lang.js | Textele si functia care le alege dupa limba si dupa joc. |
+| `GAME`, `isLupta()` | 015-lang.js | Jocul ales: `'bubu'` sau `'lupta'`. Se schimba doar cu `setGame(id)` (in `09-screens.js`). |
+| `GAME_BASE` | 015-lang.js | Eroii, numele personajului rau si boss-ul primului joc, asa cum sunt in `CONFIG` la incarcare. Pictorii lui Bubu si Leo citesc de aici. |
 | `W`, `H` | 02-core.js | 1920 si 1080: marimea logica a ecranului. |
 | `CS` | 02-core.js | 40: marimea unei celule din grila nivelului. |
 | `SHADOW` | 02-core.js | `#6A4270`: culoarea tuturor umbrelor. |
@@ -59,23 +62,24 @@ Toate numele de sus sunt globale. Cele importante:
 `Game.state` are una din valorile:
 
 ```
-boot ──(clic, tasta sau ✕)──> title ──(toti jucatorii "Gata!")──> loading ──> intro ──(✕)──> play
-                                ^                                                             │
-                                │                                     nivel terminat          v
-                                │                                <── loading <── (✕) <── levelEnd
-                                │
-                                └──(✕ dupa 12 s)── ending <── (boss invins, play la nivelul 7)
+boot ──(clic, tasta sau ✕)──> select ──(✕ pe un joc)──> title ──(toti "Gata!")──> loading ──> intro ──(✕)──> play
+                                 ^  <──(○ sau Backspace)──  ^                                                  │
+                                                            │                          nivel terminat          v
+                                                            │                     <── loading <── (✕) <── levelEnd
+                                                            │
+                                                            └──(✕ dupa 12 s)── ending <── (boss invins, play la nivelul 7)
 ```
 
 - `boot`: ecranul "Fă clic sau apasă o tastă". Exista pentru ca Chrome nu porneste sunetul fara un gest.
-- `title`: ecranul de start cu cei doi eroi.
+- `select`: ecranul "Alege jocul", cu cele doua jocuri. Vezi `22-update-14-noiembrie.md`, V1.
+- `title`: ecranul de start al jocului ales, cu cei doi eroi ai lui.
 - `loading`: dureaza 3 cadre. In primele doua se deseneaza "Se pictează...", in al treilea se genereaza si se picteaza nivelul. Fara asta ecranul ar ingheta fara niciun mesaj.
 - `intro`: cardul cu povestea nivelului.
 - `play`: jocul. `Game.paused` este adevarat cand meniul de pauza e deschis.
 - `levelEnd`: ecranul "Bravo!".
 - `ending`: Festivalul Apusului.
 
-Peste `title` si peste pauza poate fi deschis meniul Setari (`UI.set` nu este `null`). Cat timp e deschis, el primeste toate apasarile.
+Peste `select`, peste `title` si peste pauza poate fi deschis meniul Setari (`UI.set` nu este `null`). Cat timp e deschis, el primeste toate apasarile.
 
 ## Bucla de cadre
 
@@ -115,3 +119,20 @@ Cererea a fost 60 de cadre pe secunda pe un Mac. Masuri luate:
 - Hartia se genereaza o singura data (`PAPER`).
 
 Masurat in Chrome fara placa video: aproximativ 11 ms pe cadru la un nivel normal si 13 ms in timpul unei mini-lupte. Pe un Mac cu placa video ar trebui sa fie mai putin. Nu a fost masurat pe un Mac real.
+
+## Update 14 noiembrie 2026: doua jocuri in acelasi cod
+
+Al doilea joc nu este o copie a codului. Este acelasi motor, cu alte date. Un singur nume hotaraste: `GAME`.
+
+| Ce difera | Cum alege codul |
+|---|---|
+| Eroii, numele personajului rau, boss-ul | `applyGameConfig()` pune `CONFIG.lupta.heroes`, `.villainName`, `.boss` in locul celor din `CONFIG`. Originalele stau in `GAME_BASE`. |
+| Textele | `T('cheie')` cauta intai `'L:cheie'` cand jocul e `lupta`. `TG(id, cheie)` da textul unui joc anume (pentru ecranul "Alege jocul"). |
+| Nivelurile si paznicii | `levelDefs()` da `LEVEL_DEFS` sau `LEVEL_DEFS_L`. `duelDefs()` da `DUEL_DEFS` sau `DUEL_DEFS_L`. |
+| Desenul eroilor si al lumii | Pictorii din `05-chars.js` trimit la cei din `055-lupta.js` cand `isLupta()`. Fundalul are palete de noapte (`L.night`). |
+| Sunetele | `fx2` inlocuieste o parte din efecte. `BABBLE.lupta` si `VOICES.lupta` sunt limba lui Boon si Killer. Melodiile si ambientul au variante cu prefixul `L:`. |
+| Salvarea | `Save.slot(id)`: progresul primului joc e sus in salvare, al celui de-al doilea in `g2`. Vezi `13-ecrane-si-meniuri.md`. |
+
+Tot restul (reguli, control, meniuri, Setari, camera, dificultate) este acelasi cod pentru ambele. O regula noua se scrie o data si merge in amandoua.
+
+Capcana: `CONFIG.heroes` se schimba cand se schimba jocul. Codul care are nevoie de eroii primului joc anume (pictorii lui Bubu si Leo pe ecranul "Alege jocul") citeste `GAME_BASE.heroes`, nu `CONFIG.heroes`.

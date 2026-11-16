@@ -10,33 +10,45 @@ Jocul nu are teste unitare. Are scripturi care deschid jocul intr-un Chrome fara
   - `PLAYWRIGHT`: calea pachetului playwright, daca nu e instalat normal.
   - `CHROME`: calea unui Chrome sau Chromium anume. Fara ea se foloseste cel instalat de Playwright.
 
-Jocul testat este mereu `game/bubu-si-leo-ouale-de-aur.html`. Ruleaza `./build.sh` inainte de teste.
+  - `JOC`: ce joc joaca testul. `bubu` (implicit) sau `lupta`.
+
+Fisierul testat este mereu `game/bubu-si-leo-ouale-de-aur.html`. Ruleaza `./build.sh` inainte de teste.
 
 ## Cum rulezi
 
-Din radacina depozitului:
+Toate testele, pentru ambele jocuri, cu o linie `OK` sau `NEREUSIT` pe test:
 
 ```
 ./build.sh
-node tests/joc-complet-bot.js
-node tests/controller-simulat.js
-node tests/setari-ui.js
+tests/toate.sh          # cam 25 de minute
+tests/toate.sh tot      # si cele 144 de mini-lupte si capturile: inca o jumatate de ora
 ```
 
-Cele trei de mai sus sunt minimul dupa orice schimbare (vezi `CLAUDE.md`). Ruleaza si testul care atinge partea schimbata.
+Un singur test, din `tests/out/` (capturile de ecran se scriu in dosarul din care rulezi, iar `tests/out/` e ignorat de git):
+
+```
+cd tests/out
+node ../joc-complet-bot.js                 # primul joc
+JOC=lupta node ../joc-complet-bot.js       # al doilea joc
+```
+
+Minimul dupa orice schimbare (vezi `CLAUDE.md`): `joc-complet-bot.js`, `controller-simulat.js` si `setari-ui.js`, fiecare pentru ambele jocuri. Ruleaza si testul care atinge partea schimbata.
+
+Un test a trecut daca scrie `errors 0` si nu scrie `NEREUSIT`, `GRESIT` sau `PAGEERROR`.
 
 ## Fisierele de ajutor
 
 | Fisier | Ce face |
 |---|---|
 | `tests/pw.js` | Gaseste Playwright si Chrome. Da adresa `file://` a jocului. |
-| `tests/common.js` | `boot(opts)`: porneste Chrome 1920 x 1080, deschide jocul, strange erorile, face un clic (pornirea sunetului). Daca `opts.manual` nu e `false`, inlocuieste `Input.poll` cu o varianta in care testul hotaraste intrarile. |
+| `tests/toate.sh` | Ruleaza toate testele pe rand, pentru ambele jocuri. Iesirea fiecaruia ramane in `tests/out/log-<test>-<joc>.txt`. |
+| `tests/common.js` | `boot(opts)`: porneste Chrome 1920 x 1080, deschide jocul, strange erorile, face un clic (pornirea sunetului), alege jocul (`opts.game` sau `JOC`) si ajunge pe ecranul lui de start. Daca `opts.manual` nu e `false`, inlocuieste `Input.poll` cu o varianta in care testul hotaraste intrarile. |
 
 Ce pune `common.js` la dispozitia testelor, in pagina:
 
 | Nume | Ce face |
 |---|---|
-| `inp[0]`, `inp[1]` | Intrarile fiecarui erou: `{ x, y, aP, a, aR }`. `aP` = ✕ apasat acum, `a` = tinut, `aR` = eliberat. |
+| `inp[0]`, `inp[1]` | Intrarile fiecarui erou: `{ x, y, aP, a, aR, bP }`. `aP` = ✕ apasat acum, `a` = tinut, `aR` = eliberat, `bP` = □ apasat acum. |
 | `inp.pause` | `true` = OPTIONS apasat o data. |
 | `joined[k]` | Daca jucatorul `k` e in joc. |
 | `step(n)` | Ruleaza `n` cadre de 1/60 s, apoi deseneaza o data. |
@@ -44,9 +56,11 @@ Ce pune `common.js` la dispozitia testelor, in pagina:
 
 Din afara paginii: `shot(nume)` face o captura `nume.png`, `done()` afiseaza erorile si inchide Chrome.
 
-In pagina, `window.__game` (din `src/10-main.js`) da acces la tot: `Game`, `Input`, `UI`, `Save`, `CONFIG`, `Opt`, `STR`, `T`, `Snd`, `Voice`, `Perf`, `P` (nivelul curent), `buildLevel`, `genLevel`, `startPlay`, `startDuel`, `duelHit`, `openNest`, `update`, `draw`, `openSettings`, `closeSettings`, `swapHeroes`, `settingsRows`.
+In pagina, `window.__game` (din `src/10-main.js`) da acces la tot: `Game`, `Input`, `UI`, `Save`, `CONFIG`, `Opt`, `STR`, `T`, `Snd`, `Voice`, `Perf`, `P` (nivelul curent), `GAME`, `setGame`, `buildLevel`, `genLevel`, `startPlay`, `startDuel`, `duelHit`, `openNest`, `hitHero`, `getUp`, `tryRescue`, `hurtSmall`, `kickBall`, `recallBalls`, `update`, `draw`, `openSettings`, `closeSettings`, `swapHeroes`, `settingsRows`.
 
 ## Testele
+
+Tabelul de mai jos e din 13 noiembrie 2026, dinainte de al doilea joc. Rezultatele de acum, pentru ambele jocuri, sunt la sfarsitul capitolului, in "Rezultate dupa update-ul din 14 noiembrie 2026".
 
 | Test | Ce verifica | Rezultat la ultima rulare (13 noiembrie 2026) |
 |---|---|---|
@@ -79,8 +93,9 @@ Vezi `19-limitari.md`. Pe scurt: controllere reale, vibratia reala, sunetul ascu
 
 1. Copiaza un test apropiat. Foloseste `require('./common.js')`.
 2. Pune un comentariu pe prima linie: ce verifica.
-3. Termina cu `await done()`, ca sa apara `errors N`.
-4. Adauga-l in tabelul de mai sus.
+3. Termina cu `await done()`, ca sa apara `errors N`. Daca testul verifica ceva anume, scrie `NEREUSIT` cand nu iese.
+4. Adauga-l in tabel si in `tests/toate.sh`.
+5. Foloseste `__game.CONFIG.heroes`, `T()` si `P.L` in loc de nume scrise de mana: acelasi test trebuie sa mearga in ambele jocuri.
 
 Teste noi din update-ul 13 noiembrie 2026:
 
@@ -93,3 +108,32 @@ Teste noi din update-ul 13 noiembrie 2026:
 | `mini-lupte-bot.js` (schimbat) | Joaca acum ambele lupte pe fiecare nivel, in 6 feluri: 72 de lupte. Scrie `mini-lupte OK` sau `NEREUSIT`. Al doilea argument alege lupta: `node tests/mini-lupte-bot.js 0,1 mid`. | 72 din 72 castigate. |
 
 Testele de sunet (`sunete-volum.js`, `sunete-personaje.js`) se ruleaza singure. Pornite in acelasi timp cu alte teste, masoara varfuri gresite si pot pica fara motiv.
+
+## Rezultate dupa update-ul din 14 noiembrie 2026
+
+Toate testele au fost rulate pe fisierul final, pentru fiecare joc (`tests/toate.sh tot`). Toate au terminat cu `errors 0`.
+
+| Test | Ce verifica (nou sau schimbat) | Bubu și Leo | Cea mai grea luptă |
+|---|---|---|---|
+| `alege-jocul.js` (nou) | Ecranul "Alege jocul" cu taste reale si mouse; eroii, textele si boss-ul fiecarui joc; progres separat; jocul ales ramane dupa repornire. | OK (un singur test pentru amandoua) | |
+| `joc-complet-bot.js` | Tot jocul, de la "Alege jocul" pana la final si inapoi. Botul ajuta cu □ cand prietenul e lovit. | OK. 10 eroi ajutati. | OK |
+| `controller-simulat.js` | Doua controllere false, fara mouse si fara tastatura: alegerea jocului, intrarea, mersul, puterea, □, pauza, deconectarea. | OK | OK |
+| `setari-ui.js`, `tastatura-reala.js`, `pauza-setari-engleza.js` | Ca inainte, pornind de la "Alege jocul". Randul nou "Ajută prietenul" la taste. | OK | OK |
+| `nivele-bot-mers.js` | Botul merge prin fiecare nivel. Niciun blocaj. | 6 din 6. 88 pana la 161 s pe nivel. | 6 din 6. 85 pana la 131 s pe nivel. |
+| `mini-lupte-bot.js` | 72 de lupte pe joc, cu regula ajutorului. | 72 din 72. 9 pana la 124 s. | 72 din 72. 11 pana la 114 s. |
+| `salvare-prieten.js` (nou) | Eroul lovit sta pe loc, scapa un ou, nu e lovit din nou si nu se ridica singur. □ de prea departe nu ajuta. Primul erou ajuta doar de aproape, al doilea de departe cu mingea magica. Un singur jucator: regula veche. Amandoi jos: se ridica singuri. In lupta: paznicul asteapta, apoi ataca din nou. | OK | OK (si: eroul se face mic si creste la loc) |
+| `inamici-mici.js` (nou) | Prima lovitura: ametit, cu o inima. A doua: dispare. Un sut cu 8 mingi = o lovitura. Reapare dupa `respawn`, dar nu langa un erou. | OK | OK |
+| `cuib-amandoi.js` (nou) | Cu un singur erou in cuib nivelul nu se termina, nici dupa 30 de secunde. Cu amandoi se termina. Un singur jucator termina singur. | OK | OK |
+| `cuib-adapost.js`, `mingi-leo.js`, `ordine-nivel.js` | Ca inainte. | OK | OK |
+| `numara-elemente.js` | Minimum 10.000 de obiecte. | 11.430 | 11.462 |
+| `sunete-personaje.js` | Minimum 30 de cuvinte pe erou, toate diferite, niciunul la fel cu ale celuilalt joc, niciunul prea incet. | 33 pe erou. Varfuri 0.36 pana la 1.08. | 33 pe erou. Varfuri 0.37 pana la 1.1. |
+| `sunete-volum.js` | Fiecare efect, melodie si ambient porneste. | OK. Cel mai tare efect 0.7, muzica 0.17. | OK |
+| `sunete-controller.js` (nou) | Cu doua iesiri audio false, una pe erou: fiecare efect si cuvant al unui erou ajunge in iesirea lui si nu in boxe. | OK | OK |
+| `sunete-limita.js` (nou) | Ce ajunge la boxe, dupa limitator: nimic peste 0.98, niciun cuvant sub 0.1. | OK. Cuvinte 0.55 pana la 0.69, mai multe sunete deodata 0.76. | OK. Cuvinte 0.58 pana la 0.71, deodata 0.74. |
+| `performanta.js` | Timpul mediu pe cadru, fara placa video. | 16 pana la 24 ms (doua rulari) | 19 ms |
+| `performanta-lupta.js` | Timpul pe cadru in mini-lupta de la cuib. | 17.6 ms medie, 24.7 maxim | 22.3 ms medie, 41.9 maxim |
+| `capturi-ecran.js` | Capturi `p_*.png`, si cu regulile noi: `p_ajutor_asteapta`, `p_ajutor_minge`, `p_ajutor_aproape`. | Verificate cu ochiul. | Verificate cu ochiul. |
+
+Despre timpii pe cadru: masina de test nu are placa video si nu e mereu la fel de libera. Aceeasi masuratoare a dat 16.4 si 23.9 ms la o ora distanta. Al doilea joc nu e mai lent decat primul la un nivel obisnuit. In lupta de la cuib are varfuri mai mari (41.9 ms), de la scanteile si undele lui George. Pe un Mac cu placa video nu a fost masurat.
+
+Despre varfurile vocilor: 0.36 pana la 1.1 sunt masurate inainte de compresor, ca sa poata fi comparate cu cele vechi (0.03 pana la 0.2). La boxe ajung intre 0.5 si 0.71.

@@ -15,7 +15,7 @@
 const fs = require('fs'), path = require('path');
 const ROOT = path.resolve(__dirname, '..'), SRC = path.join(ROOT, 'src'), OUT = path.join(ROOT, 'docs', 'anexe');
 fs.mkdirSync(OUT, { recursive: true });
-const ORDER = ['00-head.html', '01-config.js', '015-lang.js', '02-core.js', '03-audio.js', '04-input.js', '05-chars.js', '06-level.js', '07-play.js', '075-duel.js', '08-draw.js', '09-screens.js', '10-main.js'];
+const ORDER = ['00-head.html', '01-config.js', '015-lang.js', '02-core.js', '03-audio.js', '04-input.js', '05-chars.js', '055-lupta.js', '06-level.js', '07-play.js', '075-duel.js', '08-draw.js', '09-screens.js', '10-main.js'];
 const files = ORDER.map(f => ({ f, lines: fs.readFileSync(path.join(SRC, f), 'utf8').split('\n') }));
 const md = s => String(s).replace(/\|/g, '\\|');
 const HEAD = '<!-- GENERAT AUTOMAT de tools/gen-docs.js. Nu edita de mana: ruleaza din nou scriptul. -->\n\n';
@@ -89,7 +89,7 @@ vm.createContext(sb);
 vm.runInContext(fs.readFileSync(path.join(SRC, '01-config.js'), 'utf8').replace(/^'use strict';/, '') + '\n;this.CONFIG = CONFIG;', sb);
 vm.runInContext(fs.readFileSync(path.join(SRC, '015-lang.js'), 'utf8') + '\n;this.STR = STR; this.Opt = Opt;', sb);
 const STR = sb.STR, CONFIG = sb.CONFIG;
-const strLine = {}; files.find(x => x.f === '015-lang.js').lines.forEach((l, i) => { for (const m of l.matchAll(/(?:'([\w.]+)'|\b([a-zA-Z]\w*))\s*:/g)) { const k = m[1] || m[2]; if (!(k in strLine) && k in STR.ro) strLine[k] = i + 1; } });
+const strLine = {}; files.find(x => x.f === '015-lang.js').lines.forEach((l, i) => { for (const m of l.matchAll(/(?:'([\w.:]+)'|\b([a-zA-Z]\w*))\s*:/g)) { const k = m[1] || m[2]; if (!(k in strLine) && k in STR.ro) strLine[k] = i + 1; } });
 let cTxt = '# Anexa C. Toate textele jocului\n\nTextele sunt in `STR` din src/015-lang.js. Cheia este numele folosit in cod: `T(\'cheie\')`. `{0}` si `{1}` sunt locuri completate de cod (un nume, un numar).\n\nTotal: ' + Object.keys(STR.ro).length + ' texte in romana si ' + Object.keys(STR.en).length + ' in engleza.\n\n| Cheie | Linia (ro) | Romana | Engleza |\n|---|---|---|---|\n';
 for (const k of Object.keys(STR.ro)) cTxt += '| `' + md(k) + '` | ' + (strLine[k] || '') + ' | ' + md(STR.ro[k]) + ' | ' + md(STR.en[k] == null ? '(lipseste)' : STR.en[k]) + ' |\n';
 write('C-texte.md', cTxt);
@@ -116,6 +116,15 @@ for (let i = start + 1; i < end; i++) {
   const c = (au[i].match(/\/\/\s*(.+)$/) || [])[1] || '';
   eTxt += '| ' + (i + 1) + ' | `' + m[1] + '` | ' + (CHR.has(m[1]) ? 'personaje' : 'lume') + ' | ' + md(c) + ' | `' + md(au[i].trim().slice(0, 160)) + (au[i].trim().length > 160 ? ' ...' : '') + '` |\n';
 }
+// the second game: the effects in fx2 take the place of the ones with the same name while "Cea mai grea luptă" is played
+const start2 = au.findIndex(l => /const fx2 = \{/.test(l)), end2 = au.findIndex((l, i) => i > start2 && /^\s*\};/.test(l));
+let e2 = '', nfx2 = 0;
+if (start2 >= 0) for (let i = start2 + 1; i < end2; i++) {
+  const m = au[i].match(/^\s{4}(\w+)\s*\(([^)]*)\)\s*\{/); if (!m) continue; nfx2++;
+  const c = (au[i].match(/\/\/\s*(.+)$/) || [])[1] || '';
+  e2 += '| ' + (i + 1) + ' | `' + m[1] + '` | ' + (CHR.has(m[1]) ? 'personaje' : 'lume') + ' | ' + md(c) + ' | `' + md(au[i].trim().slice(0, 160)) + (au[i].trim().length > 160 ? ' ...' : '') + '` |\n';
+}
+if (nfx2) eTxt += '\n## Al doilea joc: `fx2`\n\nCat se joaca "Cea mai grea luptă", efectele de mai jos iau locul celor cu acelasi nume din `fx`. Un nume care nu e in `fx` exista doar in al doilea joc.\n\nTotal: ' + nfx2 + ' efecte.\n\n| Linia | Nume | Grup | Comentariul din cod | Cod |\n|---|---|---|---|---|\n' + e2;
 write('E-sunete.md', eTxt.replace('| Linia | Nume', 'Total: ' + nfx + ' efecte.\n\n| Linia | Nume'));
 
 /* ---- F: map of every file, section by section ---------------------------------------- */

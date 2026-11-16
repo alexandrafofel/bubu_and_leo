@@ -94,3 +94,18 @@ Cerul trece de la albastru-verzui palid (`#A9CFD0`) la violet de amurg (`#5A4C7C
 | Broscoiul Oac | `#8DB866`, `#B4D684`, `#6E9A52`, burta `#EEF2C0` |
 | Ciorel | `#4F7387`, `#3B596B`, `#86AEBE`, `#A9C7D2` |
 | Inimi | pline `#E2574C`, goale violet transparent |
+
+## Update 14 noiembrie 2026: culorile celui de-al doilea joc
+
+Regula ramane: fara negru, fara gri. Noaptea din jungla e indigo si violet.
+
+| Culoare | Unde |
+|---|---|
+| `#2FBFA8` turcoaz, `#B7D645` verde-lime | Boon: corpul si cupola; picioarele si coada. Culoarea lui pe ecran e turcoazul. |
+| `#3B6FE0` albastru, `#E4583C` rosu | Killer: tricoul si sortul; ghetele. Culoarea lui pe ecran e albastrul. |
+| roz, cu cap in rosu, portocaliu, galben, albastru | George cel Rău, ca in desenul copiilor. Cornul-coroana are dungi rosii si galbene. |
+| `RAINBOW` (sapte culori) | Cristalele, morisca totemurilor, bonusul "Curcubeu!". |
+| `#C6BAEA` lila deschis | Piatra tronului lui George. |
+| `#E45AA0` roz | Eticheta "Joc inventat de copii" si butonul □. |
+
+Paletele de noapte ale fiecarui nivel sunt in `LEVEL_DEFS_L` (`06-level.js`). Toate culorile din cod, cu locurile lor, sunt in anexa B.

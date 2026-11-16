@@ -26,7 +26,7 @@ function drawEye(c, x, y, r, o, look) {
 
 /* BUBU: round baby triceratops, orange with green spots and a tiny red scarf. */
 function drawBubu(c, x, y, o) {
-  const H0 = CONFIG.heroes[0], s = o.scale || 1, f = o.face || 1, t = o.t || 0;
+  const H0 = GAME_BASE.heroes[0], s = o.scale || 1, f = o.face || 1, t = o.t || 0;
   const step = o.moving ? Math.sin(o.walk || 0) : 0, hop = o.moving ? Math.abs(step) * 7 : 0;
   const br = Math.sin(t * 2.4) * 0.025 * (o.moving ? 0.3 : 1), sq = o.squash || 0;
   const body = o.col || H0.color, spot = o.col2 || H0.color2, dark = shade(body, -0.22), light = shade(body, 0.4);
@@ -70,7 +70,7 @@ function drawBubu(c, x, y, o) {
 
 /* LEO: young footballer, yellow shirt, blue shorts, red headband. */
 function drawLeo(c, x, y, o) {
-  const H1 = CONFIG.heroes[1], s = o.scale || 1, f = o.face || 1, t = o.t || 0;
+  const H1 = GAME_BASE.heroes[1], s = o.scale || 1, f = o.face || 1, t = o.t || 0;
   const step = o.moving ? Math.sin(o.walk || 0) : 0, hop = o.moving ? Math.abs(step) * 6 : 0;
   const br = Math.sin(t * 2.6 + 1) * 0.022 * (o.moving ? 0.3 : 1), sq = o.squash || 0;
   const skin = '#F3C7A0', hair = '#7C4B30', kickLeg = o.kick || 0;
@@ -115,8 +115,9 @@ function drawLeo(c, x, y, o) {
   c.restore();
 }
 
-/* The football: cream with terracotta patches. */
+/* The football: cream with terracotta patches (Leo). In the second game Killer has his own ball: white with hexagons. */
 function drawBall(c, x, y, r, spin) {
+  if (isLupta()) { drawBallL(c, x, y, r, spin); return; }
   c.save(); c.translate(x, y);
   c.beginPath(); c.arc(0, 0, r, 0, TAU); c.clip();
   const g = c.createRadialGradient(-r * 0.3, -r * 0.35, r * 0.1, 0, 0, r * 1.1); g.addColorStop(0, '#FFFBEE'); g.addColorStop(1, '#EAD9BE');
@@ -229,7 +230,14 @@ function eggPath(c, r) {
   c.bezierCurveTo(-0.95 * r, -0.2 * r, -0.62 * r, -1.25 * r, 0, -1.25 * r);
   c.closePath();
 }
-function drawEgg(c, x, y, r, t, seed, z) {
+/* The thing the heroes gather: a golden egg in the first game, a rainbow crystal (or the secret star) in the second. */
+function drawEgg(c, x, y, r, t, seed, z, hue, big) {
+  if (!isLupta()) drawGoldEgg(c, x, y, r, t, seed, z);
+  else if (big) drawSecretStar(c, x, y, r, t, z);
+  else drawCrystal(c, x, y, r, t, seed, z, hue == null ? (seed * 7 | 0) % 7 : hue);
+}
+const itemPath = (c, r) => isLupta() ? gemPath(c, r) : eggPath(c, r);      // the small egg (or crystal) shape used by the HUD and the progress bar
+function drawGoldEgg(c, x, y, r, t, seed, z) {
   const bob = Math.sin(t * 2.2 + seed) * 2.5, R = 40, k = r / R;
   c.fillStyle = rgba(SHADOW, 0.24); c.beginPath(); c.ellipse(x - 3, y + r * 0.55, r * 0.9, r * 0.32, 0, 0, TAU); c.fill();
   const sp = sprite('egg', 200, 220, cc => {
@@ -263,7 +271,9 @@ function drawStar(c, x, y, r, t, z) {
   c.save(); c.translate(x, y - r * 1.1 - (z || 0) + Math.sin(t * 2.4) * 5); c.rotate(Math.sin(t * 1.3) * 0.25);
   c.drawImage(sp, -75 * k, -75 * k, 150 * k, 150 * k); c.restore();
 }
+/* The helper that makes both heroes fast for a moment: a butterfly in the first game, a little rocket in the second. */
 function drawButterfly(c, x, y, t, s) {
+  if (isLupta()) { drawRocket(c, x, y, t, s); return; }
   c.save(); c.translate(x, y); c.scale(s || 1, s || 1);
   const gg = c.createRadialGradient(0, 0, 4, 0, 0, 70); gg.addColorStop(0, 'rgba(255,200,120,0.5)'); gg.addColorStop(1, 'rgba(255,200,120,0)');
   c.fillStyle = gg; c.beginPath(); c.arc(0, 0, 70, 0, TAU); c.fill();
@@ -280,16 +290,17 @@ function drawButterfly(c, x, y, t, s) {
 }
 /* A woven nest seen from above. */
 function drawNest(c, x, y, r, seed, glow) {
+  const N = isLupta() ? ['#4E9A78', '#2F6A62', '#8AD6A8', ['#8AD6A8', '#2F6A62', '#B7E6B0', '#4E9A78']] : ['#B98858', '#8E6244', '#D9B27A', ['#D9B27A', '#8E6244', '#E8CC96', '#A87850']];   // second game: a nest woven from vines
   if (glow > 0) { const gg = c.createRadialGradient(x, y, r * 0.4, x, y, r * 2.2); gg.addColorStop(0, 'rgba(255,224,140,' + 0.55 * glow + ')'); gg.addColorStop(1, 'rgba(255,224,140,0)'); c.fillStyle = gg; c.beginPath(); c.arc(x, y, r * 2.2, 0, TAU); c.fill(); }
   wash(c, x - r * 0.12, y + r * 0.2, r * 1.1, r * 0.75, SHADOW, { a: 0.3, seed: seed, edge: 0 });
-  wash(c, x, y, r, r * 0.72, '#B98858', { a: 1, seed: seed + 1, wob: 0.08, n: 16 });
-  wash(c, x, y - r * 0.04, r * 0.72, r * 0.46, '#8E6244', { a: 0.9, seed: seed + 2, wob: 0.08, edge: 0 });
-  wash(c, x, y, r * 0.6, r * 0.36, '#D9B27A', { a: 0.6, seed: seed + 3, edge: 0 });
+  wash(c, x, y, r, r * 0.72, N[0], { a: 1, seed: seed + 1, wob: 0.08, n: 16 });
+  wash(c, x, y - r * 0.04, r * 0.72, r * 0.46, N[1], { a: 0.9, seed: seed + 2, wob: 0.08, edge: 0 });
+  wash(c, x, y, r * 0.6, r * 0.36, N[2], { a: 0.6, seed: seed + 3, edge: 0 });
   const rr = rng(seed);
   c.lineCap = 'round';
   for (let i = 0; i < 70; i++) {
     const a = rr() * TAU, d = 0.72 + rr() * 0.3, l = 0.25 + rr() * 0.3;
-    c.strokeStyle = rgba(['#D9B27A', '#8E6244', '#E8CC96', '#A87850'][i % 4], 0.7); c.lineWidth = 2 + rr() * 2.5;
+    c.strokeStyle = rgba(N[3][i % 4], 0.7); c.lineWidth = 2 + rr() * 2.5;
     c.beginPath(); c.moveTo(x + Math.cos(a) * r * d, y + Math.sin(a) * r * d * 0.72);
     c.quadraticCurveTo(x + Math.cos(a + l * 0.5) * r * (d + 0.08), y + Math.sin(a + l * 0.5) * r * (d + 0.08) * 0.72, x + Math.cos(a + l) * r * d, y + Math.sin(a + l) * r * d * 0.72); c.stroke();
   }
@@ -315,4 +326,12 @@ function drawDizzyStars(c, x, y, t) {
     starPath(c, x + Math.cos(a) * 30, y + Math.sin(a) * 9, 9, a); c.fill(); c.stroke();
   }
 }
-function drawHero(c, k, x, y, o) { if (k === 0) drawBubu(c, x, y, o); else drawLeo(c, x, y, o); }
+/* The two heroes of the game being played: Bubu and Leo, or Boon and Killer. */
+function drawHero(c, k, x, y, o) {
+  if (isLupta()) { if (k === 0) drawBoon(c, x, y, o); else drawKiller(c, x, y, o); }
+  else if (k === 0) drawBubu(c, x, y, o); else drawLeo(c, x, y, o);
+}
+/* The small enemy that sleeps and wakes up: a beetle, or one of George's robots. */
+function drawSleeper(c, b, t) { if (isLupta()) drawRobot(c, b, t); else drawBeetle(c, b, t); }
+/* The small enemy that comes down a lane: a rolling pinecone, or a sticky snail. */
+function drawRoller(c, o, x, y, t) { if (isLupta()) drawSnail(c, x, y, t, o); else drawCone(c, x, y, o.rot, o.r, 0); }

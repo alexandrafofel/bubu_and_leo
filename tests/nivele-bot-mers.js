@@ -1,3 +1,4 @@
+// Un bot merge cu adevarat prin fiecare nivel (singur, cu primul erou). Jocul: variabila JOC (bubu sau lupta).
 const { chromium } = require('./pw.js');
 (async () => {
   const browser = await chromium.launch({ executablePath: require('./pw.js').chrome, headless: true, args: ['--no-sandbox'] });
@@ -8,8 +9,8 @@ const { chromium } = require('./pw.js');
   await page.goto(require('./pw.js').url);
   await page.waitForTimeout(1000);
   await page.mouse.click(900, 500); await page.waitForTimeout(300);
-  await page.evaluate(() => {
-    const G = __game, I = G.Input, orig = I.poll; window.bot = { hits: 0, stuck: 0, lastEggs: -1, lastT: 0, tgt: null, field: null, fkey: '' };
+  await page.evaluate((GAME) => {
+    const G = __game, I = G.Input, orig = I.poll; G.setGame(GAME); window.bot = { hits: 0, stuck: 0, lastEggs: -1, lastT: 0, tgt: null, field: null, fkey: '' };
     const CS = 40;
     function field(L, tx, ty) {
       const key = (tx / CS | 0) + ',' + (ty / CS | 0); if (bot.fkey === key && bot.fL === L) return bot.field;
@@ -53,7 +54,8 @@ const { chromium } = require('./pw.js');
       }
       const P = G.P; return { duelT: Math.round(bot.duelT || 0), duelOver: !!(P.duel && P.duel.over), medals: (G.Game.results[i] || {}).med, level: i, state: G.Game.state, time: Math.round(P.time), eggs: P.levelEggs, total: P.L.totalEggs, waveT, hits: bot.hits, stuck, leo: [P.heroes[1].x | 0, P.heroes[1].y | 0] };
     };
-  });
+  }, require('./pw.js').game);
+  console.log('joc:', require('./pw.js').game);
   for (let i = 0; i < 6; i++) console.log(JSON.stringify(await page.evaluate((i) => runLevel(i, 900), i)));
   console.log('errors', errs.length); errs.slice(0, 6).forEach(e => console.log(e));
   await browser.close();

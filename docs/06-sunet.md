@@ -156,7 +156,7 @@ Cum e facut:
 - `listOutputs(ask)`: cere permisiunea de microfon (fara ea Chrome nu da numele dispozitivelor), apoi listeaza iesirile audio. Intoarce `{ list, denied }`.
 - `setSink(k, dev)`: creeaza un `AudioContext` nou legat de difuzorul ales (unul per dispozitiv, pastrate in `sinks`), cu un compresor. Sunetele eroului `k` merg acolo. Volumul e "Sunete personaje" x 1.6 (difuzorul controllerului e mic).
 - `swapOuts()`: cand jucatorii schimba personajele, difuzoarele se schimba si ele.
-- `restoreSpeakers()` (in `09-screens.js`): la pornire cauta din nou difuzorul salvat dupa nume.
+- `restoreSpeakers()` (in `09-screens.js`): la pornire cauta din nou difuzorul salvat dupa nume. Daca nu il gaseste, cere din nou permisiunea si, daca tot lipseste, scrie pe ecran (`spk.lost`).
 
 Nu a putut fi testat cu un controller real. Vezi `19-limitari.md`.
 
@@ -186,13 +186,13 @@ Citeste cu voce povestea fiecarui nivel si cateva replici (Ciori isi cere iertar
 
 ## Limba personajelor (update 13 noiembrie 2026)
 
-Fiecare erou are 30 de cuvinte inventate. Nu sunt inregistrari: sunt sintetizate in Web Audio, ca toate celelalte sunete. Cuvintele stau in `BABBLE_WORDS` din `03-audio.js`, cate un tabel pentru Bubu si unul pentru Leo.
+Fiecare erou are 30 de cuvinte inventate. Nu sunt inregistrari: sunt sintetizate in Web Audio, ca toate celelalte sunete. Cuvintele stau in `BABBLE` din `03-audio.js`: `BABBLE.bubu` are un tabel pentru Bubu si unul pentru Leo, `BABBLE.lupta` unul pentru Boon si unul pentru Killer. De la update-ul din 14 noiembrie sunt 33 de cuvinte pe erou (vezi sfarsitul capitolului).
 
 **Un cuvant** este o lista de silabe. Fiecare silaba: `[vocala, semitonuri, durata, alunecare]`.
 
 - Vocala (`a`, `e`, `i`, `o`, `u`) dau doua filtre bandpass (formantii, din `FORM`). Pentru Bubu formantii sunt x 0.85 (mai rotund), pentru Leo x 1.15 (mai luminos).
 - Nota: `BASE` (Bubu: nota 43, Leo: nota 62) plus semitonurile silabei.
-- Sursa: triunghi, cu anvelopa 0.015 s atac si coada de 0.05 s. Nivel 0.3 pe silaba, ca sa iasa intre 0.07 si 0.34 la iesire (testat).
+- Sursa: de la update-ul din 14 noiembrie, doua unde triunghi (nota si octava ei), cu anvelopa 0.015 s atac si coada de 0.05 s. Nivel 0.62 pe silaba, inmultit pe erou. Varful, masurat inainte de compresor: 0.36 pana la 1.1 (testat). Inainte era o singura unda, nivel 0.3, si vocile abia se auzeau: vezi sfarsitul capitolului.
 
 **Personalitate.** Bubu: voce joasa, lenta, cu alunecari in jos. Leo: voce sus, rapida, cu alunecari in sus. Niciun cuvant nu are consoane: doar vocale, ca sa nu sune a vorbire reala.
 
@@ -236,3 +236,56 @@ Fiecare erou are 30 de cuvinte inventate. Nu sunt inregistrari: sunt sintetizate
 **Cum se apeleaza.** `Snd.talk(k, 'cuvant')`: eroul `k` spune cuvantul. Ruteaza ca restul sunetelor eroului (pe difuzorul controllerului, daca a ales unul) si merge pe volumul "Sunete personaje". `Snd.words()` da tabelele, ca sa se poata asculta si schimba usor.
 
 **Ce lipseste.** Optiunea "Personajele vorbesc" din Setari nu exista inca: se schimba doar `CONFIG.babble`. Vezi `19-limitari.md`.
+
+## Update 14 noiembrie 2026
+
+### De ce nu se auzeau personajele, si ce s-a schimbat
+
+Cererea: "La bubu si leo nu se aud sunetele personajelor in console - repara bug-ul."
+
+Masurat cu `tests/sunete-volum.js` pe versiunea veche: cuvintele lui Bubu aveau varful intre 0.03 si 0.065, ale lui Leo intre 0.05 si 0.2. Muzica avea 0.17, tropaitul 0.9. Vocea lui Bubu era sub muzica. Cresterea "x 2.1" din update-ul trecut nu fusese destula.
+
+| Schimbare | Unde | Ce face |
+|---|---|---|
+| Silabe mai pline | `syl()` | Doua unde triunghi (nota si octava), filtre de "gura" mai largi (Q 2.2 in loc de 4), putin din nota curata, castig 0.62 x `VOICES[joc][erou].gain`. |
+| Difuzor mic | `bus.small`, `smallUp(bus, f)` | Pe un difuzor ales care nu e al calculatorului, notele sub 260 Hz urca o octava, cele sub 130 Hz doua. Zgomotele joase urca si ele. Iesirea are trece-sus la 200 Hz, o ridicare la 2400 Hz si compresor. |
+| Un pas inainte | `bus.lead` | Pe a doua iesire audio, fiecare sunet e programat cu latenta iesirii plus 30 ms (minimum 40 ms) mai tarziu. Un sunet scurt nu mai poate incepe intr-un bloc deja trimis. |
+| Difuzorul pierdut se vede | `restoreSpeakers(true)`, `UI.spkLostT` | Vezi mai sus. |
+| Alegere automata | `findSpeakers()` | Un difuzor cu "controller", "DualShock", "DualSense" sau "gamepad" in nume e ales pe loc dupa cautare. |
+| Proba | randul "Încearcă sunetul" | Spune `hello` si canta doua efecte ale eroului, pe iesirea lui. |
+
+`bus.small` se hotaraste dupa numele dispozitivului: tot ce nu se numeste built-in, MacBook, iMac, display, HDMI, AirPods, headphone, căști sau boxe e socotit difuzor mic.
+
+Varfuri masurate dupa schimbare, in acelasi loc ca inainte (la `master`, inainte de compresor): cuvintele 0.36 pana la 1.1 pentru toti cei patru eroi. Cel mai tare efect, tropaitul, are 0.7. Muzica are 0.17.
+
+### Limitatorul de la iesire: `toSpeaker(a, nod)`
+
+Cu vocile mai tari, un cuvant, un tropait si muzica in acelasi moment treceau de 1 la iesire (masurat: 1.4 pana la 1.5). Peste 1 sunetul se rupe si devine aspru, adica exact ce interzice regula 5. De aceea ultimul lucru dinaintea oricarui difuzor (boxele calculatorului si difuzorul unui controller) este acum un limitator: un `DynamicsCompressor` cu prag -8 dB, raport 20, atac 2 ms, urmat de un castig de 0.85.
+
+Masurat cu `tests/sunete-limita.js`, dupa limitator: fiecare cuvant intre 0.5 si 0.71, mai multe sunete tari deodata peste muzica cel mult 0.77. Nimic nu mai trece de 1.
+
+| Unde masori | Test |
+|---|---|
+| Inainte de compresor (cat de tare e fiecare sunet fata de celelalte) | `sunete-volum.js`, `sunete-personaje.js` |
+| Dupa limitator (ce ajunge la boxe) | `sunete-limita.js` |
+| In iesirea aleasa pentru un erou (difuzorul controllerului) | `sunete-controller.js` |
+
+### Trei cuvinte noi pe erou (33 in total)
+
+| Cuvant | Prioritate | Cand se aude |
+|---|---|---|
+| `help` | 3 | eroul lovit, cat asteapta, la fiecare `rescue.callEvery` secunde |
+| `rescue` | 3 | eroul care ajuta, cand apasa □ si e destul de aproape |
+| `thanks` | 3 | eroul ridicat |
+
+`notYet` se aude acum si cand □ e apasat de prea departe. `dizzy` si `recover` se aud doar cand eroul se ridica singur (un singur jucator).
+
+### Sunetele celui de-al doilea joc
+
+- `BABBLE.lupta`, `VOICES.lupta`: limba lui Boon (joasa, cu maraituri scurte) si a lui Killer (sus, sacadata). 33 de cuvinte fiecare. Niciun cuvant nu e la fel cu unul din primul joc (testul compara silabele).
+- `fx2`: efecte care iau locul celor cu acelasi nume cand `GAME` e `lupta` (ghearele in loc de tropait, cristalul in loc de ou, robotul, urletul lui George, racheta, torta ...). `Snd.play('stomp')` canta singur varianta potrivita. `Snd.names2()` le listeaza.
+- `growl()`: piesa noua pentru urlete. Unda triunghi joasa, cu tremur si filtru trece-jos. Nu e patrata si nu e aspra (regula 5).
+- Melodiile si ambientul: `SONGS['L:title']`, `SONGS['L:l0']` ... `SONGS['L:boss']` si `AMBS['L:...']`. `Snd.music(nume)` cauta intai varianta `L:` cand se joaca al doilea joc.
+- Efecte noi comune: `heal` (prietenul e ridicat) si `poof` (un inamic mic dispare). Amandoua au si o varianta in `fx2`. Mingea magica pleaca cu sunetul de sut (`kick`).
+
+Lista completa a efectelor, cu varfurile, e in anexa E.

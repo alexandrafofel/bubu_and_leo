@@ -27,13 +27,18 @@ addEventListener('keydown', e => {
 // "Ecran complet" in Setări always shows what the screen really does, and that is what gets saved
 document.addEventListener('fullscreenchange', () => { Opt.fullscreen = !!document.fullscreenElement; if (Game.state !== 'boot') Save.write(); });
 
+Game.toSelect = function () {             // the screen where one of the two games is chosen
+  Game.state = 'select'; Game.paused = false; UI.selT = 0; UI.set = null; UI.gameSel = Math.max(0, GAME_IDS.indexOf(GAME));
+  Input.autoJoin = true; Input.kbJoin = false; Input.bindTo = null;      // Enter or Space here only choose the game: nobody joins by keyboard on this screen
+  Voice.stop(); Save.load(); Snd.music('title'); Snd.setDuck(1);
+};
 Game.toTitle = function () {
   Game.state = 'title'; Game.paused = false; UI.ready = [false, false]; UI.menuSel = 0; UI.startT = -1; UI.lostK = -1; UI.set = null;
   Input.autoJoin = true; Input.kbJoin = true; Input.bindTo = null;
   Voice.stop(); Save.load(); Snd.music('title'); Snd.setDuck(1);
 };
 Game.startGame = function (cont) {
-  const d = Save.data;
+  const d = Save.slot();
   if (cont && d) { Game.team = { eggs: d.eggs || 0, stars: d.stars || 0 }; Game.results = d.results || []; Game.goLevel(clamp(d.level | 0, 0, levelCount())); }
   else { Game.team = { eggs: 0, stars: 0 }; Game.results = []; Save.write(0); Game.goLevel(0); }
 };
@@ -50,9 +55,12 @@ function update(dt) {
   if (st === 'boot') {
     if (Input.anyKey || UI.clicked || Input.slots[0].joined || Input.slots[1].joined) {
       Snd.init(); Voice.init(); restoreSpeakers();
-      Game.toTitle();
+      const last = Save.data && Save.data.game === 'lupta' ? 'lupta' : 'bubu';      // the game played last time is the one already picked
+      if (last !== GAME) setGame(last);
+      Game.toSelect();
     }
-  } else if (UI.set && (st === 'title' || (st === 'play' && Game.paused))) updateSettings(dt);
+  } else if (UI.set && (st === 'title' || st === 'select' || (st === 'play' && Game.paused))) updateSettings(dt);
+  else if (st === 'select') updateSelect(dt);
   else if (st === 'title') updateTitle(dt);
   else if (st === 'loading') {
     UI.loadStep++;
@@ -76,7 +84,7 @@ function update(dt) {
     UI.lvlT += dt; stepParts(dt);
     if (UI.lvlT > 1.5 && pressedGo()) { Snd.play('ok'); Game.goLevel(Game.levelIdx + 1); }
   } else if (st === 'ending') updateEnding(dt);
-  UI.click = null; UI.hover = null;
+  UI.click = null; UI.hover = null; UI.spkLostT = Math.max(0, UI.spkLostT - dt);
   // the mouse pointer hides while the heroes are walking
   const hide = Game.state === 'play' && !Game.paused;
   if (hide !== UI.hidden) { UI.hidden = hide; document.body.classList.toggle('playing', hide); }
@@ -88,13 +96,14 @@ function draw() {
   UI.hits.length = 0;
   let ov = UI.titleOv;
   if (st === 'boot') drawBoot(c, t);
+  else if (st === 'select') { drawSelect(c, t); ov = titleBackdrop('bubu').ov; }
   else if (st === 'title') drawTitle(c, t);
   else if (st === 'loading') drawLoading(c, t);
   else if (st === 'intro') { drawIntro(c, t); ov = P.L.overlay; }
   else if (st === 'play') { drawPlay(c); if (Game.paused && !UI.set) drawPause(c, t); ov = P.L.overlay; }
   else if (st === 'levelEnd') { drawLevelEnd(c, t); ov = P.L.overlay; }
   else if (st === 'ending') { drawEnding(c, t); ov = UI.endOv; }
-  if (UI.set && (st === 'title' || st === 'play')) { UI.hits.length = 0; drawSettings(c, t); }
+  if (UI.set && (st === 'title' || st === 'select' || st === 'play')) { UI.hits.length = 0; drawSettings(c, t); }
   // the paper texture, the warm light and the vignette lie over everything
   c.globalCompositeOperation = 'multiply'; c.drawImage(ov, 0, 0, W, H); c.globalCompositeOperation = 'source-over';
 }
@@ -112,5 +121,5 @@ function frame(ts) {
 Save.load(); Save.apply(); setLanguage(Opt.lang);
 resize();
 initScreens();
-window.__game = { Game, Input, UI, Save, CONFIG, Opt, STR, T, Snd, Voice, Perf, get P() { return P; }, buildLevel, genLevel, startPlay, startDuel, duelHit, openNest, hitHero, kickBall, recallBalls, update, draw, openSettings, closeSettings, swapHeroes, settingsRows };
+window.__game = { Game, Input, UI, Save, CONFIG, Opt, STR, T, Snd, Voice, Perf, get P() { return P; }, get GAME() { return GAME; }, setGame, buildLevel, genLevel, startPlay, startDuel, duelHit, openNest, hitHero, getUp, tryRescue, hurtSmall, kickBall, recallBalls, update, draw, openSettings, closeSettings, swapHeroes, settingsRows };
 requestAnimationFrame(ts => { _last = ts; requestAnimationFrame(frame); });

@@ -1,4 +1,5 @@
 // pictures of the new things: progress bar, helper arrow, every guardian, level end with medals
+// Jocul: variabila JOC (bubu sau lupta). Mai face capturi cu regulile noi: eroul care asteapta ajutor, mingea magica, inamicul lovit o data.
 const boot = require('./common.js');
 (async () => {
   const { page, shot, done } = await boot();
@@ -26,9 +27,17 @@ const boot = require('./common.js');
   }
   await ev(() => { const G = __game, P = G.P; while (P.duel.hp > 0) { G.duelHit(1); step(70); if (P.duel.hp > 0) P.duel.state = 'tired'; } step(140); });
   await shot('p_nest');
-  await ev(() => { const G = __game, P = G.P; P.heroes[0].x = P.L.nest.x - 60; P.heroes[1].x = P.L.nest.x + 60; P.heroes[0].y = P.heroes[1].y = P.L.nest.y + 40; P.levelEggs = 67; P.levelStars = 3; P.stars.forEach(s => { s.got = true; }); P.hits = 0; step(260); });
+  await ev(() => { const G = __game, P = G.P; P.heroes[0].x = P.L.nest.x - 60; P.heroes[1].x = P.L.nest.x + 60; P.heroes[0].y = P.heroes[1].y = P.L.nest.y + 40; P.eggs.length = 0; P.levelEggs = 67; P.levelStars = 3; P.stars.forEach(s => { s.got = true; }); P.hits = 0; step(260); });      // no eggs left lying around: the level ends as soon as both are in the nest
   console.log('state', await ev(() => __game.Game.state + ' ' + JSON.stringify(__game.Game.results[5])));
   await ev(() => step(220)); await shot('p_levelend');
+  // the new rules: a hero who waits for the friend, the magic ball on its way, a small enemy that was hit once
+  await ev(() => { const G = __game; go(1); const P = G.P, L = P.L, a = P.heroes[0], b = P.heroes[1]; for (const q of L.beetles) { q.cool = 999; } L.cones.length = 0;
+    const bt = L.beetles[0]; a.x = bt.x - 150; a.y = bt.y + 40; b.x = a.x + 420; b.y = a.y + 60; step(3); G.hurtSmall(bt); bt.state = 'stun'; bt.t = 9; a.inv = 0; G.hitHero(a, a.x - 60, a.y); step(45); });
+  await shot('p_ajutor_asteapta');
+  // the game keeps running while the picture is taken, so the ball is slowed down to almost nothing for that moment
+  await ev(() => { const R = __game.CONFIG.rescue; inp[1].bP = true; step(12); R.ballSpeed0 = R.ballSpeed; R.ballSpeed = 2; }); await shot('p_ajutor_minge');
+  await ev(() => { const R = __game.CONFIG.rescue; R.ballSpeed = R.ballSpeed0; });
+  await ev(() => { step(40); const P = __game.P, a = P.heroes[0], b = P.heroes[1]; b.inv = 0; b.dizzy = 0; __game.hitHero(b, b.x + 60, b.y); step(40); a.x = b.x - 120; a.y = b.y; step(4); }); await shot('p_ajutor_aproape');
   await ev(() => { __game.Opt.lang = 'en'; go(1); __game.Game.state = 'intro'; step(3); }); await shot('p_intro_en');
   await ev(() => { __game.Opt.lang = 'ro'; inp.pause = true; __game.Game.state = 'play'; step(3); }); await shot('p_pause');
   await done();

@@ -12,11 +12,11 @@ Fiecare decizie importanta, de ce a fost luata si ce alternativa a fost respinsa
 | Lume de 3200 x 1800 | Destul pentru 60 de oua si obstacole. La zoom 0.6 aproape toata inaltimea incape pe ecran. | |
 | Oua in 3 valuri, de la stanga la dreapta | Tinta mereu aproape. Ritm: val, Ciori pe cer, val. Nivelul are un "inainte". | Toate ouale odata: copiii nu stiu unde sa mearga. |
 | 40% din oua pe drum | Primul lucru pe care il vad copiii este o dara de oua de urmat. | |
-| Fara vieti, fara Game Over | Cerere explicita. Pierderea unui ou este destula consecinta. | |
+| Fara vieti, fara Game Over | Cerere explicita. Pierderea unui ou este destula consecinta. De la 14 noiembrie 2026 eroul lovit asteapta si ajutorul prietenului (vezi jos). | |
 | Oul scapat cade intr-un loc in care se poate ajunge | Altfel copilul vede un ou pe care nu il poate lua. | |
 | Invulnerabilitate 1.6 s dupa ameteala | Fara ea, un gandac te putea lovi de doua ori la rand. | |
 | Eroul nejucat merge singur dupa prieten si nu pierde oua | Un copil poate juca singur. Fratele poate pleca la jumatate. | Eroul ramane pe loc si e lovit. |
-| Nivelul se termina cand ambii ajung la cuib (sau unul dupa 7 s) | Final de echipa. 7 s ca un copil sa nu astepte la nesfarsit. | |
+| Nivelul se termina cand ambii ajung la cuib | Final de echipa. Pana la 14 noiembrie 2026 ajungea unul singur dupa 7 s. Regula a fost scoasa la cerere: "se așteaptă pana când ambii jucatori ajung in cuib". | |
 
 ## Puterile
 
@@ -147,3 +147,37 @@ Cererea cuvant cu cuvant e in `prompts/02-cereri-ulterioare.md`. Raspunsurile la
 | Povestea boss-ului spune numarul de goluri din `CONFIG.boss.hits` ("De 5 ori!") | Textul spunea "De trei ori!" dupa ce numarul a devenit 5. |
 | Cercurile de goluri de la boss mai mici cand sunt peste 3; ouale din cuib scad pe toata lupta | Cu 5 cercuri, primul intra peste numarul de oua. Cuibul ramanea gol dupa al treilea gol. |
 | Botul din `mini-lupte-bot.js` iese din cuib cand paznicul asteapta | Botul statea in adapost si tropaia la nesfarsit. Jocul se poarta cum trebuie; botul nu. |
+
+## Update 14 noiembrie 2026
+
+Cererea cuvant cu cuvant e in `prompts/04-cerere-14-noiembrie.md`. Fiecare punct, cu testul lui, e in `22-update-14-noiembrie.md`.
+
+| Decizie | De ce |
+|---|---|
+| Doua jocuri in acelasi fisier, alese pe un ecran nou | Raspuns direct: "un singur fisier". |
+| Al doilea joc foloseste acelasi motor, cu alte date (`GAME`) | O regula noua (ajutorul, inamicii mici, cuibul) se scrie o data si merge in amandoua. O copie a codului ar fi dublat fisierul si greselile. |
+| Progresul primului joc ramane sus in salvare, al doilea in `g2` | Salvarile vechi merg fara conversie. |
+| Pe "Alege jocul" nimeni nu intra in joc cu tastatura | Parintele alege cu Enter. Altfel Enter l-ar fi pus pe al doilea erou pe tastatura si al doilea controller n-ar mai fi avut loc. |
+| Eroul lovit asteapta prietenul; □ ajuta | Cerut. Schimba regula 6 din `CLAUDE.md`, cu acordul proprietarei. |
+| Primul erou ajuta de aproape (180), al doilea de departe (620), cu o minge magica | Cerut pentru Boon si Killer. Aplicat la fel lui Bubu si Leo: regula e "ambele jocuri", iar Bubu si Leo au aceleasi roluri. |
+| Eroul care asteapta nu poate fi lovit | Altfel ar pierde ou dupa ou fara sa poata face nimic. |
+| Un singur jucator: regula veche | Nu are cine sa il ajute. |
+| Amandoi jos: se ridica singuri dupa 3 s | Altfel jocul s-ar opri. Ramane "fara Game Over". |
+| Nu exista limita de timp pentru asteptare (`autoAfter: 0`) | Cererea: "nu poate înainta pana când celălalt jucător nu vine". Reglajul exista. |
+| Sageata spre prietenul lovit apare si pentru jucatorul cu sageata oprita | Cel mare are sageata oprita. Fara ea n-ar sti unde e fratele lui pe o harta de 3200 de unitati. |
+| Inamicii mici au 2 inimi, reapar dupa 22 s | Cerut: "dupa ce lovește de doua ori ... dispare - pot apărea alții după". |
+| Un sut cu 8 mingi = o lovitura | Altfel un singur sut ar sterge orice inamic si "de doua ori" n-ar insemna nimic. |
+| Un gandac nu reapare langa un erou | Ar aparea din nimic peste copil. |
+| Paznicii si boss-ul nu sunt "mici" | Au deja inimile lor. Cererea da ca exemplu buburuzele si conii. |
+| Lupta se odihneste cat un erou asteapta | In teste, fara asta, cel care venea sa ajute era lovit si el, iar unele lupte nu se terminau. |
+| Mila: paznicul slabeste cu fiecare erou lovit | Lupta trebuie sa se termine si pentru un copil care nu se fereste. |
+| Vocile de trei ori mai tari, cu doua unde | Masurat: vocea lui Bubu era sub muzica. Acesta e bug-ul "nu se aud sunetele personajelor". |
+| Limitator inaintea oricarui difuzor | Cu vocile mai tari, mai multe sunete deodata treceau de 1 la iesire si s-ar fi auzit aspru. Masurat: 1.5 inainte, 0.77 dupa. |
+| Pe un difuzor mic notele joase urca o octava | Difuzorul unui controller nu reda 98 Hz. Vocea lui Bubu ar fi ramas muta acolo chiar si tare. |
+| Mesaj pe ecran cand difuzorul salvat nu e gasit | Inainte sunetele ramaneau in boxe fara nicio explicatie. |
+| George are un urlet, dar din unde triunghi filtrate | Copiii au cerut "roar". Regula 5 cere sunete moi. Urletul e jos si rotund, nu aspru. |
+| George e "rau de-a binelea", dar la final doar fuge | Copiii l-au vrut rau. Jocul ramane fara violenta: pierde coroana si fuge in jungla. |
+| Killer are numele ales de copil | E numele dat de copilul de 8 ani eroului sau. Jocul nu arata nicio violenta: Killer e un fotbalist care suteaza mingi. |
+| Totemurile din jungla au morisca in culorile curcubeului, nu pale de moara | Paletele de moara ale primului joc nu se potriveau noaptea. |
+| Lumina calda in jurul eroilor noaptea | Cu 1700 de lucruri colorate pe nivel, eroii se pierdeau. |
+| Noaptea e indigo si violet, nu neagra | Regula 4: fara negru, fara gri. |

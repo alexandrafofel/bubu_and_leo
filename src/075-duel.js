@@ -16,21 +16,33 @@ const DUEL_DEFS = [
   { id: 'frog',   pat: 'hop',    hops: 3, shock: 170, r: 46 },                       // level 5
   { id: 'chick',  pat: 'fly',    lobs: 3, swoops: 2, r: 40 }                         // level 6
 ];
+/* Second game: the guardian is always George cel Rău. Small at first, bigger on every level, and with one more trick each time.
+   pats = the attack patterns he takes turns with. size = how big he is drawn (and hit). */
+const DUEL_DEFS_L = [
+  { id: 'george', pats: ['charge'], speed: 150, dashes: 1, r: 44, size: 0.62 },                                                   // level 1: he only runs at you
+  { id: 'george', pats: ['charge'], speed: 160, dashes: 1, lobs: 2, r: 44, size: 0.72 },                                         // level 2: and throws rocks
+  { id: 'george', pats: ['hop'], hops: 2, shock: 120, r: 44, size: 0.82 },                                                       // level 3: he jumps on you
+  { id: 'george', pats: ['hop', 'charge'], hops: 2, shots: 6, shock: 125, speed: 170, dashes: 1, r: 44, size: 0.92 },            // level 4: jumps, sparks fly, then he runs
+  { id: 'george', pats: ['charge', 'hop'], speed: 180, dashes: 2, lobs: 2, hops: 2, shock: 150, r: 44, size: 1.02 },             // level 5: two runs, rocks, two jumps
+  { id: 'george', pats: ['hop', 'charge'], hops: 3, shots: 6, shock: 165, speed: 185, dashes: 2, lobs: 3, r: 44, size: 1.14 }    // level 6: everything he knows
+];
+const duelDefs = () => isLupta() ? DUEL_DEFS_L : DUEL_DEFS;
 /* kind 'mid': the middle fight, the same as before. kind 'nest': the harder one at the nest, bigger and quicker. */
 function startDuel(kind = 'nest') {
-  const L = P.L, def = DUEL_DEFS[L.idx % DUEL_DEFS.length], hard = kind === 'nest', F = CONFIG.duel;
+  const L = P.L, defs = duelDefs(), def = defs[L.idx % defs.length], hard = kind === 'nest', F = CONFIG.duel;
   let top = -1; for (let k = 0; k < 2; k++) if (Input.slots[k].joined) top = Math.max(top, rank(k)); if (top < 0) top = 1;
-  const base = hard ? F.finalHp[L.idx % F.finalHp.length] : F.hp[L.idx % F.hp.length];
+  const hpTab = hard ? ((isLupta() && CONFIG.lupta.duelFinalHp) || F.finalHp) : ((isLupta() && CONFIG.lupta.duelHp) || F.hp);      // George has his own table: a little tougher
+  const base = hpTab[L.idx % hpTab.length];
   const hp = clamp((base || 3) + (top === 0 ? -1 : top === 2 ? 1 : 0), 2, 9);
   const want = hard ? { x: L.nest.x - 320, y: L.nest.y - 30 } : { x: (L.spawn.x + L.nest.x) / 2, y: (L.spawn.y + L.nest.y) / 2 };
-  const sc = hard ? F.finalSize : 1;
+  const sc = (hard ? F.finalSize : 1) * (def.size || 1);
   const cells = L.reachCells(want.x, want.y, 0, hard ? 220 : 420, hard ? 0 : 8);
   // the nest guardian lands as close to its spot as it can; the middle one looks for the most open place near the middle (not the river bank, not a bridge)
   const room = c => hard ? 0 : L.reachCells(c.x, c.y, 0, 280, 0).length * 6;
   for (const c of cells) c.w = room(c) - dist(c.x, c.y, want.x, want.y) - (!hard && L.grid[L.ci(c.x, c.y)] === 1 ? 500 : 0);   // and not in the mud
   cells.sort((a, b) => b.w - a.w);
   const sp = cells.length ? cells[0] : want;
-  P.duel = { def, kind, hard, sc, R: def.r * sc, x: sp.x, y: sp.y, px: sp.x, py: sp.y, z: 700, face: -1, hp, maxHp: hp, state: 'enter', t: 0, n: 0, tx: sp.x, ty: sp.y, sx: sp.x, sy: sp.y, ex: sp.x, ey: sp.y,
+  P.duel = { def, kind, hard, sc, pat: def.pats ? def.pats[0] : def.pat, cyc: 1, R: def.r * sc, x: sp.x, y: sp.y, px: sp.x, py: sp.y, z: 700, face: -1, hp, maxHp: hp, state: 'enter', t: 0, n: 0, tx: sp.x, ty: sp.y, sx: sp.x, sy: sp.y, ex: sp.x, ey: sp.y,
     dx: -1, dy: 0, kx: 0, ky: 0, len: 0, run: 0, target: -1, proj: [], shots: [], rings: [], over: false, home: sp, land: null, landed: false, threw: false, bonk: false,
     stagCd: 0, flash: 0, hintT: 0, tonkT: 0, tiredDur: 2, tStart: P.time };
   P.banner = { kind: 'duel', t: 3.6, id: def.id, mid: !hard };
@@ -42,15 +54,18 @@ function startDuel(kind = 'nest') {
 function duelFighter() {
   const d = P.duel; let best = -1, bs = -1e9;
   for (const h of P.heroes) {
-    if (!Input.slots[h.k].joined || h.safe) continue;
+    if (!Input.slots[h.k].joined || h.safe || h.down) continue;      // not a hero hidden in the nest, not one who waits for help
     const sc = rank(h.k) * 100000 - dist(h.x, h.y, d.x, d.y);
     if (sc > bs) { bs = sc; best = h.k; }
   }
   return best;
 }
+/* While a hero waits for the friend's help the fight rests: the guardian finishes what it was doing, hurts nobody and starts no new attack. */
+const duelWaiting = () => P.heroes.some(h => h.down);
 /* Nothing touches a hero hidden in the nest. A player on "Ușor" who only helps (the guardian is after the friend) is spared too. */
-const duelSpares = h => h.safe || (rank(h.k) === 0 && P.duel.target !== h.k && Input.slots[1 - h.k].joined);
-const duelCanHurt = (k, how) => rank(k) === 0 || P.duel.state === 'tired' || (how === 'ball' && P.duel.state === 'stag');
+const duelSpares = h => h.safe || duelWaiting() || (rank(h.k) === 0 && P.duel.target !== h.k && Input.slots[1 - h.k].joined);
+/* A tired guardian can always be hit. On "Ușor" every hit counts at any time, except on a guardian that is only waiting for a hero to be helped up. */
+const duelCanHurt = (k, how) => P.duel.state === 'tired' || (how === 'ball' && P.duel.state === 'stag') || ((rank(k) === 0 || (CONFIG.duel.mercy > 0 && (P.duel.downs || 0) >= CONFIG.duel.mercyMax)) && !duelWaiting());
 function duelEggs(n) {
   const d = P.duel, L = P.L;
   const cells = L.reachCells(d.x, d.y, 90, 330, 2);
@@ -83,17 +98,18 @@ function duelBall(b) {
 }
 function duelStomp(h) {
   const d = P.duel, cfg = CONFIG.heroes[0];
-  if (d.over || d.z > 60 || d.state === 'enter' || d.state === 'flee' || d.state === 'hurt') return;
-  if (dist(h.x, h.y, d.x, d.y) > cfg.stompRadius + d.R) return;
+  if (d.over || d.z > 60 || d.state === 'enter' || d.state === 'flee' || d.state === 'hurt') return false;
+  if (dist(h.x, h.y, d.x, d.y) > cfg.stompRadius + d.R) return false;
   if (duelCanHurt(0, 'stomp')) duelHit(0);
   else if (d.stagCd <= 0 && (d.state === 'move' || d.state === 'aim')) { d.state = 'stag'; d.t = 0; d.stagCd = 4.5; Snd.play('stun'); d.hintT = 0; }   // a stomp makes it wobble: Leo's ball counts now
   else { d.hintT = 1.6; Snd.talk(h.k, 'notYet'); }
+  return true;                                               // it was close enough: this stomp (or this spin of the claws) is used up
 }
 function duelLob(n, slow) {                                  // throws n pinecones: the first where the target is going, the rest around
   const d = P.duel, L = P.L, tg = d.target >= 0 ? P.heroes[d.target] : null; if (!tg) return;
   for (let i = 0; i < n; i++) {
     const ox = i === 0 ? tg.vx * 0.6 : (Math.random() - 0.5) * 380, oy = i === 0 ? tg.vy * 0.6 : (Math.random() - 0.5) * 300;
-    d.proj.push({ sx: d.x, sy: d.y - 40 - d.z, tx: clamp(tg.x + ox, 60, L.W - 60), ty: clamp(tg.y + oy, L.top + 50, L.H - 50), t: -i * 0.3, dur: 1.45 * slow, rot: 0 });
+    d.proj.push({ sx: d.x, sy: d.y - 40 - d.z, tx: clamp(tg.x + ox, 60, L.W - 60), ty: clamp(tg.y + oy, L.top + 50, L.H - 50), t: -i * 0.3, dur: 1.45 * slow, rot: 0, kind: isLupta() ? 'rock' : 'cone' });
   }
   Snd.play('pop');
 }
@@ -118,13 +134,15 @@ function updateDuel(dt) {
   d.px = d.x; d.py = d.y;
   let tg = d.target >= 0 ? P.heroes[d.target] : null;
   const F = d.hard ? CONFIG.duel : null, angry = d.hard && d.hp <= d.maxHp * CONFIG.duel.angryAt;
-  const rk = tg ? rank(tg.k) : 1, slow = [1.5, 1, 0.8][rk] * (F ? F.finalPrep : 1), sf = [0.6, 1, 1.25][rk] * (F ? F.finalSpeed : 1);
-  const more = (rk === 2 ? 1 : 0) + (F ? F.finalExtra + (angry ? 1 : 0) : 0);     // the nest fight: one more attack, and one more when angry
+  // mercy: a fight never drags on. Every hero hit in this fight makes the guardian a little slower, its warnings longer, its tired moments longer
+  const mz = Math.min(CONFIG.duel.mercyMax || 0, d.downs || 0) * (CONFIG.duel.mercy || 0);
+  const rk = tg ? rank(tg.k) : 1, slow = [1.5, 1, 0.8][rk] * (F ? F.finalPrep : 1) * (1 + mz), sf = [0.6, 1, 1.25][rk] * (F ? F.finalSpeed : 1) * (1 - mz * 0.6);
+  const more = Math.max(0, (rk === 2 ? 1 : 0) + (F ? F.finalExtra + (angry ? 1 : 0) : 0) - Math.floor((d.downs || 0) / 4));     // the nest fight: one more attack, and one more when angry (one less after every 4 hits on the heroes)
   if (angry) P.shake = Math.max(P.shake, 0.03);                                      // an angry guardian shakes the screen a little
   const go = st => { d.state = st; d.t = 0; };
-  const cycle = () => { d.target = duelFighter(); d.n = 0; d.threw = false; go('move'); };
-  const tire = () => { go('tired'); Snd.play('tired'); d.tiredDur = CONFIG.duel.tiredTime * [1.4, 1, 0.75][rk] * (F ? F.finalTired : 1) + (d.bonk ? 0.7 : 0); d.bonk = false; let lx = d.x, ly = d.y;
-    if (def.pat === 'fly' && tg) { const ex = d.x - tg.x, ey = d.y - tg.y, em = Math.hypot(ex, ey) || 1, es = Math.min(em, 250); lx = tg.x + ex / em * es; ly = tg.y + ey / em * es; }   // a tired flyer flops down close to the fighter
+  const cycle = () => { d.target = duelFighter(); d.n = 0; d.threw = false; if (def.pats) d.pat = def.pats[d.cyc++ % def.pats.length]; go('move'); };   // George takes turns with his tricks
+  const tire = () => { go('tired'); Snd.play('tired'); d.tiredDur = CONFIG.duel.tiredTime * [1.4, 1, 0.75][rk] * (F ? F.finalTired : 1) * (1 + mz * 2) + (d.bonk ? 0.7 : 0); d.bonk = false; let lx = d.x, ly = d.y;
+    if (d.pat === 'fly' && tg) { const ex = d.x - tg.x, ey = d.y - tg.y, em = Math.hypot(ex, ey) || 1, es = Math.min(em, 250); lx = tg.x + ex / em * es; ly = tg.y + ey / em * es; }   // a tired flyer flops down close to the fighter
     const p = duelSnap(lx, ly); d.land = p && (p.x !== d.x || p.y !== d.y) ? p : null; };
   const st = d.state;
   if (st === 'enter') {
@@ -154,12 +172,17 @@ function updateDuel(dt) {
   }
   if (st === 'lob') {
     if (!d.threw) { d.threw = true; duelLob((def.lobs || 1) + more, slow); }
-    if (def.pat === 'fly') { if (d.t > 1.1) { if (tg && !tg.safe) duelSwoop(tg); else cycle(); } }
+    if (d.pat === 'fly') { if (d.t > 1.1) { if (tg && !tg.safe && !duelWaiting()) duelSwoop(tg); else cycle(); } }
     else if (d.t > 0.7) tire();
     return;
   }
+  if (st === 'move' && duelWaiting()) {                      // a hero waits for help: the guardian looks around and waits too (touching it does not hurt now)
+    d.t = Math.min(d.t, 0.2); d.face = Math.sin(P.time * 2.2) > 0 ? 1 : -1;
+    if (d.pat === 'fly') d.z += (180 - d.z) * Math.min(1, dt * 3);
+    return;
+  }
   // ---- the three attack patterns ---------------------------------------------
-  if (def.pat === 'charge') {
+  if (d.pat === 'charge') {
     if (st === 'move') {
       d.target = duelFighter(); tg = d.target >= 0 ? P.heroes[d.target] : null;
       const gx = tg ? tg.x : d.home.x, gy = tg ? tg.y : d.home.y, dx = gx - d.x, dy = gy - d.y, m = Math.hypot(dx, dy) || 1, v = def.speed * sf * (tg ? 1 : 0.5) * dt;
@@ -175,9 +198,10 @@ function updateDuel(dt) {
       const c = collide(L, d, 30, false), wall = c && (c.nx * d.dx + c.ny * d.dy) < -0.45;
       if (Math.random() < dt * 40) part(d.x - d.dx * 30, d.y, { life: 0.5, max: 0.5, size: 14, col: '#F3E2C0', kind: 'dust', drag: 2 });
       if (wall) { Snd.play('thud'); P.shake = Math.max(P.shake, 0.22); d.bonk = true; burst(d.x + d.dx * 30, d.y - 30, 10, { speed: 160, life: 0.5 }); }
-      if (wall || d.t > 0.72) { d.n++; if (!wall && d.n < def.dashes + more) { go('aim'); Snd.play('warn'); } else if (!wall && def.lobs) go('lob'); else tire(); }
+      const stop = wall || duelWaiting();                    // it ran into something, or a hero went down: no more attacks in this round, it gets tired
+      if (wall || d.t > 0.72) { d.n++; if (!stop && d.n < def.dashes + more) { go('aim'); Snd.play('warn'); } else if (!stop && def.lobs) go('lob'); else tire(); }
     }
-  } else if (def.pat === 'hop') {
+  } else if (d.pat === 'hop') {
     const plan = () => {
       let tx = d.home.x + (Math.random() - 0.5) * 300, ty = d.home.y + (Math.random() - 0.5) * 200;
       if (tg && !tg.safe) { const dx = tg.x - d.x, dy = tg.y - d.y, m = Math.hypot(dx, dy) || 1, s = Math.min(m, 390); tx = d.x + dx / m * s; ty = d.y + dy / m * s; }
@@ -192,8 +216,8 @@ function updateDuel(dt) {
         d.z = 0; Snd.play('thud'); P.shake = Math.max(P.shake, 0.22); d.rings.push({ x: d.x, y: d.y, t: 0, max: def.shock });
         burst(d.x, d.y, 14, { kind: 'dust', cols: ['#F3E2C0'], speed: 240, life: 0.5, size: 15, g: 0, drag: 3 });
         for (const h of P.heroes) if (!duelSpares(h) && dist(h.x, h.y, d.x, d.y) < def.shock - 8) hitHero(h, d.x, d.y);
-        if (def.shots) { const n = def.shots + more * 2, a0 = Math.random() * TAU; for (let i = 0; i < n; i++) { const a = a0 + i / n * TAU; d.shots.push({ x: d.x, y: d.y - 20, vx: Math.cos(a) * 230 * clamp(sf, 0.7, 1.1), vy: Math.sin(a) * 190 * clamp(sf, 0.7, 1.1), life: 2.3, rot: a }); } }
-        d.n++; if (d.n < def.hops + more) { d.target = duelFighter(); tg = d.target >= 0 ? P.heroes[d.target] : null; plan(); } else tire();
+        if (def.shots && !duelWaiting()) { const n = def.shots + more * 2, a0 = Math.random() * TAU; for (let i = 0; i < n; i++) { const a = a0 + i / n * TAU; d.shots.push({ x: d.x, y: d.y - 20, vx: Math.cos(a) * 230 * clamp(sf, 0.7, 1.1), vy: Math.sin(a) * 190 * clamp(sf, 0.7, 1.1), life: 2.3, rot: a }); } }
+        d.n++; if (d.n < def.hops + more && !duelWaiting()) { d.target = duelFighter(); tg = d.target >= 0 ? P.heroes[d.target] : null; plan(); } else tire();
       }
     }
   } else {                                                   // fly
@@ -209,7 +233,7 @@ function updateDuel(dt) {
       if (d.t > 0.95 * slow) { d.x = d.sx; d.y = d.sy; d.run = 0; go('dash'); Snd.play('swish'); }
     } else if (st === 'dash') {
       const v = 920 * clamp(sf, 0.75, 1.15) * dt; d.x += d.dx * v; d.y += d.dy * v; d.run += v; d.z += (24 - d.z) * Math.min(1, dt * 10);
-      if (d.run >= d.len) { d.n++; const t2 = duelFighter(); if (d.n < def.swoops + more && t2 >= 0) { d.target = t2; duelSwoop(P.heroes[t2]); } else tire(); }
+      if (d.run >= d.len) { d.n++; const t2 = duelFighter(); if (d.n < def.swoops + more && t2 >= 0 && !duelWaiting()) { d.target = t2; duelSwoop(P.heroes[t2]); } else tire(); }
     }
   }
   // touching a guardian that is on the ground and not tired hurts
@@ -296,12 +320,15 @@ const DUEL_PAINT = {
   },
   chick(c, d, t, mood) {                                     // Ciorel, Ciori's little nephew
     drawCiori(c, 0, 0, { scale: 1.25, t: t, fly: d.z > 30, mood: mood === 'dizzy' ? 'dizzy' : 'cheeky', body: '#4F7387', dark: '#3B596B', light: '#86AEBE', belly: '#A9C7D2' });
+  },
+  george(c, d, t, mood) {                                    // George cel Rău (second game): the same painter as the boss, the size comes from the level
+    drawGeorge(c, 0, 0, { scale: 1.15, t: t, mood: mood, moving: d.state === 'move' || d.state === 'dash', walk: t * 12, squash: d.state === 'aim' ? 0.12 : d.z > 20 ? -0.12 : 0 });
   }
 };
 function drawDuelBoss(c) {
   const d = P.duel, t = P.time, s = d.state;
   const mood = (s === 'tired' || s === 'stag' || s === 'hurt' || s === 'flee') ? 'dizzy' : (s === 'aim' || s === 'dash' || s === 'jump' || s === 'lob') ? 'angry' : 'calm';
-  c.save(); c.translate(d.x + (s === 'aim' && d.def.pat !== 'fly' ? Math.sin(t * 55) * 3 : 0), d.y - d.z);
+  c.save(); c.translate(d.x + (s === 'aim' && d.pat !== 'fly' ? Math.sin(t * 55) * 3 : 0), d.y - d.z);
   if (s === 'hurt') c.rotate(Math.sin(t * 30) * 0.25); else if (s === 'flee') c.rotate(d.t * 10 * d.face); else if (s === 'stag') c.rotate(Math.sin(t * 12) * 0.15);
   if (s === 'tired') { const br = Math.sin(t * 7) * 0.05; c.scale(1 + br, 1 - br); }
   if (s === 'flee') c.globalAlpha = clamp(1.7 - d.t, 0, 1);
@@ -317,8 +344,8 @@ function drawDuelGround(c) {
   const red = a => rgba('#D9463C', a);
   if (d.state === 'aim' || d.state === 'dash' || d.state === 'jump') {
     c.lineCap = 'round';
-    if (d.def.pat === 'charge') { c.strokeStyle = red(0.14 + pulse * 0.14); c.lineWidth = d.R * 1.7; c.beginPath(); c.moveTo(d.x, d.y); c.lineTo(d.x + d.dx * 600, d.y + d.dy * 600); c.stroke(); }
-    else if (d.def.pat === 'fly') { c.strokeStyle = red(0.14 + pulse * 0.14); c.lineWidth = d.R * 1.7; c.beginPath(); c.moveTo(d.sx, d.sy); c.lineTo(d.ex, d.ey); c.stroke(); }
+    if (d.pat === 'charge') { c.strokeStyle = red(0.14 + pulse * 0.14); c.lineWidth = d.R * 1.7; c.beginPath(); c.moveTo(d.x, d.y); c.lineTo(d.x + d.dx * 600, d.y + d.dy * 600); c.stroke(); }
+    else if (d.pat === 'fly') { c.strokeStyle = red(0.14 + pulse * 0.14); c.lineWidth = d.R * 1.7; c.beginPath(); c.moveTo(d.sx, d.sy); c.lineTo(d.ex, d.ey); c.stroke(); }
     else { const r = d.def.shock; c.fillStyle = red(0.1 + pulse * 0.1); c.beginPath(); c.ellipse(d.tx, d.ty, r, r * 0.6, 0, 0, TAU); c.fill(); c.strokeStyle = red(0.5); c.lineWidth = 5; c.setLineDash([16, 12]); c.stroke(); c.setLineDash([]); }
   }
   for (const r of d.rings) { const u = r.t / 0.45, rad = r.max * easeOut(u); c.strokeStyle = rgba('#FFF3C0', (1 - u) * 0.8); c.lineWidth = 12 * (1 - u) + 2; c.beginPath(); c.ellipse(r.x, r.y, rad, rad * 0.6, 0, 0, TAU); c.stroke(); }
@@ -330,7 +357,12 @@ function drawDuelTop(c) {
   const d = P.duel, t = P.time;
   if (!d.over && d.z >= 70) drawDuelBoss(c);
   drawProjs(c, d.proj);
-  for (const s of d.shots) { c.save(); c.translate(s.x, s.y); c.rotate(s.rot); c.globalAlpha = Math.min(1, s.life * 2); c.fillStyle = '#C96F4E'; c.beginPath(); c.ellipse(0, 0, 17, 8, 0, 0, TAU); c.fill(); c.strokeStyle = '#FFF3C0'; c.lineWidth = 2; c.beginPath(); c.moveTo(-13, 0); c.lineTo(13, 0); c.stroke(); c.restore(); }
+  for (const s of d.shots) {
+    c.save(); c.translate(s.x, s.y); c.rotate(s.rot); c.globalAlpha = Math.min(1, s.life * 2);
+    if (isLupta()) { c.fillStyle = RAINBOW[(s.rot * 3 | 0) % 7]; starPath(c, 0, 0, 17, 0); c.fill(); c.fillStyle = '#FFF8E0'; starPath(c, 0, 0, 8, 0); c.fill(); }      // George's sparks
+    else { c.fillStyle = '#C96F4E'; c.beginPath(); c.ellipse(0, 0, 17, 8, 0, 0, TAU); c.fill(); c.strokeStyle = '#FFF3C0'; c.lineWidth = 2; c.beginPath(); c.moveTo(-13, 0); c.lineTo(13, 0); c.stroke(); }
+    c.restore();
+  }
   c.globalAlpha = 1;
   if (d.over || d.state === 'flee') return;
   const hy = d.y - d.z - 150, n = d.maxHp;

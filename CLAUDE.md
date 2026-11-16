@@ -4,7 +4,12 @@ Acest fisier este pentru orice asistent care lucreaza la joc. Citeste-l primul.
 
 ## Ce este proiectul
 
-Un joc HTML pentru doi copii (6 si 8 ani), cooperativ, cu doua controllere DualShock 4 pe Mac in Chrome. Un singur fisier, fara nimic extern. Detalii in `docs/01-prezentare.md`.
+Doua jocuri HTML in acelasi fisier, pentru doi copii (6 si 8 ani), cooperative, cu doua controllere DualShock 4 pe Mac in Chrome. Fara nimic extern.
+
+- "Bubu și Leo: Ouăle de Aur": primul joc. Detalii in `docs/01-prezentare.md`.
+- "Cea mai grea luptă": inventat de copii (Boon, Killer, George cel Rău, jungla de noapte). Detalii in `docs/21-cea-mai-grea-lupta.md`.
+
+La pornire se alege unul. Amandoua folosesc acelasi cod si aceleasi reguli. Ce le deosebeste e hotarat de `GAME` (`'bubu'` sau `'lupta'`). Ultimul update, pe puncte: `docs/22-update-14-noiembrie.md`.
 
 ## Regulile care nu se schimba fara acordul proprietarei
 
@@ -13,16 +18,18 @@ Un joc HTML pentru doi copii (6 si 8 ani), cooperativ, cu doua controllere DualS
 3. Toate textele din joc exista in romana si in engleza, in tabelul `STR` din `src/015-lang.js`. Nu scrie text direct in cod: adauga o cheie in `STR.ro` si `STR.en` si foloseste `T('cheie')`.
 4. Stilul vizual: pictura in acuarela dintr-o carte pentru copii. Fara contururi negre, fara gri, fara negru. Umbrele sunt violet cald sau maro (`SHADOW = '#6A4270'`). Vezi `docs/15-culori.md`.
 5. Sunetele sunt calde si moi: sinus, triunghi, filtre trece-jos, reverberatie. Fara sunete patrate sau aspre, nimic care sperie.
-6. Jocul nu se termina niciodata cu "Game Over". Un erou lovit ameteste putin si scapa un ou, care poate fi luat inapoi.
+6. Jocul nu se termina niciodata cu "Game Over". Un erou lovit scapa un ou, care poate fi luat inapoi, si asteapta pe loc pana il ajuta prietenul cu □. Nimeni nu ramane blocat: un copil care joaca singur se ridica singur, iar daca amandoi sunt loviti se ridica amandoi dupa cateva secunde.
 7. Totul se reglaza din `CONFIG` (`src/01-config.js`) cand se poate. Valori noi de reglaj se adauga acolo, cu un comentariu.
-8. Controalele: stick stanga sau D-pad pentru mers, ✕ pentru putere, OPTIONS pentru pauza. Zona moarta a stick-ului minimum 0.25.
+8. Controalele: stick stanga sau D-pad pentru mers, ✕ pentru putere, □ pentru a ajuta prietenul, OPTIONS pentru pauza. Zona moarta a stick-ului minimum 0.25.
+9. Orice regula de joc e aceeasi in ambele jocuri. Al doilea joc are aceleasi caracteristici ca primul, dar altele: 6 niveluri + lupta finala, peste 10.000 de elemente, minimum 30 de cuvinte pe erou, niciunul la fel cu ale primului joc.
+10. Nivelul se termina doar cand amandoi jucatorii sunt in cuib.
 
 ## Cum lucrezi
 
 1. Modifici doar fisierele din `src/`. Fisierul din `game/` se genereaza.
 2. Rulezi `./build.sh`. Scriptul lipeste fisierele in ordinea din `FILES` si verifica sintaxa cu `node --check`.
 3. Rulezi `node tools/gen-docs.js`. Anexele din `docs/anexe/` se refac din cod.
-4. Rulezi testele relevante din `tests/` (vezi `docs/17-testare.md`). Minimum: `joc-complet-bot.js`, `controller-simulat.js`, `setari-ui.js`. Toate trebuie sa termine cu `errors 0`.
+4. Rulezi testele relevante din `tests/` (vezi `docs/17-testare.md`), pentru ambele jocuri. Minimum: `joc-complet-bot.js`, `controller-simulat.js`, `setari-ui.js`, fiecare cu `JOC=bubu` si cu `JOC=lupta`. Toate trebuie sa termine cu `errors 0` si fara `NEREUSIT`. `tests/toate.sh` le ruleaza pe toate.
 5. Te uiti la capturi de ecran (`capturi-ecran.js`) dupa orice schimbare vizuala.
 6. Actualizezi capitolul din `docs/` care descrie partea schimbata. Daca schimbarea este o decizie noua, o adaugi in `docs/16-decizii.md` cu motivul.
 
@@ -36,6 +43,9 @@ Un joc HTML pentru doi copii (6 si 8 ani), cooperativ, cu doua controllere DualS
 | Muzica, efecte, vocea | `src/03-audio.js` | `docs/06-sunet.md` |
 | Controllere si tastatura | `src/04-input.js` | `docs/07-control.md` |
 | Cum arata personajele si obiectele | `src/05-chars.js` | `docs/08-personaje.md` |
+| Cum arata Boon, Killer, George si lumea lor | `src/055-lupta.js` | `docs/21-cea-mai-grea-lupta.md` |
+| Ajutorul cu □, inamicii mici, cuibul | `src/07-play.js`, `CONFIG.rescue`, `CONFIG.smallEnemy` | `docs/10-gameplay.md`, `docs/22-update-14-noiembrie.md` |
+| Ecranul "Alege jocul", `setGame` | `src/09-screens.js` | `docs/13-ecrane-si-meniuri.md` |
 | Nivelurile si generarea lor | `src/06-level.js` | `docs/09-niveluri.md` |
 | Regulile jocului, puterile, inamicii, boss-ul | `src/07-play.js` | `docs/10-gameplay.md` |
 | Mini-luptele cu paznicii | `src/075-duel.js` | `docs/11-mini-lupte.md` |
@@ -52,6 +62,10 @@ Un joc HTML pentru doi copii (6 si 8 ani), cooperativ, cu doua controllere DualS
 - Grila nivelului are celule de 40 (`CS`). Codurile celulelor sunt in `docs/09-niveluri.md`.
 - `Snd.play(nume, valoare, erou)`: al treilea argument spune al cui este sunetul. Fara el, sunetul unui personaj nu poate merge in difuzorul controllerului lui.
 - Chrome nu accepta un buton de controller ca gest pentru ecran complet sau pentru pornirea sunetului. Trebuie o tasta sau un clic.
+- `CONFIG.heroes`, `CONFIG.villainName` si `CONFIG.boss` se schimba cand se schimba jocul. Eroii primului joc sunt mereu in `GAME_BASE`. Pentru Boon si Killer reglezi `CONFIG.lupta.heroes`.
+- Un text care vorbeste de oua, de Ciori sau de cuib are nevoie si de varianta `'L:cheie'` pentru al doilea joc.
+- Testele pornesc pe ecranul "Alege jocul". `tests/common.js` alege jocul din variabila `JOC`. Ruleaza-le din `tests/out/`, ca acolo raman capturile.
+- Testele de sunet si de viteza se ruleaza singure, fara alt test in acelasi timp.
 - Testele ruleaza in Chrome fara placa video (SwiftShader). Timpii de cadru masurati acolo sunt mai mari decat pe un Mac real.
 
 ## Stilul documentatiei

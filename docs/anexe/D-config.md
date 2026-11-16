@@ -63,6 +63,16 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `nestSafe` | `true` |  |
 | `nestSafeRadius` | `150` | how close to the nest (centre) a hero must stand to hide |
 | `nestHideSoundGap` | `3` | seconds between two "ih-ih" sounds when heroes keep stepping in and out |
+| `rescue.enabled` | `true` | false = the old rule: a hit hero gets up alone after a moment |
+| `rescue.reachNear` | `180` | the first hero (Bubu, Boon) must stand this close to help: a hug, healing hands |
+| `rescue.reachFar` | `620` | the second hero (Leo, Killer) can help from this far: he sends a magic ball |
+| `rescue.ballSpeed` | `900` | how fast the magic ball flies to the friend |
+| `rescue.safeAfter` | `2.6` | seconds nothing can hit a hero who was just helped up |
+| `rescue.bothDown` | `3` | both heroes down at the same time: they get up alone after this many seconds |
+| `rescue.autoAfter` | `0` | a hero gets up alone after this many seconds (0 = never: only the friend can help) |
+| `rescue.callEvery` | `5` | seconds between two calls for help |
+| `smallEnemy.hits` | `2` | hits (stomp, claws or ball) before a small enemy disappears |
+| `smallEnemy.respawn` | `22` | seconds until another one appears in its place |
 | `beetleSpeed` | `150` |  |
 | `beetleWakeRadius` | `205` |  |
 | `pineconeSpeed` | `165` |  |
@@ -90,18 +100,22 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `duel.finalTired` | `0.75` | multiplier on how long it stays tired (shorter window to hit) |
 | `duel.finalExtra` | `1` | one more attack in every round |
 | `duel.angryAt` | `0.5` | below this share of hits left it gets angry: one more attack, and it shakes |
+| `duel.mercy` | `0.06` | every time a hero is hit in a fight the guardian gets this much slower and stays tired longer. 0 = off |
+| `duel.mercyMax` | `10` | counted up to this many hits. From then on every hit on the guardian counts at any time, like on "Ușor" |
 | `deadzone` | `0.25` | stick deadzone (0.25 or more) |
 | `vibration` | `true` |  |
-| `keys.0.up` | `"KeyW"` |  |
-| `keys.0.down` | `"KeyS"` |  |
-| `keys.0.left` | `"KeyA"` |  |
-| `keys.0.right` | `"KeyD"` |  |
-| `keys.0.a` | `"Space"` |  |
-| `keys.1.up` | `"ArrowUp"` |  |
-| `keys.1.down` | `"ArrowDown"` |  |
-| `keys.1.left` | `"ArrowLeft"` |  |
-| `keys.1.right` | `"ArrowRight"` |  |
-| `keys.1.a` | `"Enter"` |  |
+| `keys.0.up` | `"KeyW"` | b = help the friend (the □ button) |
+| `keys.0.down` | `"KeyS"` | b = help the friend (the □ button) |
+| `keys.0.left` | `"KeyA"` | b = help the friend (the □ button) |
+| `keys.0.right` | `"KeyD"` | b = help the friend (the □ button) |
+| `keys.0.a` | `"Space"` | b = help the friend (the □ button) |
+| `keys.0.b` | `"KeyE"` | b = help the friend (the □ button) |
+| `keys.1.up` | `"ArrowUp"` | b = help the friend (the □ button) |
+| `keys.1.down` | `"ArrowDown"` | b = help the friend (the □ button) |
+| `keys.1.left` | `"ArrowLeft"` | b = help the friend (the □ button) |
+| `keys.1.right` | `"ArrowRight"` | b = help the friend (the □ button) |
+| `keys.1.a` | `"Enter"` | b = help the friend (the □ button) |
+| `keys.1.b` | `"ShiftRight"` | b = help the friend (the □ button) |
 | `volume.music` | `0.5` | starting values, 0 to 1. Changeable in Setări. |
 | `volume.ambient` | `0.7` | starting values, 0 to 1. Changeable in Setări. |
 | `volume.characters` | `0.8` | starting values, 0 to 1. Changeable in Setări. |
@@ -113,3 +127,39 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `fontUI` | `"\"Avenir Next\", \"Trebuchet MS\", \"Helvetica Neue\", Arial, sans-serif"` |  |
 | `maxRenderWidth` | `1920` | lower to 1600 or 1280 if the Mac struggles |
 | `saveKey` | `"bubu-leo-oua-de-aur-v1"` |  |
+| `lupta.villainName` | `"George cel Rău"` |  |
+| `lupta.heroes.0.name` | `"Boon"` |  |
+| `lupta.heroes.0.color` | `"#2FBFA8"` | player color on screen (rings, badges) |
+| `lupta.heroes.0.color2` | `"#B7D645"` |  |
+| `lupta.heroes.0.speed` | `330` |  |
+| `lupta.heroes.0.stompRadius` | `220` | the circle of the spinning claws: enemies inside are hit, and nothing can hit Boon |
+| `lupta.heroes.0.pullRadius` | `300` | rainbow crystals inside this circle fly to Boon |
+| `lupta.heroes.0.stompCooldown` | `1.25` | seconds from the start of one spin to the next |
+| `lupta.heroes.0.stunTime` | `2.8` |  |
+| `lupta.heroes.0.spinTime` | `0.85` | how long the claws spin |
+| `lupta.heroes.1.name` | `"Killer"` |  |
+| `lupta.heroes.1.color` | `"#3B6FE0"` | shirt (blue) |
+| `lupta.heroes.1.color2` | `"#E4583C"` | boots (red) |
+| `lupta.heroes.1.speed` | `350` |  |
+| `lupta.heroes.1.kickSpeed` | `760` | the same as Leo |
+| `lupta.heroes.1.kickSpeedMax` | `1400` | the same as Leo |
+| `lupta.heroes.1.chargeTime` | `0.9` | the same as Leo |
+| `lupta.heroes.1.ballsPerKick` | `8` | the same as Leo |
+| `lupta.heroes.1.ballsPerKickMax` | `12` | the same as Leo |
+| `lupta.heroes.1.kickCooldown` | `1.2` | the same as Leo |
+| `lupta.heroes.1.ballLife` | `2.3` | the same as Leo |
+| `lupta.heroes.1.ballLifeMax` | `3.8` | the same as Leo |
+| `lupta.boss.hits` | `6` | balls that must hit George while he lies on the ground (one more than for Ciori) |
+| `lupta.boss.shakes` | `[2,2,3,3,3,4]` | claw spins needed to shake George off his throne, per round |
+| `lupta.boss.downTime` | `5` |  |
+| `lupta.boss.throwEvery` | `[3,2.5,2.1,1.8,1.6,1.4]` |  |
+| `lupta.boss.roarRadius` | `520` | back on the throne George roars: heroes closer than this are pushed away (it does not hurt) |
+| `lupta.boss.roarPush` | `1500` |  |
+| `lupta.duelHp` | `[3,3,4,5,5,6]` | hits George takes in the middle fight, per level (the first game: CONFIG.duel.hp) |
+| `lupta.duelFinalHp` | `[5,6,6,7,8,9]` | hits George takes at the nest, per level (the first game: CONFIG.duel.finalHp) |
+| `lupta.bossSize` | `1.5` | how big George is in his arena (in the mini-fights he grows from level to level, see DUEL_DEFS_L) |
+| `lupta.shrink` | `0.5` | a hero who was hit is this small until the friend helps |
+| `lupta.rainbowBonus` | `5` | crystals for the team when all seven colors were gathered |
+| `lupta.birdSpeed` | `250` | big birds: how fast they fly |
+| `lupta.birdCarry` | `1.7` | seconds a bird carries a hero before it lets go |
+| `lupta.birdEvery` | `[7,13]` | a bird comes every 7 to 13 seconds (per bird of the level) |

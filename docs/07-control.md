@@ -12,8 +12,8 @@ Cererea: Gamepad API, "standard mapping". Cu aceasta mapare, butoanele DualShock
 | Buton | Index | Ce face in joc |
 |---|---|---|
 | ✕ | 0 | Puterea, OK in meniuri, "Gata!" |
-| ○ | 1 | Inapoi in meniuri |
-| □ | 2 | Nimic (aprins doar in testerul din Setari) |
+| ○ | 1 | Inapoi in meniuri. Pe ecranul de start: inapoi la "Alege jocul". |
+| □ | 2 | Ajuta prietenul lovit (`bP`). De la update-ul din 14 noiembrie. |
 | △ | 3 | Schimba personajele pe ecranul de start |
 | OPTIONS | 9 | Pauza, deschide sau inchide Setari |
 | D-pad sus, jos, stanga, dreapta | 12, 13, 14, 15 | Mers, navigare |
@@ -45,9 +45,9 @@ Daca un controller atribuit dispare, `s.lost` devine adevarat. `10-main.js` pune
 
 ## Tastatura
 
-Fiecare erou are tastele lui in `Opt.keys[k]` (`up`, `down`, `left`, `right`, `a`). Se folosesc doar daca `Opt.ctrl[k]` este `'kb'` si eroul nu are controller.
+Fiecare erou are tastele lui in `Opt.keys[k]` (`up`, `down`, `left`, `right`, `a`, `b`). `b` = ajuta prietenul: E pentru primul jucator, Shift dreapta pentru al doilea. Se folosesc doar daca `Opt.ctrl[k]` este `'kb'` si eroul nu are controller.
 
-- Un jucator fara controller poate intra apasand tasta lui de putere pe ecranul de start (`Input.kbJoin`). Atunci `Opt.ctrl` devine `'kb'` pentru el.
+- Un jucator fara controller poate intra apasand tasta lui de putere pe ecranul de start (`Input.kbJoin`). Atunci `Opt.ctrl` devine `'kb'` pentru el. Pe ecranul "Alege jocul" `kbJoin` e oprit: acolo Enter si Spatiu doar aleg jocul.
 - Tastele folosesc `KeyboardEvent.code` (pozitia fizica a tastei), nu litera. Merg la fel pe tastatura romana, engleza sau franceza.
 - Tastele rezervate (`RESERVED`) nu pot fi alese pentru un erou: Escape, P (pauza), F (ecran complet), Backspace (inapoi), Tab, Cmd.
 
@@ -115,3 +115,11 @@ De ce: vibratia mica la oua confirma ca s-a luat ceva, fara sa obosesca. Cea mar
 | `padCount()` | Cate controllere vede Chrome acum. |
 | `any(f)` | Adevarat daca `f` e adevarat pentru oricare erou. |
 | `muteHeld()` | Toate tastele tinute acum sunt ignorate pana la eliberare. |
+
+## Update 14 noiembrie 2026
+
+- `Input.slots[k].bP`: adevarat in cadrul in care eroul `k` a apasat □ (sau tasta lui `b`). Citit de `tryRescue` in `07-play.js`.
+- `Input.muteHeld()`: tastele si butoanele tinute acum sunt ignorate pana sunt eliberate. Folosit cand se trece de pe "Alege jocul" pe ecranul de start, ca apasarea care a ales jocul sa nu insemne si "intru in joc".
+- `Input.kbJoin` este `false` pe ecranul "Alege jocul" si `true` pe ecranul de start. Motivul: parintele alege jocul cu Enter. Daca Enter l-ar fi si bagat in joc pe al doilea erou, cu tastatura, al doilea controller n-ar mai fi avut loc.
+- Controllerele intra in joc ca inainte, de pe orice ecran: primul care apasa ✕ e jucatorul 1.
+- In testerul din Setari, □ se aprinde ca inainte.

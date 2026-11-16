@@ -36,6 +36,7 @@ function mix(h1, h2, t) {
 // darker = toward warm violet, lighter = toward cream. Never gray or black.
 const shade = (h, t) => t < 0 ? mix(h, '#5A3550', -t) : mix(h, '#FFF6E0', t);
 const SHADOW = '#6A4270';
+const RAINBOW = ['#F0556A', '#F58A3C', '#F6CE46', '#6FC96A', '#46B8D8', '#5A78E0', '#A66AD8'];      // the seven colors of the rainbow crystals (second game)
 
 /* A closed blob with slightly irregular, hand-painted edges. */
 const _bx = new Float32Array(40), _by = new Float32Array(40);
@@ -135,13 +136,13 @@ function makePaper() {
   return cv;
 }
 /* Per-scene overlay = paper + warm light tint + soft violet-brown vignette. */
-function makeOverlay(tint, tintA, vig) {
+function makeOverlay(tint, tintA, vig, night) {
   if (!PAPER) PAPER = makePaper();
-  const cv = makeCanvas(W, H), c = cv.getContext('2d');
+  const cv = makeCanvas(W, H), c = cv.getContext('2d'), vc = night ? '70,56,140,' : '125,74,96,';      // night (second game): a blue-violet vignette
   c.drawImage(PAPER, 0, 0);
   if (tintA > 0) { c.fillStyle = rgba(tint, tintA); c.fillRect(0, 0, W, H); }
   const g = c.createRadialGradient(W * 0.48, H * 0.44, H * 0.42, W * 0.5, H * 0.5, H * 1.08);
-  g.addColorStop(0, 'rgba(125,74,96,0)'); g.addColorStop(1, 'rgba(125,74,96,' + (vig == null ? 0.42 : vig) + ')');
+  g.addColorStop(0, 'rgba(' + vc + '0)'); g.addColorStop(1, 'rgba(' + vc + (vig == null ? 0.42 : vig) + ')');
   c.fillStyle = g; c.fillRect(0, 0, W, H);
   return cv;
 }
@@ -184,12 +185,53 @@ function paintSky(c, x, y, w, h, t, seed, o) {
     for (let i = 0; i < 60; i++) { c.fillStyle = 'rgba(255,244,214,' + (0.3 + r() * 0.6) + ')'; c.beginPath(); c.arc(x + r() * w, y + r() * h * 0.55, 1 + r() * 2.2, 0, TAU); c.fill(); }
   }
 }
-/* Layered distant hills along a horizon line. */
-function paintHills(c, x, yBase, w, hgt, t, seed, cols) {
+/* The sky of the second game: night, a big moon, stars and northern lights in the seven rainbow colors. */
+function paintNightSky(c, x, y, w, h, seed, o) {
+  o = o || {};
+  const r = rng(seed || 3), g = c.createLinearGradient(0, y, 0, y + h);
+  g.addColorStop(0, '#2E2F78'); g.addColorStop(0.6, '#5A4AA0'); g.addColorStop(1, '#4E86B0');
+  c.fillStyle = g; c.fillRect(x, y, w, h);
+  for (let i = 0; i < 14; i++) wash(c, x + r() * w, y + r() * h * 0.8, w * (0.1 + r() * 0.16), h * (0.1 + r() * 0.14), i % 2 ? '#6A58B8' : '#3A4A98', { a: 0.16, seed: i + seed, wob: 0.3, edge: 0 });
+  c.lineCap = 'round';
+  for (let i = 0; i < 7; i++) {
+    const yy = y + h * (0.2 + i * 0.055); c.beginPath();
+    for (let px = 0; px <= w; px += 40) { const v = yy + Math.sin(px / (w * 0.22) + seed + i * 0.15) * h * 0.11 + Math.sin(px / (w * 0.07) + i) * h * 0.02; if (px === 0) c.moveTo(x + px, v); else c.lineTo(x + px, v); }
+    c.strokeStyle = rgba(RAINBOW[i], 0.2); c.lineWidth = h * 0.065; c.stroke();
+  }
+  for (let i = 0; i < 170; i++) {
+    c.fillStyle = 'rgba(255,248,224,' + (0.35 + r() * 0.6) + ')'; const sx = x + r() * w, sy = y + r() * h * 0.85, sr = 1 + r() * 2.4;
+    if (i % 9 === 0) { starPath(c, sx, sy, sr * 2.6, r() * 3); c.fill(); } else { c.beginPath(); c.arc(sx, sy, sr, 0, TAU); c.fill(); }
+  }
+  const mx = x + w * (o.sunX == null ? 0.74 : o.sunX), my = y + h * 0.3, mr = o.sunR || h * 0.16;
+  const mg = c.createRadialGradient(mx, my, mr * 0.3, mx, my, mr * 4.5); mg.addColorStop(0, 'rgba(240,244,255,0.6)'); mg.addColorStop(0.3, 'rgba(200,210,255,0.22)'); mg.addColorStop(1, 'rgba(180,190,255,0)');
+  c.fillStyle = mg; c.fillRect(x, y, w, h);
+  wash(c, mx, my, mr, mr, '#FFF8E4', { a: 0.97, seed: 5, wob: 0.04, edgeA: 0.1 });
+  wash(c, mx + mr * 0.25, my - mr * 0.2, mr * 0.22, mr * 0.18, '#E4DCEC', { a: 0.5, seed: 6, edge: 0 }); wash(c, mx - mr * 0.3, my + mr * 0.3, mr * 0.16, mr * 0.14, '#E4DCEC', { a: 0.5, seed: 7, edge: 0 });
+  const nc = o.clouds == null ? 6 : o.clouds;
+  for (let i = 0; i < nc; i++) { const cx = x + r() * w, cy = y + h * (0.08 + r() * 0.5), cw = w * (0.05 + r() * 0.07); for (let k = 0; k < 4; k++) wash(c, cx + (k - 1.5) * cw * 0.55, cy + (r() - 0.5) * cw * 0.2, cw * (0.5 + r() * 0.3), cw * (0.2 + r() * 0.12), '#8A84D0', { a: 0.35, seed: i * 9 + k, wob: 0.2, edge: 0 }); }
+}
+/* Two rows of pointed mountains with pale snow on top, for George's arena. */
+function paintMountains(c, x, yBase, w, hgt, seed) {
+  const r = rng(seed);
+  for (let k = 0; k < 2; k++) {
+    const n = 6 + k * 2, half = w / n * 0.62, peaks = [];
+    for (let i = 0; i <= n; i++) peaks.push([x + w * (i / n) + (r() - 0.5) * w / n * 0.5, yBase - hgt * (0.55 + r() * 0.45) * (k ? 0.7 : 1)]);
+    c.beginPath(); c.moveTo(x, yBase + 30);
+    for (const p of peaks) { c.lineTo(p[0] - half, yBase + 10); c.lineTo(p[0], p[1]); c.lineTo(p[0] + half, yBase + 10); }
+    c.lineTo(x + w, yBase + 30); c.closePath(); c.fillStyle = k ? '#4A4690' : '#6460B0'; c.fill();
+    for (const p of peaks) {
+      const hh = yBase + 10 - p[1];
+      c.fillStyle = 'rgba(46,42,102,0.25)'; c.beginPath(); c.moveTo(p[0], p[1]); c.lineTo(p[0] + half, yBase + 10); c.lineTo(p[0] + half * 0.15, yBase + 10); c.closePath(); c.fill();
+      c.fillStyle = 'rgba(236,232,255,0.92)'; c.beginPath(); c.moveTo(p[0], p[1]); c.lineTo(p[0] - half * 0.28, p[1] + hh * 0.28); c.lineTo(p[0] - half * 0.08, p[1] + hh * 0.2); c.lineTo(p[0] + half * 0.06, p[1] + hh * 0.3); c.lineTo(p[0] + half * 0.26, p[1] + hh * 0.26); c.closePath(); c.fill();
+    }
+  }
+}
+/* Layered distant hills along a horizon line. night = the colors are used as they are (no afternoon haze). */
+function paintHills(c, x, yBase, w, hgt, t, seed, cols, night) {
   const r = rng(seed);
   cols = cols || ['#B9C4A0', '#A8BC8C', '#9DB37E'];
   for (let k = 0; k < cols.length; k++) {
-    const col = mix(cols[k], mix('#C9A6B0', '#8E7AA0', clamp(t, 0, 1)), 0.25 + clamp(t, 0, 1.2) * 0.35 - k * 0.06);
+    const col = night ? cols[k] : mix(cols[k], mix('#C9A6B0', '#8E7AA0', clamp(t, 0, 1)), 0.25 + clamp(t, 0, 1.2) * 0.35 - k * 0.06);
     const yb = yBase - hgt * (1 - k / cols.length) * 0.75, ph = r() * 9;
     for (let pass = 0; pass < 2; pass++) {
       c.beginPath(); c.moveTo(x, yBase + 40);
@@ -241,19 +283,29 @@ function iconX(c, x, y, r, pulse) {
   c.beginPath(); c.moveTo(-r * 0.4, -r * 0.4); c.lineTo(r * 0.4, r * 0.4); c.moveTo(r * 0.4, -r * 0.4); c.lineTo(-r * 0.4, r * 0.4); c.stroke();
   c.restore();
 }
-/* Text that may contain ✕, drawn with the painted icon. Returns nothing. */
+/* The □ button as a painted icon (pink square on a cream disc): help the friend. */
+function iconSq(c, x, y, r, pulse) {
+  const s = 1 + (pulse || 0) * 0.08;
+  c.save(); c.translate(x, y); c.scale(s, s);
+  soft(c, r * 0.06, r * 0.1, r, r, SHADOW, 0.25, 3);
+  puff(c, 0, 0, r, r, '#FFF6E2', 4, 'rgba(200,120,170,0.5)');
+  c.strokeStyle = '#D98AC0'; c.lineWidth = r * 0.2; c.lineJoin = 'round';
+  c.strokeRect(-r * 0.4, -r * 0.4, r * 0.8, r * 0.8);
+  c.restore();
+}
+/* Text that may contain ✕ or □, drawn with the painted icons. Returns nothing. */
 function richText(c, str, x, y, size, col, o) {
   o = o || {};
-  const parts = str.split('✕');
+  const parts = str.split(/(✕|□)/);
   if (parts.length === 1) { text(c, str, x, y, size, col, o); return; }
   setFont(c, size, o.title, o.weight);
-  const iw = size * 1.25, widths = parts.map(p => c.measureText(p).width);
-  const total = widths.reduce((a, b) => a + b, 0) + iw * (parts.length - 1);
+  const iw = size * 1.25, isIcon = p => p === '✕' || p === '□', widths = parts.map(p => isIcon(p) ? iw : c.measureText(p).width);
+  const total = widths.reduce((a, b) => a + b, 0);
   let cx = o.align === 'left' ? x : x - total / 2;
   for (let i = 0; i < parts.length; i++) {
-    text(c, parts[i], cx, y, size, col, Object.assign({}, o, { align: 'left' }));
+    if (isIcon(parts[i])) (parts[i] === '✕' ? iconX : iconSq)(c, cx + iw / 2, y, size * 0.5, o.pulse || 0);
+    else if (parts[i]) text(c, parts[i], cx, y, size, col, Object.assign({}, o, { align: 'left' }));
     cx += widths[i];
-    if (i < parts.length - 1) { iconX(c, cx + iw / 2, y, size * 0.5, o.pulse || 0); cx += iw; }
   }
 }
 function starPath(c, x, y, r, rot) {

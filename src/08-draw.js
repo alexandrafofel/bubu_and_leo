@@ -5,35 +5,77 @@
 const _sorted = [];
 function heroOpts(h) {
   return { face: h.face, walk: h.walk, moving: h.moving, t: h.t, z: h.z, squash: h.squash, dizzy: h.dizzy > 0, kick: h.kickT > 0 ? h.kickT / 0.28 : 0,
-    happy: P.done || (P.boss && P.boss.state === 'won') };
+    happy: P.done || (P.boss && P.boss.state === 'won'), scale: h.small, hug: h.hugT > 0 ? h.hugT / 0.7 : 0,
+    claw: h.spinT >= 0 ? clamp(h.spinT / (CONFIG.heroes[0].spinTime || 1), 0, 1) : -1 };
 }
+const heroTop = k => (isLupta() ? [148, 128] : [100, 122])[k];        // how tall each hero is: where the stars, the name and the □ go
 function drawParts(c) {
   for (const p of P.parts) {
     const a = clamp(p.life / p.max, 0, 1);
     if (p.kind === 'spark') { c.fillStyle = rgba(p.col, a); starPath(c, p.x, p.y, p.size * (0.5 + a * 0.5), p.rot); c.fill(); }
     else if (p.kind === 'dust') { c.fillStyle = rgba(p.col, a * 0.5); c.beginPath(); c.arc(p.x, p.y, p.size * (1.6 - a * 0.8), 0, TAU); c.fill(); }
     else if (p.kind === 'petal' || p.kind === 'leaf') { c.save(); c.translate(p.x, p.y); c.rotate(p.rot); c.fillStyle = rgba(p.col, Math.min(1, a * 1.6)); c.beginPath(); c.ellipse(0, 0, p.size, p.size * (p.kind === 'leaf' ? 0.42 : 0.6), 0, 0, TAU); c.fill(); c.restore(); }
+    else if (p.kind === 'heart') { heartPath(c, p.x, p.y, p.size * 0.7); c.fillStyle = rgba(p.col, Math.min(1, a * 1.6)); c.fill(); }
     else { c.fillStyle = rgba(p.col, a); c.beginPath(); c.arc(p.x, p.y, p.size * 0.6, 0, TAU); c.fill(); }
   }
 }
+/* Boon's claws while they spin: rainbow slashes that run around him, on a soft shield. */
+function drawClawRing(c, h) {
+  const cfg = CONFIG.heroes[0], R = cfg.stompRadius, u = clamp(h.spinT / cfg.spinTime, 0, 1), grow = Math.min(1, u * 5) * (u > 0.85 ? (1 - u) / 0.15 : 1), t = P.time;
+  c.fillStyle = rgba(cfg.color, 0.12 * grow); c.beginPath(); c.ellipse(h.x, h.y - 6, R * grow, R * 0.52 * grow, 0, 0, TAU); c.fill();
+  c.lineCap = 'round';
+  for (let i = 0; i < 6; i++) {
+    const a0 = t * 13 + i * TAU / 6;
+    for (let k = 0; k < 3; k++) {          // three claw marks next to each other
+      const rr = R * grow * (0.86 + k * 0.07);
+      c.strokeStyle = rgba(k === 1 ? '#FFFBEA' : RAINBOW[i], 0.85 * grow); c.lineWidth = k === 1 ? 5 : 8;
+      c.beginPath(); c.ellipse(h.x, h.y - 6, rr, rr * 0.52, 0, a0 + k * 0.05, a0 + 0.62 - k * 0.05); c.stroke();
+    }
+  }
+}
 function drawHeroFull(c, h) {
-  const cfg = CONFIG.heroes[h.k];
+  const cfg = CONFIG.heroes[h.k], fr = P.heroes[1 - h.k], fcfg = CONFIG.heroes[fr.k], t = P.time, top = heroTop(h.k) * h.small;
+  if (P.L.night) {                          // second game: a soft light around each hero, so they stand out in the dark jungle
+    const lg = c.createRadialGradient(h.x, h.y - 44, 12, h.x, h.y - 44, 170); lg.addColorStop(0, 'rgba(255,250,228,0.36)'); lg.addColorStop(0.5, rgba(cfg.color, 0.12)); lg.addColorStop(1, 'rgba(255,250,228,0)');
+    c.fillStyle = lg; c.beginPath(); c.arc(h.x, h.y - 44, 170, 0, TAU); c.fill();
+  }
   // colored ground ring so each player finds their hero at a glance
   c.lineWidth = 6; c.strokeStyle = rgba(cfg.color, 0.85); c.beginPath(); c.ellipse(h.x, h.y + 2, 44, 17, 0, 0, TAU); c.stroke();
   if (h.k === 1) { c.lineWidth = 3; c.strokeStyle = rgba(cfg.color2, 0.85); c.beginPath(); c.ellipse(h.x, h.y + 2, 37, 13, 0, 0, TAU); c.stroke(); }
-  c.fillStyle = rgba(SHADOW, 0.22); c.beginPath(); c.ellipse(h.x - 6, h.y + 3, Math.max(10, 34 - h.z * 0.3), 11, 0, 0, TAU); c.fill();
+  c.fillStyle = rgba(SHADOW, 0.22); c.beginPath(); c.ellipse(h.x - 6, h.y + 3, Math.max(10, 34 - h.z * 0.3) * h.small, 11 * h.small, 0, 0, TAU); c.fill();
+  if (h.down) {                            // hit: waits for the friend. A ring in the friend's color pulses around the hero.
+    const pu = 0.5 + 0.5 * Math.sin(t * 6);
+    if (fr.k === 0) { c.fillStyle = rgba(fcfg.color, 0.1 + pu * 0.06); c.beginPath(); c.ellipse(h.x, h.y, CONFIG.rescue.reachNear, CONFIG.rescue.reachNear * 0.6, 0, 0, TAU); c.fill(); }   // the first hero must step into this circle
+    c.strokeStyle = rgba(fcfg.color, 0.55 + pu * 0.4); c.lineWidth = 7; c.setLineDash([14, 10]); c.lineDashOffset = -t * 30;
+    c.beginPath(); c.ellipse(h.x, h.y + 2, 64 + pu * 8, 27 + pu * 3, 0, 0, TAU); c.stroke(); c.setLineDash([]);
+  }
   if (h.boost > 0) { const g = c.createRadialGradient(h.x, h.y - 40, 10, h.x, h.y - 40, 110); g.addColorStop(0, 'rgba(255,214,140,0.5)'); g.addColorStop(1, 'rgba(255,214,140,0)'); c.fillStyle = g; c.beginPath(); c.arc(h.x, h.y - 40, 110, 0, TAU); c.fill(); }
   if (h.safe) { c.strokeStyle = rgba('#7FB06A', 0.9); c.lineWidth = 5; c.setLineDash([12, 9]); c.beginPath(); c.ellipse(h.x, h.y + 2, 58, 24, 0, 0, TAU); c.stroke(); c.setLineDash([]); }
+  if (h.spinT >= 0) drawClawRing(c, h);
   if (h.inv > 0 && h.dizzy <= 0) c.globalAlpha = 0.55 + Math.sin(P.time * 22) * 0.25;
   drawHero(c, h.k, h.x, h.y, heroOpts(h));
   c.globalAlpha = 1;
-  if (h.dizzy > 0) drawDizzyStars(c, h.x + (h.k === 0 ? 30 * h.face : 0), h.y - (h.k === 0 ? 100 : 122), P.time);
+  if (h.carried) return;
+  if (h.dizzy > 0) drawDizzyStars(c, h.x + (h.k === 0 && !isLupta() ? 30 * h.face : 0), h.y - top, P.time);
+  if (h.down) {                            // □ and a dot in the friend's color: "friend, press □ for me"
+    const by = h.y - top - 52 + Math.sin(t * 5) * 5;
+    iconSq(c, h.x, by, 28, Math.sin(t * 6));
+    c.fillStyle = fcfg.color; c.beginPath(); c.arc(h.x + 30, by - 24, 12, 0, TAU); c.fill(); c.strokeStyle = '#FFF8E8'; c.lineWidth = 3.5; c.stroke();
+  } else if (fr.down && Input.slots[h.k].joined && h.dizzy <= 0) {    // the helper: close enough = a big □ over the head
+    const reach = h.k === 0 ? CONFIG.rescue.reachNear : CONFIG.rescue.reachFar;
+    if (dist(h.x, h.y, fr.x, fr.y) <= reach) iconSq(c, h.x, h.y - top - 44 + Math.sin(t * 7) * 6, 34, Math.sin(t * 9) * 1.5);
+  }
   if (h.k === 1 && ballReady() && h.dizzy <= 0) {       // aim arrow, grows while charging
     const pw = h.charging ? h.charge : 0, len = 62 + pw * 70;
     iconArrow(c, h.x + h.ax * len, h.y - 14 + h.ay * len * 0.8, Math.atan2(h.ay, h.ax), 13 + pw * 13, pw > 0.95 ? '#E9703C' : mix('#F6C63C', '#E9703C', pw));
-    if (h.charging) { c.strokeStyle = rgba('#3F78C8', 0.8); c.lineWidth = 6; c.lineCap = 'round'; c.beginPath(); c.arc(h.x, h.y - 130, 17, -Math.PI / 2, -Math.PI / 2 + TAU * pw); c.stroke(); }
+    if (h.charging) { c.strokeStyle = rgba(isLupta() ? '#E4583C' : '#3F78C8', 0.8); c.lineWidth = 6; c.lineCap = 'round'; c.beginPath(); c.arc(h.x, h.y - top - 8, 17, -Math.PI / 2, -Math.PI / 2 + TAU * pw); c.stroke(); }
   }
-  if (h.tagT > 0) text(c, cfg.name, h.x, h.y - (h.k === 0 ? 118 : 140), 34, shade(cfg.color, -0.35), { title: true });
+  if (h.tagT > 0) text(c, cfg.name, h.x, h.y - top - 18, 34, shade(cfg.color, -0.35), { title: true });
+}
+/* Small enemies show how many hits they still take, once they were hit. */
+function drawSmallHp(c, e, x, y) {
+  const n = CONFIG.smallEnemy.hits; if (e.hp == null || e.hp >= n || e.hp <= 0) return;
+  for (let i = 0; i < n; i++) { heartPath(c, x + (i - (n - 1) / 2) * 20, y, 7); if (i < e.hp) { c.fillStyle = '#E2574C'; c.fill(); c.strokeStyle = 'rgba(255,246,226,0.9)'; c.lineWidth = 2; c.stroke(); } else { c.fillStyle = 'rgba(120,90,100,0.35)'; c.fill(); } }
 }
 function drawBossTargets(c) {
   const bs = P.boss, L = P.L, t = P.time, pulse = 0.5 + 0.5 * Math.sin(t * 5);
@@ -41,9 +83,11 @@ function drawBossTargets(c) {
     const tb = L.treeBase; c.strokeStyle = rgba(CONFIG.heroes[0].color, 0.35 + pulse * 0.35); c.lineWidth = 10; c.setLineDash([26, 20]);
     c.beginPath(); c.ellipse(tb.x, tb.y + 40, 330 + pulse * 10, 150 + pulse * 5, 0, 0, Math.PI); c.stroke(); c.setLineDash([]);
   } else if (bs.state === 'down') {
-    c.strokeStyle = rgba(CONFIG.heroes[1].color, 0.6 + pulse * 0.4); c.lineWidth = 12; c.beginPath(); c.arc(L.nest.x, L.nest.y, 118 + pulse * 14, 0, TAU); c.stroke();
-    c.strokeStyle = rgba(CONFIG.heroes[1].color2, 0.8); c.lineWidth = 5; c.beginPath(); c.arc(L.nest.x, L.nest.y, 100 + pulse * 10, 0, TAU); c.stroke();
+    const g = bossGoal();                   // where the ball must go: the nest in the tree, or George himself
+    c.strokeStyle = rgba(CONFIG.heroes[1].color, 0.6 + pulse * 0.4); c.lineWidth = 12; c.beginPath(); c.arc(g.x, g.y, g.r + 10 + pulse * 14, 0, TAU); c.stroke();
+    c.strokeStyle = rgba(CONFIG.heroes[1].color2, 0.8); c.lineWidth = 5; c.beginPath(); c.arc(g.x, g.y, g.r - 8 + pulse * 10, 0, TAU); c.stroke();
   }
+  for (const r of bs.rings) { const u = r.t / 0.8, rad = CONFIG.boss.roarRadius * easeOut(u); for (let i = 0; i < 3; i++) { c.strokeStyle = rgba(RAINBOW[(i * 2) % 7], (1 - u) * 0.6); c.lineWidth = 14 * (1 - u) + 3; c.beginPath(); c.ellipse(L.treeBase.x, L.treeBase.y + 40, rad * (1 - i * 0.12), rad * 0.5 * (1 - i * 0.12), 0, 0, TAU); c.stroke(); } }
   drawProjWarn(c, bs.proj);
 }
 function drawProjWarn(c, list) {            // the spot where a thrown pinecone will land
@@ -54,7 +98,12 @@ function drawProjWarn(c, list) {            // the spot where a thrown pinecone 
   }
 }
 function drawProjs(c, list) {
-  for (const p of list) { if (p.t < 0) continue; const u = p.t / p.dur; drawCone(c, lerp(p.sx, p.tx, u), lerp(p.sy, p.ty, u) - Math.sin(u * Math.PI) * 260 + 26, p.rot, 24, 0); }
+  for (const p of list) {
+    if (p.t < 0) continue; const u = p.t / p.dur, x = lerp(p.sx, p.tx, u), y = lerp(p.sy, p.ty, u) - Math.sin(u * Math.PI) * 260 + 26;
+    if (p.kind === 'rock') drawRockProj(c, x, y, p.rot, 24);
+    else if (p.kind === 'spear') drawSpear(c, x, y - 26, Math.atan2((p.ty - p.sy) - Math.cos(u * Math.PI) * 260 * Math.PI, p.tx - p.sx), 1);
+    else drawCone(c, x, y, p.rot, 24, 0);
+  }
 }
 
 function drawWorld(c) {
@@ -76,12 +125,14 @@ function drawWorld(c) {
   }
   if (L.cave && L.cave.reveal < 0.99) { c.globalAlpha = 1 - L.cave.reveal * 0.96; c.drawImage(L.coverCv, L.cover.x, L.cover.y); c.globalAlpha = 1; }
   if (P.nestOpen && !L.boss) { const gl = 0.6 + 0.4 * Math.sin(t * 4); const g = c.createRadialGradient(L.nest.x, L.nest.y, 40, L.nest.x, L.nest.y, 260); g.addColorStop(0, 'rgba(255,226,140,' + 0.55 * gl + ')'); g.addColorStop(1, 'rgba(255,226,140,0)'); c.fillStyle = g; c.beginPath(); c.arc(L.nest.x, L.nest.y, 260, 0, TAU); c.fill(); }
+  if (L.arena) drawArenaBack(c);
   for (const r of P.rings) {
     const u = r.t / 0.55, rad = r.max * easeOut(u);
     blobPath(c, r.x, r.y, rad, rad * 0.5, 3, 0.04, 16); c.strokeStyle = rgba(CONFIG.heroes[0].color, (1 - u) * 0.7); c.lineWidth = 14 * (1 - u) + 3; c.stroke();
     blobPath(c, r.x, r.y, rad * 0.8, rad * 0.4, 4, 0.04, 16); c.strokeStyle = rgba('#FFF3C0', (1 - u) * 0.6); c.lineWidth = 6 * (1 - u) + 1; c.stroke();
   }
-  if (L.boss) {
+  if (L.arena) { drawThrone(c); drawBossTargets(c); }
+  else if (L.boss) {
     const bs = P.boss, sh = Math.sin(t * 38) * bs.treeShake * 0.022;
     c.save(); c.translate(L.treeBase.x, 600); c.rotate(sh); c.drawImage(L.treeCv, L.treeOff.x - L.treeBase.x, L.treeOff.y - 600); c.restore();
     c.save(); c.translate(L.nest.x + Math.sin(t * 38) * bs.treeShake * 9, L.nest.y); drawNest(c, 0, 0, 108, 31, 0);
@@ -95,14 +146,15 @@ function drawWorld(c) {
   // eggs and stars lie on the ground
   for (const e of P.eggs) if (e.delay <= 0) {
     if (e.big && L.cave) { if (L.cave.reveal < 0.05) continue; c.globalAlpha = L.cave.reveal; }   // the secret stays a secret
-    drawEgg(c, e.x, e.y, e.r, t, e.seed, e.z); c.globalAlpha = 1;
+    drawEgg(c, e.x, e.y, e.r, t, e.seed, e.z, e.hue, e.big); c.globalAlpha = 1;
   }
   for (const s of P.stars) if (!s.got && !s.hidden) drawStar(c, s.x, s.y, 26, t, s.z);
   drawGuides(c);
   // everything that stands up, sorted by depth
   _sorted.length = 0;
   for (const h of P.heroes) _sorted.push({ y: h.y, k: 0, o: h });
-  for (const b of L.beetles) _sorted.push({ y: b.y, k: 1, o: b });
+  for (const b of L.beetles) if (b.state !== 'dead') _sorted.push({ y: b.y, k: 1, o: b });
+  if (L.soldiers) for (const so of L.soldiers) _sorted.push({ y: so.y, k: 7, o: so });
   for (const cn of L.cones) if (cn.state !== 'gone') _sorted.push({ y: cn.y, k: 2, o: cn });
   for (const s of L.sprites) _sorted.push({ y: s.y, k: 3, o: s });
   for (const f of P.flock) _sorted.push({ y: f.y, k: 4, o: f });        // every ball in the air
@@ -112,8 +164,17 @@ function drawWorld(c) {
   for (const it of _sorted) {
     const o = it.o;
     if (it.k === 0) { drawHeroFull(c, o); if (o.k === 1 && P.ball.state === 'held') { c.fillStyle = rgba(SHADOW, 0.2); c.beginPath(); c.ellipse(P.ball.x, P.ball.y + 3, 13, 5, 0, 0, TAU); c.fill(); drawBall(c, P.ball.x, P.ball.y - 13 - (P.ball.z || 0), 14, P.ball.spin); } }
-    else if (it.k === 1) { drawBeetle(c, o, t); if (o.state === 'stun') drawDizzyStars(c, o.x, o.y - 52, t); }
-    else if (it.k === 2) { c.globalAlpha = o.fade == null ? 1 : o.fade; drawCone(c, o.x + (o.state === 'stun' ? Math.sin(t * 30) * 2 : 0), o.y, o.rot, o.r, 0); c.globalAlpha = 1; if (o.state === 'stun') drawDizzyStars(c, o.x, o.y - 66, t); }
+    else if (it.k === 1) {                 // beetles (robots in the second game): they blink when hit and pop up when a new one arrives
+      if (o.flash > 0 && Math.sin(t * 45) > 0) c.globalAlpha = 0.45;
+      if (o.born > 0) { const k = 1 - o.born / 0.5; c.save(); c.translate(o.x, o.y); c.scale(k, k); c.translate(-o.x, -o.y); drawSleeper(c, o, t); c.restore(); } else drawSleeper(c, o, t);
+      c.globalAlpha = 1; if (o.state === 'stun') drawDizzyStars(c, o.x, o.y - 52, t); drawSmallHp(c, o, o.x, o.y - 78);
+    }
+    else if (it.k === 2) {                 // pinecones (sticky snails in the second game)
+      c.globalAlpha = (o.fade == null ? 1 : o.fade) * (o.flash > 0 && Math.sin(t * 45) > 0 ? 0.45 : 1);
+      drawRoller(c, o, o.x + (o.state === 'stun' ? Math.sin(t * 30) * 2 : 0), o.y, t); c.globalAlpha = 1;
+      if (o.state === 'stun') drawDizzyStars(c, o.x, o.y - 66, t); drawSmallHp(c, o, o.x, o.y - 84);
+    }
+    else if (it.k === 7) drawSoldier(c, o, t);
     else if (it.k === 3) {
       const r = o.ref;
       // a hero standing behind a tree or a windmill stays visible
@@ -123,11 +184,12 @@ function drawWorld(c) {
         const sh = Math.sin(t * 34) * r.shake * 0.07, w = r.sprite.width;
         c.save(); c.translate(r.x, r.y + r.R * 1.1); c.rotate(sh); c.drawImage(r.sprite, -w / 2, -r.R * 2.45); c.restore();
         if (r.starTree && r.starTree.hidden) { c.globalAlpha *= 0.55 + 0.35 * Math.sin(t * 3); c.fillStyle = '#FFE9C8'; starPath(c, r.x + r.R * 0.2, r.y - r.R * 0.25, 15, t * 0.5); c.fill(); }
-      } else { c.drawImage(r.sprite, r.x - 80, r.y - 280); drawMillBlades(c, r.x, r.y - 202, r.ang); }
+      } else { c.drawImage(r.sprite, r.x - 80, r.y - 280); if (L.night) drawPinwheel(c, r.x, r.y - 206, r.ang); else drawMillBlades(c, r.x, r.y - 202, r.ang); }      // second game: a totem with a rainbow pinwheel
       c.globalAlpha = 1;
     }
-    else if (it.k === 4) { c.fillStyle = rgba(SHADOW, 0.22); c.beginPath(); c.ellipse(o.x - 3, o.y + 4, 14, 6, 0, 0, TAU); c.fill(); drawBall(c, o.x, o.y - 16, o.r, o.spin); }
+    else if (it.k === 4) { const zk = 1 - Math.min(0.5, (o.z || 0) / 90); c.fillStyle = rgba(SHADOW, 0.22 * zk); c.beginPath(); c.ellipse(o.x - 3, o.y + 4, 14 * zk, 6 * zk, 0, 0, TAU); c.fill(); drawBall(c, o.x, o.y - 16 - (o.z || 0), o.r, o.spin); }
     else if (it.k === 6) drawDuelBoss(c);
+    else if (it.k === 5 && L.arena) drawGeorgeBoss(c, o, t);
     else if (it.k === 5) {
       const mood = o.state === 'won' ? 'sorry' : (o.state === 'down' || o.state === 'falling') ? 'dizzy' : 'cheeky';
       const fly = o.state === 'rising' || (o.state === 'won' && o.t < 1.6);
@@ -140,6 +202,19 @@ function drawWorld(c) {
     }
   }
   if (P.boss) drawProjs(c, P.boss.proj);
+  // the magic ball on its way to a friend who waits for help
+  for (const q of P.heal) {
+    const g = c.createRadialGradient(q.x, q.y, 3, q.x, q.y, 46); g.addColorStop(0, 'rgba(255,240,190,0.9)'); g.addColorStop(1, 'rgba(255,220,150,0)'); c.fillStyle = g; c.beginPath(); c.arc(q.x, q.y, 46, 0, TAU); c.fill();
+    drawBall(c, q.x, q.y, 14, q.spin); heartPath(c, q.x, q.y - 26, 8); c.fillStyle = '#F29C9C'; c.fill();
+  }
+  // big birds (second game): the shadow on the ground is where they can grab
+  if (L.birds) for (const bd of L.birds) if (bd.state === 'fly') {
+    c.fillStyle = rgba(SHADOW, 0.26); c.beginPath(); c.ellipse(bd.x, bd.y + 4, 50, 17, 0, 0, TAU); c.fill();
+    if (!bd.grab && bd.rest <= 0) { c.strokeStyle = rgba('#D9463C', 0.35 + 0.25 * Math.sin(t * 9)); c.lineWidth = 4; c.setLineDash([10, 8]); c.beginPath(); c.ellipse(bd.x, bd.y + 4, 62, 24, 0, 0, TAU); c.stroke(); c.setLineDash([]); }
+    if (bd.flash > 0 && Math.sin(t * 45) > 0) c.globalAlpha = 0.45;
+    drawBird(c, bd.x, bd.y - 190, { t: bd.wing, face: bd.dir, grab: !!bd.grab }); c.globalAlpha = 1;
+    drawSmallHp(c, bd, bd.x, bd.y - 290);
+  }
   // lantern glows
   for (const ln of L.lanterns) if (ln.lit > 0) {
     const fl = ln.lit * (0.85 + Math.sin(t * 7 + ln.x) * 0.1), g = c.createRadialGradient(ln.x + 20, ln.y - 76, 4, ln.x + 20, ln.y - 76, 130);
@@ -158,14 +233,19 @@ function drawWorld(c) {
     }
     for (let i = 0; i < 9; i++) { const x = f.x - f.w / 2 + i * f.w / 8; c.fillStyle = 'rgba(250,255,250,0.75)'; c.beginPath(); c.arc(x, f.y1 + Math.sin(t * 5 + i * 1.3) * 5, 22 + Math.sin(t * 3 + i) * 5, 0, TAU); c.fill(); }
   }
-  if (P.crow) { const cr = P.crow, u = cr.t / 3.2; drawCiori(c, l + u * (vw + 400) - 200, tp + vh * 0.22 + Math.sin(u * 9) * 30, { scale: 1.2 / z, t: t, fly: true, face: 1 }); if (Math.random() < 0.5) part(l + u * (vw + 400) - 200, tp + vh * 0.22, { vy: 140, vx: (Math.random() - 0.5) * 50, life: 1.1, max: 1.1, size: 7, kind: 'spark' }); }
+  if (P.crow && isLupta()) { const cr = P.crow, u = cr.t / 3.2, bx = l + u * (vw + 400) - 200, by = tp + vh * 0.22 + Math.sin(u * 9) * 30; drawBird(c, bx, by, { t: t, face: 1, scale: 0.9 / z, spy: true }); drawEgg(c, bx, by + 70 / z, 15 / z, t, 3, 0, (t * 3 | 0) % 7); }
+  else if (P.crow) { const cr = P.crow, u = cr.t / 3.2; drawCiori(c, l + u * (vw + 400) - 200, tp + vh * 0.22 + Math.sin(u * 9) * 30, { scale: 1.2 / z, t: t, fly: true, face: 1 }); if (Math.random() < 0.5) part(l + u * (vw + 400) - 200, tp + vh * 0.22, { vy: 140, vx: (Math.random() - 0.5) * 50, life: 1.1, max: 1.1, size: 7, kind: 'spark' }); }
   if (P.bfly) drawButterfly(c, P.bfly.x, P.bfly.y - 50, t, 1.15);
   if (P.duel) drawDuelTop(c);
   drawParts(c);
-  if (P.boss && P.boss.state === 'won' && P.boss.t > 1.6) {       // Ciori says sorry
-    const bx = 960, by = 250;
+  if (P.boss && P.boss.state === 'won' && P.boss.t > 1.6) {       // Ciori says sorry (George runs away)
+    const bx = 960, by = L.arena ? 470 : 250;
     card(c, bx - 430, by - 80, 860, 150, '#FFF6E2', 5);
     text(c, T('sorry1'), bx, by - 32, 42, '#5F4E80', { halo: 0 }); text(c, T('sorry2'), bx, by + 22, 42, '#5F4E80', { halo: 0 });
+  }
+  if (P.nestOpen && !P.done && !L.boss && Input.slots[0].joined && Input.slots[1].joined) {    // one is in the nest: we wait for the other
+    const nr = P.heroes.map(h => dist(h.x, h.y, L.nest.x, L.nest.y) < 185);
+    if (nr[0] !== nr[1]) text(c, T('ban.wait', CONFIG.heroes[nr[0] ? 1 : 0].name), L.nest.x, L.nest.y - 210 + Math.sin(t * 4) * 5, 46, '#C4573D', { title: true });
   }
   c.restore();
   // wind streaks in screen space
@@ -203,7 +283,7 @@ function guideTarget(h) {
   if (L.boss) {
     const bs = P.boss; if (bs.state === 'won') return null;
     if (h.k === 0 && bs.state === 'up') return { x: L.treeBase.x + (h.x < L.treeBase.x ? -210 : 210), y: L.treeBase.y + 150, kind: 'x' };
-    if (h.k === 1 && bs.state === 'down') return { x: L.nest.x, y: L.nest.y + 60, kind: 'ball' };
+    if (h.k === 1 && bs.state === 'down') { const g = bossGoal(); return L.arena ? { x: g.x, y: g.y + 50, kind: 'ball' } : { x: L.nest.x, y: L.nest.y + 60, kind: 'ball' }; }
     return nearestEgg(h, false);
   }
   if (P.nestOpen) return nearestEgg(h, false, 700) || { x: L.nest.x, y: L.nest.y, kind: 'nest' };
@@ -221,9 +301,10 @@ function guideTarget(h) {
 function drawGuides(c) {
   const t = P.time;
   for (const h of P.heroes) {
-    if (!Opt.guide[h.k] || !Input.slots[h.k].joined || h.dizzy > 0) continue;
-    const g = guideTarget(h); if (!g) continue;
-    const dx = g.x - h.x, dy = g.y - h.y, m = Math.hypot(dx, dy); if (m < 130) continue;
+    const fr = P.heroes[1 - h.k], help = fr.down && !h.down && Input.slots[h.k].joined;      // a friend who waits for help: the arrow shows the way to them, for every player
+    if (!help && (!Opt.guide[h.k] || !Input.slots[h.k].joined || h.dizzy > 0 || h.carried)) continue;
+    const g = help ? { x: fr.x, y: fr.y, kind: 'sq' } : guideTarget(h); if (!g) continue;
+    const dx = g.x - h.x, dy = g.y - h.y, m = Math.hypot(dx, dy); if (m < (help ? (h.k === 0 ? CONFIG.rescue.reachNear : CONFIG.rescue.reachFar) : 130)) continue;
     const ux = dx / m, uy = dy / m, ang = Math.atan2(uy, ux), col = CONFIG.heroes[h.k].color, fade = clamp((m - 130) / 90, 0, 1);
     for (let i = 0; i < 3; i++) {                        // three chevrons run toward the goal
       const u = (t * 1.1 + i / 3) % 1, r = 64 + u * 62;
@@ -234,9 +315,10 @@ function drawGuides(c) {
       const ix = h.x + ux * 172, iy = h.y - 6 + uy * 172;
       c.globalAlpha = 0.68 * fade;
       soft(c, ix, iy, 31, 31, '#FFF6E2', 0.9, 7);
-      if (g.kind === 'egg') drawEgg(c, ix, iy + 14, 12, 0, 1, 0);
+      if (g.kind === 'egg') drawEgg(c, ix, iy + 14, 12, 0, 1, 0, 4);
       else if (g.kind === 'nest') c.drawImage(sprite('gNest', 56, 44, cc => drawNest(cc, 28, 22, 21, 3, 0)), ix - 28, iy - 22, 56, 44);
       else if (g.kind === 'x') iconX(c, ix, iy, 16, 0);
+      else if (g.kind === 'sq') iconSq(c, ix, iy, 18, Math.sin(t * 8));
       else if (g.kind === 'ball') drawBall(c, ix, iy, 14, t * 2);
       else text(c, '!', ix, iy + 2, 40, '#D9463C', { halo: 0, shadow: 0, weight: 'bold' });
     }
@@ -261,7 +343,8 @@ function drawHints(c, v) {
   if (P.boss) {
     const bs = P.boss, sc = v.z;
     if (bs.state === 'up' && P.time > 3) { const x = (L.treeBase.x - 250 - v.l) * sc, y = (L.treeBase.y + 10 - v.tp) * sc + Math.sin(t * 6) * 8; iconX(c, x, y, 26, Math.sin(t * 6)); iconArrow(c, x, y + 52, Math.PI / 2, 20, CONFIG.heroes[0].color); }
-    if (bs.state === 'down') { const x = (L.nest.x - v.l) * sc, y = (L.nest.y + 200 - v.tp) * sc + Math.sin(t * 6) * 8; drawBall(c, x, y + 44, 22, t * 3); iconArrow(c, x, y - 6, -Math.PI / 2, 26, CONFIG.heroes[1].color); }
+    if (bs.state === 'down' && L.arena) { const g = bossGoal(), x = (g.x - v.l) * sc, y = (g.y - g.r - 130 - v.tp) * sc + Math.sin(t * 6) * 8; drawBall(c, x, y - 40, 22, t * 3); iconArrow(c, x, y + 10, Math.PI / 2, 26, CONFIG.heroes[1].color); }      // George lies on the sand: the ball must hit him
+    else if (bs.state === 'down') { const x = (L.nest.x - v.l) * sc, y = (L.nest.y + 200 - v.tp) * sc + Math.sin(t * 6) * 8; drawBall(c, x, y + 44, 22, t * 3); iconArrow(c, x, y - 6, -Math.PI / 2, 26, CONFIG.heroes[1].color); }
   }
 }
 
@@ -284,7 +367,7 @@ function drawProgress(c) {
   P.progU = P.progU == null ? pr.u : P.progU + (pr.u - P.progU) * 0.12;
   card(c, W / 2 - 520, 152, 1040, 66, '#FFF3DC', 12);
   // left: what is still to do right now
-  if (pr.kind === 'eggs') { c.save(); c.translate(W / 2 - 478, y + 12); const g = c.createRadialGradient(-3, -16, 1, 0, -10, 18); g.addColorStop(0, '#FFF6C4'); g.addColorStop(1, '#E9A93A'); c.translate(0, -12); eggPath(c, 14); c.fillStyle = g; c.fill(); c.restore(); text(c, '× ' + pr.left, W / 2 - 456, y + 1, 34, '#B9702E', { align: 'left', halo: 0, shadow: 0, weight: 'bold' }); }
+  if (pr.kind === 'eggs') { c.save(); c.translate(W / 2 - 478, y + 12); const g = c.createRadialGradient(-3, -16, 1, 0, -10, 18); g.addColorStop(0, isLupta() ? '#E8FBFF' : '#FFF6C4'); g.addColorStop(1, isLupta() ? '#46B8D8' : '#E9A93A'); c.translate(0, -12); itemPath(c, 14); c.fillStyle = g; c.fill(); c.restore(); text(c, '× ' + pr.left, W / 2 - 456, y + 1, 34, '#B9702E', { align: 'left', halo: 0, shadow: 0, weight: 'bold' }); }
   else if (pr.kind === 'duel') { heartPath(c, W / 2 - 478, y, 11); c.fillStyle = '#E2574C'; c.fill(); text(c, '× ' + pr.left, W / 2 - 456, y + 1, 34, '#C4573D', { align: 'left', halo: 0, shadow: 0, weight: 'bold' }); }
   else { c.drawImage(sprite('gNest', 56, 44, cc => drawNest(cc, 28, 22, 21, 3, 0)), W / 2 - 500, y - 22, 56, 44); iconArrow(c, W / 2 - 424 + Math.sin(t * 6) * 4, y, 0, 13, '#F8C24E'); }
   // the road
@@ -297,7 +380,7 @@ function drawProgress(c) {
     if (i === pr.n - 1) { c.drawImage(sprite('gNest', 56, 44, cc => drawNest(cc, 28, 22, 21, 3, 0)), x - 30, y - 24, 60, 48); continue; }
     const pop = now ? 1 + Math.sin(t * 5) * 0.08 : 1;
     c.fillStyle = done ? '#F8C24E' : '#FFF6E2'; c.strokeStyle = done ? '#E3952F' : 'rgba(170,130,110,0.6)'; c.lineWidth = 3; c.beginPath(); c.arc(x, y, 19 * pop, 0, TAU); c.fill(); c.stroke();
-    if (i !== pr.midSeg && i !== pr.fightSeg) { c.save(); c.translate(x, y - 1); eggPath(c, 10 * pop); c.fillStyle = done ? '#FFF6C4' : 'rgba(233,169,58,0.55)'; c.fill(); c.restore(); }
+    if (i !== pr.midSeg && i !== pr.fightSeg) { c.save(); c.translate(x, y - 1); itemPath(c, 10 * pop); c.fillStyle = done ? '#FFF6C4' : 'rgba(233,169,58,0.55)'; c.fill(); c.restore(); }
     else { heartPath(c, x, y, 8.5 * pop); c.fillStyle = done ? '#FFF6C4' : '#E2574C'; c.fill(); }
   }
   // where the team is now
@@ -315,7 +398,8 @@ function drawBadge(c, k, x, y) {
   if (k === 1) { c.strokeStyle = cfg.color2; c.lineWidth = 6; c.beginPath(); c.arc(x + 62, y + hh / 2, 44, 0, TAU); c.stroke(); }
   const dz = h.dizzy > 0, ps = sprite('port' + k + (dz ? 'd' : ''), 90, 90, cc => {
     cc.beginPath(); cc.arc(45, 45, 41, 0, TAU); cc.clip(); cc.fillStyle = '#FFF3DC'; cc.fillRect(0, 0, 90, 90);
-    if (k === 0) drawBubu(cc, 27, 89, { scale: 0.8, t: 1, dizzy: dz }); else drawLeo(cc, 41, 129, { scale: 0.9, t: 1, dizzy: dz });
+    const pp = (isLupta() ? [[14, 131, 0.8], [43, 128, 0.92]] : [[27, 89, 0.8], [41, 129, 0.9]])[k];      // where the face sits in the round picture
+    drawHero(cc, k, pp[0], pp[1], { scale: pp[2], t: 1, dizzy: dz });
   });
   c.drawImage(ps, x + 17, y + hh / 2 - 45, 90, 90);
   text(c, cfg.name, x + 122, y + 42, 44, shade(cfg.color, -0.5), { align: 'left', title: true, halo: 0 });
@@ -330,8 +414,11 @@ function drawHUD(c) {
   const cw = L.boss ? Math.max(560, 320 + bh * bsp) : 660, cx = W / 2 - cw / 2;
   card(c, cx, 24, cw, 120, '#FFF3DC', 9);
   const pop = P.comboT > 1.0 ? 1 + (P.comboT - 1.0) * 0.6 : 1;
-  c.save(); c.translate(cx + 74, 96); c.scale(pop, pop); const g = c.createRadialGradient(-8, -18, 2, 0, -6, 40); g.addColorStop(0, '#FFF6C4'); g.addColorStop(0.5, '#F8CC4E'); g.addColorStop(1, '#E3952F'); c.translate(0, -12); eggPath(c, 30); c.fillStyle = g; c.fill(); c.strokeStyle = 'rgba(190,110,50,0.4)'; c.lineWidth = 3; c.stroke(); c.restore();
-  text(c, String(Game.team.eggs), cx + 122, 86, 72, '#B9702E', { align: 'left', halo: 0, weight: 'bold' });
+  if (isLupta()) {                         // a crystal, and under the number the seven colors gathered so far (all seven = a rainbow, bonus crystals)
+    c.save(); c.translate(cx + 74, 84); c.scale(pop, pop); drawCrystal(c, 0, 26, 30, 0, 0, 0, (t * 0.7 | 0) % 7); c.restore();
+    for (let i = 0; i < 7; i++) { const on = P.rainbow.indexOf(i) >= 0; c.save(); c.translate(cx + 132 + i * 24, 128); itemPath(c, 8); c.fillStyle = on ? RAINBOW[i] : 'rgba(150,120,140,0.25)'; c.fill(); if (on) { c.strokeStyle = 'rgba(255,255,255,0.8)'; c.lineWidth = 1.5; c.stroke(); } c.restore(); }
+  } else { c.save(); c.translate(cx + 74, 96); c.scale(pop, pop); const g = c.createRadialGradient(-8, -18, 2, 0, -6, 40); g.addColorStop(0, '#FFF6C4'); g.addColorStop(0.5, '#F8CC4E'); g.addColorStop(1, '#E3952F'); c.translate(0, -12); eggPath(c, 30); c.fillStyle = g; c.fill(); c.strokeStyle = 'rgba(190,110,50,0.4)'; c.lineWidth = 3; c.stroke(); c.restore(); }
+  text(c, String(Game.team.eggs), cx + 122, isLupta() ? 76 : 86, isLupta() ? 64 : 72, isLupta() ? '#3F6FB0' : '#B9702E', { align: 'left', halo: 0, weight: 'bold' });
   if (L.boss) {
     for (let i = 0; i < bh; i++) {
       const x = cx + cw - 64 - (bh - 1 - i) * bsp, done = i < P.boss.phase;
@@ -345,17 +432,18 @@ function drawHUD(c) {
       starPath(c, x, 78, 30, 0);
       if (s.got) { c.fillStyle = '#FFE7A0'; c.strokeStyle = '#F4B08E'; c.lineWidth = 6; c.stroke(); c.fill(); } else { c.fillStyle = 'rgba(190,150,130,0.28)'; c.fill(); }
     }
-    // sun timer: the sun travels toward the hill while the level lasts
+    // sun timer: the sun travels toward the hill while the level lasts (second game: the moon travels toward sunrise)
     const u = clamp(t / CONFIG.levelDuration, 0, 1), x0 = cx + 580, yy = 108;
     c.strokeStyle = 'rgba(160,120,110,0.4)'; c.lineWidth = 4; c.lineCap = 'round'; c.beginPath(); c.arc(x0, yy, 44, Math.PI, TAU); c.stroke();
-    const a = Math.PI + u * Math.PI; soft(c, x0 + Math.cos(a) * 44, yy + Math.sin(a) * 44, 13, 13, mix('#FFD86A', '#EE8A5A', u), 1, 3);
-    c.fillStyle = '#9DB37E'; c.beginPath(); c.ellipse(x0, yy + 8, 56, 12, 0, Math.PI, TAU); c.fill();
+    const a = Math.PI + u * Math.PI; soft(c, x0 + Math.cos(a) * 44, yy + Math.sin(a) * 44, 13, 13, isLupta() ? mix('#E8ECFF', '#FFD86A', u) : mix('#FFD86A', '#EE8A5A', u), 1, 3);
+    if (isLupta()) soft(c, x0 + Math.cos(a) * 44 + 5, yy + Math.sin(a) * 44 - 3, 10, 10, '#FFF3DC', 1 - u, 4);      // a crescent moon that grows into a sun
+    c.fillStyle = isLupta() ? '#6A6FB0' : '#9DB37E'; c.beginPath(); c.ellipse(x0, yy + 8, 56, 12, 0, Math.PI, TAU); c.fill();
     drawProgress(c);
   }
   if (P.banner) {
     const b = P.banner, a = clamp(Math.min(b.t, 1), 0, 1), y = (L.boss ? 232 : 306) + (1 - easeOut(a)) * -40;
     c.globalAlpha = a;
-    const label = T('ban.' + b.kind);
+    const label = T('ban.' + b.kind, isLupta() ? CONFIG.lupta.rainbowBonus : '');
     if (b.kind === 'duel') {
       card(c, W / 2 - 480, y - 62, 960, 176, '#FFF6E2', 33);
       text(c, label, W / 2, y - 6, 64, '#C4573D', { title: true, halo: 0 });
@@ -365,7 +453,8 @@ function drawHUD(c) {
     text(c, label, W / 2 - 10, y, 60, '#C4573D', { title: true, halo: 0 });
     if (b.kind === 'more') iconArrow(c, W / 2 + 240 + Math.sin(t * 6) * 8, y, 0, 30, '#F8C24E');
     if (b.kind === 'nest') { drawNest(c, W / 2 + 232, y + 4, 44, 5, 0); iconArrow(c, W / 2 - 250 + Math.sin(t * 6) * 8, y, 0, 26, '#F8C24E'); }
-    if (b.kind === 'giant') drawEgg(c, W / 2 + 250, y + 26, 26, t, 1, 0);
+    if (b.kind === 'giant') drawEgg(c, W / 2 + 250, y + 26, 26, t, 1, 0, 0, true);
+    if (b.kind === 'rainbow') for (let i = 0; i < 7; i++) { c.save(); c.translate(W / 2 + (i < 3 ? -300 + i * 30 : 215 + (i - 3) * 30), y + Math.sin(t * 6 + i) * 5); itemPath(c, 11); c.fillStyle = RAINBOW[i]; c.fill(); c.restore(); }
     }
     c.globalAlpha = 1;
   }
@@ -391,11 +480,34 @@ function drawDecor(c, l, tp, vw, vh) {
     if (!d.live || d.x < x0 || d.x > x1 || d.y < y0 || d.y > y1) continue;
     c.save();
     let dy = 0, al = 1, sy = 1;
-    if (d.type === 'snail') sy = 1 - d.hide * 0.22;
-    if (d.type === 'ladybug' && d.flyT > 0) { const k = 1 - d.flyT / 2.2; dy -= Math.sin(k * Math.PI) * 90; al = 1 - k * 0.3; }
+    if (d.rk === 'hide') sy = 1 - d.hide * 0.22;
+    if (d.rk === 'fly' && d.flyT > 0) { const k = 1 - d.flyT / 2.2; dy -= Math.sin(k * Math.PI) * 90; al = 1 - k * 0.3; }
     c.translate(d.x, d.y + dy); c.rotate(d.rot); c.scale(d.s, d.s * sy);
     c.globalAlpha = al;
     c.drawImage(decorSprite(d.type, d.v), -48, -56, 96, 96);
     c.restore();
   }
+}
+/* ---------- George's arena (the last level of the second game) ---------- */
+function drawArenaBack(c) {                 // the torches of fire around the arena
+  const L = P.L, t = P.time;
+  for (const tc of L.torches) drawFlame(c, tc.x, tc.y - 86, t, 1.15, 1);
+}
+function drawThrone(c) {
+  const L = P.L, bs = P.boss, t = P.time, sh = Math.sin(t * 38) * bs.treeShake * 0.012;
+  c.save(); c.translate(L.treeBase.x, 600); c.rotate(sh); c.drawImage(L.treeCv, L.treeOff.x - L.treeBase.x, L.treeOff.y - 600); c.restore();
+  // the crystals George keeps at the foot of his throne: fewer after every hit
+  const ne = Math.max(0, Math.round(12 * (1 - bs.phase / CONFIG.boss.hits)));
+  for (let i = 0; i < ne; i++) drawCrystal(c, 850 + (i % 6) * 44, 600 - (i / 6 | 0) * 44, 15, t, i * 1.3, 0, i % 7);
+}
+function drawGeorgeBoss(c, o, t) {
+  const L = P.L, st = o.state, up = st === 'up', S = CONFIG.lupta.bossSize * (o.sc || 1);
+  const mood = st === 'won' ? 'scared' : (st === 'down' || st === 'falling') ? 'dizzy' : (o.throwAnim > 0 || o.bat > 0 || o.rings.length) ? 'angry' : 'calm';
+  if (!up) { c.fillStyle = rgba(SHADOW, 0.22); c.beginPath(); c.ellipse(o.x, (st === 'down' || st === 'won') ? o.y + 4 : 660, 60 * (o.sc || 1), 18 * (o.sc || 1), 0, 0, TAU); c.fill(); }
+  c.save(); c.translate(o.x + (up ? Math.sin(t * 38) * o.treeShake * 9 : 0), o.y + (up ? 34 + Math.sin(t * 3) * 3 : 0));
+  if (st === 'falling') c.rotate(o.t * 9);
+  drawGeorge(c, 0, st === 'falling' ? 40 : 0, { scale: S, t: t, face: st === 'won' ? 1 : (P.heroes[0].x + P.heroes[1].x < o.x * 2 ? -1 : 1), mood, moving: st === 'won' && o.t > 1.2, walk: t * 18, noCrown: st === 'won' });
+  c.restore();
+  if (st === 'down') drawDizzyStars(c, o.x + 30, o.y - 190, t);
+  if (st === 'won' && o.wy != null) drawGeorgeCrown(c, o.cx, o.wy - 8, 1.5, 1.25);          // his crown stays behind on the sand
 }

@@ -122,3 +122,11 @@ Vazut de sus. Umbra violet, coroana `#B98858`, interior `#8E6244`, fund `#D9B27A
 | `drawHero(c, k, x, y, o)` | Bubu daca `k` e 0, Leo altfel | Peste tot |
 
 De ce iconite: copilul de 6 ani nu citeste. "Misca stick-ul" si "apasa ✕" sunt aratate deasupra eroului lui, nu scrise.
+
+## Update 14 noiembrie 2026
+
+- Personajele celui de-al doilea joc (Boon, Killer, George cel Rău, robotii, melcii, pasarile, cristalele, steaua secreta, racheta, soldatii) sunt in `src/055-lupta.js`. Sunt descrise in `21-cea-mai-grea-lupta.md`.
+- Pictorii din acest fisier trimit singuri la cei noi cand `isLupta()`: `drawBall` la `drawBallL` (mingea alba cu hexagoane a lui Killer), oul la cristal, cuibul la adapostul din jungla. Codul de joc cheama aceleasi functii in ambele jocuri.
+- `drawBubu` si `drawLeo` iau culorile din `GAME_BASE.heroes`, nu din `CONFIG.heroes`. Pe ecranul "Alege jocul" sunt desenati si cand jocul ales e al doilea, cand `CONFIG.heroes` ii contine pe Boon si Killer.
+- Optiuni noi de desen pentru eroi (din `heroOpts` in `08-draw.js`): `scale` vine acum din `h.small` (micsorarea din al doilea joc), `hug` (primul erou isi intinde bratele cand ajuta), `claw` (ghearele lui Boon, de la 0 la 1 cat se invart). Un erou care asteapta ajutor e desenat ametit (`dizzy`).
+- `iconSq(c, x, y, r)`: butonul □, desenat ca pe controller (un patrat roz pe un disc crem). Apare deasupra eroului lovit, in sageata prietenului si in Setari.
