@@ -109,6 +109,10 @@ Teste noi din update-ul 13 noiembrie 2026:
 
 Testele de sunet (`sunete-volum.js`, `sunete-personaje.js`) se ruleaza singure. Pornite in acelasi timp cu alte teste, masoara varfuri gresite si pot pica fara motiv.
 
+## Un test care doar masoara: `hud-acoperire.js`
+
+Adaugat pe 16 noiembrie 2026. Masoara cat de des acopera scrisul de sus un erou (bug-ul C10 din `23-update-partea-a-doua.md`). Acum scrie pana la 50%. Nu e in `tests/toate.sh`, pentru ca bug-ul nu e reparat. Dupa reparare (etapa E1) se ruleaza cu `STRICT=1`, trebuie sa scrie 0% si intra in `tests/toate.sh`. Vezi `24-sisteme-noi.md`, S6.
+
 ## Rezultate dupa update-ul din 14 noiembrie 2026
 
 Toate testele au fost rulate pe fisierul final, pentru fiecare joc (`tests/toate.sh tot`). Toate au terminat cu `errors 0`.

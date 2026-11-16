@@ -43,6 +43,10 @@ Tot jocul a fost facut si testat intr-un mediu Linux, cu Chrome fara fereastra. 
 
 Vezi sectiunea "Intrebari deschise" din `20-update-urmator.md`.
 
+## Bug cunoscut, nereparat: scrisul de sus acopera eroii
+
+Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js`: bannerul de la inceputul unei lupte acopera un erou in jumatate din locuri, iar HUD-ul il acopera pe cel de sus in peste o treime din asezari cand eroii sunt departe unul de altul. Repararea e specificata in `24-sisteme-noi.md`, S6, si e prima etapa (E1) a update-ului urmator.
+
 ## Update-ul din 14 noiembrie 2026: ce nu e verificat sau nu e facut
 
 - **Difuzorul unui DualShock 4 real.** Bug-ul "nu se aud sunetele personajelor" a fost gasit prin masuratoare: vocile erau de 10 pana la 15 ori mai incete decat efectele. Acum se aud tare in boxele calculatorului. Ca se aud si in difuzorul controllerului nu a putut fi verificat fara un controller. Conditia ramane cablul USB. Prin Bluetooth, macOS nu arata controllerul ca difuzor si browserul nu are alta cale.

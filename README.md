@@ -34,7 +34,7 @@ Setarile se deschid cu OPTIONS pe controller, cu tasta P sau cu clic pe butonul 
 | `docs/anexe/` | Liste generate automat din cod: toate functiile, culorile, textele, sunetele, valorile din CONFIG. |
 | `tools/gen-docs.js` | Scriptul care genereaza anexele. |
 | `tests/` | Testele automate (Chrome fara fereastra, cu boti si controllere simulate). `tests/toate.sh` le ruleaza pe toate, pentru ambele jocuri. |
-| `prompts/` | Cererile originale, cuvant cu cuvant. Ultima: `04-cerere-14-noiembrie.md`, cu raspunsurile copiilor pentru jocul lor. |
+| `prompts/` | Cererile originale, cuvant cu cuvant, si promptul pentru urmatorul update (`06-prompt-partea-a-doua.md`). |
 | `CLAUDE.md` | Instructiuni pentru orice cont Claude care modifica jocul. |
 
 ## Cum modifici jocul
@@ -51,3 +51,7 @@ Cele mai multe schimbari cerute de copii (viteze, nume, culori, numar de nivelur
 ## Ultimul update
 
 14 noiembrie 2026: al doilea joc, ajutorul cu □, inamicii mici care dispar dupa doua lovituri, cuibul care ii asteapta pe amandoi, sunetele personajelor reparate. Totul, pe puncte, in `docs/22-update-14-noiembrie.md`. Ce nu a putut fi verificat fara un Mac si controllere reale este in `docs/19-limitari.md`.
+
+## Urmatorul update
+
+"Partea a doua": inca sase runde pentru "Cea mai grea lupta", in care cei doi eroi trebuie sa colaboreze la fiecare pas, a doua putere pentru Boon si Killer, fuga cu L3, zece secunde pentru ajutor, capitole. Este doar specificat, nu implementat: `docs/23-update-partea-a-doua.md`, `docs/24-sisteme-noi.md`, `docs/25-niveluri-7-12.md`. Promptul gata de lipit intr-o conversatie cu Claude: `prompts/06-prompt-partea-a-doua.md`.
