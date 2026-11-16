@@ -1,6 +1,6 @@
 # 25. Partea a doua: nivelurile 7 - 12 si Sala Tronului
 
-Status: **specificatie, neimplementata.** Vezi `23-update-partea-a-doua.md` pentru cerere, hotarari si etape, si `24-sisteme-noi.md` pentru butoane, fuga, a doua putere, cele 10 secunde, capitole si stilul grafic.
+Status: **specificatie, neimplementata.** Vezi `23-update-partea-a-doua.md` pentru cerere, hotarari si cele 12 sarcini, si `24-sisteme-noi.md` pentru butoane, fuga, a doua putere, cele 10 secunde, capitole si stilul grafic.
 
 Cuprins: 1. Povestea. 2. Cum arata un nivel nou. 3. Mecanismele (cadrul comun). 4. Cele sase niveluri. 5. George in mini-lupte. 6. Sala Tronului. 7. "Va urma" si finalul. 8. Texte. 9. Sunete. 10. Decor si numarul de elemente. 11. Teste.
 
@@ -650,4 +650,4 @@ Obiectele mari, pictate cu lumina si materiale (`24-sisteme-noi.md`, S7): cate 6
 | `performanta.js` (extins) | Fiecare nivel nou, fata de nivelul 6 masurat in aceeasi rulare: cel mult 20% in plus. |
 | `capturi-ecran.js` (extins) | Capturi `p2_*` pentru fiecare nivel nou: inceput, poarta A, poarta B, lupta, cusca. Pentru Sala Tronului: fiecare faza. |
 
-Ce nu pot verifica testele, si trebuie spus la fiecare etapa: daca mecanismele sunt intelese de un copil de 6 ani fara ajutor, daca 10 secunde sunt prea putine sau prea multe, daca fuga strica luptele, cum se simt vibratiile noi in mana, cum suna totul.
+Ce nu pot verifica testele, si trebuie spus la fiecare sarcina: daca mecanismele sunt intelese de un copil de 6 ani fara ajutor, daca 10 secunde sunt prea putine sau prea multe, daca fuga strica luptele, cum se simt vibratiile noi in mana, cum suna totul.

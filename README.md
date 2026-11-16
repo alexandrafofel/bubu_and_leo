@@ -54,4 +54,4 @@ Cele mai multe schimbari cerute de copii (viteze, nume, culori, numar de nivelur
 
 ## Urmatorul update
 
-"Partea a doua": inca sase runde pentru "Cea mai grea lupta", in care cei doi eroi trebuie sa colaboreze la fiecare pas, a doua putere pentru Boon si Killer, fuga cu L3, zece secunde pentru ajutor, capitole. Este doar specificat, nu implementat: `docs/23-update-partea-a-doua.md`, `docs/24-sisteme-noi.md`, `docs/25-niveluri-7-12.md`. Promptul gata de lipit intr-o conversatie cu Claude: `prompts/06-prompt-partea-a-doua.md`.
+"Partea a doua": inca sase runde pentru "Cea mai grea lupta", in care cei doi eroi trebuie sa colaboreze la fiecare pas, a doua putere pentru Boon si Killer, fuga cu L3, zece secunde pentru ajutor, capitole. Este doar specificat, nu implementat: `docs/23-update-partea-a-doua.md`, `docs/24-sisteme-noi.md`, `docs/25-niveluri-7-12.md`. Implementarea e impartita in 12 sarcini, cu cate un prompt gata de lipit pentru fiecare: `prompts/06-prompt-partea-a-doua.md`.
