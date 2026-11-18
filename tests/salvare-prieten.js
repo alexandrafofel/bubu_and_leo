@@ -10,7 +10,8 @@ const boot = require('./common.js');
     const place = (far) => { const P = G.P, a = P.heroes[0], b = P.heroes[1]; a.x = P.L.spawn.x + 200; a.y = P.L.spawn.y; b.x = a.x + far; b.y = a.y; for (const h of P.heroes) { h.vx = h.vy = 0; h.inv = 0; h.dizzy = 0; h.down = false; } inp[0] = { x: 0, y: 0 }; inp[1] = { x: 0, y: 0 }; step(2); };
     go(0); calm(); let P = G.P, a = P.heroes[0], b = P.heroes[1];
     // 1. hit: the hero is down, loses one egg, cannot walk
-    place(800); G.Game.team.eggs = 5; G.P.levelEggs = 5; const eggs0 = G.Game.team.eggs;      // a hit drops only what was gathered in this chapter G.hitHero(a, a.x - 60, a.y); step(40);
+    // a hit drops only what was gathered in this chapter, so the test gives the chapter 5 crystals first
+    place(800); G.Game.team.eggs = 5; G.P.levelEggs = 5; const eggs0 = G.Game.team.eggs; G.hitHero(a, a.x - 60, a.y); step(40);
     out['lovit: asteapta ajutor'] = a.down === true;
     out['lovit: scapa un ou'] = eggs0 - G.Game.team.eggs;
     const x0 = a.x; inp[0] = { x: 1, y: 0 }; step(120); inp[0] = { x: 0, y: 0 };
