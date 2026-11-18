@@ -1,5 +1,7 @@
 # 15. Culori
 
+> **Din 18 noiembrie 2026 exista un singur joc: "Cea mai grea luptă".** "Bubu și Leo" a fost scos (vezi `16-decizii.md`, "Un singur joc"). Orice schimbare se face doar in "Cea mai grea luptă". Ce scrie mai jos despre primul joc, despre alegerea jocului sau despre "ambele jocuri" este istoric.
+
 Cererea: "Warm palette: ochre, peach, terracotta, honey yellow, sage green, dusty pink. Shadows in warm violet or brown, never gray or black."
 
 Codul are aproximativ 300 de culori hex diferite. Toate, cu fiecare loc unde apar, sunt in [anexa B](anexe/B-culori.md). Aici sunt regulile si culorile care conteaza.

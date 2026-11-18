@@ -1,5 +1,7 @@
 # 22. Update din 14 noiembrie 2026: doua jocuri, reguli noi
 
+> **Din 18 noiembrie 2026 exista un singur joc: "Cea mai grea luptă".** "Bubu și Leo" a fost scos (vezi `16-decizii.md`, "Un singur joc"). Orice schimbare se face doar in "Cea mai grea luptă". Ce scrie mai jos despre primul joc, despre alegerea jocului sau despre "ambele jocuri" este istoric.
+
 Cererea, cuvant cu cuvant, este in `../prompts/04-cerere-14-noiembrie.md`. Aici e fiecare punct: ce inseamna, ce s-a facut, unde in cod, cum se regleaza si ce test il verifica. Toate regulile din `CLAUDE.md` au ramas valabile. Doua au fost completate, cu acordul proprietarei (regulile 6 si 8).
 
 Status: implementat. Jocul nou este descris in `21-cea-mai-grea-lupta.md`.

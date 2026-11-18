@@ -18,8 +18,7 @@ const GAME = process.argv[2] === 'lupta' || process.argv[2] === 'bubu' ? process
     I.poll = function (dt) {
       orig(dt); if (!bot.on) return; f++;
       const S = I.slots, st = G.Game.state, P = G.P;
-      for (const s of S) { s.x = s.y = 0; s.aP = s.aR = s.a = s.bP = false; s.joined = true; s.up = s.down = s.left = s.right = false; }
-      if (st === 'select') { G.UI.gameSel = GAME === 'lupta' ? 1 : 0; if (f % 20 === 0) S[0].aP = true; return; }      // the screen with the two games
+      for (const s of S) { s.x = s.y = 0; s.aP = s.aR = s.a = s.hP = false; s.joined = true; s.up = s.down = s.left = s.right = false; }
       if (st === 'title' || st === 'intro' || st === 'levelEnd' || st === 'ending') { if (f % 20 === 0) { S[0].aP = true; S[1].aP = true; } return; }
       if (st !== 'play' || !P) return;
       const h = P.heroes[0], l = P.heroes[1], L = P.L;
@@ -28,13 +27,13 @@ const GAME = process.argv[2] === 'lupta' || process.argv[2] === 'bubu' ? process
         if (P.boss.state === 'up') { h.x = L.treeBase.x - 200; h.y = L.treeBase.y + 150; if (f % 50 === 0) S[0].aP = true; }
         return;
       }
-      // a hero who was hit waits: the friend goes there and presses the square
+      // a hero who was hit waits: the friend goes there and presses the circle
       for (const [a, b] of [[h, l], [l, h]]) {
         if (a.down && !a.wasDown) bot.downs++; a.wasDown = a.down;
         if (!a.down || b.down) continue;
         const far = Math.hypot(a.x - b.x, a.y - b.y);
         if (b.k === 0 && far > 120) { b.x = a.x - 90; b.y = a.y; } else if (b.k === 1 && far > 520) { b.x = a.x + 300; b.y = a.y; }
-        if (b.dizzy <= 0 && f % 8 === 0) { S[b.k].bP = true; bot.rescues++; }
+        if (b.dizzy <= 0 && f % 8 === 0) { S[b.k].hP = true; bot.rescues++; }
       }
       if (h.down || l.down) return;
       if (f % 90 === 0) S[1].aP = true; if (f % 90 < 12) S[1].a = true; if (f % 90 === 12) S[1].aR = true;
@@ -66,7 +65,7 @@ const GAME = process.argv[2] === 'lupta' || process.argv[2] === 'bubu' ? process
     if (errs.length) break;
   }
   const info = await page.evaluate(() => ({ game: __game.GAME, downs: bot.downs, pressed: bot.rescues }));
-  console.log('joc', info.game, '| eroi loviti care au asteptat ajutor:', info.downs, '| apasari pe patrat:', info.pressed);
+  console.log('joc', info.game, '| eroi loviti care au asteptat ajutor:', info.downs, '| apasari pe cerc:', info.pressed);
   console.log(seen.ending && last.startsWith('title') && info.game === GAME ? 'joc-complet OK (' + GAME + ')' : 'NEREUSIT: jocul nu a ajuns la final');
   console.log('errors', errs.length); errs.slice(0, 6).forEach(e => console.log(e));
   console.log('save', await page.evaluate(() => localStorage.getItem(__game.CONFIG.saveKey)));

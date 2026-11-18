@@ -1,5 +1,7 @@
 # 03. CONFIG
 
+> **Din 18 noiembrie 2026 exista un singur joc: "Cea mai grea luptă".** "Bubu și Leo" a fost scos (vezi `16-decizii.md`, "Un singur joc"). Orice schimbare se face doar in "Cea mai grea luptă". Ce scrie mai jos despre primul joc, despre alegerea jocului sau despre "ambele jocuri" este istoric.
+
 `CONFIG` este primul lucru din cod (`src/01-config.js`). A fost cerut explicit: "Put a CONFIG object at the top of the code ... so I can easily make changes the kids ask for". Aici sunt toate valorile care se pot schimba fara sa intelegi restul codului.
 
 Dupa o schimbare: salvezi, rulezi `./build.sh`, reincarci pagina. Daca modifici direct fisierul din `game/` (fara build), cauti `const CONFIG = {` la inceputul scriptului. Merge si asa, dar schimbarea se pierde la urmatorul build.
@@ -200,7 +202,7 @@ De ce: cu regula ajutorului o lovitura costa mult mai mult timp decat inainte. V
 
 ### Tastele: `keys[k].b`
 
-Tasta "Ajută prietenul": `KeyE` pentru primul jucator, `ShiftRight` pentru al doilea. Butonul □ al controllerului nu se regleaza (este butonul 2).
+Tasta "Ajută prietenul": `KeyE` pentru primul jucator, `ShiftRight` pentru al doilea. (De la T2 ajutorul e pe butonul ○, nu pe □; numele campului a ramas `b`, ca salvarile vechi sa ramana bune.)
 
 ### Al doilea joc: `lupta`
 
@@ -215,3 +217,31 @@ Atentie: `heroes[0]` si `heroes[1]` din tabelele de mai sus sunt eroii primului 
 | `lupta.levels` | 6 | Cate niveluri are al doilea joc. Partea a doua il creste cu fiecare nivel nou, pana la 12. Lista de capitole (`chapters()`) se face din el. |
 
 `levels` (primul joc) ramane. `levelCount(id)` citeste valoarea jocului cerut.
+
+## Update 18 noiembrie 2026 (T2): tastele noi si fuga
+
+### Tastele: `keys[k].c` si `keys[k].r`
+
+| Camp | Ce e | Jucatorul 1 | Jucatorul 2 |
+|---|---|---|---|
+| `a` | prima putere (butonul ✕) | `Space` | `Enter` |
+| `b` | ajuta prietenul (butonul ○) | `KeyE` | `ShiftRight` |
+| `c` | a doua putere (butonul □) | `KeyQ` | `Slash` |
+| `r` | fuga (L3, apasarea stick-ului) | `ShiftLeft` | `AltRight` |
+
+Butoanele de controller nu se regleaza. O salvare veche, fara `c` si `r`, primeste valorile de aici.
+
+### Fuga: `sprint`
+
+| Cheie | Valoare | Ce face |
+|---|---|---|
+| `enabled` | `true` | `false` opreste fuga cu totul. |
+| `mult` | 3 | De cate ori mai repede. Cerere: "sa mearga mult mai repede (x3)". |
+| `maxSpeed` | 1100 | Viteza nu trece niciodata de atat, nici cu racheta. |
+| `mode` | `'click'` | `'click'`: o apasare, fuga tine pana lasi stick-ul. `'hold'`: numai cat L3 e apasat. |
+| `stopAfter` | 0.25 | Secunde cu stick-ul in centru pana se opreste fuga. |
+| `inDuel` | `true` | `false` = fara fuga in mini-lupte. |
+| `max` | 0 | Secunde de fuga pana e nevoie de odihna. 0 = fara limita. |
+| `rest` | 2 | Odihna, cand `max` nu e 0. |
+| `step` | 12 | Cat de mult se misca eroul intr-un pas de coliziune. Vezi `10-gameplay.md`, "Fuga". |
+| `wordGap` | 6 | Cel mult un cuvant "fug!" la atatea secunde. |

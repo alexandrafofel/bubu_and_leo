@@ -198,3 +198,46 @@ Cererea cuvant cu cuvant e in `prompts/04-cerere-14-noiembrie.md`. Fiecare punct
 | Tastatura baga un jucator in joc doar pe ecranul de start | Enter si Spatiu sunt si tastele de putere ale eroilor. Pe ecranul Capitole si in pauza, un parinte care apasa Enter l-ar fi bagat in joc pe al doilea erou, pe care nu il joaca nimeni. Testul a prins asta. |
 | Luptele mari au pe cartonas o coroana, nu coroana lui George | La marimea aceea coroana-corn a lui George arata ca un con. |
 | Un capitol incuiat raspunde (lacatul tremura, sunetul `no`) | Copilul vede ca apasarea a ajuns, dar ca acolo inca nu se poate. |
+
+## Update 18 noiembrie 2026: banda de sus (sarcina T1)
+
+| Hotarare | De ce |
+|---|---|
+| Tot scrisul de sus intra in 132 de unitati | Inainte ocupa 218, iar bannerele coborau pana la 420. Masurat: un erou era acoperit in pana la 50% din asezari. 132 e cat trebuie pentru doua randuri de insigna si bara de progres sub ele. |
+| Bannerele nu mai sunt cartonase separate: iau locul continutului din cardul din mijloc | Un cartonas in plus ar fi trebuit sa stea tot in banda, iar doua cartonase unul langa altul la 1920 de pixeli nu incap. Asa textul apare chiar acolo unde se uita copilul dupa oua si stele. |
+| Bannerul de lupta e in cardul din mijloc (16 - 104), nu in dreptunghiul 16 - 124 din specificatie | La 124 ar fi intrat peste bara de progres, care arata cate inimi mai are paznicul, exact in timpul luptei. Doua randuri (40 si 26) incap si in 88. |
+| Regula camerei e o functie fara efecte, `camTarget(L, a, b)` | Testul `hud-acoperire.js` poate chema exact regula jocului. Altfel testul ar fi masurat o copie a regulii, care se poate desincroniza. |
+| Camera poate privi peste marginea de sus a lumii, cu cel mult 152 de pixeli de ecran | Fara asta, eroii ajunsi la marginea de sus a hartii ar fi ramas sub banda: camera s-ar fi oprit la marginea picturii. Fasia se umple cu culoarea cerului (primul pixel al picturii), deci nu se vede ca lipseste ceva. |
+| Cand banda si "amandoi eroii intregi pe ecran" nu incap deodata, castiga banda | Cerinta proprietarei a fost sa se vada personajele. Se intampla doar cand eroii sunt la cele doua capete ale unei harti inalte si zoom-ul e deja la minim: vezi `19-limitari.md`. |
+| La lupta mare nu se schimba nimic | Harta e cat ecranul si eroii nu pot urca peste y = 480. Camera statea deja bine. |
+| "Îl așteptăm pe Leo în cuib!" s-a mutat din lume in banda | Era scris la 210 de unitati deasupra cuibului, adica exact peste eroul care tocmai alerga spre cuib. |
+| Numerele barei de progres au halou crem | Bara nu mai are cartonas in spate. Pe fundalul de noapte al celui de-al doilea joc, "× 16" si procentul nu se citeau. |
+
+## Un singur joc (18 noiembrie 2026)
+
+Cererea proprietarei: "scoate jocul Bubu si Leo, lasa doar Cea mai grea lupta. Modificarile sa fie facute doar in jocul Cea mai grea lupta."
+
+| Hotarare | Motivul |
+|---|---|
+| Ecranul "Alege jocul" dispare. Dupa primul clic jocul merge direct la ecranul de start. | Nu mai e nimic de ales. |
+| `GAME` e mereu `'lupta'`; `setGame` ramane doar ca sa fixeze jocul (testele il cheama). | Cea mai mica schimbare care scoate jocul fara sa rupa restul codului. |
+| Codul primului joc ramane in `src/`, nefolosit (`GAME_BASE`, ramurile `!isLupta()`, `LEVEL_DEFS`, `drawBubu`, `drawLeo`, `BABBLE.bubu`, textele fara `L:`). | A-l sterge atinge sute de locuri comune si poate strica ce merge. Se poate curata separat, cu testele de acum ca plasa. |
+| Salvarea ramane la fel (versiunea 4). Progresul jocului e in `g2`; campurile vechi, de sus, raman in fisier, neatinse si nefolosite. | O salvare veche nu trebuie sa se strice, iar un viitor `g1` nu e nevoie. |
+| Din acum, orice sarcina (T1 - T14) se implementeaza doar in "Cea mai grea luptă". "Ambele jocuri" din specificatii inseamna acum "jocul". | Cererea. |
+| `tests/alege-jocul.js` s-a inlocuit cu `tests/un-singur-joc.js`. `tests/toate.sh` ruleaza testele o singura data, fara `JOC`. | Un singur joc. |
+
+## Butoanele noi si fuga (T2, 18 noiembrie 2026)
+
+| Hotarare | Motivul |
+|---|---|
+| ○ ajuta prietenul, □ ramane pentru a doua putere. | Cererea proprietarei. ○ e butonul din dreapta, usor de gasit cu degetul mare fara sa te uiti. |
+| Campurile `b` / `bP` din `Input.slots` devin `h` / `hP`; campul **tastei** ramane `b`. | In cod numele trebuie sa spuna ce face butonul. In salvare numele trebuie sa ramana, altfel copiii pierd tastele alese. |
+| ○ inseamna "inapoi" in meniuri si "ajuta" in joc, din acelasi buton. | Meniurile nu sunt deschise in timpul jocului, iar pauza opreste jocul. Nu se pot ciocni. |
+| Tastele noi: Q si Slash (a doua putere), Shift stanga si Alt dreapta (fuga). | Sunt langa degetele care tin deja tastele de mers si nu sunt in `RESERVED`. |
+| Fuga porneste la o apasare si tine pana lasi stick-ul (`mode: 'click'`), nu cat tii L3 apasat. | Un copil de 6 ani nu poate tine L3 apasat si misca stick-ul in acelasi timp. `mode: 'hold'` ramane in `CONFIG` daca se razgandesc. |
+| Viteza are o limita (`maxSpeed` 1100) peste care racheta si fuga nu se aduna. | La peste 1100 jocul devine greu de condus si camera nu mai tine pasul. |
+| Eroul se misca in pasi de cel mult 12 unitati, oricat de repede ar merge. | La viteza mare un cadru lung l-ar duce peste un perete subtire sau peste apa. Mingile fac asta de la inceput. Nu schimba nimic la mersul obisnuit (un singur pas). |
+| Camera merge mai repede (x 9 in loc de x 4) cat timp cineva fuge. | Altfel eroul ajunge la marginea ecranului inaintea camerei. |
+| Fuga nu porneste cand eroul e lovit, ametit, dus de o pasare sau incarca o aruncare. | Sunt momentele in care jocul deja ii ia controlul; o fuga pornita atunci ar fi o surpriza neplacuta. |
+| Un erou pe care nu-l joaca nimeni fuge dupa prietenul care fuge, daca e la peste 300 de unitati. | Altfel un copil care joaca singur ar lasa in urma eroul celalalt la fiecare fuga. |
+| Tutorialul arata L3 doar o data pe nivel, cand eroii se despart mult, si numai pentru cine n-a fugit inca. | Asa invata singuri, fara un ecran de instructiuni. |

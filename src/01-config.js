@@ -122,13 +122,28 @@ const CONFIG = {
     mercyMax: 10               // counted up to this many hits. From then on every hit on the guardian counts at any time, like on "Ușor"
   },
 
-  // ---- Controls (keys and controller/keyboard are chosen in Setări). On a controller: ✕ = power, □ = help the friend ----
+  // ---- Controls (keys and controller/keyboard are chosen in Setări).
+  //      On a controller: ✕ = first power, ○ = help the friend, □ = second power, L3 (press the stick) = run ----
   deadzone: 0.25,              // stick deadzone (0.25 or more)
   vibration: true,
   keys: [                      // starting keys: player 1, player 2 (KeyboardEvent.code names)
-    { up: 'KeyW', down: 'KeyS', left: 'KeyA', right: 'KeyD', a: 'Space', b: 'KeyE' },                              // b = help the friend (the □ button)
-    { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', a: 'Enter', b: 'ShiftRight' }
+    { up: 'KeyW', down: 'KeyS', left: 'KeyA', right: 'KeyD', a: 'Space', b: 'KeyE', c: 'KeyQ', r: 'ShiftLeft' },   // a = first power (✕), b = help the friend (○), c = second power (□), r = run (L3)
+    { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', a: 'Enter', b: 'ShiftRight', c: 'Slash', r: 'AltRight' }
   ],
+
+  // ---- Run: press the left stick (L3) ----
+  sprint: {
+    enabled: true,
+    mult: 3,                   // how many times faster
+    maxSpeed: 1100,            // never faster than this, even with the rocket boost
+    mode: 'click',             // 'click' = one press, runs until the stick is let go. 'hold' = only while L3 is held
+    stopAfter: 0.25,           // seconds with the stick in the middle before the run ends
+    inDuel: true,              // false = no running during a mini-fight
+    max: 0,                    // seconds of running before a rest is needed. 0 = no limit
+    rest: 2,                   // the rest, when max is not 0
+    step: 12,                  // the hero moves in steps of at most this many units, so it cannot jump through a wall
+    wordGap: 6                 // at most one "run" word every this many seconds
+  },
 
   // ---- Sound ---------------------------------------------------------------
   volume: { music: 0.5, ambient: 0.7, characters: 0.8 },   // starting values, 0 to 1. Changeable in Setări.

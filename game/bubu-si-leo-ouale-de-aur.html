@@ -137,13 +137,28 @@ const CONFIG = {
     mercyMax: 10               // counted up to this many hits. From then on every hit on the guardian counts at any time, like on "Ușor"
   },
 
-  // ---- Controls (keys and controller/keyboard are chosen in Setări). On a controller: ✕ = power, □ = help the friend ----
+  // ---- Controls (keys and controller/keyboard are chosen in Setări).
+  //      On a controller: ✕ = first power, ○ = help the friend, □ = second power, L3 (press the stick) = run ----
   deadzone: 0.25,              // stick deadzone (0.25 or more)
   vibration: true,
   keys: [                      // starting keys: player 1, player 2 (KeyboardEvent.code names)
-    { up: 'KeyW', down: 'KeyS', left: 'KeyA', right: 'KeyD', a: 'Space', b: 'KeyE' },                              // b = help the friend (the □ button)
-    { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', a: 'Enter', b: 'ShiftRight' }
+    { up: 'KeyW', down: 'KeyS', left: 'KeyA', right: 'KeyD', a: 'Space', b: 'KeyE', c: 'KeyQ', r: 'ShiftLeft' },   // a = first power (✕), b = help the friend (○), c = second power (□), r = run (L3)
+    { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', a: 'Enter', b: 'ShiftRight', c: 'Slash', r: 'AltRight' }
   ],
+
+  // ---- Run: press the left stick (L3) ----
+  sprint: {
+    enabled: true,
+    mult: 3,                   // how many times faster
+    maxSpeed: 1100,            // never faster than this, even with the rocket boost
+    mode: 'click',             // 'click' = one press, runs until the stick is let go. 'hold' = only while L3 is held
+    stopAfter: 0.25,           // seconds with the stick in the middle before the run ends
+    inDuel: true,              // false = no running during a mini-fight
+    max: 0,                    // seconds of running before a rest is needed. 0 = no limit
+    rest: 2,                   // the rest, when max is not 0
+    step: 12,                  // the hero moves in steps of at most this many units, so it cannot jump through a wall
+    wordGap: 6                 // at most one "run" word every this many seconds
+  },
 
   // ---- Sound ---------------------------------------------------------------
   volume: { music: 0.5, ambient: 0.7, characters: 0.8 },   // starting values, 0 to 1. Changeable in Setări.
@@ -208,12 +223,13 @@ const CONFIG = {
    all the texts, in Romanian and in English.
    Arrays with two entries are per hero: [Bubu, Leo].
    ========================================================================== */
-let GAME = 'bubu';                               // the game being played: 'bubu' (Bubu și Leo) or 'lupta' (Cea mai grea luptă)
+let GAME = 'lupta';                              // the one game: 'lupta' (Cea mai grea luptă). The first game, 'bubu' (Bubu și Leo), was taken out of the menus on 18 Nov 2026; its code is still here, unused
 const isLupta = () => GAME === 'lupta';
 const GAME_IDS = ['bubu', 'lupta'], GAME_KEYS = ['villainName', 'heroes', 'boss'], GAME_BASE = {};
 for (const k of GAME_KEYS) GAME_BASE[k] = CONFIG[k];
 /* Puts the chosen game's own heroes, villain and boss values into CONFIG. */
 function applyGameConfig() { for (const k of GAME_KEYS) CONFIG[k] = (GAME === 'lupta' ? CONFIG.lupta : GAME_BASE)[k]; }
+applyGameConfig();
 /* A text of one of the two games, whichever game is being played (for the screen where the game is chosen). */
 function TG(id, k, ...a) { const tab = STR[Opt.lang] || STR.ro; let s = id === 'lupta' ? tab['L:' + k] : null; if (s == null) s = tab[k]; if (s == null) return k; a.forEach((v, i) => { s = s.split('{' + i + '}').join(v); }); return s; }
 const Opt = {
@@ -239,7 +255,7 @@ const STR = {
     'ch.title': 'Capitole', 'ch.part1': 'Partea întâi', 'ch.part2': 'Partea a doua: Stelele furate', 'ch.locked': 'Încă nu', 'ch.hint': '✕ joacă   ·   ○ înapoi',
     'pause.restart': 'Reia nivelul', 'pause.chapters': 'Capitole', 'pause.ask': 'Sigur? Ce ați adunat aici se pierde.', 'ask.yes': 'Da',
     't.voice': 'Voce: {0}', 't.novoice': 'Fără voce în română',
-    't.foot': 'F = ecran complet   ·   △ = schimbă personajele   ·   ○ = alt joc', 't.click': 'Fă clic o dată pentru sunet',
+    't.foot': 'F = ecran complet   ·   △ = schimbă personajele', 't.click': 'Fă clic o dată pentru sunet',
     'sel.title': 'Alege jocul', 'sel.hint': 'stânga / dreapta = alege      ✕ sau Enter = pornește      OPTIONS sau P = setări',
     'sel.bubu': 'Bubu și Leo adună ouăle de aur furate de Ciori.', 'sel.lupta': 'Boon și Killer adună cristalele curcubeu și îl înfruntă pe George cel Rău.',
     'sel.byKids': 'Joc inventat de copii',
@@ -258,7 +274,7 @@ const STR = {
     'diff.easy': 'Ușor', 'diff.normal': 'Normal', 'diff.hard': 'Greu',
     'err.level': 'Nivelul nu a putut fi construit', 'err': 'Eroare: ',
     'lvl.meadow.name': 'Pajiștea Însorită',
-    'lvl.meadow.intro': 'Ciori, cioara cea poznașă, a furat ouăle de aur și le-a împrăștiat prin Valea Caldă! Bubu și Leo, adunați-le pe toate înainte de apus. Bubu tropăie tare. Leo șutează mingea. Dacă prietenul tău este lovit, mergi la el și apasă pe pătrat!',
+    'lvl.meadow.intro': 'Ciori, cioara cea poznașă, a furat ouăle de aur și le-a împrăștiat prin Valea Caldă! Bubu și Leo, adunați-le pe toate înainte de apus. Bubu tropăie tare. Leo șutează mingea. Dacă prietenul tău este lovit, mergi la el și apasă pe cerc! Apasă stick-ul stâng ca să fugi.',
     'lvl.forest.name': 'Pădurea Somnoroasă',
     'lvl.forest.intro': 'În pădure dorm gândaci morocănoși. Treceți încet pe lângă ei! Copacii care sclipesc ascund ouă. Scuturați-i cu un tropăit sau cu mingea. Un gândac lovit de două ori dispare.',
     'lvl.river.name': 'Malul Noroios',
@@ -282,7 +298,7 @@ const STR = {
     'set.fsHint': 'Apasă tasta F pentru ecran complet.',
     'pad.noVib': 'Acest controller nu poate vibra în Chrome.', 'spk.ok': 'Sunetele lui {0} se aud acum în: {1}', 'spk.fail': 'Nu am putut porni acest difuzor.',
     'set.hint': 'sus / jos = alege      stânga / dreapta = schimbă      ✕ sau Enter = OK      ○ sau Backspace = înapoi',
-    'key.title': 'Tastele lui {0}', 'key.up': 'Sus', 'key.down': 'Jos', 'key.left': 'Stânga', 'key.right': 'Dreapta', 'key.a': 'Putere (butonul ✕)', 'key.b': 'Ajută prietenul (butonul □)',
+    'key.title': 'Tastele lui {0}', 'key.up': 'Sus', 'key.down': 'Jos', 'key.left': 'Stânga', 'key.right': 'Dreapta', 'key.a': 'Prima putere (butonul ✕)', 'key.b': 'Ajută prietenul (butonul ○)', 'key.c': 'A doua putere (butonul □)', 'key.r': 'Fugă (apasă stick-ul, L3)',
     'key.press': 'Apasă tasta nouă', 'key.reset': 'Tastele de la început', 'key.space': 'Spațiu', 'key.taken': 'Tasta era folosită. Le-am schimbat între ele.',
     'key.no': 'Tasta aceasta este păstrată pentru meniu.',
     'pad.title': 'Controllerul lui {0}', 'pad.s1': 'Pornește controllerul',
@@ -305,7 +321,7 @@ const STR = {
     'L:fest.v2': 'Medalii pentru eroi! Steluțele îi îmbrățișează pe {0} și pe {1}. Bravo!',
     'duel.george': 'George cel Rău',
     'lvl.glade.name': 'Poiana Licuricilor',
-    'lvl.glade.intro': 'George cel Rău, dinozaurul cu coroană, a ascuns cristalele curcubeu prin junglă! Boon și Killer, adunați-le: sunt cadoul pentru petrecere. Boon își rotește ghearele. Killer aruncă mingi. Dacă prietenul tău se face mic, mergi la el și apasă pe pătrat!',
+    'lvl.glade.intro': 'George cel Rău, dinozaurul cu coroană, a ascuns cristalele curcubeu prin junglă! Boon și Killer, adunați-le: sunt cadoul pentru petrecere. Boon își rotește ghearele. Killer aruncă mingi. Dacă prietenul tău se face mic, mergi la el și apasă pe cerc! Apasă stick-ul stâng ca să fugi.',
     'lvl.robots.name': 'Jungla Roboților',
     'lvl.robots.intro': 'Printre copaci dorm roboții lui George. Treceți încet pe lângă ei! Un robot lovit de două ori dispare. Florile uriașe care sclipesc ascund cristale: scuturați-le cu ghearele sau cu mingea.',
     'lvl.snails.name': 'Râul Melcilor Lipicioși',
@@ -329,7 +345,7 @@ const STR = {
     'ch.title': 'Chapters', 'ch.part1': 'Part One', 'ch.part2': 'Part Two: The Stolen Stars', 'ch.locked': 'Not yet', 'ch.hint': '✕ play   ·   ○ back',
     'pause.restart': 'Restart level', 'pause.chapters': 'Chapters', 'pause.ask': 'Sure? What you gathered here is lost.', 'ask.yes': 'Yes',
     't.voice': 'Voice: {0}', 't.novoice': 'No English voice found',
-    't.foot': 'F = full screen   ·   △ = swap characters   ·   ○ = other game', 't.click': 'Click once for sound',
+    't.foot': 'F = full screen   ·   △ = swap characters', 't.click': 'Click once for sound',
     'sel.title': 'Choose the game', 'sel.hint': 'left / right = choose      ✕ or Enter = start      OPTIONS or P = settings',
     'sel.bubu': 'Bubu and Leo gather the golden eggs that Ciori stole.', 'sel.lupta': 'Boon and Killer gather the rainbow crystals and face George the Bad.',
     'sel.byKids': 'A game invented by the kids',
@@ -348,7 +364,7 @@ const STR = {
     'diff.easy': 'Easy', 'diff.normal': 'Normal', 'diff.hard': 'Hard',
     'err.level': 'The level could not be built', 'err': 'Error: ',
     'lvl.meadow.name': 'The Sunny Meadow',
-    'lvl.meadow.intro': 'Ciori, the cheeky crow, stole the golden eggs and scattered them all over the Warm Valley! Bubu and Leo, gather them all before sunset. Bubu stomps hard. Leo kicks the ball. If your friend gets hit, go to them and press the square!',
+    'lvl.meadow.intro': 'Ciori, the cheeky crow, stole the golden eggs and scattered them all over the Warm Valley! Bubu and Leo, gather them all before sunset. Bubu stomps hard. Leo kicks the ball. If your friend gets hit, go to them and press the circle! Press the left stick to run.',
     'lvl.forest.name': 'The Sleepy Forest',
     'lvl.forest.intro': 'Grumpy beetles sleep in the forest. Tiptoe past them! Sparkling trees hide eggs. Shake them with a stomp or with the ball. A beetle that is hit twice disappears.',
     'lvl.river.name': 'The Muddy Bank',
@@ -372,7 +388,7 @@ const STR = {
     'set.fsHint': 'Press the F key for full screen.',
     'pad.noVib': 'This controller cannot vibrate in Chrome.', 'spk.ok': "{0}'s sounds now play on: {1}", 'spk.fail': 'That speaker could not be started.',
     'set.hint': 'up / down = choose      left / right = change      ✕ or Enter = OK      ○ or Backspace = back',
-    'key.title': "{0}'s keys", 'key.up': 'Up', 'key.down': 'Down', 'key.left': 'Left', 'key.right': 'Right', 'key.a': 'Power (the ✕ button)', 'key.b': 'Help your friend (the □ button)',
+    'key.title': "{0}'s keys", 'key.up': 'Up', 'key.down': 'Down', 'key.left': 'Left', 'key.right': 'Right', 'key.a': 'First power (the ✕ button)', 'key.b': 'Help your friend (the ○ button)', 'key.c': 'Second power (the □ button)', 'key.r': 'Run (press the stick, L3)',
     'key.press': 'Press the new key', 'key.reset': 'Starting keys', 'key.space': 'Space', 'key.taken': 'That key was in use. The two were swapped.',
     'key.no': 'That key is kept for the menu.',
     'pad.title': "{0}'s controller", 'pad.s1': 'Turn the controller on',
@@ -394,7 +410,7 @@ const STR = {
     'L:fest.v2': 'Medals for the heroes! The little stars hug {0} and {1}. Well done!',
     'duel.george': 'George the Bad',
     'lvl.glade.name': 'Firefly Glade',
-    'lvl.glade.intro': 'George the Bad, the dinosaur with the crown, hid the rainbow crystals all over the jungle! Boon and Killer, gather them: they are the present for the party. Boon spins his claws. Killer throws balls. If your friend turns tiny, go to them and press the square!',
+    'lvl.glade.intro': 'George the Bad, the dinosaur with the crown, hid the rainbow crystals all over the jungle! Boon and Killer, gather them: they are the present for the party. Boon spins his claws. Killer throws balls. If your friend turns tiny, go to them and press the circle! Press the left stick to run.',
     'lvl.robots.name': 'The Robot Jungle',
     'lvl.robots.intro': "George's robots sleep among the trees. Tiptoe past them! A robot that is hit twice disappears. The giant sparkling flowers hide crystals: shake them with the claws or with the ball.",
     'lvl.snails.name': 'Sticky Snail River',
@@ -532,6 +548,12 @@ function brushLine(c, pts, width, col, alpha, seed) {
 }
 
 function makeCanvas(w, h) { const cv = document.createElement('canvas'); cv.width = w; cv.height = h; return cv; }
+/* The colour of the very first pixel of a painting: the sky at the top. Used to fill the strip above the world
+   when the camera looks a little higher than the painting goes (docs/24-sisteme-noi.md, S6). */
+function topColor(cv) {
+  try { const d = cv.getContext('2d').getImageData(0, 0, 1, 1).data; return 'rgb(' + d[0] + ',' + d[1] + ',' + d[2] + ')'; }
+  catch (e) { return '#CFE4F2'; }
+}
 
 /* Paper: noise-generated grain, soft blotches and a few fibers. Multiplied over the whole screen. */
 let PAPER = null;
@@ -725,16 +747,41 @@ function iconSq(c, x, y, r, pulse) {
   c.restore();
 }
 /* Text that may contain ✕ or □, drawn with the painted icons. Returns nothing. */
+/* ○: help the friend. Same shape as ✕ and □, in the warm coral of the ○ button. */
+function iconO(c, x, y, r, pulse) {
+  const s = 1 + (pulse || 0) * 0.08;
+  c.save(); c.translate(x, y); c.scale(s, s);
+  soft(c, r * 0.06, r * 0.1, r, r, SHADOW, 0.25, 3);
+  puff(c, 0, 0, r, r, '#FFF6E2', 4, 'rgba(226,120,100,0.5)');
+  c.strokeStyle = '#E4583C'; c.lineWidth = r * 0.22;
+  c.beginPath(); c.arc(0, 0, r * 0.42, 0, TAU); c.stroke();
+  c.restore();
+}
+/* L3: the cap of the left stick with the letter L and a little arrow pressing it down. */
+function iconL3(c, x, y, r, t) {
+  const pu = 0.5 + 0.5 * Math.sin((t || 0) * 5);
+  c.save(); c.translate(x, y);
+  soft(c, r * 0.06, r * 0.12, r, r, SHADOW, 0.25, 3);
+  puff(c, 0, 0, r, r, '#C9C0E8', 4, 'rgba(142,124,195,0.55)');
+  c.strokeStyle = '#8E7CC3'; c.lineWidth = r * 0.16; c.beginPath(); c.arc(0, 0, r * 0.66, 0, TAU); c.stroke();
+  text(c, 'L', 0, r * 0.02, r * 0.86, '#5A4A8E', { halo: 0, shadow: 0, weight: 'bold' });
+  c.strokeStyle = '#F8C24E'; c.lineWidth = r * 0.17; c.lineCap = 'round'; c.lineJoin = 'round';
+  const ay = -r * 1.5 + pu * r * 0.3;                 // the arrow bobs down onto the cap
+  c.beginPath(); c.moveTo(0, ay - r * 0.3); c.lineTo(0, ay + r * 0.3); c.moveTo(-r * 0.22, ay + r * 0.08); c.lineTo(0, ay + r * 0.32); c.lineTo(r * 0.22, ay + r * 0.08); c.stroke();
+  c.restore();
+}
+/* The four button signs that can stand inside a text: ✕ □ ○ and ◉ (= L3, pressing the left stick). */
+const ICONS = { '✕': iconX, '□': iconSq, '○': iconO, '◉': (cc, ix, iy, ir, pu) => iconL3(cc, ix, iy, ir * 0.92, pu) };
 function richText(c, str, x, y, size, col, o) {
   o = o || {};
-  const parts = str.split(/(✕|□)/);
+  const parts = str.split(/(✕|□|○|◉)/);
   if (parts.length === 1) { text(c, str, x, y, size, col, o); return; }
   setFont(c, size, o.title, o.weight);
-  const iw = size * 1.25, isIcon = p => p === '✕' || p === '□', widths = parts.map(p => isIcon(p) ? iw : c.measureText(p).width);
+  const iw = size * 1.25, isIcon = p => !!ICONS[p], widths = parts.map(p => isIcon(p) ? iw : c.measureText(p).width);
   const total = widths.reduce((a, b) => a + b, 0);
   let cx = o.align === 'left' ? x : x - total / 2;
   for (let i = 0; i < parts.length; i++) {
-    if (isIcon(parts[i])) (parts[i] === '✕' ? iconX : iconSq)(c, cx + iw / 2, y, size * 0.5, o.pulse || 0);
+    if (isIcon(parts[i])) ICONS[parts[i]](c, cx + iw / 2, y, size * 0.5, o.pulse || 0);
     else if (parts[i]) text(c, parts[i], cx, y, size, col, Object.assign({}, o, { align: 'left' }));
     cx += widths[i];
   }
@@ -1078,7 +1125,8 @@ const Snd = (() => {
         together: [['o', 5, 0.16, 3], ['a', 9, 0.26, 3]], nestOpen: [['a', 0, 0.14, 3], ['o', 4, 0.14, 3], ['a', 9, 0.42, -2]],
         levelWin: [['a', 2, 0.16, 2], ['a', 5, 0.16, 2], ['a', 9, 0.16, 2], ['o', 12, 0.52, 2]],
         bossDown: [['a', 0, 0.16, -3], ['a', 0, 0.16, -3], ['o', -3, 0.44, -7]],
-        help: [['i', 10, 0.22, -3], ['i', 8, 0.3, -4]], rescue: [['o', 2, 0.12, 4], ['a', 7, 0.14, 3], ['o', 11, 0.3, -2]], thanks: [['a', 6, 0.14, 4], ['o', 11, 0.3, 0]] },
+        help: [['i', 10, 0.22, -3], ['i', 8, 0.3, -4]], rescue: [['o', 2, 0.12, 4], ['a', 7, 0.14, 3], ['o', 11, 0.3, -2]], thanks: [['a', 6, 0.14, 4], ['o', 11, 0.3, 0]],
+        run: [['a', 7, 0.08, 7], ['o', 13, 0.15, 9]] },
       // Killer
       { hello: [['a', 0, 0.09, 5], ['i', 7, 0.09, 0], ['a', 3, 0.2, 4]], ready: [['e', 4, 0.07, 0], ['e', 4, 0.07, 0], ['a', 9, 0.18, 5]],
         egg: [[['a', 2, 0.07, 4]], [['i', 6, 0.07, 3]], [['e', 9, 0.07, 2]]], eggs5: [['a', 0, 0.06, 0], ['e', 3, 0.06, 0], ['a', 7, 0.06, 0], ['i', 12, 0.18, 3]],
@@ -1096,7 +1144,8 @@ const Snd = (() => {
         together: [['e', 5, 0.1, 5], ['i', 12, 0.2, 3]], nestOpen: [['e', 2, 0.09, 3], ['a', 5, 0.09, 3], ['e', 9, 0.09, 3], ['i', 14, 0.24, 2]],
         levelWin: [['a', 0, 0.09, 4], ['e', 4, 0.09, 4], ['a', 7, 0.09, 4], ['e', 11, 0.09, 4], ['i', 14, 0.32, 2]],
         bossDown: [['e', 7, 0.09, -3], ['e', 7, 0.09, -3], ['a', 3, 0.3, -6]],
-        help: [['a', 10, 0.14, -5], ['a', 10, 0.14, -5], ['e', 6, 0.26, -5]], rescue: [['e', 2, 0.07, 5], ['a', 7, 0.07, 4], ['e', 12, 0.2, 3]], thanks: [['a', 5, 0.08, 3], ['i', 12, 0.2, 2]] }
+        help: [['a', 10, 0.14, -5], ['a', 10, 0.14, -5], ['e', 6, 0.26, -5]], rescue: [['e', 2, 0.07, 5], ['a', 7, 0.07, 4], ['e', 12, 0.2, 3]], thanks: [['a', 5, 0.08, 3], ['i', 12, 0.2, 2]],
+        run: [['i', 9, 0.05, 8], ['a', 16, 0.13, 7]] }
     ]
   };
   // How loud a voice is: a quiet one never cuts in on a louder one that is still talking.
@@ -1221,14 +1270,20 @@ const Snd = (() => {
     tired(b, t) { growl(b, t, 130, 80, 0.5, 0.2, 9); },
     duel(b, t) { [0, 0, 3].forEach((d, i) => marimba(b, mtof(50 + d), t + i * 0.14, 0.32)); growl(b, t + 0.35, 150, 90, 0.7, 0.4, 21); },
     flee(b, t) { for (let i = 0; i < 5; i++) voc(b, t + i * 0.11, 520 - i * 50, 380 - i * 40, 0.08, 0.09, 1200, 800); },
-    goal(b, t) { [0, 7, 12, 17].forEach((d, i) => marimba(b, mtof(64 + d), t + i * 0.08, 0.34)); chime(b, mtof(88), t + 0.3, 0.12); }
+    goal(b, t) { [0, 7, 12, 17].forEach((d, i) => marimba(b, mtof(64 + d), t + i * 0.08, 0.34)); chime(b, mtof(88), t + 0.3, 0.12); },
+    dash(b, t) { noise(b, t, 0.16, 0.015, 0.17, 'bandpass', 500, 2100, 1.1); osc(b, 'sine', 330, t, 0.1, 0.01, 0.16, { f2: 760, gt: 0.14 }); }      // starting to run: a short soft "whoosh" going up
   };
-  const CHR = { egg: 1, star: 1, giant: 1, stomp: 1, kick: 1, bounce: 1, bonk: 1, drop: 1, squelch: 1, step: 1, swish: 1, heal: 1, grab: 1 };
+  /* Running (L3) in the first game too: the same short soft whoosh. */
+  fx.dash = fx2.dash;
+  const CHR = { egg: 1, star: 1, giant: 1, stomp: 1, kick: 1, bounce: 1, bonk: 1, drop: 1, squelch: 1, step: 1, swish: 1, heal: 1, grab: 1, dash: 1 };
   /* play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. */
-  function play(name, arg, k) {
+  function play(name, arg, k, vol) {
     const f = (GAME === 'lupta' && fx2[name]) || fx[name];
     if (!ac || ac.state !== 'running' || !f) return;
     let b = CHR[name] ? ((k === 0 || k === 1) && outs[k] && outs[k].context.state === 'running' ? outs[k] : chrBus) : ambBus;
+    if (vol != null && vol !== 1) {      // a quieter copy of the same sound (running footsteps): a small gain in front of the bus
+      const g = b.context.createGain(); g.gain.value = vol; g.connect(b); g.small = b.small; g.lead = b.lead; b = g;
+    }
     try { f(b, b.context.currentTime + (b.lead || 0), arg); } catch (e) { console.error('sound ' + name, e); }      // lead: see setSink
   }
 
@@ -1309,7 +1364,8 @@ const Voice = {
 
 /* ==========================================================================
    INPUT: two DualShock 4 controllers through the Gamepad API (standard mapping)
-   or the keyboard. ✕ (button 0) = power, □ (button 2) = help the friend. Each hero is played with what was chosen in Setări:
+   or the keyboard. ✕ (button 0) = first power, ○ (button 1) = help the friend, □ (button 2) = second power,
+   L3 (button 10, pressing the left stick) = run. Each hero is played with what was chosen in Setări:
    a controller ('pad') or the keyboard ('kb') with its own keys.
    Menus listen to everything: every controller, the arrow keys, Enter, Space,
    Backspace and the players' own keys.
@@ -1317,7 +1373,10 @@ const Voice = {
 const Input = (() => {
   const keys = {}, tap = {}, mute = {};   // tap: pressed and released between two frames. mute: ignored until released.
   const kd = code => !!(code && !mute[code] && (keys[code] || tap[code]));
-  const mk = () => ({ pad: null, joined: false, usedKb: false, x: 0, y: 0, a: false, aP: false, aR: false, b: false, bP: false,
+  const mk = () => ({ pad: null, joined: false, usedKb: false, x: 0, y: 0, a: false, aP: false, aR: false,
+    h: false, hP: false,                      // ○: help the friend
+    c: false, cP: false, cR: false,           // □: the second power
+    run: false, runP: false,                  // L3: run
     start: false, tri: false, back: false, up: false, down: false, left: false, right: false, _p: {}, _rep: 0 });
   const slots = [mk(), mk()];
   const menu = { up: false, down: false, left: false, right: false, ok: false, back: false, pause: false, _p: {}, _rep: 0 };
@@ -1370,7 +1429,7 @@ const Input = (() => {
     }
     for (let k = 0; k < 2; k++) {
       const s = slots[k], kb = Opt.keys[k];
-      let x = 0, y = 0, a = false, start = false, tri = false, back = false, sq = false;
+      let x = 0, y = 0, a = false, start = false, tri = false, back = false, sq = false, hp = false, l3 = false;
       let dU = false, dD = false, dL = false, dR = false;
       s.lost = false;
       if (s.pad != null) {
@@ -1382,7 +1441,7 @@ const Input = (() => {
           const m = Math.hypot(ax, ay), dz = Math.max(0.25, CONFIG.deadzone);
           if (m > dz) { const f = Math.min(1, (m - dz) / (1 - dz)) / m; x = ax * f; y = ay * f; }
           if (b(12)) y = -1; if (b(13)) y = 1; if (b(14)) x = -1; if (b(15)) x = 1;
-          a = b(0); start = b(9); tri = b(3); back = b(1); sq = b(2);
+          a = b(0); start = b(9); tri = b(3); back = b(1); hp = b(1); sq = b(2); l3 = b(10);      // ○ is "back" in the menus and "help the friend" in the game
           dU = y < -0.55; dD = y > 0.55; dL = x < -0.55; dR = x > 0.55;
           s.joined = true;
         }
@@ -1394,14 +1453,16 @@ const Input = (() => {
         if (kd(kb.left)) kx -= 1; if (kd(kb.right)) kx += 1; if (kd(kb.up)) ky -= 1; if (kd(kb.down)) ky += 1;
         if (kx || ky || kd(kb.a)) { s.usedKb = true; s.joined = true; }
         if (kx || ky) { x = kx; y = ky; dU = ky < 0; dD = ky > 0; dL = kx < 0; dR = kx > 0; }
-        a = kd(kb.a); sq = kd(kb.b);
+        a = kd(kb.a); hp = kd(kb.b); sq = kd(kb.c); l3 = kd(kb.r);
         mU = mU || dU; mD = mD || dD; mL = mL || dL; mR = mR || dR; mOk = mOk || a;
       }
       const m = Math.hypot(x, y); if (m > 1) { x /= m; y /= m; }
       const p = s._p;
       s.x = x; s.y = y;
       s.aP = a && !p.a; s.aR = !a && !!p.a; s.a = a;
-      s.bP = sq && !p.sq; s.b = sq;                 // □ (or the help key): help the friend who was hit
+      s.hP = hp && !p.hp; s.h = hp;                 // ○ (or the help key): help the friend who was hit
+      s.cP = sq && !p.sq; s.cR = !sq && !!p.sq; s.c = sq;      // □ (or its key): the second power
+      s.runP = l3 && !p.l3; s.run = l3;             // L3 (or its key): run
       s.start = start && !p.start; s.tri = tri && !p.tri; s.back = back && !p.back;
       s.up = dU && !p.dU; s.down = dD && !p.dD;
       // left/right repeat while held (for the volume sliders)
@@ -1411,7 +1472,7 @@ const Input = (() => {
         if (p.lr !== lr) { s._rep = 0.4; s.left = lr < 0; s.right = lr > 0; }
         else { s._rep -= dt; if (s._rep <= 0) { s._rep = 0.16; s.left = lr < 0; s.right = lr > 0; } }
       }
-      p.a = a; p.sq = sq; p.start = start; p.tri = tri; p.back = back; p.dU = dU; p.dD = dD; p.lr = lr;
+      p.a = a; p.sq = sq; p.hp = hp; p.l3 = l3; p.start = start; p.tri = tri; p.back = back; p.dU = dU; p.dD = dD; p.lr = lr;
     }
     // menus: fixed keys always work
     mU = mU || kd('ArrowUp'); mD = mD || kd('ArrowDown'); mL = mL || kd('ArrowLeft'); mR = mR || kd('ArrowRight');
@@ -3001,7 +3062,7 @@ function paintLevel(L) {
     wash(c, x + 8, y - 10, 22, 14, shade(col, 0.35), { a: 0.35, seed: i + 6, edge: 0 });
   }
   finishPaint(c, L.W, L.H, L.skyT, r, N);
-  L.bg = cv;
+  L.bg = cv; L.skyTop = topColor(cv);
   L.overlay = N ? makeOverlay('#C8D0FF', 0.1, 0.5, true) : makeOverlay(mix('#FFF4E0', '#FFC08C', L.skyT), 0.1 + L.skyT * 0.16, 0.42);
   return L;
 }
@@ -3066,7 +3127,7 @@ function genBoss() {
   for (const x of [150, 420, 1500, 1770]) { wash(c, x - 16, 574, 22, 8, SHADOW, { a: 0.3, seed: 2, edge: 0 }); paintLantern(c, x, 570); }
   for (let i = 0; i < 60; i++) { const e = i % 3, col = P.canopy[i % P.canopy.length]; const x = e === 0 ? r() * WW : e === 1 ? -10 + r() * 20 : WW + 10 - r() * 20, y = e === 0 ? WH + 6 - r() * 18 : 480 + r() * 600; wash(c, x, y, 50 + r() * 40, 36 + r() * 26, shade(col, -0.1), { a: 0.95, seed: i + 5, wob: 0.22, edgeA: 0.2 }); }
   finishPaint(c, WW, WH, 1, r);
-  L.bg = cv;
+  L.bg = cv; L.skyTop = topColor(cv);
   // the big tree is its own sprite so that it can shake
   const tw = 1240, th = 660, tc = makeCanvas(tw, th), t = tc.getContext('2d'), tr = rng(5);
   const bx = tw / 2, by = th - 40;
@@ -3117,7 +3178,7 @@ function genArena() {
   wash(c, 900, 606, 300, 46, SHADOW, { a: 0.32, seed: 6, wob: 0.14, edge: 0 });
   for (const tc of L.torches) { wash(c, tc.x - 14, tc.y + 4, 20, 7, SHADOW, { a: 0.3, seed: 2, edge: 0 }); paintTorch(c, tc.x, tc.y); }
   finishPaint(c, WW, WH, 1, r, true);
-  L.bg = cv;
+  L.bg = cv; L.skyTop = topColor(cv);
   // the throne is its own sprite so that it can shake
   const tw = 560, th = 500, tc = makeCanvas(tw, th), t = tc.getContext('2d'), bx = tw / 2, by = th - 20, st = '#C6BAEA';      // pale moonstone, so the throne stands out against the dark mountains
   const slab = (w, y0, h, col) => { wash(t, bx, y0 - h / 2, w / 2, h / 2 + 6, col, { a: 1.3, seed: w, wob: 0.03, n: 14, edgeA: 0.3 }); wash(t, bx, y0 - h + 6, w / 2 - 8, 9, shade(col, 0.45), { a: 0.55, seed: w + 1, wob: 0.04, edge: 0 }); wash(t, bx - w * 0.3, y0 - h / 2 + 4, w * 0.16, h / 2, shade(col, -0.35), { a: 0.3, seed: w + 2, edge: 0 }); };
@@ -3154,7 +3215,8 @@ function buildLevel(idx) {
 function makeHero(k, x, y) {
   return { k, x, y, px: x, py: y, vx: 0, vy: 0, face: 1, ax: 1, ay: 0, walk: 0, moving: false, dizzy: 0, inv: 0, boost: 0, squash: 0, z: 0, cd: 0,
     stompT: -1, charge: 0, charging: false, kickT: 0, inMud: false, mudT: 0, tagT: 5, t: Math.random() * 5,
-    down: false, downT: 0, callT: 0, small: 1, spinT: -1, spinNo: 0, shield: false, carried: null, hugT: 0, reachHint: 0 };
+    down: false, downT: 0, callT: 0, small: 1, spinT: -1, spinNo: 0, shield: false, carried: null, hugT: 0, reachHint: 0,
+    run: false, runIdle: 0, runT: 0, runRest: 0, runWord: -99, ghosts: [], ghostT: 0 };       // run (L3): ghosts = the trail left behind
 }
 function makeEgg(x, y, o) {
   return Object.assign({ x, y, r: 17, seed: Math.random() * 10, req: true, value: 1, state: 'idle', t: 0, delay: 0, z: 0, pull: null, pullT: 0, big: false, hue: Math.random() * 7 | 0 }, o || {});   // hue: the color of a rainbow crystal (second game)
@@ -3164,7 +3226,7 @@ function startPlay(L) {
   P = { L, eggs: [], stars: L.stars, parts: [], rings: [], wave: -1, time: 0, sinceEgg: 0, levelEggs: 0, levelStars: 0, combo: 0, comboT: 0,
     cam: { x: L.spawn.x, y: L.spawn.y, zoom: 1 }, shake: 0, wind: { t: CONFIG.windEvery * 0.7, state: 'calm', dir: 1, power: 0 },
     bfly: null, bflyT: 20 + Math.random() * 12, bflyCount: 0, crow: null, nestOpen: false, nestT: 0, done: false, doneT: 0, banner: null,
-    tut: [{ moved: 0, used: false }, { moved: 0, used: false }], nextWaveT: -1, waveNeed: 1, waveGot: 0, duel: null, hits: 0, hintCharge: 0, rumbleT: 0, bounceT: 0, glint: 0,
+    tut: [{ moved: 0, used: false, ran: false }, { moved: 0, used: false, ran: false }], runHint: 0, runHintDone: false, nextWaveT: -1, waveNeed: 1, waveGot: 0, duel: null, hits: 0, hintCharge: 0, rumbleT: 0, bounceT: 0, glint: 0,
     heroes: [makeHero(0, bs ? 700 : L.spawn.x - 55, bs ? 830 : L.spawn.y), makeHero(1, bs ? 1220 : L.spawn.x + 55, bs ? 830 : L.spawn.y + 10)],
     ball: { state: 'held', x: 0, y: 0, vx: 0, vy: 0, life: 0, spin: 0, power: 0, r: 15, px: 0, py: 0 },   // Leo's home ball (drawn when held)
     flock: [], ballCool: 0, kickNo: 0, midFought: false, nestFought: false, rustleT: 0, boss: null,                                                         // the balls in the air (one kick = many balls)
@@ -3438,6 +3500,39 @@ function recallBalls() {
   Snd.play('swish', 0.2, 1);
 }
 
+/* Running (L3). One press with the stick tilted starts it; it lasts until the stick is let go.
+   canRun says when a hero is allowed to run at all; everything that stops a run is in one place, below. */
+function canRun(h) {
+  const S = CONFIG.sprint;
+  return S.enabled && !h.down && h.dizzy <= 0 && !h.carried && !h.charging && !P.done && h.runRest <= 0
+    && (S.inDuel || !(P.duel && !P.duel.over));
+}
+function startRun(h) {
+  const S = CONFIG.sprint;
+  h.run = true; h.runIdle = 0; h.runT = 0;
+  Snd.play('dash', 0, h.k);
+  if (P.time - h.runWord > S.wordGap) { h.runWord = P.time; Snd.talk(h.k, 'run'); }
+  Input.rumble(h.k, 0, 0.35, 70);
+  P.tut[h.k].ran = true;
+}
+function stopRun(h) { h.run = false; h.runIdle = 0; h.ghosts.length = 0; }
+function updateRun(h, s, ix, iy, dt) {
+  const S = CONFIG.sprint, tilt = Math.hypot(ix, iy);
+  if (h.runRest > 0) h.runRest = Math.max(0, h.runRest - dt);
+  if (!s.joined) {                       // nobody holds this hero: it runs when the friend runs and is far away
+    const o = P.heroes[1 - h.k];
+    h.run = canRun(h) && o.run && dist(h.x, h.y, o.x, o.y) > 300;
+    return;
+  }
+  if (!canRun(h)) { if (h.run) stopRun(h); return; }
+  if (S.mode === 'hold') { const want = s.run && tilt > 0.5; if (want && !h.run) startRun(h); else if (!want && h.run) stopRun(h); }
+  else if (s.runP) { if (h.run) stopRun(h); else if (tilt > 0.5) startRun(h); }      // a second press stops it
+  if (!h.run) return;
+  h.runT += dt;
+  if (S.max > 0 && h.runT > S.max) { stopRun(h); h.runRest = S.rest; return; }       // out of breath (max = 0: never)
+  h.runIdle = tilt > 0.25 ? 0 : h.runIdle + dt;
+  if (h.runIdle > S.stopAfter) stopRun(h);
+}
 function updateHero(h, dt) {
   const L = P.L, s = Input.slots[h.k], d = D(h.k), cfg = CONFIG.heroes[h.k];
   let ix = s.x, iy = s.y, aP = s.aP, aR = s.aR, aH = s.a;
@@ -3455,7 +3550,7 @@ function updateHero(h, dt) {
     if (!Input.slots[1 - h.k].joined || (RS.autoAfter > 0 && h.downT > RS.autoAfter)) getUp(h, null);
   }
   if (h.carried) { h.moving = false; return; }   // a bird is carrying this hero
-  if (s.bP && s.joined && !h.down && h.dizzy <= 0 && !P.done) tryRescue(h);
+  if (s.hP && s.joined && !h.down && h.dizzy <= 0 && !P.done) tryRescue(h);
   h.kickT = Math.max(0, h.kickT - dt); h.squash += (0 - h.squash) * Math.min(1, dt * 9); h.tagT = Math.max(0, h.tagT - dt);
   if (!s.joined) {                       // nobody holds this controller: the hero follows a friend
     const o = P.heroes[1 - h.k]; let tx = o.x - o.face * 85, ty = o.y + 26; aP = aR = aH = false;
@@ -3473,6 +3568,7 @@ function updateHero(h, dt) {
   h.safe = !!CONFIG.nestSafe && !L.boss && dist(h.x, h.y, L.nest.x, L.nest.y) < CONFIG.nestSafeRadius;   // not on the boss level: that nest is Ciori's, up in the tree
   if (h.safe && !wasSafe && s.joined && P.time - (h.hideAt ?? -99) > CONFIG.nestHideSoundGap) { h.hideAt = P.time; Snd.talk(h.k, 'hide'); Input.rumble(h.k, 0, 0.3, 60); }
   else if (!h.safe && wasSafe && s.joined) Snd.talk(h.k, 'unhide');
+  updateRun(h, s, ix, iy, dt);
   let sp = cfg.speed;
   h.inMud = L.grid[L.ci(h.x, h.y)] === 1;
   if (h.inMud && !h.wasMud && s.joined) Snd.talk(h.k, 'mud'); h.wasMud = h.inMud;
@@ -3484,22 +3580,41 @@ function updateHero(h, dt) {
   if (h.charging) sp *= 0.65;
   if (h.stompT >= 0) sp *= 0.35;
   if (h.spinT >= 0) sp *= 0.8;
+  if (h.run) sp = Math.min(sp * CONFIG.sprint.mult, CONFIG.sprint.maxSpeed);      // running: three times faster, but never over the limit
   const m = Math.hypot(ix, iy), f = m > 0.01 ? (0.45 + 0.55 * Math.min(1, m)) / m : 0;
   h.vx += (ix * f * sp - h.vx) * Math.min(1, dt * 12); h.vy += (iy * f * sp - h.vy) * Math.min(1, dt * 12);
   if (m > 0.3) { h.ax = ix / m; h.ay = iy / m; P.tut[h.k].moved += dt; }
   // bored: standing still for 8 seconds while a player holds this hero
   h.idleT = (s.joined && !h.moving && !h.charging && h.dizzy <= 0) ? (h.idleT || 0) + dt : 0;
   if (h.idleT > 8) { h.idleT = 0; Snd.talk(h.k, 'bored'); }
-  h.px = h.x; h.py = h.y;
-  h.x += h.vx * dt; h.y += h.vy * dt;
-  if (P.wind.power > 0.02 && !h.safe && !h.down) { h.x += P.wind.dir * P.wind.power * CONFIG.windForce * d.wind * dt; h.y += P.wind.power * CONFIG.windForce * d.wind * 0.12 * dt; }
-  collide(L, h, HERO_R, false);
+  // The hero moves in small steps, like the balls: at full running speed one frame would be longer than a cell
+  // and the hero would go through a thin wall or over the water.
+  {
+    const v0 = Math.hypot(h.vx, h.vy), n = Math.max(1, Math.ceil(v0 * dt / CONFIG.sprint.step)), sdt = dt / n;
+    const wind = P.wind.power > 0.02 && !h.safe && !h.down ? P.wind.power * CONFIG.windForce * d.wind : 0;
+    for (let i = 0; i < n; i++) {
+      h.px = h.x; h.py = h.y;
+      h.x += h.vx * sdt; h.y += h.vy * sdt;
+      if (wind) { h.x += P.wind.dir * wind * sdt; h.y += wind * 0.12 * sdt; }
+      collide(L, h, HERO_R, false);
+    }
+  }
+  if (h.run && h.moving) {               // the trail of three ghosts, and a little dust at every step
+    h.ghostT -= dt;
+    if (h.ghostT <= 0) { h.ghostT = 0.04; h.ghosts.unshift({ x: h.x, y: h.y, face: h.face, walk: h.walk, z: h.z }); if (h.ghosts.length > 3) h.ghosts.length = 3; }
+  } else if (h.ghosts.length) h.ghosts.length = 0;
   const v = Math.hypot(h.vx, h.vy);
   h.moving = v > 35;
   if (h.moving) {
     const w0 = h.walk; h.walk += dt * (7 + v / 55); if (Math.abs(h.vx) > 25) h.face = Math.sign(h.vx);
     // footsteps: one soft sound each time a foot lands
-    if (CONFIG.footsteps && s.joined && !h.inMud && h.z <= 0 && Math.floor(w0 / Math.PI) !== Math.floor(h.walk / Math.PI)) Snd.play('step', h.k * 2 + (Math.floor(h.walk / Math.PI) & 1), h.k);
+    if (CONFIG.footsteps && s.joined && !h.inMud && h.z <= 0 && Math.floor(w0 / Math.PI) !== Math.floor(h.walk / Math.PI)) {
+      Snd.play('step', h.k * 2 + (Math.floor(h.walk / Math.PI) & 1), h.k, h.run ? 0.8 : 1);
+      if (h.run) {                       // a little cloud of dust in the color of this level's ground
+        const pl = PALS[P.L.def.pal] || PALS.glade;
+        part(h.x - h.face * 22 + (Math.random() - 0.5) * 16, h.y + 2, { vx: -h.face * (30 + Math.random() * 40), vy: -18 - Math.random() * 22, life: 0.5, max: 0.5, size: 11 + Math.random() * 7, col: mix(pl.g0, '#FFF6E2', 0.45), kind: 'dust', drag: 2.2 });
+      }
+    }
   }
   if (h.inMud && h.moving) { h.mudT -= dt; if (h.mudT <= 0) { h.mudT = 0.3; Snd.play('squelch', 0, h.k); burst(h.x, h.y, 4, { kind: 'dot', cols: ['#A9764F', '#8E5E48'], speed: 90, life: 0.5, up: 70, g: 400, size: 6 }); } }
   if (h.boost > 0 && Math.random() < dt * 14) part(h.x + (Math.random() - 0.5) * 40, h.y - 30 - Math.random() * 40, { vy: -20, life: 0.7, max: 0.7, size: 6, col: '#FFD48A', kind: 'spark' });
@@ -3826,11 +3941,14 @@ function updatePlay(dt) {
   P.time += dt; P.sinceEgg += dt; P.comboT -= dt; P.rumbleT -= dt; P.bounceT -= dt; P.shake = Math.max(0, P.shake - dt); P.hintCharge = Math.max(0, P.hintCharge - dt);
   // the two friends: one calls for the other when they are far apart, and they cheer when they meet again
   { const a = P.heroes[0], c = P.heroes[1], sep = dist(a.x, a.y, c.x, c.y);
+    // the first time they are far apart on a level, L3 is shown over each hero who has not run yet
+    P.runHint = Math.max(0, P.runHint - dt);
+    if (sep > 900 && !P.runHintDone && CONFIG.sprint.enabled && !(P.tut[0].ran && P.tut[1].ran)) { P.runHint = 4; P.runHintDone = true; }
     for (const h of P.heroes) {
       if (sep > 1200) { h.farT = (h.farT || 0) + dt; if (h.farT > 5) { h.farT = 0; h.wasFar = true; Snd.talk(h.k, 'callFriend'); } }
       else { h.farT = 0; if (h.wasFar && sep < 250) { h.wasFar = false; Snd.talk(h.k, 'together'); } }
     } }
-  if (P.banner) { P.banner.t -= dt; if (P.banner.t <= 0) P.banner = null; }
+  if (P.banner) { if (P.banner.max == null) P.banner.max = P.banner.t; P.banner.t -= dt; if (P.banner.t <= 0) P.banner = null; }      // max: how long it lasts, so the card can breathe when it comes in
   // wind
   const w = P.wind;
   if (L.def.wind) {
@@ -3919,14 +4037,26 @@ function updatePlay(dt) {
   // particles and rings
   stepParts(dt);
   for (let i = P.rings.length - 1; i >= 0; i--) { P.rings[i].t += dt; if (P.rings[i].t > 0.55) P.rings.splice(i, 1); }
-  // camera: keep both heroes on screen, zoom out when they are far apart
-  const a = P.heroes[0], b2 = P.heroes[1], cam = P.cam;
-  let tz = Math.min(1, W / (Math.abs(a.x - b2.x) + 760), H / (Math.abs(a.y - b2.y) + 560)); tz = clamp(tz, L.minZoom, 1);
-  cam.zoom += (tz - cam.zoom) * Math.min(1, dt * 2.5);
-  const vw = W / cam.zoom, vh = H / cam.zoom;
-  const tx = clamp((a.x + b2.x) / 2, vw / 2, L.W - vw / 2), ty = clamp((a.y + b2.y) / 2 - 30, vh / 2, L.H - vh / 2);
-  cam.x += (tx - cam.x) * Math.min(1, dt * 4); cam.y += (ty - cam.y) * Math.min(1, dt * 4);
-  cam.x = clamp(cam.x, vw / 2, L.W - vw / 2); cam.y = clamp(cam.y, vh / 2, L.H - vh / 2);
+  // camera: keep both heroes on screen, under the band at the top, and zoom out when they are far apart
+  const a = P.heroes[0], b2 = P.heroes[1], cam = P.cam, tgt = camTarget(L, a, b2);
+  const fast = a.run || b2.run;                                       // while anyone runs the camera keeps up, or the hero reaches the edge first
+  cam.zoom += (tgt.zoom - cam.zoom) * Math.min(1, dt * (fast ? 5 : 2.5));
+  const vw = W / cam.zoom, vh = H / cam.zoom, lo = vh / 2 - (HUD_TOP + 20) / cam.zoom;
+  const cf = Math.min(1, dt * (fast ? 9 : 4));
+  cam.x += (tgt.x - cam.x) * cf; cam.y += (tgt.y - cam.y) * cf;
+  cam.x = clamp(cam.x, vw / 2, L.W - vw / 2); cam.y = clamp(cam.y, lo, Math.max(lo, L.H - vh / 2));
+}
+/* Where the camera wants to be for two heroes: no side effects, so a test can ask the game itself.
+   Rules: both heroes on screen; nothing of a hero (name included) above the band at the top (HUD_TOP, 08-draw.js);
+   the camera may look up to HUD_TOP + 20 screen pixels above the top edge of the world, and that strip is painted sky. */
+function camTarget(L, a, b) {
+  const safe = HUD_TOP + 20, z = clamp(Math.min(1, W / (Math.abs(a.x - b.x) + 760), (H - safe) / (Math.abs(a.y - b.y) + 560)), L.minZoom, 1);
+  const vw = W / z, vh = H / z;
+  const cap = Math.min(a.y, b.y) - HERO_BOX + (H / 2 - HUD_TOP - 4) / z;        // the highest the camera may look: the top hero stays under the band
+  const hi = Math.min(L.H - vh / 2, cap);                                       // never look below the bottom edge of the world
+  const lo = Math.max(Math.min(vh / 2, Math.max(vh / 2 - safe / z, cap)),       // the world's top edge, left only as far as the band asks
+    Math.min(hi, Math.max(a.y, b.y) - (H / 2 - 10) / z));                       // and, when it fits, the lower hero keeps its feet on screen
+  return { x: clamp((a.x + b.x) / 2, vw / 2, L.W - vw / 2), y: clamp((a.y + b.y) / 2 - 30 - safe / 2 / z, lo, Math.max(lo, hi)), zoom: z };
 }
 
 /* ==========================================================================
@@ -4300,8 +4430,10 @@ function drawDuelTop(c) {
     heartPath(c, d.x + (i - (n - 1) / 2) * 30, hy, 10);
     if (i < d.hp) { c.fillStyle = '#E2574C'; c.fill(); c.strokeStyle = 'rgba(255,246,226,0.9)'; c.lineWidth = 3; c.stroke(); } else { c.fillStyle = 'rgba(120,90,100,0.3)'; c.fill(); }
   }
-  if (d.state === 'tired' || d.state === 'stag') text(c, T('duel.now'), d.x, hy - 44, 40 + Math.sin(t * 10) * 4, '#C4573D', { title: true });
-  else if (d.hintT > 0) { c.globalAlpha = Math.min(1, d.hintT); text(c, T('duel.wait'), d.x, hy - 40, 30, '#7A5A80', { weight: 'bold' }); c.globalAlpha = 1; }
+  // "Acum!" and "Încă nu!" stay in the world, over the guardian's head. If a hero is in the way, they climb higher.
+  let ty = hy - 44; for (let i = 0; i < 3 && heroInWay(d.x, ty, 220, 48); i++) ty -= 40;
+  if (d.state === 'tired' || d.state === 'stag') text(c, T('duel.now'), d.x, ty, 40 + Math.sin(t * 10) * 4, '#C4573D', { title: true });
+  else if (d.hintT > 0) { c.globalAlpha = Math.min(1, d.hintT); text(c, T('duel.wait'), d.x, ty + 4, 30, '#7A5A80', { weight: 'bold' }); c.globalAlpha = 1; }
 }
 
 /* ==========================================================================
@@ -4313,7 +4445,17 @@ function heroOpts(h) {
     happy: P.done || (P.boss && P.boss.state === 'won'), scale: h.small, hug: h.hugT > 0 ? h.hugT / 0.7 : 0,
     claw: h.spinT >= 0 ? clamp(h.spinT / (CONFIG.heroes[0].spinTime || 1), 0, 1) : -1 };
 }
-const heroTop = k => (isLupta() ? [148, 128] : [100, 122])[k];        // how tall each hero is: where the stars, the name and the □ go
+const heroTop = k => (isLupta() ? [148, 128] : [100, 122])[k];        // how tall each hero is: where the stars, the name and the ○ go
+/* The band at the top. Everything written over the world (badges, the middle card, the progress bar, the banners)
+   stays inside it, and the camera (camTarget, 07-play.js) keeps every hero under it. See docs/24-sisteme-noi.md, S6. */
+const HUD_TOP = 132;                  // how tall the band is, in screen units
+const HERO_BOX = 190;                 // how tall a hero is with its name above it, in world units
+/* Is a hero standing where we want to write? Used by the few texts that stay in the world, so they never cover anybody.
+   only: check just this hero. The box is the painted body, without the name above it. */
+function heroInWay(x, y, w, h, only) {
+  return P.heroes.some(o => (only == null || o.k === only) && !o.carried &&
+    Math.abs(o.x - x) < w / 2 + 50 && o.y + 6 > y - h / 2 && o.y - heroTop(o.k) * o.small - 20 < y + h / 2);
+}
 function drawParts(c) {
   for (const p of P.parts) {
     const a = clamp(p.life / p.max, 0, 1);
@@ -4338,6 +4480,28 @@ function drawClawRing(c, h) {
     }
   }
 }
+/* The trail of a running hero: three fading copies of him, and six speed lines behind. */
+function drawRunTrail(c, h) {
+  const cfg = CONFIG.heroes[h.k], al = [0.28, 0.18, 0.09];
+  for (let i = 0; i < h.ghosts.length; i++) {
+    const g = h.ghosts[i];
+    c.globalAlpha = al[i] || 0.08;
+    c.save(); c.translate(g.x, g.y); c.rotate(0.14 * g.face); c.translate(-g.x, -g.y);
+    drawHero(c, h.k, g.x, g.y, Object.assign(heroOpts(h), { face: g.face, walk: g.walk, z: g.z }));
+    c.restore();
+  }
+  c.globalAlpha = 1;
+  const v = Math.hypot(h.vx, h.vy); if (v < 60) return;
+  const ux = -h.vx / v, uy = -h.vy / v, t = P.time;
+  c.strokeStyle = rgba(mix(cfg.color, '#FFF6E2', 0.65), 0.5); c.lineCap = 'round';
+  for (let i = 0; i < 6; i++) {
+    const ph = (t * 3.4 + i * 0.37) % 1, len = 60 + ((i * 37) % 61), off = ((i * 29) % 70) - 35;
+    const bx = h.x + ux * (26 + ph * 40) - uy * off, by = h.y - 44 + uy * (26 + ph * 40) + ux * off * 0.5;
+    c.globalAlpha = 0.5 * Math.sin(ph * Math.PI); c.lineWidth = 3 + (i % 2);
+    c.beginPath(); c.moveTo(bx, by); c.lineTo(bx + ux * len, by + uy * len); c.stroke();
+  }
+  c.globalAlpha = 1;
+}
 function drawHeroFull(c, h) {
   const cfg = CONFIG.heroes[h.k], fr = P.heroes[1 - h.k], fcfg = CONFIG.heroes[fr.k], t = P.time, top = heroTop(h.k) * h.small;
   if (P.L.night) {                          // second game: a soft light around each hero, so they stand out in the dark jungle
@@ -4357,25 +4521,34 @@ function drawHeroFull(c, h) {
   if (h.boost > 0) { const g = c.createRadialGradient(h.x, h.y - 40, 10, h.x, h.y - 40, 110); g.addColorStop(0, 'rgba(255,214,140,0.5)'); g.addColorStop(1, 'rgba(255,214,140,0)'); c.fillStyle = g; c.beginPath(); c.arc(h.x, h.y - 40, 110, 0, TAU); c.fill(); }
   if (h.safe) { c.strokeStyle = rgba('#7FB06A', 0.9); c.lineWidth = 5; c.setLineDash([12, 9]); c.beginPath(); c.ellipse(h.x, h.y + 2, 58, 24, 0, 0, TAU); c.stroke(); c.setLineDash([]); }
   if (h.spinT >= 0) drawClawRing(c, h);
+  if (h.run) drawRunTrail(c, h);           // running: three ghosts behind, then the speed lines
   if (h.inv > 0 && h.dizzy <= 0) c.globalAlpha = 0.55 + Math.sin(P.time * 22) * 0.25;
+  if (h.run) { c.save(); c.translate(h.x, h.y); c.rotate(0.14 * h.face); c.translate(-h.x, -h.y); }      // leaning into the run
   drawHero(c, h.k, h.x, h.y, heroOpts(h));
+  if (h.run) c.restore();
   c.globalAlpha = 1;
   if (h.carried) return;
   if (h.dizzy > 0) drawDizzyStars(c, h.x + (h.k === 0 && !isLupta() ? 30 * h.face : 0), h.y - top, P.time);
-  if (h.down) {                            // □ and a dot in the friend's color: "friend, press □ for me"
+  if (h.down) {                            // ○ and a dot in the friend's color: "friend, press ○ for me"
     const by = h.y - top - 52 + Math.sin(t * 5) * 5;
-    iconSq(c, h.x, by, 28, Math.sin(t * 6));
+    iconO(c, h.x, by, 28, Math.sin(t * 6));
     c.fillStyle = fcfg.color; c.beginPath(); c.arc(h.x + 30, by - 24, 12, 0, TAU); c.fill(); c.strokeStyle = '#FFF8E8'; c.lineWidth = 3.5; c.stroke();
-  } else if (fr.down && Input.slots[h.k].joined && h.dizzy <= 0) {    // the helper: close enough = a big □ over the head
+  } else if (fr.down && Input.slots[h.k].joined && h.dizzy <= 0) {    // the helper: close enough = a big ○ over the head
     const reach = h.k === 0 ? CONFIG.rescue.reachNear : CONFIG.rescue.reachFar;
-    if (dist(h.x, h.y, fr.x, fr.y) <= reach) iconSq(c, h.x, h.y - top - 44 + Math.sin(t * 7) * 6, 34, Math.sin(t * 9) * 1.5);
+    if (dist(h.x, h.y, fr.x, fr.y) <= reach) iconO(c, h.x, h.y - top - 44 + Math.sin(t * 7) * 6, 34, Math.sin(t * 9) * 1.5);
   }
   if (h.k === 1 && ballReady() && h.dizzy <= 0) {       // aim arrow, grows while charging
     const pw = h.charging ? h.charge : 0, len = 62 + pw * 70;
     iconArrow(c, h.x + h.ax * len, h.y - 14 + h.ay * len * 0.8, Math.atan2(h.ay, h.ax), 13 + pw * 13, pw > 0.95 ? '#E9703C' : mix('#F6C63C', '#E9703C', pw));
     if (h.charging) { c.strokeStyle = rgba(isLupta() ? '#E4583C' : '#3F78C8', 0.8); c.lineWidth = 6; c.lineCap = 'round'; c.beginPath(); c.arc(h.x, h.y - top - 8, 17, -Math.PI / 2, -Math.PI / 2 + TAU * pw); c.stroke(); }
   }
-  if (h.tagT > 0) text(c, cfg.name, h.x, h.y - top - 18, 34, shade(cfg.color, -0.35), { title: true });
+  if (h.tagT > 0) {                        // the name of the hero: never written over the friend, and the two names never over each other
+    let nx = h.x, ny = h.y - top - 18;
+    const fy = fr.y - heroTop(fr.k) * fr.small - 18;
+    if (h.k === 1 && fr.tagT > 0 && Math.abs(fr.x - h.x) < 150 && Math.abs(fy - ny) < 38) nx += h.x >= fr.x ? 70 : -70;     // the second name steps aside
+    if (heroInWay(nx, ny, 160, 40, fr.k)) ny = Math.max(ny - 46, h.y - HERO_BOX + 22);                                      // never higher than the camera keeps free
+    if (!heroInWay(nx, ny, 160, 40, fr.k)) text(c, cfg.name, nx, ny, 34, shade(cfg.color, -0.35), { title: true });
+  }
 }
 /* Small enemies show how many hits they still take, once they were hit. */
 function drawSmallHp(c, e, x, y) {
@@ -4415,7 +4588,9 @@ function drawWorld(c) {
   const L = P.L, cam = P.cam, z = cam.zoom, vw = W / z, vh = H / z, t = P.time;
   let l = cam.x - vw / 2, tp = cam.y - vh / 2;
   if (P.shake > 0) { l += Math.sin(t * 90) * P.shake * 22; tp += Math.cos(t * 77) * P.shake * 22; }
-  l = clamp(l, 0, L.W - vw); tp = clamp(tp, 0, L.H - vh);
+  const tpMin = -(HUD_TOP + 20) / z;         // the camera may look above the top edge of the world, so no hero hides under the band
+  l = clamp(l, 0, L.W - vw); tp = clamp(tp, tpMin, Math.max(tpMin, L.H - vh));
+  if (tp < 0) { c.fillStyle = L.skyTop || '#CFE4F2'; c.fillRect(0, 0, W, Math.ceil(-tp * z) + 1); }      // that strip has no painting: it is sky
   c.drawImage(L.bg, l, tp, vw, vh, 0, 0, W, H);
   c.save(); c.scale(z, z); c.translate(-l, -tp);
   // water shimmer
@@ -4548,11 +4723,7 @@ function drawWorld(c) {
     card(c, bx - 430, by - 80, 860, 150, '#FFF6E2', 5);
     text(c, T('sorry1'), bx, by - 32, 42, '#5F4E80', { halo: 0 }); text(c, T('sorry2'), bx, by + 22, 42, '#5F4E80', { halo: 0 });
   }
-  if (P.nestOpen && !P.done && !L.boss && Input.slots[0].joined && Input.slots[1].joined) {    // one is in the nest: we wait for the other
-    const nr = P.heroes.map(h => dist(h.x, h.y, L.nest.x, L.nest.y) < 185);
-    if (nr[0] !== nr[1]) text(c, T('ban.wait', CONFIG.heroes[nr[0] ? 1 : 0].name), L.nest.x, L.nest.y - 210 + Math.sin(t * 4) * 5, 46, '#C4573D', { title: true });
-  }
-  c.restore();
+  c.restore();      // "we wait for X in the nest" used to be written here, over the nest: it is a banner now (waitBanner)
   // wind streaks in screen space
   if (P.wind.power > 0.04) {
     c.lineCap = 'round';
@@ -4608,7 +4779,7 @@ function drawGuides(c) {
   for (const h of P.heroes) {
     const fr = P.heroes[1 - h.k], help = fr.down && !h.down && Input.slots[h.k].joined;      // a friend who waits for help: the arrow shows the way to them, for every player
     if (!help && (!Opt.guide[h.k] || !Input.slots[h.k].joined || h.dizzy > 0 || h.carried)) continue;
-    const g = help ? { x: fr.x, y: fr.y, kind: 'sq' } : guideTarget(h); if (!g) continue;
+    const g = help ? { x: fr.x, y: fr.y, kind: 'help' } : guideTarget(h); if (!g) continue;
     const dx = g.x - h.x, dy = g.y - h.y, m = Math.hypot(dx, dy); if (m < (help ? (h.k === 0 ? CONFIG.rescue.reachNear : CONFIG.rescue.reachFar) : 130)) continue;
     const ux = dx / m, uy = dy / m, ang = Math.atan2(uy, ux), col = CONFIG.heroes[h.k].color, fade = clamp((m - 130) / 90, 0, 1);
     for (let i = 0; i < 3; i++) {                        // three chevrons run toward the goal
@@ -4623,7 +4794,7 @@ function drawGuides(c) {
       if (g.kind === 'egg') drawEgg(c, ix, iy + 14, 12, 0, 1, 0, 4);
       else if (g.kind === 'nest') c.drawImage(sprite('gNest', 56, 44, cc => drawNest(cc, 28, 22, 21, 3, 0)), ix - 28, iy - 22, 56, 44);
       else if (g.kind === 'x') iconX(c, ix, iy, 16, 0);
-      else if (g.kind === 'sq') iconSq(c, ix, iy, 18, Math.sin(t * 8));
+      else if (g.kind === 'help') iconO(c, ix, iy, 18, Math.sin(t * 8));
       else if (g.kind === 'ball') drawBall(c, ix, iy, 14, t * 2);
       else text(c, '!', ix, iy + 2, 40, '#D9463C', { halo: 0, shadow: 0, weight: 'bold' });
     }
@@ -4633,18 +4804,24 @@ function drawGuides(c) {
 function drawHints(c, v) {
   const t = P.time, L = P.L, tg = hintTarget();
   if (tg) {
-    const sx = (tg.x - v.l) * v.z, sy = (tg.y - v.tp) * v.z, m = 90;
-    if (sx > m && sx < W - m && sy > 240 && sy < H - m) iconArrow(c, sx, sy - 30 + Math.sin(t * 6) * 10, Math.PI / 2, 30, '#F8C24E');
-    else { const cx = clamp(sx, m, W - m), cy = clamp(sy, 260, H - m); iconArrow(c, cx + Math.sin(t * 6) * 6, cy, Math.atan2(sy - cy, sx - cx), 38, '#F8C24E'); }
+    const sx = (tg.x - v.l) * v.z, sy = (tg.y - v.tp) * v.z, m = 90, hm = HUD_TOP + 50;      // hm: the arrow stays under the band at the top
+    if (sx > m && sx < W - m && sy > hm && sy < H - m) iconArrow(c, sx, sy - 30 + Math.sin(t * 6) * 10, Math.PI / 2, 30, '#F8C24E');
+    else { const cx = clamp(sx, m, W - m), cy = clamp(sy, hm + 20, H - m); iconArrow(c, cx + Math.sin(t * 6) * 6, cy, Math.atan2(sy - cy, sx - cx), 38, '#F8C24E'); }
   }
   // first steps: stick, then ✕, shown above each hero
   if (L.idx === 0 || L.boss) for (const h of P.heroes) {
     const tu = P.tut[h.k]; if (!Input.slots[h.k].joined || (tu.moved > 0.8 && tu.used) || P.time > 90) continue;
     if (L.boss && (tu.used || P.time > 12)) continue;
-    const sx = (h.x - v.l) * v.z, sy = (h.y - v.tp) * v.z - (h.tagT > 0 ? 200 : 160) * v.z + Math.sin(t * 5) * 5;
+    const sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 30, (h.y - v.tp) * v.z - (h.tagT > 0 ? 200 : 160) * v.z) + Math.sin(t * 5) * 5;      // never over the band at the top
     if (tu.moved <= 0.8 && !L.boss) iconStick(c, sx, sy, 28, t); else iconX(c, sx, sy, 30, Math.sin(t * 6));
   }
-  if (P.hintCharge > 0) { const h = P.heroes[1], sx = (h.x - v.l) * v.z, sy = (h.y - v.tp) * v.z - 200 * v.z - 20, u = (t * 0.9) % 1; iconX(c, sx - 24, sy, 28, 0); c.strokeStyle = '#3F78C8'; c.lineWidth = 8; c.lineCap = 'round'; c.beginPath(); c.arc(sx + 34, sy, 20, -Math.PI / 2, -Math.PI / 2 + TAU * u); c.stroke(); }
+  // running: L3 over each hero who has not run yet, the first time the two are far apart
+  if (P.runHint > 0) for (const h of P.heroes) {
+    if (!Input.slots[h.k].joined || P.tut[h.k].ran || h.down) continue;
+    const sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 44, (h.y - v.tp) * v.z - (h.tagT > 0 ? 260 : 220) * v.z) + Math.sin(t * 5) * 5;      // above the name and above the ✕ of the first steps
+    c.globalAlpha = Math.min(1, P.runHint); iconL3(c, sx, sy, 26, t); c.globalAlpha = 1;
+  }
+  if (P.hintCharge > 0) { const h = P.heroes[1], sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 30, (h.y - v.tp) * v.z - 200 * v.z - 20), u = (t * 0.9) % 1; iconX(c, sx - 24, sy, 28, 0); c.strokeStyle = '#3F78C8'; c.lineWidth = 8; c.lineCap = 'round'; c.beginPath(); c.arc(sx + 34, sy, 20, -Math.PI / 2, -Math.PI / 2 + TAU * u); c.stroke(); }
   if (P.boss) {
     const bs = P.boss, sc = v.z;
     if (bs.state === 'up' && P.time > 3) { const x = (L.treeBase.x - 250 - v.l) * sc, y = (L.treeBase.y + 10 - v.tp) * sc + Math.sin(t * 6) * 8; iconX(c, x, y, 26, Math.sin(t * 6)); iconArrow(c, x, y + 52, Math.PI / 2, 20, CONFIG.heroes[0].color); }
@@ -4668,101 +4845,114 @@ function levelProgress() {
   return { n, cur, frac, left, kind, midSeg, fightSeg: on ? n - 2 : -1, u: clamp((cur + frac) / n, 0, 1) };
 }
 function drawProgress(c) {
-  const pr = levelProgress(), t = P.time, NW = P.L.NW, y = 184, x0 = W / 2 - 372, x1 = W / 2 + 392, len = x1 - x0;
+  const pr = levelProgress(), t = P.time, y = 118, x0 = W / 2 - 360, x1 = W / 2 + 380, len = x1 - x0;
   P.progU = P.progU == null ? pr.u : P.progU + (pr.u - P.progU) * 0.12;
-  card(c, W / 2 - 520, 152, 1040, 66, '#FFF3DC', 12);
+  c.fillStyle = rgba(SHADOW, 0.16); c.beginPath(); c.ellipse(W / 2 - 40, y + 11, 492, 11, 0, 0, TAU); c.fill();     // a soft shadow under the line, instead of a card
   // left: what is still to do right now
-  if (pr.kind === 'eggs') { c.save(); c.translate(W / 2 - 478, y + 12); const g = c.createRadialGradient(-3, -16, 1, 0, -10, 18); g.addColorStop(0, isLupta() ? '#E8FBFF' : '#FFF6C4'); g.addColorStop(1, isLupta() ? '#46B8D8' : '#E9A93A'); c.translate(0, -12); itemPath(c, 14); c.fillStyle = g; c.fill(); c.restore(); text(c, '× ' + pr.left, W / 2 - 456, y + 1, 34, '#B9702E', { align: 'left', halo: 0, shadow: 0, weight: 'bold' }); }
-  else if (pr.kind === 'duel') { heartPath(c, W / 2 - 478, y, 11); c.fillStyle = '#E2574C'; c.fill(); text(c, '× ' + pr.left, W / 2 - 456, y + 1, 34, '#C4573D', { align: 'left', halo: 0, shadow: 0, weight: 'bold' }); }
-  else { c.drawImage(sprite('gNest', 56, 44, cc => drawNest(cc, 28, 22, 21, 3, 0)), W / 2 - 500, y - 22, 56, 44); iconArrow(c, W / 2 - 424 + Math.sin(t * 6) * 4, y, 0, 13, '#F8C24E'); }
+  if (pr.kind === 'eggs') { c.save(); c.translate(W / 2 - 448, y); const g = c.createRadialGradient(-2, -8, 1, 0, -5, 12); g.addColorStop(0, isLupta() ? '#E8FBFF' : '#FFF6C4'); g.addColorStop(1, isLupta() ? '#46B8D8' : '#E9A93A'); itemPath(c, 10); c.fillStyle = g; c.fill(); c.restore(); text(c, '× ' + pr.left, W / 2 - 432, y + 1, 22, '#B9702E', { align: 'left', shadow: 0, weight: 'bold' }); }
+  else if (pr.kind === 'duel') { heartPath(c, W / 2 - 448, y, 8); c.fillStyle = '#E2574C'; c.fill(); text(c, '× ' + pr.left, W / 2 - 432, y + 1, 22, '#C4573D', { align: 'left', shadow: 0, weight: 'bold' }); }
+  else { c.drawImage(sprite('gNest', 56, 44, cc => drawNest(cc, 28, 22, 21, 3, 0)), W / 2 - 462, y - 13, 34, 27); iconArrow(c, W / 2 - 410 + Math.sin(t * 6) * 4, y, 0, 9, '#F8C24E'); }
   // the road
-  c.lineCap = 'round'; c.strokeStyle = 'rgba(190,150,130,0.32)'; c.lineWidth = 16; c.beginPath(); c.moveTo(x0, y); c.lineTo(x1, y); c.stroke();
+  c.lineCap = 'round'; c.strokeStyle = 'rgba(190,150,130,0.32)'; c.lineWidth = 12; c.beginPath(); c.moveTo(x0, y); c.lineTo(x1, y); c.stroke();
   const mx = x0 + len * P.progU;
   c.strokeStyle = '#F8C24E'; c.beginPath(); c.moveTo(x0, y); c.lineTo(Math.max(x0 + 0.1, mx), y); c.stroke();
-  c.strokeStyle = 'rgba(255,246,214,0.7)'; c.lineWidth = 4; c.beginPath(); c.moveTo(x0, y - 3); c.lineTo(Math.max(x0 + 0.1, mx), y - 3); c.stroke();
+  c.strokeStyle = 'rgba(255,246,214,0.7)'; c.lineWidth = 3; c.beginPath(); c.moveTo(x0, y - 2); c.lineTo(Math.max(x0 + 0.1, mx), y - 2); c.stroke();
   for (let i = 0; i < pr.n; i++) {                      // a sign at the end of every part of the level
     const x = x0 + len * (i + 1) / pr.n, done = i < pr.cur || (i === pr.cur && pr.frac >= 1), now = i === pr.cur && !done;
-    if (i === pr.n - 1) { c.drawImage(sprite('gNest', 56, 44, cc => drawNest(cc, 28, 22, 21, 3, 0)), x - 30, y - 24, 60, 48); continue; }
+    if (i === pr.n - 1) { c.drawImage(sprite('gNest', 56, 44, cc => drawNest(cc, 28, 22, 21, 3, 0)), x - 21, y - 17, 42, 33); continue; }
     const pop = now ? 1 + Math.sin(t * 5) * 0.08 : 1;
-    c.fillStyle = done ? '#F8C24E' : '#FFF6E2'; c.strokeStyle = done ? '#E3952F' : 'rgba(170,130,110,0.6)'; c.lineWidth = 3; c.beginPath(); c.arc(x, y, 19 * pop, 0, TAU); c.fill(); c.stroke();
-    if (i !== pr.midSeg && i !== pr.fightSeg) { c.save(); c.translate(x, y - 1); itemPath(c, 10 * pop); c.fillStyle = done ? '#FFF6C4' : 'rgba(233,169,58,0.55)'; c.fill(); c.restore(); }
-    else { heartPath(c, x, y, 8.5 * pop); c.fillStyle = done ? '#FFF6C4' : '#E2574C'; c.fill(); }
+    c.fillStyle = done ? '#F8C24E' : '#FFF6E2'; c.strokeStyle = done ? '#E3952F' : 'rgba(170,130,110,0.6)'; c.lineWidth = 2.5; c.beginPath(); c.arc(x, y, 13 * pop, 0, TAU); c.fill(); c.stroke();
+    if (i !== pr.midSeg && i !== pr.fightSeg) { c.save(); c.translate(x, y - 1); itemPath(c, 7 * pop); c.fillStyle = done ? '#FFF6C4' : 'rgba(233,169,58,0.55)'; c.fill(); c.restore(); }
+    else { heartPath(c, x, y, 6 * pop); c.fillStyle = done ? '#FFF6C4' : '#E2574C'; c.fill(); }
   }
   // where the team is now
   const h0 = CONFIG.heroes[0], h1 = CONFIG.heroes[1];
-  c.fillStyle = rgba(SHADOW, 0.25); c.beginPath(); c.arc(mx + 2, y + 3, 15, 0, TAU); c.fill();
-  c.fillStyle = h0.color; c.beginPath(); c.arc(mx, y, 14, Math.PI / 2, Math.PI * 1.5); c.fill();
-  c.fillStyle = h1.color; c.beginPath(); c.arc(mx, y, 14, -Math.PI / 2, Math.PI / 2); c.fill();
-  c.strokeStyle = '#FFF8E8'; c.lineWidth = 3.5; c.beginPath(); c.arc(mx, y, 14, 0, TAU); c.stroke();
-  text(c, Math.round(pr.u * 100) + '%', W / 2 + 474, y + 1, 30, '#9A7A6A', { halo: 0, shadow: 0, weight: 'bold' });
+  c.fillStyle = rgba(SHADOW, 0.25); c.beginPath(); c.arc(mx + 2, y + 2, 12, 0, TAU); c.fill();
+  c.fillStyle = h0.color; c.beginPath(); c.arc(mx, y, 11, Math.PI / 2, Math.PI * 1.5); c.fill();
+  c.fillStyle = h1.color; c.beginPath(); c.arc(mx, y, 11, -Math.PI / 2, Math.PI / 2); c.fill();
+  c.strokeStyle = '#FFF8E8'; c.lineWidth = 3; c.beginPath(); c.arc(mx, y, 11, 0, TAU); c.stroke();
+  text(c, Math.round(pr.u * 100) + '%', W / 2 + 432, y + 1, 22, '#8A6A5A', { align: 'left', shadow: 0, weight: 'bold' });
 }
 function drawBadge(c, k, x, y) {
-  const cfg = CONFIG.heroes[k], h = P.heroes[k], s = Input.slots[k], w = 340, hh = 112;
+  const cfg = CONFIG.heroes[k], h = P.heroes[k], s = Input.slots[k], w = 300, hh = 88;
   card(c, x, y, w, hh, '#FFF3DC', 20 + k);
-  c.fillStyle = rgba(cfg.color, 0.95); c.beginPath(); c.arc(x + 62, y + hh / 2, 44, 0, TAU); c.fill();
-  if (k === 1) { c.strokeStyle = cfg.color2; c.lineWidth = 6; c.beginPath(); c.arc(x + 62, y + hh / 2, 44, 0, TAU); c.stroke(); }
+  c.fillStyle = rgba(cfg.color, 0.95); c.beginPath(); c.arc(x + 50, y + hh / 2, 34, 0, TAU); c.fill();
+  if (k === 1) { c.strokeStyle = cfg.color2; c.lineWidth = 5; c.beginPath(); c.arc(x + 50, y + hh / 2, 34, 0, TAU); c.stroke(); }
   const dz = h.dizzy > 0, ps = sprite('port' + k + (dz ? 'd' : ''), 90, 90, cc => {
     cc.beginPath(); cc.arc(45, 45, 41, 0, TAU); cc.clip(); cc.fillStyle = '#FFF3DC'; cc.fillRect(0, 0, 90, 90);
     const pp = (isLupta() ? [[14, 131, 0.8], [43, 128, 0.92]] : [[27, 89, 0.8], [41, 129, 0.9]])[k];      // where the face sits in the round picture
     drawHero(cc, k, pp[0], pp[1], { scale: pp[2], t: 1, dizzy: dz });
   });
-  c.drawImage(ps, x + 17, y + hh / 2 - 45, 90, 90);
-  text(c, cfg.name, x + 122, y + 42, 44, shade(cfg.color, -0.5), { align: 'left', title: true, halo: 0 });
-  if (!s.joined) richText(c, pressLabel(k), x + 122 + 78, y + 82, 28, '#8A6A6A', { halo: 0, shadow: 0, pulse: Math.sin(P.time * 5) });
-  else text(c, T('diff.' + Game.diff[k]), x + 122, y + 82, 28, '#8A6A6A', { align: 'left', halo: 0, shadow: 0 });
-  if (h.boost > 0) drawButterfly(c, x + w - 44, y + 56, P.time, 0.8);
+  c.drawImage(ps, x + 16, y + hh / 2 - 34, 68, 68);
+  text(c, cfg.name, x + 96, y + 34, 36, shade(cfg.color, -0.5), { align: 'left', title: true, halo: 0 });
+  if (!s.joined) richText(c, pressLabel(k), x + 96 + 62, y + 66, 22, '#8A6A6A', { halo: 0, shadow: 0, pulse: Math.sin(P.time * 5) });
+  else text(c, T('diff.' + Game.diff[k]), x + 96, y + 66, 22, '#8A6A6A', { align: 'left', halo: 0, shadow: 0 });
+  if (h.boost > 0) drawButterfly(c, x + w - 32, y + 44, P.time, 0.62);
 }
-function drawHUD(c) {
-  const L = P.L, t = P.time;
-  drawBadge(c, 0, 36, 28); drawBadge(c, 1, W - 36 - 340, 28);
-  const bh = CONFIG.boss.hits, bsp = bh > 3 ? 68 : 86, br = bh > 3 ? 25 : 30;      // the boss goals: smaller circles when there are many
-  const cw = L.boss ? Math.max(560, 320 + bh * bsp) : 660, cx = W / 2 - cw / 2;
-  card(c, cx, 24, cw, 120, '#FFF3DC', 9);
-  const pop = P.comboT > 1.0 ? 1 + (P.comboT - 1.0) * 0.6 : 1;
+/* "We wait for X in the nest": it used to be written in the world, over the nest. Now it is a banner in the band. */
+function waitBanner() {
+  const L = P.L;
+  if (!P.nestOpen || P.done || L.boss || !Input.slots[0].joined || !Input.slots[1].joined) return null;
+  const nr = P.heroes.map(h => dist(h.x, h.y, L.nest.x, L.nest.y) < 185);
+  return nr[0] === nr[1] ? null : { kind: 'wait', t: 2, name: CONFIG.heroes[nr[0] ? 1 : 0].name };
+}
+/* The card in the middle, with what a banner says when there is one. A banner never comes down over the world. */
+function drawMidCard(c, ban) {
+  const L = P.L, t = P.time, y0 = 16, hh = 88, yc = y0 + hh / 2;
+  const bh = CONFIG.boss.hits, bsp = bh > 3 ? 52 : 66, br = bh > 3 ? 18 : 22;      // the boss goals: smaller circles when there are many
+  let cw = L.boss ? Math.max(520, 300 + bh * bsp) : 640;
+  if (ban) cw = Math.max(cw, ban.kind === 'duel' ? 1000 : 880);
+  const cx = W / 2 - cw / 2;
+  const el = ban && ban.max != null ? ban.max - ban.t : 9, pop = ban ? 1 + 0.06 * (1 - clamp(el / 0.2, 0, 1)) : 1;      // the card breathes when a banner comes in
+  if (ban) { c.save(); c.translate(W / 2, yc); c.scale(pop, pop); c.translate(-W / 2, -yc); c.globalAlpha = clamp(Math.min(ban.t, 1), 0, 1); }
+  card(c, cx, y0, cw, hh, ban ? '#FFF6E2' : '#FFF3DC', ban ? 31 : 9);
+  if (ban) {
+    const label = T('ban.' + ban.kind, ban.kind === 'wait' ? ban.name : isLupta() ? CONFIG.lupta.rainbowBonus : '');
+    if (ban.kind === 'duel') {
+      text(c, label, W / 2, y0 + 30, 40, '#C4573D', { title: true, halo: 0 });
+      text(c, T(ban.mid ? 'duel.mid' : 'duel.guard', T('duel.' + ban.id)), W / 2, y0 + 66, 26, '#7A4A52', { halo: 0, shadow: 0, weight: 'bold' });
+    } else {
+      text(c, label, W / 2, yc, 46, '#C4573D', { title: true, halo: 0 });
+      const ex = W / 2 + cw / 2 - 54;                 // the little picture sits at the right edge of the card
+      if (ban.kind === 'more') iconArrow(c, ex + Math.sin(t * 6) * 6, yc, 0, 22, '#F8C24E');
+      if (ban.kind === 'nest' || ban.kind === 'wait') { drawNest(c, ex, yc + 4, 32, 5, 0); iconArrow(c, W / 2 - cw / 2 + 48 + Math.sin(t * 6) * 6, yc, 0, 19, '#F8C24E'); }
+      if (ban.kind === 'giant') drawEgg(c, ex, yc + 18, 19, t, 1, 0, 0, true);
+      if (ban.kind === 'rainbow') for (let i = 0; i < 7; i++) { c.save(); c.translate(W / 2 + (i < 3 ? -cw / 2 + 34 + i * 24 : cw / 2 - 106 + (i - 3) * 24), yc + Math.sin(t * 6 + i) * 4); itemPath(c, 9); c.fillStyle = RAINBOW[i]; c.fill(); c.restore(); }
+    }
+    c.globalAlpha = 1; c.restore();
+    return;
+  }
+  const cpop = P.comboT > 1.0 ? 1 + (P.comboT - 1.0) * 0.6 : 1;
   if (isLupta()) {                         // a crystal, and under the number the seven colors gathered so far (all seven = a rainbow, bonus crystals)
-    c.save(); c.translate(cx + 74, 84); c.scale(pop, pop); drawCrystal(c, 0, 26, 30, 0, 0, 0, (t * 0.7 | 0) % 7); c.restore();
-    for (let i = 0; i < 7; i++) { const on = P.rainbow.indexOf(i) >= 0; c.save(); c.translate(cx + 132 + i * 24, 128); itemPath(c, 8); c.fillStyle = on ? RAINBOW[i] : 'rgba(150,120,140,0.25)'; c.fill(); if (on) { c.strokeStyle = 'rgba(255,255,255,0.8)'; c.lineWidth = 1.5; c.stroke(); } c.restore(); }
-  } else { c.save(); c.translate(cx + 74, 96); c.scale(pop, pop); const g = c.createRadialGradient(-8, -18, 2, 0, -6, 40); g.addColorStop(0, '#FFF6C4'); g.addColorStop(0.5, '#F8CC4E'); g.addColorStop(1, '#E3952F'); c.translate(0, -12); eggPath(c, 30); c.fillStyle = g; c.fill(); c.strokeStyle = 'rgba(190,110,50,0.4)'; c.lineWidth = 3; c.stroke(); c.restore(); }
-  text(c, String(Game.team.eggs), cx + 122, isLupta() ? 76 : 86, isLupta() ? 64 : 72, isLupta() ? '#3F6FB0' : '#B9702E', { align: 'left', halo: 0, weight: 'bold' });
+    c.save(); c.translate(cx + 56, yc - 6); c.scale(cpop, cpop); drawCrystal(c, 0, 19, 22, 0, 0, 0, (t * 0.7 | 0) % 7); c.restore();
+    for (let i = 0; i < 7; i++) { const on = P.rainbow.indexOf(i) >= 0; c.save(); c.translate(cx + 96 + i * 18, y0 + 76); itemPath(c, 6); c.fillStyle = on ? RAINBOW[i] : 'rgba(150,120,140,0.25)'; c.fill(); if (on) { c.strokeStyle = 'rgba(255,255,255,0.8)'; c.lineWidth = 1.2; c.stroke(); } c.restore(); }
+  } else { c.save(); c.translate(cx + 56, yc + 10); c.scale(cpop, cpop); const g = c.createRadialGradient(-6, -13, 2, 0, -4, 29); g.addColorStop(0, '#FFF6C4'); g.addColorStop(0.5, '#F8CC4E'); g.addColorStop(1, '#E3952F'); c.translate(0, -9); eggPath(c, 22); c.fillStyle = g; c.fill(); c.strokeStyle = 'rgba(190,110,50,0.4)'; c.lineWidth = 2.5; c.stroke(); c.restore(); }
+  text(c, String(Game.team.eggs), cx + 90, isLupta() ? yc - 12 : yc, 52, isLupta() ? '#3F6FB0' : '#B9702E', { align: 'left', halo: 0, weight: 'bold' });
   if (L.boss) {
     for (let i = 0; i < bh; i++) {
-      const x = cx + cw - 64 - (bh - 1 - i) * bsp, done = i < P.boss.phase;
-      c.fillStyle = done ? '#F8C24E' : 'rgba(180,140,120,0.3)'; c.beginPath(); c.arc(x, 84, br, 0, TAU); c.fill();
-      if (done) drawBall(c, x, 84, br - 8, 0.4); else { c.strokeStyle = 'rgba(150,110,100,0.5)'; c.lineWidth = 4; c.setLineDash([8, 8]); c.beginPath(); c.arc(x, 84, br - 8, 0, TAU); c.stroke(); c.setLineDash([]); }
+      const x = cx + cw - 50 - (bh - 1 - i) * bsp, done = i < P.boss.phase;
+      c.fillStyle = done ? '#F8C24E' : 'rgba(180,140,120,0.3)'; c.beginPath(); c.arc(x, yc, br, 0, TAU); c.fill();
+      if (done) drawBall(c, x, yc, br - 6, 0.4); else { c.strokeStyle = 'rgba(150,110,100,0.5)'; c.lineWidth = 3; c.setLineDash([6, 6]); c.beginPath(); c.arc(x, yc, br - 6, 0, TAU); c.stroke(); c.setLineDash([]); }
     }
-  } else {
-    c.lineJoin = 'round';
-    for (let i = 0; i < P.stars.length; i++) {
-      const s = P.stars[i], x = cx + 330 + i * 78;
-      starPath(c, x, 78, 30, 0);
-      if (s.got) { c.fillStyle = '#FFE7A0'; c.strokeStyle = '#F4B08E'; c.lineWidth = 6; c.stroke(); c.fill(); } else { c.fillStyle = 'rgba(190,150,130,0.28)'; c.fill(); }
-    }
-    // sun timer: the sun travels toward the hill while the level lasts (second game: the moon travels toward sunrise)
-    const u = clamp(t / CONFIG.levelDuration, 0, 1), x0 = cx + 580, yy = 108;
-    c.strokeStyle = 'rgba(160,120,110,0.4)'; c.lineWidth = 4; c.lineCap = 'round'; c.beginPath(); c.arc(x0, yy, 44, Math.PI, TAU); c.stroke();
-    const a = Math.PI + u * Math.PI; soft(c, x0 + Math.cos(a) * 44, yy + Math.sin(a) * 44, 13, 13, isLupta() ? mix('#E8ECFF', '#FFD86A', u) : mix('#FFD86A', '#EE8A5A', u), 1, 3);
-    if (isLupta()) soft(c, x0 + Math.cos(a) * 44 + 5, yy + Math.sin(a) * 44 - 3, 10, 10, '#FFF3DC', 1 - u, 4);      // a crescent moon that grows into a sun
-    c.fillStyle = isLupta() ? '#6A6FB0' : '#9DB37E'; c.beginPath(); c.ellipse(x0, yy + 8, 56, 12, 0, Math.PI, TAU); c.fill();
-    drawProgress(c);
+    return;
   }
-  if (P.banner) {
-    const b = P.banner, a = clamp(Math.min(b.t, 1), 0, 1), y = (L.boss ? 232 : 306) + (1 - easeOut(a)) * -40;
-    c.globalAlpha = a;
-    const label = T('ban.' + b.kind, isLupta() ? CONFIG.lupta.rainbowBonus : '');
-    if (b.kind === 'duel') {
-      card(c, W / 2 - 480, y - 62, 960, 176, '#FFF6E2', 33);
-      text(c, label, W / 2, y - 6, 64, '#C4573D', { title: true, halo: 0 });
-      text(c, T(b.mid ? 'duel.mid' : 'duel.guard', T('duel.' + b.id)), W / 2, y + 66, 40, '#7A4A52', { halo: 0, shadow: 0, weight: 'bold' });
-    } else {
-    card(c, W / 2 - 330, y - 56, 660, 112, '#FFF6E2', 31);
-    text(c, label, W / 2 - 10, y, 60, '#C4573D', { title: true, halo: 0 });
-    if (b.kind === 'more') iconArrow(c, W / 2 + 240 + Math.sin(t * 6) * 8, y, 0, 30, '#F8C24E');
-    if (b.kind === 'nest') { drawNest(c, W / 2 + 232, y + 4, 44, 5, 0); iconArrow(c, W / 2 - 250 + Math.sin(t * 6) * 8, y, 0, 26, '#F8C24E'); }
-    if (b.kind === 'giant') drawEgg(c, W / 2 + 250, y + 26, 26, t, 1, 0, 0, true);
-    if (b.kind === 'rainbow') for (let i = 0; i < 7; i++) { c.save(); c.translate(W / 2 + (i < 3 ? -300 + i * 30 : 215 + (i - 3) * 30), y + Math.sin(t * 6 + i) * 5); itemPath(c, 11); c.fillStyle = RAINBOW[i]; c.fill(); c.restore(); }
-    }
-    c.globalAlpha = 1;
+  c.lineJoin = 'round';
+  for (let i = 0; i < P.stars.length; i++) {
+    const s = P.stars[i], x = cx + 274 + i * 56;
+    starPath(c, x, yc - 2, 24, 0);
+    if (s.got) { c.fillStyle = '#FFE7A0'; c.strokeStyle = '#F4B08E'; c.lineWidth = 5; c.stroke(); c.fill(); } else { c.fillStyle = 'rgba(190,150,130,0.28)'; c.fill(); }
   }
+  // sun timer: the sun travels toward the hill while the level lasts (second game: the moon travels toward sunrise)
+  const u = clamp(t / CONFIG.levelDuration, 0, 1), x0 = cx + 496, yy = y0 + 72;
+  c.strokeStyle = 'rgba(160,120,110,0.4)'; c.lineWidth = 3.5; c.lineCap = 'round'; c.beginPath(); c.arc(x0, yy, 34, Math.PI, TAU); c.stroke();
+  const a = Math.PI + u * Math.PI; soft(c, x0 + Math.cos(a) * 34, yy + Math.sin(a) * 34, 10, 10, isLupta() ? mix('#E8ECFF', '#FFD86A', u) : mix('#FFD86A', '#EE8A5A', u), 1, 3);
+  if (isLupta()) soft(c, x0 + Math.cos(a) * 34 + 4, yy + Math.sin(a) * 34 - 2, 8, 8, '#FFF3DC', 1 - u, 4);      // a crescent moon that grows into a sun
+  c.fillStyle = isLupta() ? '#6A6FB0' : '#9DB37E'; c.beginPath(); c.ellipse(x0, yy + 6, 44, 9, 0, Math.PI, TAU); c.fill();
+}
+function drawHUD(c) {
+  drawBadge(c, 0, 28, 16); drawBadge(c, 1, W - 28 - 300, 16);
+  drawMidCard(c, P.banner || waitBanner());
+  if (!P.L.boss) drawProgress(c);
 }
 function drawPlay(c) {
   const v = drawWorld(c);
@@ -4823,7 +5013,7 @@ function drawGeorgeBoss(c, o, t) {
    ========================================================================== */
 const UI = { titleBg: null, titleOv: null, endBg: null, endOv: null, seen: [false, false], ready: [false, false], menuSel: 0, startT: -1,
   pauseSel: 0, introT: 0, endT: 0, lvlT: 0, loadStep: 0, lostK: -1, hatch: false, said2: false, fwT: 0,
-  gameSel: 0, selT: 0, bgs: {}, ends: {}, spkLost: -1, spkLostT: 0,          // gameSel: the game picked on the "choose the game" screen
+  bgs: {}, ends: {}, spkLost: -1, spkLostT: 0,          // gameSel: the game picked on the "choose the game" screen
   set: null, hits: [], click: null, hover: null, clicked: false };
 const DIFFS = ['easy', 'normal', 'hard'];
 const heroOf = p => Opt.swap ? 1 - p : p;        // which hero (0 Bubu, 1 Leo) player p plays
@@ -4902,7 +5092,7 @@ const Save = {
   /* the furthest chapter open on the Chapters screen (-1: no chapter was ever finished, the button is not shown) */
   maxOpen(id) { const s = this.slot(id); return s && (s.max | 0) > 0 ? Math.min(s.max | 0, chapters(id).length - 1) : -1; }
 };
-const KEY_FIELDS = ['up', 'down', 'left', 'right', 'a', 'b'];
+const KEY_FIELDS = ['up', 'down', 'left', 'right', 'a', 'b', 'c', 'r'];      // a = first power (✕), b = help (○), c = second power (□), r = run (L3)
 
 /* Mouse: every clickable thing adds a rectangle while it is drawn. */
 function hitAdd(x, y, w, h, id, v, act, val) { UI.hits.push({ x, y, w, h, id, v, act, val }); }
@@ -4923,7 +5113,7 @@ function pressText() {
 function fitText(c, str, x, y, size, maxW, col, o) {
   setFont(c, size, o && o.title, o && o.weight);
   const w = c.measureText(str).width, s = w > maxW ? Math.max(14, Math.floor(size * maxW / w)) : size;
-  if (str.indexOf('✕') >= 0 || str.indexOf('□') >= 0) richText(c, str, x, y, s, col, o); else text(c, str, x, y, s, col, o);
+  if (/[✕□○◉]/.test(str)) richText(c, str, x, y, s, col, o); else text(c, str, x, y, s, col, o);
 }
 /* The two players trade heroes. Controllers, keys, difficulty and the helper arrow stay with the players. */
 function swapHeroes() {
@@ -4979,16 +5169,16 @@ function titleBackdrop(id) {
   if (!UI.bgs[id]) UI.bgs[id] = id === 'lupta' ? { bg: paintJungleScene(600, 27), ov: makeOverlay('#C8D0FF', 0.1, 0.5, true) } : { bg: paintMeadowScene(0.3, 600, 21), ov: makeOverlay('#FFE6BE', 0.1, 0.42) };
   return UI.bgs[id];
 }
-/* Chooses which of the two games is played: its heroes, villain and boss values, its texts, pictures, music and progress. */
+/* Sets up the game (the second game is the only one now): its heroes, villain and boss values, its texts, pictures, music and progress. */
 function setGame(id) {
-  GAME = id === 'lupta' ? 'lupta' : 'bubu'; applyGameConfig();
+  GAME = 'lupta'; applyGameConfig();      // there is only one game now; the argument is ignored
   for (const k in SPR) delete SPR[k];              // the cached pictures (egg or crystal, portraits, nest) belong to one game
   const b = titleBackdrop(GAME); UI.titleBg = b.bg; UI.titleOv = b.ov;
   UI.endBg = null; UI.seen = [false, false]; UI.ready = [false, false];
   setLanguage(Opt.lang);
 }
 function initScreens() {
-  const b = titleBackdrop('bubu'); UI.titleBg = b.bg; UI.titleOv = b.ov;
+  const b = titleBackdrop('lupta'); UI.titleBg = b.bg; UI.titleOv = b.ov;
 }
 function drawBackdrop(c, cv) { c.drawImage(cv, 0, 0); }
 function prompt(c, str, x, y, size, t) { richText(c, str, x, y, size, '#7A4A52', { pulse: Math.sin(t * 5), title: false }); }
@@ -4997,57 +5187,11 @@ function prompt(c, str, x, y, size, t) { richText(c, str, x, y, size, '#7A4A52',
 /* ---------- boot + title ---------- */
 function drawBoot(c, t) {
   drawBackdrop(c, UI.titleBg);
-  text(c, TG('bubu', 'title'), W / 2, 300, 150, '#C4573D', { title: true });
-  text(c, TG('lupta', 'title'), W / 2, 470, 120, '#5A58B0', { title: true });
-  drawGoldEgg(c, W / 2 - 70, 700, 46, t, 1, 0); drawCrystal(c, W / 2 + 70, 700, 44, t, 2, 0, (t * 1.5 | 0) % 7);
+  fitText(c, TG('lupta', 'title'), W / 2, 380, 150, 1500, '#FFE9B0', { title: true, haloCol: 'rgba(70,56,140,0.6)' });
+  drawCrystal(c, W / 2, 640, 56, t, 2, 0, (t * 1.5 | 0) % 7);
   card(c, W / 2 - 520, 800, 1040, 150, '#FFF6E2', 3);
   text(c, T('boot.click'), W / 2, 852, 54, '#7A4A52', { halo: 0 });
   text(c, T('boot.sub'), W / 2, 912, 34, '#9A7A7A', { halo: 0, shadow: 0 });
-}
-/* ---------- the first screen: which of the two games? ---------- */
-function updateSelect(dt) {
-  const M = Input.menu, ck = hitFind(UI.click), hv = hitFind(UI.hover);
-  UI.selT += dt;
-  if (Input.pause || (ck && ck.id === 'settings')) { openSettings(); return; }
-  if (M.left || M.right) { UI.gameSel = 1 - UI.gameSel; Snd.play('ui'); }
-  if (hv && hv.id === 'game' && hv.v !== UI.gameSel) { UI.gameSel = hv.v; Snd.play('ui'); }
-  if (ck && ck.id === 'game') UI.gameSel = ck.v;
-  if (UI.selT > 0.4 && ((ck && ck.id === 'game') || M.ok || Input.any(s => s.aP))) { Input.muteHeld(); setGame(GAME_IDS[UI.gameSel]); Snd.play('ok'); Game.toTitle(); }      // the key that chose the game does nothing more until it is released
-}
-function drawSelect(c, t) {
-  const A = titleBackdrop('bubu'), B = UI.bgs.lupta || (UI.bgs.lupta = titleBackdrop('lupta'));
-  c.drawImage(A.bg, 0, 0);                                                         // day on the left, night on the right
-  c.save(); c.beginPath(); c.moveTo(W / 2 + 60, 0); c.lineTo(W, 0); c.lineTo(W, H); c.lineTo(W / 2 - 60, H); c.closePath(); c.clip(); c.drawImage(B.bg, 0, 0); c.restore();
-  text(c, T('sel.title'), W / 2, 110, 110, '#C4573D', { title: true });
-  card(c, W - 400, 34, 366, 104, '#FFF6E2', 44); hitAdd(W - 400, 34, 366, 104, 'settings');
-  drawGear(c, W - 346, 86, 30, '#C4573D', t);
-  text(c, T('t.settings'), W - 300, 70, 40, '#7A4A52', { align: 'left', halo: 0, shadow: 0, weight: 'bold' });
-  text(c, T('t.setKey'), W - 300, 110, 22, '#9A7A7A', { align: 'left', halo: 0, shadow: 0 });
-  for (let i = 0; i < 2; i++) {
-    const id = GAME_IDS[i], sel = UI.gameSel === i, cw = 800, ch = 760, x = i === 0 ? W / 2 - 60 - cw : W / 2 + 60, y = 200, k = sel ? 1 + Math.sin(t * 3) * 0.006 : 0.94, lup = id === 'lupta';
-    c.save(); c.translate(x + cw / 2, y + ch / 2); c.scale(k, k); c.translate(-cw / 2, -ch / 2);
-    c.globalAlpha = sel ? 1 : 0.82;
-    if (sel) card(c, -14, -14, cw + 28, ch + 28, '#F8C24E', 120 + i);
-    card(c, 0, 0, cw, ch, lup ? '#E6E2FA' : '#FFF6E2', 122 + i);
-    fitText(c, TG(id, 'title'), cw / 2, 78, 84, cw - 80, lup ? '#5A58B0' : '#C4573D', { title: true, halo: 0 });
-    fitText(c, TG(id, 'subtitle'), cw / 2, 152, 46, cw - 80, lup ? '#B0589A' : '#B9802E', { title: true, halo: 0 });
-    // the heroes and the villain of that game
-    c.save(); c.beginPath(); c.rect(20, 190, cw - 40, 380); c.clip();
-    c.drawImage(lup ? B.bg : A.bg, 300, 420, 1320, 660, 20, 190, cw - 40, 380);
-    const bob = q => sel ? Math.abs(Math.sin(t * 5 + q)) * 14 : 0, o = (q, f) => ({ scale: 1.9, t: t + q, face: f, happy: sel, moving: sel, walk: t * 8 + q });
-    if (lup) { drawGeorge(c, 400, 400 + Math.sin(t * 2) * 6, { scale: 1.55, t: t, mood: sel ? 'angry' : 'calm', face: -1 }); drawBoon(c, 150, 540 - bob(0), o(0, 1)); drawKiller(c, 640, 548 - bob(1.3), o(1, -1)); for (let j = 0; j < 3; j++) drawCrystal(c, 330 + j * 70, 548, 24, t, j * 2.1, 0, (j * 2 + 1) % 7); }
-    else { drawCiori(c, 400, 330 + Math.sin(t * 2) * 10, { scale: 1.7, t: t, fly: true, face: -1 }); drawBubu(c, 170, 540 - bob(0), o(0, 1)); drawLeo(c, 630, 548 - bob(1.3), o(1, -1)); for (let j = 0; j < 3; j++) drawGoldEgg(c, 330 + j * 70, 548, 24, t, j * 2.1, 0); }
-    c.restore();
-    const lines = wrapLines(c, T('sel.' + id), cw - 100, 32);
-    lines.forEach((ln, j) => text(c, ln, cw / 2, 612 + j * 42, 32, '#6A4250', { halo: 0, shadow: 0 }));
-    if (lup) { c.save(); c.translate(cw - 150, 204); c.rotate(0.1); card(c, -150, -30, 300, 60, '#E45AA0', 7); fitText(c, T('sel.byKids'), 0, 0, 28, 270, '#FFF6E2', { halo: 0, shadow: 0, weight: 'bold' }); c.restore(); }
-    if (sel) richText(c, pressText(), cw / 2, 712, 44, '#7A4A52', { pulse: Math.sin(t * 5), weight: 'bold', halo: 0 });
-    else if (Save.hasProgress(id)) fitText(c, T('t.cont', chapterLabel(Save.slot(id).level, id)), cw / 2, 712, 30, cw - 80, '#8A6A6A', { halo: 0, shadow: 0 });
-    c.globalAlpha = 1; c.restore();
-    hitAdd(x, y, cw, ch, 'game', i);
-  }
-  text(c, T('sel.hint'), W / 2, 1030, 24, 'rgba(110,80,90,0.9)', { shadow: 0 });
-  if (!Snd.ready) text(c, T('t.click'), W / 2, 176, 28, '#C4573D', {});
 }
 /* The buttons under the heroes: "Continue: ...", "Chapters", "New game". At the very first start only one, and it says "Start!". */
 function titleMenu() {
@@ -5075,7 +5219,6 @@ function updateTitle(dt) {
   const S = Input.slots, ck = hitFind(UI.click), nm = titleMenu().length;
   if (UI.ask) { updateAsk(); return; }
   if (Input.pause || (ck && ck.id === 'settings')) { openSettings(); return; }
-  if ((Input.menu.back || (ck && ck.id === 'games')) && !UI.ready[0] && !UI.ready[1]) { Snd.play('ui'); Game.toSelect(); return; }      // ○ or Backspace: back to the two games
   if (ck && ck.id === 'tmenu') { UI.menuSel = ck.v; Snd.play('ui'); }
   UI.menuSel = clamp(UI.menuSel | 0, 0, nm - 1);
   for (let k = 0; k < 2; k++) {
@@ -5111,9 +5254,6 @@ function drawTitle(c, t) {
   drawGear(c, W - 346, 86, 30, '#C4573D', t);
   text(c, T('t.settings'), W - 300, 70, 40, '#7A4A52', { align: 'left', halo: 0, shadow: 0, weight: 'bold' });
   text(c, T('t.setKey'), W - 300, 110, 22, '#9A7A7A', { align: 'left', halo: 0, shadow: 0 });
-  // back to the two games (○ on a controller, Backspace or a mouse click)
-  card(c, 34, 34, 330, 104, '#FFF6E2', 45); hitAdd(34, 34, 330, 104, 'games');
-  iconArrow(c, 84, 86, Math.PI, 22, '#C4573D'); fitText(c, T('sel.title'), 222, 86, 36, 220, '#7A4A52', { halo: 0, shadow: 0, weight: 'bold' });
   // Ciori circles with a stolen egg (in the second game George stomps about with a crystal)
   const cx = W / 2 + Math.sin(t * 0.5) * 300, cy = 430 + Math.sin(t * 1.1) * 40, cf = Math.cos(t * 0.5) > 0 ? 1 : -1;
   if (isLupta()) { drawGeorge(c, cx, 520, { scale: 1.2, t: t, face: cf, mood: 'calm', moving: true, walk: t * 9 }); drawCrystal(c, cx + cf * 96, 470, 20, t, 3, 0, (t | 0) % 7); }
@@ -5315,7 +5455,7 @@ function drawIntroIconL(c, kind, x, y, t, Lx) {
   else return false;
   return true;
 }
-function drawDim(c, a) { c.fillStyle = (isLupta() && Game.state !== 'title' && Game.state !== 'select' ? 'rgba(232,228,255,' : 'rgba(255,240,214,') + a + ')'; c.fillRect(0, 0, W, H); }
+function drawDim(c, a) { c.fillStyle = (isLupta() && Game.state !== 'title' ? 'rgba(232,228,255,' : 'rgba(255,240,214,') + a + ')'; c.fillRect(0, 0, W, H); }
 function drawIntro(c, t) {
   const L = P.L, def = L.def;
   drawWorld(c); drawDim(c, 0.45);
@@ -5467,7 +5607,7 @@ function openSettings() {
   Input.autoJoin = false; Input.kbJoin = false; Snd.play('ok');
 }
 function closeSettings() {
-  UI.set = null; Input.autoJoin = true; Input.kbJoin = Game.state !== 'select' && Game.state !== 'chapters'; Input.bindTo = null; Input.cancelCapture();
+  UI.set = null; Input.autoJoin = true; Input.kbJoin = Game.state !== 'chapters'; Input.bindTo = null; Input.cancelCapture();
   Save.write(); Snd.play('ok');
 }
 function setMsg(m) { if (UI.set) { UI.set.msg = m; UI.set.msgT = 6; } }
@@ -5592,7 +5732,7 @@ function drawPadTester(c, x, y, g, t) {
   const sx = x + 150, sy = y + 172;
   c.strokeStyle = off; c.lineWidth = 5; c.beginPath(); c.arc(sx, sy, 36, 0, TAU); c.stroke();
   const m = Math.hypot(ax, ay), live = m > Math.max(0.25, CONFIG.deadzone);
-  c.fillStyle = live ? '#6D8FD0' : 'rgba(109,143,208,0.45)'; c.beginPath(); c.arc(sx + ax * 24, sy + ay * 24, 16, 0, TAU); c.fill();
+  c.fillStyle = b(10) ? '#3F5A9A' : live ? '#6D8FD0' : 'rgba(109,143,208,0.45)'; c.beginPath(); c.arc(sx + ax * 24, sy + ay * 24, 16, 0, TAU); c.fill();      // L3: the cap goes darker when the stick is pressed
   // OPTIONS
   c.fillStyle = b(9) ? '#C4573D' : off; c.beginPath(); c.ellipse(x + 190, y + 40, 22, 9, 0, 0, TAU); c.fill();
   // △ ○ ✕ □
@@ -5824,11 +5964,6 @@ addEventListener('keydown', e => {
 // "Ecran complet" in Setări always shows what the screen really does, and that is what gets saved
 document.addEventListener('fullscreenchange', () => { Opt.fullscreen = !!document.fullscreenElement; if (Game.state !== 'boot') Save.write(); });
 
-Game.toSelect = function () {             // the screen where one of the two games is chosen
-  Game.state = 'select'; Game.paused = false; UI.selT = 0; UI.set = null; UI.gameSel = Math.max(0, GAME_IDS.indexOf(GAME));
-  Input.autoJoin = true; Input.kbJoin = false; Input.bindTo = null;      // Enter or Space here only choose the game: nobody joins by keyboard on this screen
-  Voice.stop(); Save.load(); Snd.music('title'); Snd.setDuck(1);
-};
 Game.toTitle = function () {
   Game.state = 'title'; Game.paused = false; UI.ready = [false, false]; UI.menuSel = 0; UI.startT = -1; UI.lostK = -1; UI.set = null; UI.ask = null;
   Input.autoJoin = true; Input.kbJoin = true; Input.bindTo = null;
@@ -5864,12 +5999,9 @@ function update(dt) {
   if (st === 'boot') {
     if (Input.anyKey || UI.clicked || Input.slots[0].joined || Input.slots[1].joined) {
       Snd.init(); Voice.init(); restoreSpeakers();
-      const last = Save.data && Save.data.game === 'lupta' ? 'lupta' : 'bubu';      // the game played last time is the one already picked
-      if (last !== GAME) setGame(last);
-      Game.toSelect();
+      Game.toTitle();
     }
-  } else if (UI.set && (st === 'title' || st === 'select' || (st === 'play' && Game.paused))) updateSettings(dt);
-  else if (st === 'select') updateSelect(dt);
+  } else if (UI.set && (st === 'title' || (st === 'play' && Game.paused))) updateSettings(dt);
   else if (st === 'title') updateTitle(dt);
   else if (st === 'chapters') updateChapters(dt);
   else if (st === 'loading') {
@@ -5906,7 +6038,6 @@ function draw() {
   UI.hits.length = 0;
   let ov = UI.titleOv;
   if (st === 'boot') drawBoot(c, t);
-  else if (st === 'select') { drawSelect(c, t); ov = titleBackdrop('bubu').ov; }
   else if (st === 'title') drawTitle(c, t);
   else if (st === 'chapters') drawChapters(c, t);
   else if (st === 'loading') drawLoading(c, t);
@@ -5914,7 +6045,7 @@ function draw() {
   else if (st === 'play') { drawPlay(c); if (Game.paused && !UI.set) drawPause(c, t); ov = P.L.overlay; }
   else if (st === 'levelEnd') { drawLevelEnd(c, t); ov = P.L.overlay; }
   else if (st === 'ending') { drawEnding(c, t); ov = UI.endOv; }
-  if (UI.set && (st === 'title' || st === 'select' || st === 'play')) { UI.hits.length = 0; drawSettings(c, t); }
+  if (UI.set && (st === 'title' || st === 'play')) { UI.hits.length = 0; drawSettings(c, t); }
   // the paper texture, the warm light and the vignette lie over everything
   c.globalCompositeOperation = 'multiply'; c.drawImage(ov, 0, 0, W, H); c.globalCompositeOperation = 'source-over';
 }
@@ -5932,7 +6063,7 @@ function frame(ts) {
 Save.load(); Save.apply(); setLanguage(Opt.lang);
 resize();
 initScreens();
-window.__game = { Game, Input, UI, Save, CONFIG, Opt, STR, T, Snd, Voice, Perf, get P() { return P; }, get GAME() { return GAME; }, setGame, buildLevel, genLevel, startPlay, startDuel, duelHit, openNest, hitHero, getUp, tryRescue, hurtSmall, kickBall, recallBalls, chapters, chapterLabel, titleMenu, chapterLayout, update, draw, openSettings, closeSettings, swapHeroes, settingsRows };
+window.__game = { Game, Input, UI, Save, CONFIG, Opt, STR, T, Snd, Voice, Perf, get P() { return P; }, get GAME() { return GAME; }, setGame, buildLevel, genLevel, startPlay, startDuel, duelHit, openNest, hitHero, getUp, tryRescue, hurtSmall, kickBall, recallBalls, chapters, chapterLabel, titleMenu, chapterLayout, HUD_TOP, HERO_BOX, camTarget, update, draw, openSettings, closeSettings, swapHeroes, settingsRows, KEY_FIELDS, startRun, stopRun, canRun };
 requestAnimationFrame(ts => { _last = ts; requestAnimationFrame(frame); });
 
 </script>

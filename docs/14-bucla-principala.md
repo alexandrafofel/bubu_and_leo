@@ -24,7 +24,6 @@ Mouse-ul dispare cat se joaca (clasa CSS `playing`, `cursor: none`) si reapare i
 
 | Functie | Ce face |
 |---|---|
-| `Game.toSelect()` | Ecranul "Alege jocul": inchide meniurile, opreste intrarea in joc cu tastatura (`kbJoin = false`), muzica de start. |
 | `Game.toTitle()` | Ecranul de start: reseteaza "Gata!", inchide meniurile, reporneste atribuirea automata a controllerelor, opreste vocea, citeste salvarea, muzica de start. |
 | `Game.startGame(cont)` | Cu `cont`: porneste capitolul la care duce "Continuă". Fara: sterge progresul jocului ales (`Save.newGame`) si porneste capitolul 1. |
 | `Game.startChapter(i)` | Porneste capitolul `i` ales pe ecranul Capitole. Nu sterge nimic. |
@@ -37,9 +36,8 @@ Mouse-ul dispare cat se joaca (clasa CSS `playing`, `cursor: none`) si reapare i
 
 | Stare | Ce face |
 |---|---|
-| `boot` | Asteapta o tasta, un clic sau un controller. Apoi porneste sunetul si vocea, cauta difuzoarele salvate, alege jocul jucat ultima data (`Save.data.game`) si merge la "Alege jocul". |
+| `boot` | Asteapta o tasta, un clic sau un controller. Apoi porneste sunetul si vocea, cauta difuzoarele salvate si merge direct la ecranul de start (`Game.toTitle`). |
 | meniul Setari deschis | Doar `updateSettings`. Jocul din spate sta pe loc. |
-| `select` | `updateSelect`. |
 | `title` | `updateTitle`. |
 | `chapters` | `updateChapters`: ecranul Capitole. |
 | `loading` | Al treilea cadru: construieste nivelul, trece la `intro`, coboara muzica, citeste povestea. |

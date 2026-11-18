@@ -1,6 +1,8 @@
 # Cuprins
 
-Documentatia completa a celor doua jocuri din acelasi fisier: "Bubu și Leo: Ouăle de Aur" si "Cea mai grea luptă" (inventat de copii, vezi capitolul 21). Este scrisa ca oricine (om sau orice cont Claude) sa poata intelege si modifica jocul fara sa fi vazut conversatiile in care a fost facut.
+> **Din 18 noiembrie 2026 exista un singur joc: "Cea mai grea luptă".** "Bubu și Leo" a fost scos (vezi `16-decizii.md`, "Un singur joc"). Orice schimbare se face doar in "Cea mai grea luptă". Ce scrie mai jos despre primul joc, despre alegerea jocului sau despre "ambele jocuri" este istoric.
+
+Documentatia completa a jocului "Cea mai grea luptă" (inventat de copii, vezi capitolul 21). Pana pe 17 noiembrie 2026 fisierul avea si "Bubu și Leo: Ouăle de Aur"; capitolele despre el sunt istorice. Este scrisa ca oricine (om sau orice cont Claude) sa poata intelege si modifica jocul fara sa fi vazut conversatiile in care a fost facut.
 
 ## Cum citesti
 
@@ -38,10 +40,11 @@ Anexele din `anexe/` sunt liste generate din cod. Ele sunt mereu exacte, pentru 
 | 20 | [Update 13 noiembrie](20-update-urmator.md) | Specificatia update-ului din 13 noiembrie 2026 (facut) |
 | 21 | [Cea mai grea luptă](21-cea-mai-grea-lupta.md) | Al doilea joc: Boon, Killer, George cel Rău, jungla de noapte |
 | 22 | [Update 14 noiembrie](22-update-14-noiembrie.md) | Doua jocuri, ajutorul cu □, inamicii mici, cuibul, sunetele reparate |
-| 23 | [Update urmator: Partea a doua](23-update-partea-a-doua.md) | **Specificatie, neimplementata.** Rundele 7 - 12 din "Cea mai grea luptă": cerere, hotarari, intrebari, principii, planul in 13 sarcini |
+| 23 | [Update urmator: Partea a doua](23-update-partea-a-doua.md) | **Specificatie, neimplementata.** Rundele 7 - 12 din "Cea mai grea luptă": cerere, hotarari, intrebari, principii, planul in 14 sarcini |
 | 24 | [Sisteme noi](24-sisteme-noi.md) | **Specificatie.** Butoane (✕, ○, □, L3), fuga, a doua putere, cele 10 secunde, capitole, scrisul de sus, stilul grafic |
 | 25 | [Nivelurile 7 - 12](25-niveluri-7-12.md) | **Specificatie.** Povestea, mecanismele de colaborare, cele sase niveluri, George, Sala Tronului, texte, sunete |
 | 26 | [Limba personajelor](26-limba-personajelor.md) | **Specificatie (T13).** Fiecare erou are propria limba, cu cam 1000 de cuvinte generate, fraze, balon cu traducerea si Dictionar |
+| 27 | [Cota de oua si cristale](27-cota-de-oua.md) | **Specificatie (T14).** Fiecare erou are de gasit un numar pe nivel, tine cel mult 150%, ii da prietenului cu L1; insigna verde / rosie |
 
 ## Anexe generate
 

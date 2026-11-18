@@ -1,7 +1,8 @@
 
 /* ==========================================================================
    INPUT: two DualShock 4 controllers through the Gamepad API (standard mapping)
-   or the keyboard. ✕ (button 0) = power, □ (button 2) = help the friend. Each hero is played with what was chosen in Setări:
+   or the keyboard. ✕ (button 0) = first power, ○ (button 1) = help the friend, □ (button 2) = second power,
+   L3 (button 10, pressing the left stick) = run. Each hero is played with what was chosen in Setări:
    a controller ('pad') or the keyboard ('kb') with its own keys.
    Menus listen to everything: every controller, the arrow keys, Enter, Space,
    Backspace and the players' own keys.
@@ -9,7 +10,10 @@
 const Input = (() => {
   const keys = {}, tap = {}, mute = {};   // tap: pressed and released between two frames. mute: ignored until released.
   const kd = code => !!(code && !mute[code] && (keys[code] || tap[code]));
-  const mk = () => ({ pad: null, joined: false, usedKb: false, x: 0, y: 0, a: false, aP: false, aR: false, b: false, bP: false,
+  const mk = () => ({ pad: null, joined: false, usedKb: false, x: 0, y: 0, a: false, aP: false, aR: false,
+    h: false, hP: false,                      // ○: help the friend
+    c: false, cP: false, cR: false,           // □: the second power
+    run: false, runP: false,                  // L3: run
     start: false, tri: false, back: false, up: false, down: false, left: false, right: false, _p: {}, _rep: 0 });
   const slots = [mk(), mk()];
   const menu = { up: false, down: false, left: false, right: false, ok: false, back: false, pause: false, _p: {}, _rep: 0 };
@@ -62,7 +66,7 @@ const Input = (() => {
     }
     for (let k = 0; k < 2; k++) {
       const s = slots[k], kb = Opt.keys[k];
-      let x = 0, y = 0, a = false, start = false, tri = false, back = false, sq = false;
+      let x = 0, y = 0, a = false, start = false, tri = false, back = false, sq = false, hp = false, l3 = false;
       let dU = false, dD = false, dL = false, dR = false;
       s.lost = false;
       if (s.pad != null) {
@@ -74,7 +78,7 @@ const Input = (() => {
           const m = Math.hypot(ax, ay), dz = Math.max(0.25, CONFIG.deadzone);
           if (m > dz) { const f = Math.min(1, (m - dz) / (1 - dz)) / m; x = ax * f; y = ay * f; }
           if (b(12)) y = -1; if (b(13)) y = 1; if (b(14)) x = -1; if (b(15)) x = 1;
-          a = b(0); start = b(9); tri = b(3); back = b(1); sq = b(2);
+          a = b(0); start = b(9); tri = b(3); back = b(1); hp = b(1); sq = b(2); l3 = b(10);      // ○ is "back" in the menus and "help the friend" in the game
           dU = y < -0.55; dD = y > 0.55; dL = x < -0.55; dR = x > 0.55;
           s.joined = true;
         }
@@ -86,14 +90,16 @@ const Input = (() => {
         if (kd(kb.left)) kx -= 1; if (kd(kb.right)) kx += 1; if (kd(kb.up)) ky -= 1; if (kd(kb.down)) ky += 1;
         if (kx || ky || kd(kb.a)) { s.usedKb = true; s.joined = true; }
         if (kx || ky) { x = kx; y = ky; dU = ky < 0; dD = ky > 0; dL = kx < 0; dR = kx > 0; }
-        a = kd(kb.a); sq = kd(kb.b);
+        a = kd(kb.a); hp = kd(kb.b); sq = kd(kb.c); l3 = kd(kb.r);
         mU = mU || dU; mD = mD || dD; mL = mL || dL; mR = mR || dR; mOk = mOk || a;
       }
       const m = Math.hypot(x, y); if (m > 1) { x /= m; y /= m; }
       const p = s._p;
       s.x = x; s.y = y;
       s.aP = a && !p.a; s.aR = !a && !!p.a; s.a = a;
-      s.bP = sq && !p.sq; s.b = sq;                 // □ (or the help key): help the friend who was hit
+      s.hP = hp && !p.hp; s.h = hp;                 // ○ (or the help key): help the friend who was hit
+      s.cP = sq && !p.sq; s.cR = !sq && !!p.sq; s.c = sq;      // □ (or its key): the second power
+      s.runP = l3 && !p.l3; s.run = l3;             // L3 (or its key): run
       s.start = start && !p.start; s.tri = tri && !p.tri; s.back = back && !p.back;
       s.up = dU && !p.dU; s.down = dD && !p.dD;
       // left/right repeat while held (for the volume sliders)
@@ -103,7 +109,7 @@ const Input = (() => {
         if (p.lr !== lr) { s._rep = 0.4; s.left = lr < 0; s.right = lr > 0; }
         else { s._rep -= dt; if (s._rep <= 0) { s._rep = 0.16; s.left = lr < 0; s.right = lr > 0; } }
       }
-      p.a = a; p.sq = sq; p.start = start; p.tri = tri; p.back = back; p.dU = dU; p.dD = dD; p.lr = lr;
+      p.a = a; p.sq = sq; p.hp = hp; p.l3 = l3; p.start = start; p.tri = tri; p.back = back; p.dU = dU; p.dD = dD; p.lr = lr;
     }
     // menus: fixed keys always work
     mU = mU || kd('ArrowUp'); mD = mD || kd('ArrowDown'); mL = mL || kd('ArrowLeft'); mR = mR || kd('ArrowRight');

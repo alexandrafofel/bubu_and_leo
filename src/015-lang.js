@@ -4,12 +4,13 @@
    all the texts, in Romanian and in English.
    Arrays with two entries are per hero: [Bubu, Leo].
    ========================================================================== */
-let GAME = 'bubu';                               // the game being played: 'bubu' (Bubu și Leo) or 'lupta' (Cea mai grea luptă)
+let GAME = 'lupta';                              // the one game: 'lupta' (Cea mai grea luptă). The first game, 'bubu' (Bubu și Leo), was taken out of the menus on 18 Nov 2026; its code is still here, unused
 const isLupta = () => GAME === 'lupta';
 const GAME_IDS = ['bubu', 'lupta'], GAME_KEYS = ['villainName', 'heroes', 'boss'], GAME_BASE = {};
 for (const k of GAME_KEYS) GAME_BASE[k] = CONFIG[k];
 /* Puts the chosen game's own heroes, villain and boss values into CONFIG. */
 function applyGameConfig() { for (const k of GAME_KEYS) CONFIG[k] = (GAME === 'lupta' ? CONFIG.lupta : GAME_BASE)[k]; }
+applyGameConfig();
 /* A text of one of the two games, whichever game is being played (for the screen where the game is chosen). */
 function TG(id, k, ...a) { const tab = STR[Opt.lang] || STR.ro; let s = id === 'lupta' ? tab['L:' + k] : null; if (s == null) s = tab[k]; if (s == null) return k; a.forEach((v, i) => { s = s.split('{' + i + '}').join(v); }); return s; }
 const Opt = {
@@ -35,7 +36,7 @@ const STR = {
     'ch.title': 'Capitole', 'ch.part1': 'Partea întâi', 'ch.part2': 'Partea a doua: Stelele furate', 'ch.locked': 'Încă nu', 'ch.hint': '✕ joacă   ·   ○ înapoi',
     'pause.restart': 'Reia nivelul', 'pause.chapters': 'Capitole', 'pause.ask': 'Sigur? Ce ați adunat aici se pierde.', 'ask.yes': 'Da',
     't.voice': 'Voce: {0}', 't.novoice': 'Fără voce în română',
-    't.foot': 'F = ecran complet   ·   △ = schimbă personajele   ·   ○ = alt joc', 't.click': 'Fă clic o dată pentru sunet',
+    't.foot': 'F = ecran complet   ·   △ = schimbă personajele', 't.click': 'Fă clic o dată pentru sunet',
     'sel.title': 'Alege jocul', 'sel.hint': 'stânga / dreapta = alege      ✕ sau Enter = pornește      OPTIONS sau P = setări',
     'sel.bubu': 'Bubu și Leo adună ouăle de aur furate de Ciori.', 'sel.lupta': 'Boon și Killer adună cristalele curcubeu și îl înfruntă pe George cel Rău.',
     'sel.byKids': 'Joc inventat de copii',
@@ -54,7 +55,7 @@ const STR = {
     'diff.easy': 'Ușor', 'diff.normal': 'Normal', 'diff.hard': 'Greu',
     'err.level': 'Nivelul nu a putut fi construit', 'err': 'Eroare: ',
     'lvl.meadow.name': 'Pajiștea Însorită',
-    'lvl.meadow.intro': 'Ciori, cioara cea poznașă, a furat ouăle de aur și le-a împrăștiat prin Valea Caldă! Bubu și Leo, adunați-le pe toate înainte de apus. Bubu tropăie tare. Leo șutează mingea. Dacă prietenul tău este lovit, mergi la el și apasă pe pătrat!',
+    'lvl.meadow.intro': 'Ciori, cioara cea poznașă, a furat ouăle de aur și le-a împrăștiat prin Valea Caldă! Bubu și Leo, adunați-le pe toate înainte de apus. Bubu tropăie tare. Leo șutează mingea. Dacă prietenul tău este lovit, mergi la el și apasă pe cerc! Apasă stick-ul stâng ca să fugi.',
     'lvl.forest.name': 'Pădurea Somnoroasă',
     'lvl.forest.intro': 'În pădure dorm gândaci morocănoși. Treceți încet pe lângă ei! Copacii care sclipesc ascund ouă. Scuturați-i cu un tropăit sau cu mingea. Un gândac lovit de două ori dispare.',
     'lvl.river.name': 'Malul Noroios',
@@ -78,7 +79,7 @@ const STR = {
     'set.fsHint': 'Apasă tasta F pentru ecran complet.',
     'pad.noVib': 'Acest controller nu poate vibra în Chrome.', 'spk.ok': 'Sunetele lui {0} se aud acum în: {1}', 'spk.fail': 'Nu am putut porni acest difuzor.',
     'set.hint': 'sus / jos = alege      stânga / dreapta = schimbă      ✕ sau Enter = OK      ○ sau Backspace = înapoi',
-    'key.title': 'Tastele lui {0}', 'key.up': 'Sus', 'key.down': 'Jos', 'key.left': 'Stânga', 'key.right': 'Dreapta', 'key.a': 'Putere (butonul ✕)', 'key.b': 'Ajută prietenul (butonul □)',
+    'key.title': 'Tastele lui {0}', 'key.up': 'Sus', 'key.down': 'Jos', 'key.left': 'Stânga', 'key.right': 'Dreapta', 'key.a': 'Prima putere (butonul ✕)', 'key.b': 'Ajută prietenul (butonul ○)', 'key.c': 'A doua putere (butonul □)', 'key.r': 'Fugă (apasă stick-ul, L3)',
     'key.press': 'Apasă tasta nouă', 'key.reset': 'Tastele de la început', 'key.space': 'Spațiu', 'key.taken': 'Tasta era folosită. Le-am schimbat între ele.',
     'key.no': 'Tasta aceasta este păstrată pentru meniu.',
     'pad.title': 'Controllerul lui {0}', 'pad.s1': 'Pornește controllerul',
@@ -101,7 +102,7 @@ const STR = {
     'L:fest.v2': 'Medalii pentru eroi! Steluțele îi îmbrățișează pe {0} și pe {1}. Bravo!',
     'duel.george': 'George cel Rău',
     'lvl.glade.name': 'Poiana Licuricilor',
-    'lvl.glade.intro': 'George cel Rău, dinozaurul cu coroană, a ascuns cristalele curcubeu prin junglă! Boon și Killer, adunați-le: sunt cadoul pentru petrecere. Boon își rotește ghearele. Killer aruncă mingi. Dacă prietenul tău se face mic, mergi la el și apasă pe pătrat!',
+    'lvl.glade.intro': 'George cel Rău, dinozaurul cu coroană, a ascuns cristalele curcubeu prin junglă! Boon și Killer, adunați-le: sunt cadoul pentru petrecere. Boon își rotește ghearele. Killer aruncă mingi. Dacă prietenul tău se face mic, mergi la el și apasă pe cerc! Apasă stick-ul stâng ca să fugi.',
     'lvl.robots.name': 'Jungla Roboților',
     'lvl.robots.intro': 'Printre copaci dorm roboții lui George. Treceți încet pe lângă ei! Un robot lovit de două ori dispare. Florile uriașe care sclipesc ascund cristale: scuturați-le cu ghearele sau cu mingea.',
     'lvl.snails.name': 'Râul Melcilor Lipicioși',
@@ -125,7 +126,7 @@ const STR = {
     'ch.title': 'Chapters', 'ch.part1': 'Part One', 'ch.part2': 'Part Two: The Stolen Stars', 'ch.locked': 'Not yet', 'ch.hint': '✕ play   ·   ○ back',
     'pause.restart': 'Restart level', 'pause.chapters': 'Chapters', 'pause.ask': 'Sure? What you gathered here is lost.', 'ask.yes': 'Yes',
     't.voice': 'Voice: {0}', 't.novoice': 'No English voice found',
-    't.foot': 'F = full screen   ·   △ = swap characters   ·   ○ = other game', 't.click': 'Click once for sound',
+    't.foot': 'F = full screen   ·   △ = swap characters', 't.click': 'Click once for sound',
     'sel.title': 'Choose the game', 'sel.hint': 'left / right = choose      ✕ or Enter = start      OPTIONS or P = settings',
     'sel.bubu': 'Bubu and Leo gather the golden eggs that Ciori stole.', 'sel.lupta': 'Boon and Killer gather the rainbow crystals and face George the Bad.',
     'sel.byKids': 'A game invented by the kids',
@@ -144,7 +145,7 @@ const STR = {
     'diff.easy': 'Easy', 'diff.normal': 'Normal', 'diff.hard': 'Hard',
     'err.level': 'The level could not be built', 'err': 'Error: ',
     'lvl.meadow.name': 'The Sunny Meadow',
-    'lvl.meadow.intro': 'Ciori, the cheeky crow, stole the golden eggs and scattered them all over the Warm Valley! Bubu and Leo, gather them all before sunset. Bubu stomps hard. Leo kicks the ball. If your friend gets hit, go to them and press the square!',
+    'lvl.meadow.intro': 'Ciori, the cheeky crow, stole the golden eggs and scattered them all over the Warm Valley! Bubu and Leo, gather them all before sunset. Bubu stomps hard. Leo kicks the ball. If your friend gets hit, go to them and press the circle! Press the left stick to run.',
     'lvl.forest.name': 'The Sleepy Forest',
     'lvl.forest.intro': 'Grumpy beetles sleep in the forest. Tiptoe past them! Sparkling trees hide eggs. Shake them with a stomp or with the ball. A beetle that is hit twice disappears.',
     'lvl.river.name': 'The Muddy Bank',
@@ -168,7 +169,7 @@ const STR = {
     'set.fsHint': 'Press the F key for full screen.',
     'pad.noVib': 'This controller cannot vibrate in Chrome.', 'spk.ok': "{0}'s sounds now play on: {1}", 'spk.fail': 'That speaker could not be started.',
     'set.hint': 'up / down = choose      left / right = change      ✕ or Enter = OK      ○ or Backspace = back',
-    'key.title': "{0}'s keys", 'key.up': 'Up', 'key.down': 'Down', 'key.left': 'Left', 'key.right': 'Right', 'key.a': 'Power (the ✕ button)', 'key.b': 'Help your friend (the □ button)',
+    'key.title': "{0}'s keys", 'key.up': 'Up', 'key.down': 'Down', 'key.left': 'Left', 'key.right': 'Right', 'key.a': 'First power (the ✕ button)', 'key.b': 'Help your friend (the ○ button)', 'key.c': 'Second power (the □ button)', 'key.r': 'Run (press the stick, L3)',
     'key.press': 'Press the new key', 'key.reset': 'Starting keys', 'key.space': 'Space', 'key.taken': 'That key was in use. The two were swapped.',
     'key.no': 'That key is kept for the menu.',
     'pad.title': "{0}'s controller", 'pad.s1': 'Turn the controller on',
@@ -190,7 +191,7 @@ const STR = {
     'L:fest.v2': 'Medals for the heroes! The little stars hug {0} and {1}. Well done!',
     'duel.george': 'George the Bad',
     'lvl.glade.name': 'Firefly Glade',
-    'lvl.glade.intro': 'George the Bad, the dinosaur with the crown, hid the rainbow crystals all over the jungle! Boon and Killer, gather them: they are the present for the party. Boon spins his claws. Killer throws balls. If your friend turns tiny, go to them and press the square!',
+    'lvl.glade.intro': 'George the Bad, the dinosaur with the crown, hid the rainbow crystals all over the jungle! Boon and Killer, gather them: they are the present for the party. Boon spins his claws. Killer throws balls. If your friend turns tiny, go to them and press the circle! Press the left stick to run.',
     'lvl.robots.name': 'The Robot Jungle',
     'lvl.robots.intro': "George's robots sleep among the trees. Tiptoe past them! A robot that is hit twice disappears. The giant sparkling flowers hide crystals: shake them with the claws or with the ball.",
     'lvl.snails.name': 'Sticky Snail River',

@@ -5,7 +5,7 @@
    ========================================================================== */
 const UI = { titleBg: null, titleOv: null, endBg: null, endOv: null, seen: [false, false], ready: [false, false], menuSel: 0, startT: -1,
   pauseSel: 0, introT: 0, endT: 0, lvlT: 0, loadStep: 0, lostK: -1, hatch: false, said2: false, fwT: 0,
-  gameSel: 0, selT: 0, bgs: {}, ends: {}, spkLost: -1, spkLostT: 0,          // gameSel: the game picked on the "choose the game" screen
+  bgs: {}, ends: {}, spkLost: -1, spkLostT: 0,          // gameSel: the game picked on the "choose the game" screen
   set: null, hits: [], click: null, hover: null, clicked: false };
 const DIFFS = ['easy', 'normal', 'hard'];
 const heroOf = p => Opt.swap ? 1 - p : p;        // which hero (0 Bubu, 1 Leo) player p plays
@@ -84,7 +84,7 @@ const Save = {
   /* the furthest chapter open on the Chapters screen (-1: no chapter was ever finished, the button is not shown) */
   maxOpen(id) { const s = this.slot(id); return s && (s.max | 0) > 0 ? Math.min(s.max | 0, chapters(id).length - 1) : -1; }
 };
-const KEY_FIELDS = ['up', 'down', 'left', 'right', 'a', 'b'];
+const KEY_FIELDS = ['up', 'down', 'left', 'right', 'a', 'b', 'c', 'r'];      // a = first power (✕), b = help (○), c = second power (□), r = run (L3)
 
 /* Mouse: every clickable thing adds a rectangle while it is drawn. */
 function hitAdd(x, y, w, h, id, v, act, val) { UI.hits.push({ x, y, w, h, id, v, act, val }); }
@@ -105,7 +105,7 @@ function pressText() {
 function fitText(c, str, x, y, size, maxW, col, o) {
   setFont(c, size, o && o.title, o && o.weight);
   const w = c.measureText(str).width, s = w > maxW ? Math.max(14, Math.floor(size * maxW / w)) : size;
-  if (str.indexOf('✕') >= 0 || str.indexOf('□') >= 0) richText(c, str, x, y, s, col, o); else text(c, str, x, y, s, col, o);
+  if (/[✕□○◉]/.test(str)) richText(c, str, x, y, s, col, o); else text(c, str, x, y, s, col, o);
 }
 /* The two players trade heroes. Controllers, keys, difficulty and the helper arrow stay with the players. */
 function swapHeroes() {
@@ -161,16 +161,16 @@ function titleBackdrop(id) {
   if (!UI.bgs[id]) UI.bgs[id] = id === 'lupta' ? { bg: paintJungleScene(600, 27), ov: makeOverlay('#C8D0FF', 0.1, 0.5, true) } : { bg: paintMeadowScene(0.3, 600, 21), ov: makeOverlay('#FFE6BE', 0.1, 0.42) };
   return UI.bgs[id];
 }
-/* Chooses which of the two games is played: its heroes, villain and boss values, its texts, pictures, music and progress. */
+/* Sets up the game (the second game is the only one now): its heroes, villain and boss values, its texts, pictures, music and progress. */
 function setGame(id) {
-  GAME = id === 'lupta' ? 'lupta' : 'bubu'; applyGameConfig();
+  GAME = 'lupta'; applyGameConfig();      // there is only one game now; the argument is ignored
   for (const k in SPR) delete SPR[k];              // the cached pictures (egg or crystal, portraits, nest) belong to one game
   const b = titleBackdrop(GAME); UI.titleBg = b.bg; UI.titleOv = b.ov;
   UI.endBg = null; UI.seen = [false, false]; UI.ready = [false, false];
   setLanguage(Opt.lang);
 }
 function initScreens() {
-  const b = titleBackdrop('bubu'); UI.titleBg = b.bg; UI.titleOv = b.ov;
+  const b = titleBackdrop('lupta'); UI.titleBg = b.bg; UI.titleOv = b.ov;
 }
 function drawBackdrop(c, cv) { c.drawImage(cv, 0, 0); }
 function prompt(c, str, x, y, size, t) { richText(c, str, x, y, size, '#7A4A52', { pulse: Math.sin(t * 5), title: false }); }
@@ -179,57 +179,11 @@ function prompt(c, str, x, y, size, t) { richText(c, str, x, y, size, '#7A4A52',
 /* ---------- boot + title ---------- */
 function drawBoot(c, t) {
   drawBackdrop(c, UI.titleBg);
-  text(c, TG('bubu', 'title'), W / 2, 300, 150, '#C4573D', { title: true });
-  text(c, TG('lupta', 'title'), W / 2, 470, 120, '#5A58B0', { title: true });
-  drawGoldEgg(c, W / 2 - 70, 700, 46, t, 1, 0); drawCrystal(c, W / 2 + 70, 700, 44, t, 2, 0, (t * 1.5 | 0) % 7);
+  fitText(c, TG('lupta', 'title'), W / 2, 380, 150, 1500, '#FFE9B0', { title: true, haloCol: 'rgba(70,56,140,0.6)' });
+  drawCrystal(c, W / 2, 640, 56, t, 2, 0, (t * 1.5 | 0) % 7);
   card(c, W / 2 - 520, 800, 1040, 150, '#FFF6E2', 3);
   text(c, T('boot.click'), W / 2, 852, 54, '#7A4A52', { halo: 0 });
   text(c, T('boot.sub'), W / 2, 912, 34, '#9A7A7A', { halo: 0, shadow: 0 });
-}
-/* ---------- the first screen: which of the two games? ---------- */
-function updateSelect(dt) {
-  const M = Input.menu, ck = hitFind(UI.click), hv = hitFind(UI.hover);
-  UI.selT += dt;
-  if (Input.pause || (ck && ck.id === 'settings')) { openSettings(); return; }
-  if (M.left || M.right) { UI.gameSel = 1 - UI.gameSel; Snd.play('ui'); }
-  if (hv && hv.id === 'game' && hv.v !== UI.gameSel) { UI.gameSel = hv.v; Snd.play('ui'); }
-  if (ck && ck.id === 'game') UI.gameSel = ck.v;
-  if (UI.selT > 0.4 && ((ck && ck.id === 'game') || M.ok || Input.any(s => s.aP))) { Input.muteHeld(); setGame(GAME_IDS[UI.gameSel]); Snd.play('ok'); Game.toTitle(); }      // the key that chose the game does nothing more until it is released
-}
-function drawSelect(c, t) {
-  const A = titleBackdrop('bubu'), B = UI.bgs.lupta || (UI.bgs.lupta = titleBackdrop('lupta'));
-  c.drawImage(A.bg, 0, 0);                                                         // day on the left, night on the right
-  c.save(); c.beginPath(); c.moveTo(W / 2 + 60, 0); c.lineTo(W, 0); c.lineTo(W, H); c.lineTo(W / 2 - 60, H); c.closePath(); c.clip(); c.drawImage(B.bg, 0, 0); c.restore();
-  text(c, T('sel.title'), W / 2, 110, 110, '#C4573D', { title: true });
-  card(c, W - 400, 34, 366, 104, '#FFF6E2', 44); hitAdd(W - 400, 34, 366, 104, 'settings');
-  drawGear(c, W - 346, 86, 30, '#C4573D', t);
-  text(c, T('t.settings'), W - 300, 70, 40, '#7A4A52', { align: 'left', halo: 0, shadow: 0, weight: 'bold' });
-  text(c, T('t.setKey'), W - 300, 110, 22, '#9A7A7A', { align: 'left', halo: 0, shadow: 0 });
-  for (let i = 0; i < 2; i++) {
-    const id = GAME_IDS[i], sel = UI.gameSel === i, cw = 800, ch = 760, x = i === 0 ? W / 2 - 60 - cw : W / 2 + 60, y = 200, k = sel ? 1 + Math.sin(t * 3) * 0.006 : 0.94, lup = id === 'lupta';
-    c.save(); c.translate(x + cw / 2, y + ch / 2); c.scale(k, k); c.translate(-cw / 2, -ch / 2);
-    c.globalAlpha = sel ? 1 : 0.82;
-    if (sel) card(c, -14, -14, cw + 28, ch + 28, '#F8C24E', 120 + i);
-    card(c, 0, 0, cw, ch, lup ? '#E6E2FA' : '#FFF6E2', 122 + i);
-    fitText(c, TG(id, 'title'), cw / 2, 78, 84, cw - 80, lup ? '#5A58B0' : '#C4573D', { title: true, halo: 0 });
-    fitText(c, TG(id, 'subtitle'), cw / 2, 152, 46, cw - 80, lup ? '#B0589A' : '#B9802E', { title: true, halo: 0 });
-    // the heroes and the villain of that game
-    c.save(); c.beginPath(); c.rect(20, 190, cw - 40, 380); c.clip();
-    c.drawImage(lup ? B.bg : A.bg, 300, 420, 1320, 660, 20, 190, cw - 40, 380);
-    const bob = q => sel ? Math.abs(Math.sin(t * 5 + q)) * 14 : 0, o = (q, f) => ({ scale: 1.9, t: t + q, face: f, happy: sel, moving: sel, walk: t * 8 + q });
-    if (lup) { drawGeorge(c, 400, 400 + Math.sin(t * 2) * 6, { scale: 1.55, t: t, mood: sel ? 'angry' : 'calm', face: -1 }); drawBoon(c, 150, 540 - bob(0), o(0, 1)); drawKiller(c, 640, 548 - bob(1.3), o(1, -1)); for (let j = 0; j < 3; j++) drawCrystal(c, 330 + j * 70, 548, 24, t, j * 2.1, 0, (j * 2 + 1) % 7); }
-    else { drawCiori(c, 400, 330 + Math.sin(t * 2) * 10, { scale: 1.7, t: t, fly: true, face: -1 }); drawBubu(c, 170, 540 - bob(0), o(0, 1)); drawLeo(c, 630, 548 - bob(1.3), o(1, -1)); for (let j = 0; j < 3; j++) drawGoldEgg(c, 330 + j * 70, 548, 24, t, j * 2.1, 0); }
-    c.restore();
-    const lines = wrapLines(c, T('sel.' + id), cw - 100, 32);
-    lines.forEach((ln, j) => text(c, ln, cw / 2, 612 + j * 42, 32, '#6A4250', { halo: 0, shadow: 0 }));
-    if (lup) { c.save(); c.translate(cw - 150, 204); c.rotate(0.1); card(c, -150, -30, 300, 60, '#E45AA0', 7); fitText(c, T('sel.byKids'), 0, 0, 28, 270, '#FFF6E2', { halo: 0, shadow: 0, weight: 'bold' }); c.restore(); }
-    if (sel) richText(c, pressText(), cw / 2, 712, 44, '#7A4A52', { pulse: Math.sin(t * 5), weight: 'bold', halo: 0 });
-    else if (Save.hasProgress(id)) fitText(c, T('t.cont', chapterLabel(Save.slot(id).level, id)), cw / 2, 712, 30, cw - 80, '#8A6A6A', { halo: 0, shadow: 0 });
-    c.globalAlpha = 1; c.restore();
-    hitAdd(x, y, cw, ch, 'game', i);
-  }
-  text(c, T('sel.hint'), W / 2, 1030, 24, 'rgba(110,80,90,0.9)', { shadow: 0 });
-  if (!Snd.ready) text(c, T('t.click'), W / 2, 176, 28, '#C4573D', {});
 }
 /* The buttons under the heroes: "Continue: ...", "Chapters", "New game". At the very first start only one, and it says "Start!". */
 function titleMenu() {
@@ -257,7 +211,6 @@ function updateTitle(dt) {
   const S = Input.slots, ck = hitFind(UI.click), nm = titleMenu().length;
   if (UI.ask) { updateAsk(); return; }
   if (Input.pause || (ck && ck.id === 'settings')) { openSettings(); return; }
-  if ((Input.menu.back || (ck && ck.id === 'games')) && !UI.ready[0] && !UI.ready[1]) { Snd.play('ui'); Game.toSelect(); return; }      // ○ or Backspace: back to the two games
   if (ck && ck.id === 'tmenu') { UI.menuSel = ck.v; Snd.play('ui'); }
   UI.menuSel = clamp(UI.menuSel | 0, 0, nm - 1);
   for (let k = 0; k < 2; k++) {
@@ -293,9 +246,6 @@ function drawTitle(c, t) {
   drawGear(c, W - 346, 86, 30, '#C4573D', t);
   text(c, T('t.settings'), W - 300, 70, 40, '#7A4A52', { align: 'left', halo: 0, shadow: 0, weight: 'bold' });
   text(c, T('t.setKey'), W - 300, 110, 22, '#9A7A7A', { align: 'left', halo: 0, shadow: 0 });
-  // back to the two games (○ on a controller, Backspace or a mouse click)
-  card(c, 34, 34, 330, 104, '#FFF6E2', 45); hitAdd(34, 34, 330, 104, 'games');
-  iconArrow(c, 84, 86, Math.PI, 22, '#C4573D'); fitText(c, T('sel.title'), 222, 86, 36, 220, '#7A4A52', { halo: 0, shadow: 0, weight: 'bold' });
   // Ciori circles with a stolen egg (in the second game George stomps about with a crystal)
   const cx = W / 2 + Math.sin(t * 0.5) * 300, cy = 430 + Math.sin(t * 1.1) * 40, cf = Math.cos(t * 0.5) > 0 ? 1 : -1;
   if (isLupta()) { drawGeorge(c, cx, 520, { scale: 1.2, t: t, face: cf, mood: 'calm', moving: true, walk: t * 9 }); drawCrystal(c, cx + cf * 96, 470, 20, t, 3, 0, (t | 0) % 7); }
@@ -497,7 +447,7 @@ function drawIntroIconL(c, kind, x, y, t, Lx) {
   else return false;
   return true;
 }
-function drawDim(c, a) { c.fillStyle = (isLupta() && Game.state !== 'title' && Game.state !== 'select' ? 'rgba(232,228,255,' : 'rgba(255,240,214,') + a + ')'; c.fillRect(0, 0, W, H); }
+function drawDim(c, a) { c.fillStyle = (isLupta() && Game.state !== 'title' ? 'rgba(232,228,255,' : 'rgba(255,240,214,') + a + ')'; c.fillRect(0, 0, W, H); }
 function drawIntro(c, t) {
   const L = P.L, def = L.def;
   drawWorld(c); drawDim(c, 0.45);
@@ -649,7 +599,7 @@ function openSettings() {
   Input.autoJoin = false; Input.kbJoin = false; Snd.play('ok');
 }
 function closeSettings() {
-  UI.set = null; Input.autoJoin = true; Input.kbJoin = Game.state !== 'select' && Game.state !== 'chapters'; Input.bindTo = null; Input.cancelCapture();
+  UI.set = null; Input.autoJoin = true; Input.kbJoin = Game.state !== 'chapters'; Input.bindTo = null; Input.cancelCapture();
   Save.write(); Snd.play('ok');
 }
 function setMsg(m) { if (UI.set) { UI.set.msg = m; UI.set.msgT = 6; } }
@@ -774,7 +724,7 @@ function drawPadTester(c, x, y, g, t) {
   const sx = x + 150, sy = y + 172;
   c.strokeStyle = off; c.lineWidth = 5; c.beginPath(); c.arc(sx, sy, 36, 0, TAU); c.stroke();
   const m = Math.hypot(ax, ay), live = m > Math.max(0.25, CONFIG.deadzone);
-  c.fillStyle = live ? '#6D8FD0' : 'rgba(109,143,208,0.45)'; c.beginPath(); c.arc(sx + ax * 24, sy + ay * 24, 16, 0, TAU); c.fill();
+  c.fillStyle = b(10) ? '#3F5A9A' : live ? '#6D8FD0' : 'rgba(109,143,208,0.45)'; c.beginPath(); c.arc(sx + ax * 24, sy + ay * 24, 16, 0, TAU); c.fill();      // L3: the cap goes darker when the stick is pressed
   // OPTIONS
   c.fillStyle = b(9) ? '#C4573D' : off; c.beginPath(); c.ellipse(x + 190, y + 40, 22, 9, 0, 0, TAU); c.fill();
   // △ ○ ✕ □

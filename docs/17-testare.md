@@ -1,5 +1,7 @@
 # 17. Testare
 
+> **Din 18 noiembrie 2026 exista un singur joc: "Cea mai grea luptă".** "Bubu și Leo" a fost scos (vezi `16-decizii.md`, "Un singur joc"). Orice schimbare se face doar in "Cea mai grea luptă". Ce scrie mai jos despre primul joc, despre alegerea jocului sau despre "ambele jocuri" este istoric.
+
 Jocul nu are teste unitare. Are scripturi care deschid jocul intr-un Chrome fara fereastra (Playwright), il joaca cu boti, apasa taste reale, simuleaza controllere si fac capturi de ecran. Un test trece cand termina cu `errors 0`: nicio eroare in consola si nicio exceptie in pagina.
 
 ## Ce iti trebuie
@@ -16,7 +18,7 @@ Fisierul testat este mereu `game/bubu-si-leo-ouale-de-aur.html`. Ruleaza `./buil
 
 ## Cum rulezi
 
-Toate testele, pentru ambele jocuri, cu o linie `OK` sau `NEREUSIT` pe test:
+Toate testele, pentru joc (`JOC` nu mai conteaza), cu o linie `OK` sau `NEREUSIT` pe test:
 
 ```
 ./build.sh
@@ -32,7 +34,7 @@ node ../joc-complet-bot.js                 # primul joc
 JOC=lupta node ../joc-complet-bot.js       # al doilea joc
 ```
 
-Minimul dupa orice schimbare (vezi `CLAUDE.md`): `joc-complet-bot.js`, `controller-simulat.js` si `setari-ui.js`, fiecare pentru ambele jocuri. Ruleaza si testul care atinge partea schimbata.
+Minimul dupa orice schimbare (vezi `CLAUDE.md`): `joc-complet-bot.js`, `controller-simulat.js` si `setari-ui.js`, fiecare o singura data. Ruleaza si testul care atinge partea schimbata.
 
 Un test a trecut daca scrie `errors 0` si nu scrie `NEREUSIT`, `GRESIT` sau `PAGEERROR`.
 
@@ -41,14 +43,14 @@ Un test a trecut daca scrie `errors 0` si nu scrie `NEREUSIT`, `GRESIT` sau `PAG
 | Fisier | Ce face |
 |---|---|
 | `tests/pw.js` | Gaseste Playwright si Chrome. Da adresa `file://` a jocului. |
-| `tests/toate.sh` | Ruleaza toate testele pe rand, pentru ambele jocuri. Iesirea fiecaruia ramane in `tests/out/log-<test>-<joc>.txt`. |
+| `tests/toate.sh` | Ruleaza toate testele pe rand. Iesirea fiecaruia ramane in `tests/out/log-<test>-<joc>.txt`. |
 | `tests/common.js` | `boot(opts)`: porneste Chrome 1920 x 1080, deschide jocul, strange erorile, face un clic (pornirea sunetului), alege jocul (`opts.game` sau `JOC`) si ajunge pe ecranul lui de start. Daca `opts.manual` nu e `false`, inlocuieste `Input.poll` cu o varianta in care testul hotaraste intrarile. |
 
 Ce pune `common.js` la dispozitia testelor, in pagina:
 
 | Nume | Ce face |
 |---|---|
-| `inp[0]`, `inp[1]` | Intrarile fiecarui erou: `{ x, y, aP, a, aR, bP }`. `aP` = ✕ apasat acum, `a` = tinut, `aR` = eliberat, `bP` = □ apasat acum. |
+| `inp[0]`, `inp[1]` | Intrarile fiecarui erou: `{ x, y, aP, a, aR, hP, cP, c, cR, runP, run }`. `aP` = ✕ apasat acum, `a` = tinut, `aR` = eliberat, `hP` = ○ (ajuta prietenul) apasat acum, `cP` / `c` / `cR` = □ (a doua putere), `runP` / `run` = L3 (fuga). `bP` merge inca, ca alt nume pentru `hP`, pentru testele vechi. |
 | `inp.pause` | `true` = OPTIONS apasat o data. |
 | `joined[k]` | Daca jucatorul `k` e in joc. |
 | `step(n)` | Ruleaza `n` cadre de 1/60 s, apoi deseneaza o data. |
@@ -109,9 +111,13 @@ Teste noi din update-ul 13 noiembrie 2026:
 
 Testele de sunet (`sunete-volum.js`, `sunete-personaje.js`) se ruleaza singure. Pornite in acelasi timp cu alte teste, masoara varfuri gresite si pot pica fara motiv.
 
-## Un test care doar masoara: `hud-acoperire.js`
+## `hud-acoperire.js`
 
-Adaugat pe 16 noiembrie 2026. Masoara cat de des acopera scrisul de sus un erou (bug-ul C10 din `23-update-partea-a-doua.md`). Acum scrie pana la 50%. Nu e in `tests/toate.sh`, pentru ca bug-ul nu e reparat. Dupa reparare (etapa E1) se ruleaza cu `STRICT=1`, trebuie sa scrie 0% si intra in `tests/toate.sh`. Vezi `24-sisteme-noi.md`, S6.
+Adaugat pe 16 noiembrie 2026, ca sa masoare bug-ul C10 din `23-update-partea-a-doua.md`: cat de des acopera scrisul de sus un erou. Pentru fiecare nivel aseaza eroii in doua feluri (amandoi in aceeasi celula libera, pentru toate celulele; apoi 400 de perechi de celule alese la intamplare), pune camera unde o pune jocul si se uita daca dreptunghiul unui erou (corp si nume, 190 de unitati) atinge banda de sus.
+
+Testul intreaba jocul cat e banda (`__game.HUD_TOP`) si unde pune camera (`__game.camTarget`). Daca nu le gaseste, foloseste dreptunghiurile de dinainte de reparare.
+
+Din 18 noiembrie 2026 bug-ul e reparat (sarcina T1): testul e in `tests/toate.sh`, se ruleaza cu `STRICT=1` si trebuie sa scrie **0%** peste tot. Inainte scria 6.5 - 47% pentru HUD si pana la 50.2% pentru bannerul de lupta. Vezi `24-sisteme-noi.md`, S6.
 
 ## Rezultate dupa update-ul din 14 noiembrie 2026
 
@@ -154,3 +160,71 @@ Doua teste vechi s-au schimbat, pentru ca foloseau salvarea veche: `alege-jocul.
 
 Rezultat, `tests/toate.sh` pe codul final: toate testele OK, pentru ambele jocuri. `capturi-ecran.js` (primul joc): `errors 0`, capturi privite. Nu au fost rulate din nou: `mini-lupte-bot.js` (sarcina nu atinge luptele) si `capturi-ecran.js` pentru al doilea joc.
 
+## Update 18 noiembrie 2026: banda de sus (sarcina T1)
+
+| Test | Ce verifica | Bubu și Leo | Cea mai grea luptă |
+|---|---|---|---|
+| `hud-acoperire.js` (acum in `tests/toate.sh`, cu `STRICT=1`) | Niciun erou nu ajunge sub banda de sus, pe niciun nivel, in nicio asezare. | 0% peste tot | 0% peste tot |
+
+Masuratoarea de dinainte si de dupa, pe aceeasi masina (procent din asezari in care un erou e acoperit, HUD / banner / bannerul de lupta):
+
+| Cum stau eroii | Inainte | Acum |
+|---|---|---|
+| Impreuna, nivelurile 1 - 4 si 6 | 6.5 - 6.7 / 12 - 12.2 / 48.8 - 50.2 | 0 / 0 / 0 |
+| Impreuna, nivelul 5 | 0 / 2.2 / 43.4 | 0 / 0 / 0 |
+| Departe unul de altul | 24.5 - 47.3 / 24 - 26.3 / 38.3 - 44 | 0 / 0 / 0 |
+
+Testul a fost verificat ca poate pica: cu limita camerei scoasa din `camTarget` scrie `NEREUSIT: un erou e acoperit in 14.5% din asezari`. Pus la loc, scrie 0%.
+
+Lupta mare nu e in test (testul merge pe nivelurile cu grila). A fost masurata separat, cu acelasi fel de socoteala: tot 0%, in ambele jocuri. Acolo camera nu s-a schimbat deloc.
+
+Capturi privite cu ochiul, pentru fiecare joc: eroii impreuna la inceputul nivelului, eroii la marginea de sus a hartii, eroii in colturi opuse, bannerul de lupta, un banner de un rand, "Îl așteptăm pe ... în cuib!", lupta mare.
+
+Rezultat, `tests/toate.sh` pe codul final: **toate testele OK, pentru ambele jocuri** (44 de rulari). Viteza nu s-a schimbat: `performanta.js` da 24.9 ms pe cadru, iar versiunea dinainte, masurata in aceeasi zi pe aceeasi masina, 24.8 ms. Nu au fost rulate `mini-lupte-bot.js` si `capturi-ecran.js` (cele lungi); capturile au fost facute separat, cu un script pentru banda de sus.
+
+## Un singur joc (18 noiembrie 2026)
+
+- `alege-jocul.js` a fost sters. In locul lui, `un-singur-joc.js`: dupa primul clic se ajunge direct la ecranul de start, cu Boon, Killer si George; Backspace nu duce nicaieri; Setarile merg; progresul e in slotul `g2` si campurile vechi raman in fisier.
+- `controller-simulat.js`, `capitole.js`, `setari-ui.js`, `tastatura-reala.js`, `joc-complet-bot.js` nu mai trec prin alegerea jocului.
+- `tests/pw.js` da mereu `game: 'lupta'`. Variabila `JOC` e ignorata.
+- `tests/toate.sh` ruleaza fiecare test o singura data.
+
+## Update 18 noiembrie 2026: butoanele noi si fuga (sarcina T2)
+
+Doua teste noi, amandoua in `tests/toate.sh`.
+
+### `control-nou.js`
+
+Doua controllere false si taste reale. Verifica, cu numere:
+
+| Nr | Ce verifica | Rezultat |
+|---|---|---|
+| 1 - 4 | ○ (butonul 1) ridica eroul lovit; □ (butonul 2) nu il mai ridica. | OK |
+| 5 | □ da un singur `cP` pe apasare. | OK |
+| 6 | L3 (butonul 10) da un singur `runP` pe apasare. | OK |
+| 7 - 10 | Tastatura: E ridica prietenul, Q da `cP`, Shift stanga da `runP`. | OK |
+| 11 | O salvare veche, fara `c` si `r`, se incarca si cele doua taste vin din `CONFIG`; `b` ramane cum era. | OK |
+| 12 | Pagina "Alege tastele": 8 taste + "Tastele de la început" + "Înapoi" = 10 randuri, 976 de unitati, incape pe ecran. | OK, captura `c_taste.png` |
+
+Verificat ca poate sa pice: cu ajutorul mutat inapoi pe `cP`, testul scrie `NEREUSIT` la pasii 3 si 8.
+
+### `fuga.js`
+
+| Nr | Ce verifica | Rezultat |
+|---|---|---|
+| 1a | Mers normal, o secunda pe teren liber (dupa 0.4 s de pornire). | 330 de unitati, exact cat `CONFIG.heroes[0].speed` |
+| 1b | Fuga, la fel. | 989 de unitati (asteptat 990, adica x 3) |
+| 2 | Racheta plus fuga nu trec de `maxSpeed`. | varf 1100, limita 1100 |
+| 3 | Stick-ul lasat 0.35 s: fuga s-a oprit, mersul e iar 330. | OK |
+| 4 | `mode: 'hold'`: fuga tine doar cat L3 e apasat. | OK |
+| 5 | Fuga in opt directii, din trei locuri, pe trei niveluri, cu `dt` fortat la 0.05: 7200 de cadre (1200 din ele mai lungi de o celula) si niciun punct al drumului nu cade intr-un perete sau in apa. | OK |
+| 5b | Un perete de **o singura celula**, construit anume de test, de sus pana jos, si viteza urcata la 2400: eroul nu trece prin el, din 12 pozitii de pornire. | OK |
+| 6 | Lovit in timpul fugii: `h.run` devine fals. | OK |
+
+Verificat ca poate sa pice: cu pasii mici scosi (`n = 1`), testul 5b scrie `NEREUSIT` (eroul ajunge dincolo de perete).
+
+Nivelurile de acum nu au pereti mai subtiri de doua celule, deci fara pasii mici jocul **de azi** nu s-ar strica. Testul 5b e pentru nivelurile 7 - 12, care vor avea porti si praguri subtiri.
+
+### Testele vechi schimbate
+
+`controller-simulat.js` (acum apasa ○, si verifica si ca □ nu mai ridica eroul), `joc-complet-bot.js`, `mini-lupte-bot.js`, `salvare-prieten.js`, `capturi-ecran.js` si `common.js` (`inp[k].hP`, `cP`, `runP`; `bP` a ramas ca alt nume pentru `hP`).

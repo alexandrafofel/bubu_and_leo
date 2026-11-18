@@ -178,20 +178,13 @@ Dupa conectare:
 
 O salvare veche (`v` 2) are `level`, `eggs`, `stars` direct in obiect. Daca le-as fi mutat intr-un `g1`, copiii si-ar fi pierdut progresul. Asa, salvarea veche se citeste fara nicio conversie, iar al doilea joc are locul lui, `g2`. Cheia din `localStorage` e aceeasi.
 
-### Ecranul "Alege jocul": `drawSelect`, `updateSelect`
+### Ecranul "Alege jocul" (scos)
 
-- Fundalul e impartit: stanga pajistea de zi a primului joc, dreapta jungla de noapte a celui de-al doilea (`titleBackdrop(id)` picteaza fiecare jumatate o data).
-- Doua cartonase. Fiecare: titlul si subtitlul jocului (`TG`), cei doi eroi cu personajul rau intre ei, doua randuri despre joc, si "Continuă: Nivelul N" daca exista progres in jocul acela. Al doilea are eticheta "Joc inventat de copii".
-- Cartonasul ales e mai mare, are rama aurie si eroii lui se misca.
-- `UI.gameSel` = 0 sau 1. Stanga / dreapta (`Input.menu`: orice controller sau tastele de mers) schimba. Si mouse-ul trecut peste un cartonas. ✕, Enter, Spatiu sau clic pe cartonas alege: `setGame(id)`, apoi `Game.toTitle()`.
-- Primele 0.4 s apasarile sunt ignorate, ca primul clic (cel care porneste sunetul) sa nu aleaga si jocul.
-- OPTIONS sau P deschide Setarile.
-
-`setGame(id)`: schimba `GAME`, cheama `applyGameConfig()`, goleste desenele pastrate care depind de joc (`SPR`: oul sau cristalul, portretele din HUD, cuibul), schimba fundalul ecranului de start si reseteaza "Gata!". Jocul ales se scrie in salvare (`game`) la prima salvare de dupa: cand porneste jocul sau cand se schimba o setare.
+Pana pe 17 noiembrie 2026 exista un ecran `select` (`drawSelect`, `updateSelect`, `Game.toSelect`, `UI.gameSel`) unde se alegea intre "Bubu și Leo" si "Cea mai grea luptă". A fost scos odata cu primul joc (`16-decizii.md`, "Un singur joc"). Dupa primul clic sau prima apasare, jocul merge direct la ecranul de start. `setGame` ramane, dar fixeaza mereu jocul `lupta`: `GAME = 'lupta'`, `applyGameConfig()`, goleste desenele pastrate si repune fundalul ecranului de start. Progresul se citeste din slotul `g2` al salvarii, ca inainte.
 
 ### Ecranul de start
 
-La fel pentru ambele jocuri, cu eroii, titlul si fundalul jocului ales. In plus: butonul "Alege jocul" sus in stanga. ○ sau Backspace fac acelasi lucru, daca nimeni nu e "Gata!".
+Cu Boon si Killer, titlul si jungla de noapte. Nu mai are butonul "Alege jocul" si ○ sau Backspace nu mai fac nimic aici.
 
 Daca un difuzor salvat nu a fost gasit, jos apare 14 secunde textul `spk.lost`.
 
@@ -269,3 +262,11 @@ O salvare veche se schimba o singura data, la citire. Se schimba doar ce lipsest
 ### Teste
 
 `tests/capitole.js`, pentru fiecare joc. Vezi `17-testare.md`.
+
+## Update 18 noiembrie 2026 (T2): pagina "Alege tastele"
+
+`KEY_FIELDS` are acum opt campuri: `up`, `down`, `left`, `right`, `a` (prima putere, ✕), `b` (ajuta prietenul, ○), `c` (a doua putere, □), `r` (fuga, L3). Pagina are 10 randuri cu tot cu "Tastele de la început" si "Înapoi", la 70 de unitati randul: 976 de unitati inaltime, deci incape pe ecran fara sa scada randurile. Verificat de `tests/control-nou.js` (si cu o captura).
+
+`Save.apply` copiaza doar campurile din `KEY_FIELDS`, deci o salvare veche fara `c` si `r` ramane buna: cele doua taste noi vin din `CONFIG`.
+
+In testerul de controller din Setari, capul stick-ului stang se face mai inchis cand butonul L3 (indicele 10) e apasat.

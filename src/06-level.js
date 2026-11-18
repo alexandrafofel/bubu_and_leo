@@ -830,7 +830,7 @@ function paintLevel(L) {
     wash(c, x + 8, y - 10, 22, 14, shade(col, 0.35), { a: 0.35, seed: i + 6, edge: 0 });
   }
   finishPaint(c, L.W, L.H, L.skyT, r, N);
-  L.bg = cv;
+  L.bg = cv; L.skyTop = topColor(cv);
   L.overlay = N ? makeOverlay('#C8D0FF', 0.1, 0.5, true) : makeOverlay(mix('#FFF4E0', '#FFC08C', L.skyT), 0.1 + L.skyT * 0.16, 0.42);
   return L;
 }
@@ -895,7 +895,7 @@ function genBoss() {
   for (const x of [150, 420, 1500, 1770]) { wash(c, x - 16, 574, 22, 8, SHADOW, { a: 0.3, seed: 2, edge: 0 }); paintLantern(c, x, 570); }
   for (let i = 0; i < 60; i++) { const e = i % 3, col = P.canopy[i % P.canopy.length]; const x = e === 0 ? r() * WW : e === 1 ? -10 + r() * 20 : WW + 10 - r() * 20, y = e === 0 ? WH + 6 - r() * 18 : 480 + r() * 600; wash(c, x, y, 50 + r() * 40, 36 + r() * 26, shade(col, -0.1), { a: 0.95, seed: i + 5, wob: 0.22, edgeA: 0.2 }); }
   finishPaint(c, WW, WH, 1, r);
-  L.bg = cv;
+  L.bg = cv; L.skyTop = topColor(cv);
   // the big tree is its own sprite so that it can shake
   const tw = 1240, th = 660, tc = makeCanvas(tw, th), t = tc.getContext('2d'), tr = rng(5);
   const bx = tw / 2, by = th - 40;
@@ -946,7 +946,7 @@ function genArena() {
   wash(c, 900, 606, 300, 46, SHADOW, { a: 0.32, seed: 6, wob: 0.14, edge: 0 });
   for (const tc of L.torches) { wash(c, tc.x - 14, tc.y + 4, 20, 7, SHADOW, { a: 0.3, seed: 2, edge: 0 }); paintTorch(c, tc.x, tc.y); }
   finishPaint(c, WW, WH, 1, r, true);
-  L.bg = cv;
+  L.bg = cv; L.skyTop = topColor(cv);
   // the throne is its own sprite so that it can shake
   const tw = 560, th = 500, tc = makeCanvas(tw, th), t = tc.getContext('2d'), bx = tw / 2, by = th - 20, st = '#C6BAEA';      // pale moonstone, so the throne stands out against the dark mountains
   const slab = (w, y0, h, col) => { wash(t, bx, y0 - h / 2, w / 2, h / 2 + 6, col, { a: 1.3, seed: w, wob: 0.03, n: 14, edgeA: 0.3 }); wash(t, bx, y0 - h + 6, w / 2 - 8, 9, shade(col, 0.45), { a: 0.55, seed: w + 1, wob: 0.04, edge: 0 }); wash(t, bx - w * 0.3, y0 - h / 2 + 4, w * 0.16, h / 2, shade(col, -0.35), { a: 0.3, seed: w + 2, edge: 0 }); };

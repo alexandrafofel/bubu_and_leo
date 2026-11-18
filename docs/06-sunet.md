@@ -1,5 +1,7 @@
 # 06. Sunet (`src/03-audio.js`)
 
+> **Din 18 noiembrie 2026 exista un singur joc: "Cea mai grea luptă".** "Bubu și Leo" a fost scos (vezi `16-decizii.md`, "Un singur joc"). Orice schimbare se face doar in "Cea mai grea luptă". Ce scrie mai jos despre primul joc, despre alegerea jocului sau despre "ambele jocuri" este istoric.
+
 Cererea: sunete generate cu Web Audio, dar calde. Sinus si triunghi, filtre trece-jos, reverberatie moale. Timbre de kalimba, marimba, clopotei de lemn, flaut. Muzica pentatonica, incet, alta pe fiecare nivel. Boss-ul putin mai vioi. "Bonk" comic la lovitura, "thump" la tropait, "pok" la sut. Niciun fisier audio: totul se calculeaza in browser.
 
 Fisierul are doua obiecte: `Snd` (muzica si efecte) si `Voice` (citire cu voce).
@@ -293,3 +295,9 @@ Lista completa a efectelor, cu varfurile, e in anexa E.
 ## Update 18 noiembrie 2026
 
 Efect nou in `fx`: `no`, doua note moi de kalimba care coboara o terta mica (sol, mi). Se aude cand se alege un capitol incuiat. Nu e un sunet de greseala aspru: spune doar "inca nu".
+
+## Update 18 noiembrie 2026 (T2): sunetul fugii
+
+- Sunetul nou `dash`: un "fiu" scurt si moale (zgomot trece-banda care urca de la 500 la 2100 Hz in 0.17 s, plus o sinusoida 330 - 760 Hz). E sunetul unui personaj (`CHR`), deci merge in difuzorul controllerului lui.
+- Cuvantul nou `run` pentru Boon si pentru Killer, ca orice alt cuvant al lor. Se aude cel mult o data la `CONFIG.sprint.wordGap` (6) secunde.
+- `Snd.play(nume, valoare, erou, volum)` are un al patrulea argument: un volum intre 0 si 1 pentru o copie mai inceata a aceluiasi sunet. Folosit de pasii din fuga (0.8), ca sa nu acopere restul.

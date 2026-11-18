@@ -1,5 +1,7 @@
 # 11. Mini-lupte (`src/075-duel.js`)
 
+> **Din 18 noiembrie 2026 exista un singur joc: "Cea mai grea luptă".** "Bubu și Leo" a fost scos (vezi `16-decizii.md`, "Un singur joc"). Orice schimbare se face doar in "Cea mai grea luptă". Ce scrie mai jos despre primul joc, despre alegerea jocului sau despre "ambele jocuri" este istoric.
+
 Adaugate in al doilea update. Cererea: "sa existe niste challenge-uri la fiecare nivel, niste mini lupte inainte de terminarea nivelului in care jucatorul de 8 ani (in cazul asta fotbalistul) sa aiba ceva mai antrenant si cel mic fie sa stea ascuns in cuib sau sa adune ouale care apar din lupta (sa nu aiba prea multe de facut)."
 
 ## Ideea
@@ -142,7 +144,7 @@ Masurat cu `mini-lupte-bot.js` (72 de lupte, toate castigate): lupta din mijloc 
 | `DUEL_PAINT.chick` | Ciori, desenat cu culori albastru-verzui `#4F7387` si marit x 1.25 |
 | `drawDuelBoss(c)` | Paznicul cu starea lui: tremura la pregatire, se clatina cand e lovit, respira cand e obosit, palpaie dupa o lovitura, devine transparent cand fuge |
 | `drawDuelGround(c)` | Adapostul, zona de atac in rosu (`#D9463C` transparent, pulseaza), undele de aterizare, cercurile conurilor, umbra |
-| `drawDuelTop(c)` | Paznicul in aer, conurile, frunzele, inimile (`#E2574C` pline, violet transparent goale), "Acum!" si "Încă nu!" |
+| `drawDuelTop(c)` | Paznicul in aer, conurile, frunzele, inimile (`#E2574C` pline, violet transparent goale), "Acum!" si "Încă nu!". Cele doua texte raman in lume, deasupra capului paznicului. Daca un erou e in drum, urca din 40 in 40 de unitati, de cel mult trei ori (`heroInWay`, din 18 noiembrie 2026). |
 | `heartPath(c, x, y, s)` | Forma de inima |
 
 ## Testat

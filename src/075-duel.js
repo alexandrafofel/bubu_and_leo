@@ -370,6 +370,8 @@ function drawDuelTop(c) {
     heartPath(c, d.x + (i - (n - 1) / 2) * 30, hy, 10);
     if (i < d.hp) { c.fillStyle = '#E2574C'; c.fill(); c.strokeStyle = 'rgba(255,246,226,0.9)'; c.lineWidth = 3; c.stroke(); } else { c.fillStyle = 'rgba(120,90,100,0.3)'; c.fill(); }
   }
-  if (d.state === 'tired' || d.state === 'stag') text(c, T('duel.now'), d.x, hy - 44, 40 + Math.sin(t * 10) * 4, '#C4573D', { title: true });
-  else if (d.hintT > 0) { c.globalAlpha = Math.min(1, d.hintT); text(c, T('duel.wait'), d.x, hy - 40, 30, '#7A5A80', { weight: 'bold' }); c.globalAlpha = 1; }
+  // "Acum!" and "Încă nu!" stay in the world, over the guardian's head. If a hero is in the way, they climb higher.
+  let ty = hy - 44; for (let i = 0; i < 3 && heroInWay(d.x, ty, 220, 48); i++) ty -= 40;
+  if (d.state === 'tired' || d.state === 'stag') text(c, T('duel.now'), d.x, ty, 40 + Math.sin(t * 10) * 4, '#C4573D', { title: true });
+  else if (d.hintT > 0) { c.globalAlpha = Math.min(1, d.hintT); text(c, T('duel.wait'), d.x, ty + 4, 30, '#7A5A80', { weight: 'bold' }); c.globalAlpha = 1; }
 }

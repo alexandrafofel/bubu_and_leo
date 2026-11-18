@@ -27,11 +27,6 @@ addEventListener('keydown', e => {
 // "Ecran complet" in Setări always shows what the screen really does, and that is what gets saved
 document.addEventListener('fullscreenchange', () => { Opt.fullscreen = !!document.fullscreenElement; if (Game.state !== 'boot') Save.write(); });
 
-Game.toSelect = function () {             // the screen where one of the two games is chosen
-  Game.state = 'select'; Game.paused = false; UI.selT = 0; UI.set = null; UI.gameSel = Math.max(0, GAME_IDS.indexOf(GAME));
-  Input.autoJoin = true; Input.kbJoin = false; Input.bindTo = null;      // Enter or Space here only choose the game: nobody joins by keyboard on this screen
-  Voice.stop(); Save.load(); Snd.music('title'); Snd.setDuck(1);
-};
 Game.toTitle = function () {
   Game.state = 'title'; Game.paused = false; UI.ready = [false, false]; UI.menuSel = 0; UI.startT = -1; UI.lostK = -1; UI.set = null; UI.ask = null;
   Input.autoJoin = true; Input.kbJoin = true; Input.bindTo = null;
@@ -67,12 +62,9 @@ function update(dt) {
   if (st === 'boot') {
     if (Input.anyKey || UI.clicked || Input.slots[0].joined || Input.slots[1].joined) {
       Snd.init(); Voice.init(); restoreSpeakers();
-      const last = Save.data && Save.data.game === 'lupta' ? 'lupta' : 'bubu';      // the game played last time is the one already picked
-      if (last !== GAME) setGame(last);
-      Game.toSelect();
+      Game.toTitle();
     }
-  } else if (UI.set && (st === 'title' || st === 'select' || (st === 'play' && Game.paused))) updateSettings(dt);
-  else if (st === 'select') updateSelect(dt);
+  } else if (UI.set && (st === 'title' || (st === 'play' && Game.paused))) updateSettings(dt);
   else if (st === 'title') updateTitle(dt);
   else if (st === 'chapters') updateChapters(dt);
   else if (st === 'loading') {
@@ -109,7 +101,6 @@ function draw() {
   UI.hits.length = 0;
   let ov = UI.titleOv;
   if (st === 'boot') drawBoot(c, t);
-  else if (st === 'select') { drawSelect(c, t); ov = titleBackdrop('bubu').ov; }
   else if (st === 'title') drawTitle(c, t);
   else if (st === 'chapters') drawChapters(c, t);
   else if (st === 'loading') drawLoading(c, t);
@@ -117,7 +108,7 @@ function draw() {
   else if (st === 'play') { drawPlay(c); if (Game.paused && !UI.set) drawPause(c, t); ov = P.L.overlay; }
   else if (st === 'levelEnd') { drawLevelEnd(c, t); ov = P.L.overlay; }
   else if (st === 'ending') { drawEnding(c, t); ov = UI.endOv; }
-  if (UI.set && (st === 'title' || st === 'select' || st === 'play')) { UI.hits.length = 0; drawSettings(c, t); }
+  if (UI.set && (st === 'title' || st === 'play')) { UI.hits.length = 0; drawSettings(c, t); }
   // the paper texture, the warm light and the vignette lie over everything
   c.globalCompositeOperation = 'multiply'; c.drawImage(ov, 0, 0, W, H); c.globalCompositeOperation = 'source-over';
 }
@@ -135,5 +126,5 @@ function frame(ts) {
 Save.load(); Save.apply(); setLanguage(Opt.lang);
 resize();
 initScreens();
-window.__game = { Game, Input, UI, Save, CONFIG, Opt, STR, T, Snd, Voice, Perf, get P() { return P; }, get GAME() { return GAME; }, setGame, buildLevel, genLevel, startPlay, startDuel, duelHit, openNest, hitHero, getUp, tryRescue, hurtSmall, kickBall, recallBalls, chapters, chapterLabel, titleMenu, chapterLayout, update, draw, openSettings, closeSettings, swapHeroes, settingsRows };
+window.__game = { Game, Input, UI, Save, CONFIG, Opt, STR, T, Snd, Voice, Perf, get P() { return P; }, get GAME() { return GAME; }, setGame, buildLevel, genLevel, startPlay, startDuel, duelHit, openNest, hitHero, getUp, tryRescue, hurtSmall, kickBall, recallBalls, chapters, chapterLabel, titleMenu, chapterLayout, HUD_TOP, HERO_BOX, camTarget, update, draw, openSettings, closeSettings, swapHeroes, settingsRows, KEY_FIELDS, startRun, stopRun, canRun };
 requestAnimationFrame(ts => { _last = ts; requestAnimationFrame(frame); });
