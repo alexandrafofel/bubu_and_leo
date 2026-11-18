@@ -11,7 +11,7 @@ Doua jocuri HTML in acelasi fisier, pentru doi copii (6 si 8 ani), cooperative, 
 
 La pornire se alege unul. Amandoua folosesc acelasi cod si aceleasi reguli. Ce le deosebeste e hotarat de `GAME` (`'bubu'` sau `'lupta'`). Ultimul update, pe puncte: `docs/22-update-14-noiembrie.md`.
 
-Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece secunde, capitole) este specificat, nu implementat, in `docs/23-update-partea-a-doua.md`, `docs/24-sisteme-noi.md` si `docs/25-niveluri-7-12.md`, iar limba personajelor (cam 1000 de cuvinte pe erou) in `docs/26-limba-personajelor.md`. Regulile de mai jos descriu jocul de acum. Cele care se schimba cu acel update sunt aratate in `docs/23-update-partea-a-doua.md`, sectiunea 6, si se rescriu aici abia cand sarcina lor e gata. Update-ul e impartit in 13 sarcini, cu cate un prompt pentru fiecare, in `prompts/06-prompt-partea-a-doua.md`. Facute: T5 (capitole, 18 noiembrie 2026).
+Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece secunde, capitole) este specificat, nu implementat, in `docs/23-update-partea-a-doua.md`, `docs/24-sisteme-noi.md` si `docs/25-niveluri-7-12.md`, iar limba personajelor (cam 1000 de cuvinte pe erou) in `docs/26-limba-personajelor.md`. Regulile de mai jos descriu jocul de acum. Cele care se schimba cu acel update sunt aratate in `docs/23-update-partea-a-doua.md`, sectiunea 6, si se rescriu aici abia cand sarcina lor e gata. Update-ul e impartit in 13 sarcini, cu cate un prompt pentru fiecare, in `prompts/06-prompt-partea-a-doua.md`. Facute: T5 (capitole) si T1 (banda de sus), amandoua pe 18 noiembrie 2026.
 
 ## Regulile care nu se schimba fara acordul proprietarei
 
@@ -53,6 +53,7 @@ Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece sec
 | Regulile jocului, puterile, inamicii, boss-ul | `src/07-play.js` | `docs/10-gameplay.md` |
 | Mini-luptele cu paznicii | `src/075-duel.js` | `docs/11-mini-lupte.md` |
 | Desenarea lumii, sageata, bara de progres, HUD | `src/08-draw.js` | `docs/12-desen-si-hud.md` |
+| Banda de sus (`HUD_TOP`), bannerele, camera (`camTarget`) | `src/08-draw.js`, `src/07-play.js` | `docs/12-desen-si-hud.md`, `docs/10-gameplay.md` |
 | Ecranele, meniurile, Setari, salvarea | `src/09-screens.js` | `docs/13-ecrane-si-meniuri.md` |
 | Bucla principala, starile jocului | `src/10-main.js` | `docs/14-bucla-principala.md` |
 
@@ -61,6 +62,7 @@ Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece sec
 - Ordinea fisierelor din `build.sh` conteaza. Un fisier poate folosi la incarcare doar nume definite in fisierele de dinaintea lui. In functii care ruleaza mai tarziu poate folosi orice.
 - Codul ruleaza intr-un singur `<script>` cu `'use strict'`. Toate numele de sus sunt globale si unice in tot jocul. Verifica cu `grep` ca un nume nou nu exista deja.
 - `T` este functia de traducere. Nu folosi `T` ca nume de variabila locala.
+- Tot scrisul de sus sta in banda de 132 de unitati (`HUD_TOP`, `08-draw.js`). Nimic nu coboara sub ea peste lume, niciun banner. Camera (`camTarget`, `07-play.js`) tine eroii sub banda. Daca schimbi inaltimea unui cartonas de sus, ruleaza `tests/hud-acoperire.js` cu `STRICT=1`.
 - `Game.levelIdx` este indicele unui **capitol** (nivel sau lupta mare), nu numarul nivelului. Numarul nivelului e `P.L.idx`. Lista capitolelor o da `chapters()`.
 - Tastatura baga un jucator in joc doar pe ecranul de start (`Input.kbJoin`). Nu il porni pe alte ecrane: Enter si Spatiu sunt si tastele de putere.
 - Lumea are coordonate logice. Ecranul are mereu 1920 x 1080 unitati, scalate la fereastra. Nivelurile au 3200 x 1800.

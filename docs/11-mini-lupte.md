@@ -142,7 +142,7 @@ Masurat cu `mini-lupte-bot.js` (72 de lupte, toate castigate): lupta din mijloc 
 | `DUEL_PAINT.chick` | Ciori, desenat cu culori albastru-verzui `#4F7387` si marit x 1.25 |
 | `drawDuelBoss(c)` | Paznicul cu starea lui: tremura la pregatire, se clatina cand e lovit, respira cand e obosit, palpaie dupa o lovitura, devine transparent cand fuge |
 | `drawDuelGround(c)` | Adapostul, zona de atac in rosu (`#D9463C` transparent, pulseaza), undele de aterizare, cercurile conurilor, umbra |
-| `drawDuelTop(c)` | Paznicul in aer, conurile, frunzele, inimile (`#E2574C` pline, violet transparent goale), "Acum!" si "Încă nu!" |
+| `drawDuelTop(c)` | Paznicul in aer, conurile, frunzele, inimile (`#E2574C` pline, violet transparent goale), "Acum!" si "Încă nu!". Cele doua texte raman in lume, deasupra capului paznicului. Daca un erou e in drum, urca din 40 in 40 de unitati, de cel mult trei ori (`heroInWay`, din 18 noiembrie 2026). |
 | `heartPath(c, x, y, s)` | Forma de inima |
 
 ## Testat
