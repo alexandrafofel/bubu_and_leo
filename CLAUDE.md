@@ -11,7 +11,7 @@ Doua jocuri HTML in acelasi fisier, pentru doi copii (6 si 8 ani), cooperative, 
 
 La pornire se alege unul. Amandoua folosesc acelasi cod si aceleasi reguli. Ce le deosebeste e hotarat de `GAME` (`'bubu'` sau `'lupta'`). Ultimul update, pe puncte: `docs/22-update-14-noiembrie.md`.
 
-Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece secunde, capitole) este specificat, nu implementat, in `docs/23-update-partea-a-doua.md`, `docs/24-sisteme-noi.md` si `docs/25-niveluri-7-12.md`. Regulile de mai jos descriu jocul de acum. Cele care se schimba cu acel update sunt aratate in `docs/23-update-partea-a-doua.md`, sectiunea 6, si se rescriu aici abia cand sarcina lor e gata. Update-ul e impartit in 12 sarcini, cu cate un prompt pentru fiecare, in `prompts/06-prompt-partea-a-doua.md`. Facute: T5 (capitole, 18 noiembrie 2026).
+Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece secunde, capitole) este specificat, nu implementat, in `docs/23-update-partea-a-doua.md`, `docs/24-sisteme-noi.md` si `docs/25-niveluri-7-12.md`, iar limba personajelor (cam 1000 de cuvinte pe erou) in `docs/26-limba-personajelor.md`. Regulile de mai jos descriu jocul de acum. Cele care se schimba cu acel update sunt aratate in `docs/23-update-partea-a-doua.md`, sectiunea 6, si se rescriu aici abia cand sarcina lor e gata. Update-ul e impartit in 13 sarcini, cu cate un prompt pentru fiecare, in `prompts/06-prompt-partea-a-doua.md`. Facute: T5 (capitole, 18 noiembrie 2026).
 
 ## Regulile care nu se schimba fara acordul proprietarei
 
