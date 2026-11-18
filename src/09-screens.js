@@ -11,15 +11,52 @@ const DIFFS = ['easy', 'normal', 'hard'];
 const heroOf = p => Opt.swap ? 1 - p : p;        // which hero (0 Bubu, 1 Leo) player p plays
 
 /* One save for everything. The settings are shared by the two games. Each game keeps its own progress:
-   the first game in level / eggs / stars / results (as before), the second one in g2. */
+   the first game at the top of the save (as before), the second one in g2.
+   Progress of a game (a "slot"):
+     level    the chapter "Continue" starts (see chapters() in 06-level.js)
+     max      how far the players have ever got: chapters 0 .. max are open on the Chapters screen
+     results  the best result of every chapter played: { eggs, stars, med: [3 medals] }
+     eggs, stars  the team total = the sum of results. Still written, so that an older version of the game can read the file. */
+const emptyResult = () => ({ eggs: 0, stars: 0, med: [false, false, false] });
+function sumResults(res) { const t = { eggs: 0, stars: 0 }; for (const r of res || []) if (r) { t.eggs += r.eggs | 0; t.stars += r.stars | 0; } return t; }
+/* A save from before chapters (version 3 or older) becomes version 4. It changes only what is missing, so it can run again. */
+function migrateSave(d) {
+  if (!d || (d.v | 0) >= 4) return d;
+  for (const sl of [d, d.g2]) {
+    if (!sl || typeof sl !== 'object') continue;
+    const lvl = Math.max(0, sl.level | 0), res = sl.results = Array.isArray(sl.results) ? sl.results : [];
+    for (let i = 0; i < lvl; i++) if (!res[i]) res[i] = emptyResult();      // a level that was played must have a result (it should always have had one)
+    if (sl.max == null) sl.max = lvl;
+    const sum = sumResults(res), had = sl.eggs | 0;
+    if (sum.eggs < had) { if (!res[0]) res[0] = emptyResult(); res[0].eggs = (res[0].eggs | 0) + had - sum.eggs; }      // the total the children saw must not get smaller
+    const tt = sumResults(res); sl.eggs = tt.eggs; sl.stars = Math.max(tt.stars, sl.stars | 0);
+  }
+  d.v = 4; return d;
+}
 const Save = {
   data: null,
-  load() { try { const s = localStorage.getItem(CONFIG.saveKey); this.data = s ? JSON.parse(s) : null; } catch (e) { this.data = null; } return this.data; },
+  load() { try { const s = localStorage.getItem(CONFIG.saveKey); this.data = s ? migrateSave(JSON.parse(s)) : null; } catch (e) { this.data = null; } return this.data; },
   slot(id) { const d = this.data; if (!d) return null; return (id || GAME) === 'lupta' ? (d.g2 || null) : d; },      // the progress of one game
-  write(level) {
+  /* the progress of the chosen game, made if it is not there yet */
+  own() { const d = this.data || (this.data = {}); return GAME === 'lupta' ? (d.g2 = d.g2 || {}) : d; },
+  /* "New game": the progress of the chosen game is erased. The other game and the settings stay. */
+  newGame() { const sl = this.own(); sl.level = 0; sl.max = 0; sl.results = []; sl.eggs = 0; sl.stars = 0; Game.results = []; this.write(); },
+  /* Chapter i is over with result r. The chapter keeps its best result, "Continue" moves on only if this was the chapter it
+     pointed at, and the chapters up to the next one open. */
+  finish(i, r) {
+    const sl = this.own(), res = sl.results = Array.isArray(sl.results) ? sl.results : [], o = res[i];
+    res[i] = o ? Object.assign({}, o, { eggs: Math.max(o.eggs | 0, r.eggs | 0), stars: Math.max(o.stars | 0, r.stars | 0), med: [0, 1, 2].map(j => !!(o.med && o.med[j]) || !!(r.med && r.med[j])) })
+               : { eggs: r.eggs | 0, stars: r.stars | 0, med: (r.med || []).slice(0, 3).map(Boolean) };
+    for (let j = 0; j < i; j++) if (!res[j]) res[j] = emptyResult();
+    const last = chapters().length - 1;
+    if (i >= (sl.level | 0)) sl.level = Math.min(i + 1, last);
+    sl.max = Math.max(sl.max | 0, Math.min(i + 1, last));
+    const tt = sumResults(res); sl.eggs = tt.eggs; sl.stars = tt.stars;
+    Game.results = res; this.write();
+  },
+  write() {
     const d = this.data || {};
-    if (level != null) { const sl = GAME === 'lupta' ? (d.g2 = d.g2 || {}) : d; sl.level = level; sl.eggs = Game.team.eggs; sl.stars = Game.team.stars; sl.results = Game.results; }
-    d.v = 3; d.game = GAME; d.diff = Game.diff; d.vol = { music: Snd.vol.music, amb: Snd.vol.amb, chr: Snd.vol.chr };
+    d.v = 4; d.game = GAME; d.diff = Game.diff; d.vol = { music: Snd.vol.music, amb: Snd.vol.amb, chr: Snd.vol.chr };
     d.opt = { lang: Opt.lang, fullscreen: Opt.fullscreen, vibration: Opt.vibration, swap: Opt.swap, ctrl: Opt.ctrl, keys: Opt.keys, guide: Opt.guide, sink: Opt.sink };
     this.data = d;
     try { localStorage.setItem(CONFIG.saveKey, JSON.stringify(d)); } catch (e) { /* private mode */ }
@@ -43,7 +80,9 @@ const Save = {
       if (ks) for (const f of KEY_FIELDS) if (typeof ks[f] === 'string' && ks[f] && !Input.RESERVED[ks[f]]) Opt.keys[k][f] = ks[f];
     }
   },
-  hasProgress(id) { const s = this.slot(id); return !!(s && s.level > 0 && s.level <= levelCount()); }
+  hasProgress(id) { const s = this.slot(id); return !!(s && s.level > 0 && s.level < chapters(id).length); },
+  /* the furthest chapter open on the Chapters screen (-1: no chapter was ever finished, the button is not shown) */
+  maxOpen(id) { const s = this.slot(id); return s && (s.max | 0) > 0 ? Math.min(s.max | 0, chapters(id).length - 1) : -1; }
 };
 const KEY_FIELDS = ['up', 'down', 'left', 'right', 'a', 'b'];
 
@@ -184,20 +223,43 @@ function drawSelect(c, t) {
     const lines = wrapLines(c, T('sel.' + id), cw - 100, 32);
     lines.forEach((ln, j) => text(c, ln, cw / 2, 612 + j * 42, 32, '#6A4250', { halo: 0, shadow: 0 }));
     if (lup) { c.save(); c.translate(cw - 150, 204); c.rotate(0.1); card(c, -150, -30, 300, 60, '#E45AA0', 7); fitText(c, T('sel.byKids'), 0, 0, 28, 270, '#FFF6E2', { halo: 0, shadow: 0, weight: 'bold' }); c.restore(); }
-    const sl = Save.slot(id), has = !!(sl && sl.level > 0 && sl.level <= levelCount());
     if (sel) richText(c, pressText(), cw / 2, 712, 44, '#7A4A52', { pulse: Math.sin(t * 5), weight: 'bold', halo: 0 });
-    else if (has) text(c, T('t.cont', sl.level >= levelCount() ? T('t.final') : T('t.level', sl.level + 1)), cw / 2, 712, 30, '#8A6A6A', { halo: 0, shadow: 0 });
+    else if (Save.hasProgress(id)) fitText(c, T('t.cont', chapterLabel(Save.slot(id).level, id)), cw / 2, 712, 30, cw - 80, '#8A6A6A', { halo: 0, shadow: 0 });
     c.globalAlpha = 1; c.restore();
     hitAdd(x, y, cw, ch, 'game', i);
   }
   text(c, T('sel.hint'), W / 2, 1030, 24, 'rgba(110,80,90,0.9)', { shadow: 0 });
   if (!Snd.ready) text(c, T('t.click'), W / 2, 176, 28, '#C4573D', {});
 }
+/* The buttons under the heroes: "Continue: ...", "Chapters", "New game". At the very first start only one, and it says "Start!". */
+function titleMenu() {
+  const items = [];
+  if (Save.hasProgress()) items.push({ id: 'cont', label: T('t.cont', chapterLabel(Save.slot().level)) });
+  if (Save.maxOpen() >= 0) items.push({ id: 'chap', label: T('t.chapters') });
+  items.push({ id: 'new', label: items.length ? T('t.new') : T('t.start') });
+  return items;
+}
+/* What the chosen button does, once every player who joined is "Ready!". */
+function titleGo() {
+  const items = titleMenu(), it = items[clamp(UI.menuSel | 0, 0, items.length - 1)];
+  if (it.id === 'cont') Game.startGame(true);
+  else if (it.id === 'chap') Game.toChapters();
+  else if (Save.hasProgress() || Save.maxOpen() >= 0) askYesNo(T('t.new'), T('t.newAsk'), T('t.newYes'), () => Game.startGame(false));      // there is something to lose: ask first
+  else Game.startGame(false);
+}
+/* A small yes / no question over the start screen or the pause. "No" is the one shown first, so a child who keeps pressing ✕
+   cannot erase anything by chance. ○ or Backspace also say no. */
+function askYesNo(title, sub, yes, ok) { UI.ask = { title, sub, yes, ok, sel: 1 }; Snd.play('ui'); }
+function askRows() { const a = UI.ask; return [{ kind: 'go', label: a.yes, ok: () => { UI.ask = null; a.ok(); } }, { kind: 'go', label: T('t.newNo'), ok: () => { UI.ask = null; Snd.play('ui'); } }]; }
+function updateAsk() { if (Input.menu.back) { UI.ask = null; Snd.play('ui'); return; } menuNav(UI.ask, 'sel', askRows()); }
+function drawAsk(c, t) { drawDim(c, 0.5); drawMenu(c, t, UI.ask.title, askRows(), UI.ask.sel, { w: 1100, rh: 86, sub: UI.ask.sub }); }
 function updateTitle(dt) {
-  const S = Input.slots, ck = hitFind(UI.click);
+  const S = Input.slots, ck = hitFind(UI.click), nm = titleMenu().length;
+  if (UI.ask) { updateAsk(); return; }
   if (Input.pause || (ck && ck.id === 'settings')) { openSettings(); return; }
   if ((Input.menu.back || (ck && ck.id === 'games')) && !UI.ready[0] && !UI.ready[1]) { Snd.play('ui'); Game.toSelect(); return; }      // ○ or Backspace: back to the two games
-  if (ck && ck.id === 'tmenu' && Save.hasProgress()) { UI.menuSel = ck.v; Snd.play('ui'); }
+  if (ck && ck.id === 'tmenu') { UI.menuSel = ck.v; Snd.play('ui'); }
+  UI.menuSel = clamp(UI.menuSel | 0, 0, nm - 1);
   for (let k = 0; k < 2; k++) {
     const s = S[k];
     if (!s.joined) { UI.seen[k] = false; UI.ready[k] = false; continue; }
@@ -205,14 +267,14 @@ function updateTitle(dt) {
     if (s.aP && !UI.ready[k]) { UI.ready[k] = true; Snd.play('ok'); Snd.talk(k, 'ready'); Input.rumble(k, 0.3, 0.6, 120); }
     if (s.back && UI.ready[k]) { UI.ready[k] = false; UI.startT = -1; }
     if (s.left || s.right) cycleDiff(k, s.left ? -1 : 1);
-    if ((s.up || s.down) && Save.hasProgress()) { UI.menuSel = 1 - UI.menuSel; Snd.play('ui'); }
+    if ((s.up || s.down) && nm > 1) { UI.menuSel = (UI.menuSel + (s.up ? -1 : 1) + nm) % nm; Snd.play('ui'); }
     if (s.tri) { swapHeroes(); return; }
   }
   const joined = [0, 1].filter(k => UI.seen[k]);
   if (joined.length && joined.every(k => UI.ready[k])) {
     if (UI.startT < 0) UI.startT = 0.9;
     UI.startT -= dt;
-    if (UI.startT <= 0) { UI.startT = -1; UI.ready = [false, false]; Game.startGame(Save.hasProgress() && UI.menuSel === 0); }
+    if (UI.startT <= 0) { UI.startT = -1; UI.ready = [false, false]; titleGo(); }
   } else UI.startT = -1;
 }
 function drawGear(c, x, y, r, col, t) {
@@ -267,27 +329,139 @@ function drawTitle(c, t) {
   }
   // center column
   const any = UI.seen[0] || UI.seen[1], kbOnly = any && [0, 1].every(k => !UI.seen[k] || S[k].pad == null), kk = UI.seen[0] ? 0 : 1;
-  richText(c, !any ? T('t.press') : kbOnly ? T('t.keyReady', keyName(Opt.keys[kk].a)) : T('t.xReady'), W / 2, 800, 58, '#7A4A52', { pulse: Math.sin(t * 5), weight: 'bold' });
-  text(c, any ? T('t.then') : T('t.onPad'), W / 2, 860, 40, '#7A4A52', {});
-  if (Save.hasProgress()) {
-    const lv = Save.slot().level >= levelCount() ? T('t.final') : T('t.level', Save.slot().level + 1);
-    const items = [T('t.cont', lv), T('t.new')];
-    for (let i = 0; i < 2; i++) {
-      const sel = UI.menuSel === i, yy = 932 + i * 56;
-      if (sel) { card(c, W / 2 - 230, yy - 26, 460, 52, '#F8C24E', 50 + i); }
-      hitAdd(W / 2 - 230, yy - 28, 460, 56, 'tmenu', i);
-      text(c, items[i], W / 2, yy, 34, sel ? '#6A3A30' : '#8A6A6A', { halo: sel ? 0 : 0.2, shadow: 0, weight: sel ? 'bold' : '600' });
-    }
+  richText(c, !any ? T('t.press') : kbOnly ? T('t.keyReady', keyName(Opt.keys[kk].a)) : T('t.xReady'), W / 2, 780, 58, '#7A4A52', { pulse: Math.sin(t * 5), weight: 'bold' });
+  text(c, any ? T('t.then') : T('t.onPad'), W / 2, 834, 40, '#7A4A52', {});
+  // the buttons: in the middle, between the two players' cards, the last one just above the bottom line
+  const items = titleMenu(), n = items.length;
+  for (let i = 0; i < n; i++) {
+    const sel = clamp(UI.menuSel | 0, 0, n - 1) === i, yy = 1010 - (n - 1 - i) * 54;
+    card(c, W / 2 - 260, yy - 24, 520, 48, sel ? '#F8C24E' : '#FFF3DC', 50 + i);
+    hitAdd(W / 2 - 260, yy - 26, 520, 52, 'tmenu', i);
+    fitText(c, items[i].label, W / 2, yy, 32, 480, sel ? '#6A3A30' : '#8A6A6A', { halo: 0, shadow: 0, weight: sel ? 'bold' : '600' });
   }
-  text(c, (Voice.ok ? T('t.voice', Voice.v.name) : T('t.novoice')) + '   ·   ' + T('t.foot'), W / 2, 1052, 22, 'rgba(110,80,90,0.85)', { shadow: 0 });
+  text(c, (Voice.ok ? T('t.voice', Voice.v.name) : T('t.novoice')) + '   ·   ' + T('t.foot'), W / 2, 1056, 20, 'rgba(110,80,90,0.85)', { shadow: 0 });
   if (UI.spkLost >= 0 && UI.spkLostT > 0) fitText(c, T('spk.lost', CONFIG.heroes[UI.spkLost].name), W / 2, 318, 26, 1100, '#C4573D', {});
   if (!Snd.ready) text(c, T('t.click'), W / 2, 706, 28, '#C4573D', {});
+  if (UI.ask) { UI.hits.length = 0; drawAsk(c, t); }
+}
+
+/* ---------- the Chapters screen ----------
+   Every level and big fight of the chosen game, one card each. A chapter that was already reached can be played again;
+   the others are locked. The first game has one row. The second game has a row for Part One and, once its levels exist,
+   a row for Part Two. */
+const CH_W = 240, CH_H = 330, CH_GAP = 20;
+function chapterLayout() {
+  const list = chapters(), rows = [[], []];
+  list.forEach((ch, i) => rows[ch.part === 2 ? 1 : 0].push(i));
+  const two = rows[1].length > 0, pos = [];
+  rows.forEach((r, ri) => {
+    const x0 = (W - (r.length * CH_W + (r.length - 1) * CH_GAP)) / 2, y = two ? (ri === 0 ? 220 : 640) : 360;
+    r.forEach((i, j) => { pos[i] = { x: x0 + j * (CH_W + CH_GAP), y, row: ri, col: j }; });
+  });
+  return { list, rows, two, pos };
+}
+Game.toChapters = function () {
+  Game.state = 'chapters'; Game.paused = false; UI.ask = null; UI.set = null; UI.chT = 0; UI.chShake = 0;
+  const open = Save.maxOpen(), sl = Save.slot();
+  UI.chSel = clamp(sl ? sl.level | 0 : 0, 0, Math.max(0, open));            // the chapter "Continue" points at is chosen first
+  Input.kbJoin = false;      // Enter or Space here only start a chapter: a parent picking with Enter must not make the second hero join on the keyboard
+  Input.muteHeld(); Voice.stop(); Save.load(); Snd.music('title'); Snd.setDuck(1);
+};
+function updateChapters(dt) {
+  const M = Input.menu, ck = hitFind(UI.click), hv = hitFind(UI.hover), Lc = chapterLayout(), open = Save.maxOpen();
+  UI.chT += dt; UI.chShake = Math.max(0, UI.chShake - dt);
+  if (M.back || (ck && ck.id === 'chBack')) { Snd.play('ui'); Game.toTitle(); return; }
+  const p = Lc.pos[UI.chSel] || Lc.pos[0];
+  const move = (row, col) => { const r = Lc.rows[row]; if (!r.length) return; const i = r[clamp(col, 0, r.length - 1)]; if (i !== UI.chSel) { UI.chSel = i; Snd.play('ui'); } };
+  if (M.left) move(p.row, p.col - 1);
+  if (M.right) move(p.row, p.col + 1);
+  if (Lc.two && M.up) move(0, p.col);
+  if (Lc.two && M.down) move(1, p.col);
+  if (hv && hv.id === 'chap') UI.chSel = hv.v;
+  let go = UI.chT > 0.4 && M.ok;
+  if (ck && ck.id === 'chap') { UI.chSel = ck.v; go = true; }
+  if (!go) return;
+  if (UI.chSel <= open) { Snd.play('ok'); Game.startChapter(UI.chSel); }
+  else { Snd.play('no'); UI.chShake = 0.5; UI.chShakeI = UI.chSel; }             // locked: the padlock shakes, nothing starts
+}
+/* the little picture at the top of a card: the level's sky and ground and the three pictures of its story card. Painted once. */
+function chapterPic(i, ch) {
+  return sprite('ch-' + GAME + '-' + i + '-' + ch.def.key, 216, 124, c => {
+    const lup = isLupta(), pal = PALS[ch.def.pal] || (lup ? PALS.road : PALS.sunset);
+    const sk = lup ? ['#3E3A7A', '#8A70C0'] : ch.kind === 'boss' ? skyCols(1.05) : skyCols(skyTOf(ch.n));
+    let g = c.createLinearGradient(0, 0, 0, 124); g.addColorStop(0, sk[0]); g.addColorStop(1, sk[1]); c.fillStyle = g; c.fillRect(0, 0, 216, 124);
+    if (lup) for (let k = 0; k < 14; k++) { c.fillStyle = 'rgba(255,240,200,' + (0.4 + (k % 3) * 0.2) + ')'; c.beginPath(); c.arc((k * 53) % 216, 6 + (k * 29) % 40, 1.4, 0, TAU); c.fill(); }
+    wash(c, 108, 118, 150, 50, pal.g1, { a: 1, seed: i * 3 + 1, edgeA: 0.2 });
+    wash(c, 108, 128, 160, 46, pal.g0, { a: 1.1, seed: i * 3 + 2, edgeA: 0.2 });
+    (pal.canopy || []).slice(0, 3).forEach((col, k) => wash(c, 14 + k * 94, 84 - (k % 2) * 6, 26, 20, col, { a: 0.9, seed: i + k * 5 }));
+    const Lx = { def: ch.def, pal };
+    (ch.def.icons || []).forEach((kind, k) => { c.save(); c.translate(42 + k * 66, 66); c.scale(0.4, 0.4); drawIntroIcon(c, kind, 0, 0, 1.3, Lx); c.restore(); });
+  });
+}
+function drawCrownIcon(c, x, y, s) {
+  c.save(); c.translate(x, y); c.scale(s, s);
+  c.fillStyle = rgba(SHADOW, 0.22); c.beginPath(); c.ellipse(2, 13, 26, 5, 0, 0, TAU); c.fill();
+  c.beginPath(); c.moveTo(-24, 10); c.lineTo(-26, -10); c.lineTo(-13, 0); c.lineTo(0, -16); c.lineTo(13, 0); c.lineTo(26, -10); c.lineTo(24, 10); c.closePath();
+  c.fillStyle = '#F8C24E'; c.fill(); c.strokeStyle = '#E3952F'; c.lineWidth = 3; c.lineJoin = 'round'; c.stroke();
+  for (const [px, py, col] of [[-26, -12, '#E45AA0'], [0, -18, '#3B6FE0'], [26, -12, '#2FBFA8']]) { c.fillStyle = col; c.beginPath(); c.arc(px, py, 4.5, 0, TAU); c.fill(); }
+  c.fillStyle = 'rgba(255,246,214,0.7)'; c.fillRect(-20, 3, 40, 3);
+  c.restore();
+}
+function drawPadlock(c, x, y, s) {
+  c.save(); c.translate(x, y); c.scale(s, s);
+  c.strokeStyle = '#8E6A9A'; c.lineWidth = 7; c.lineCap = 'round'; c.beginPath(); c.arc(0, -14, 15, Math.PI, 0); c.lineTo(15, -2); c.moveTo(-15, -14); c.lineTo(-15, -2); c.stroke();
+  c.fillStyle = rgba(SHADOW, 0.25); c.beginPath(); c.roundRect(-20, -3, 44, 34, 8); c.fill();
+  c.fillStyle = '#E9B86A'; c.beginPath(); c.roundRect(-22, -6, 44, 34, 8); c.fill();
+  c.fillStyle = 'rgba(255,246,214,0.6)'; c.beginPath(); c.roundRect(-17, -2, 12, 24, 5); c.fill();
+  c.fillStyle = '#6A4270'; c.beginPath(); c.arc(0, 7, 5, 0, TAU); c.fill(); c.fillRect(-2, 8, 4, 10);
+  c.restore();
+}
+function drawChapterCard(c, i, ch, p, t, open) {
+  const sl = Save.slot(), sel = UI.chSel === i, locked = i > open, r = sl && Array.isArray(sl.results) ? sl.results[i] : null;
+  const k = sel ? 1.06 : 1, sway = sel ? Math.sin(t * 2) * 0.012 : 0, shake = UI.chShake > 0 && UI.chShakeI === i ? Math.sin(UI.chShake * 60) * 10 * UI.chShake : 0;
+  c.save(); c.translate(p.x + CH_W / 2, p.y + CH_H / 2); c.rotate(sway); c.scale(k, k); c.translate(-CH_W / 2, -CH_H / 2);
+  if (sel) card(c, -10, -10, CH_W + 20, CH_H + 20, '#F8C24E', 300 + i);
+  card(c, 0, 0, CH_W, CH_H, isLupta() ? '#ECE8FC' : '#FFF6E2', 200 + i);
+  c.drawImage(chapterPic(i, ch), 12, 12, 216, 124);
+  const ink = isLupta() ? '#5A58B0' : '#B9802E';
+  if (locked) {
+    c.fillStyle = 'rgba(201,192,232,0.8)'; c.beginPath(); c.roundRect(12, 12, 216, 124, 10); c.fill();
+    drawPadlock(c, 120 + shake, 64, 1.1);
+    text(c, T('ch.locked'), 120, 118, 22, '#6A5A9A', { halo: 0, shadow: 0, weight: 'bold' });
+  }
+  if (ch.kind === 'boss') drawCrownIcon(c, 120, 166, 1); else text(c, T('t.level', ch.n + 1), 120, 164, 26, ink, { halo: 0, shadow: 0, weight: 'bold' });
+  setFont(c, 23, false, 'bold');
+  const lines = wrapLines(c, lvlName(ch.def), CH_W - 28, 23).slice(0, 2);
+  lines.forEach((ln, j) => fitText(c, ln, 120, 204 + (j - (lines.length - 1) / 2) * 27, 23, CH_W - 24, '#6A4250', { halo: 0, shadow: 0, weight: 'bold' }));
+  if (!locked) {
+    if (ch.kind === 'level') for (let j = 0; j < 3; j++) {
+      const got = r && j < (r.stars | 0);
+      starPath(c, 120 + (j - 1) * 42, 254, got ? 16 : 14, 0);
+      if (got) { c.fillStyle = '#FFE7A0'; c.fill(); c.strokeStyle = '#F4B08E'; c.lineWidth = 4; c.stroke(); } else { c.fillStyle = 'rgba(190,150,130,0.3)'; c.fill(); }
+    }
+    for (let j = 0; j < 3; j++) { c.save(); c.translate(34 + j * 40, 300); c.scale(0.4, 0.4); drawMedal(c, j, 0, 0, !!(r && r.med && r.med[j]), t); c.restore(); }
+    drawEgg(c, 168, 312, 13, t, 1, 0, (i * 2) % 7);
+    text(c, r ? String(r.eggs | 0) : '–', 186, 300, 26, isLupta() ? '#3F6FB0' : '#B9702E', { align: 'left', halo: 0, shadow: 0, weight: 'bold' });
+  }
+  c.restore();
+  hitAdd(p.x, p.y, CH_W, CH_H, 'chap', i);
+}
+function drawChapters(c, t) {
+  drawBackdrop(c, UI.titleBg); drawDim(c, 0.55);
+  const Lc = chapterLayout(), open = Save.maxOpen(), ink = isLupta() ? '#5A58B0' : '#C4573D';
+  text(c, T('ch.title'), W / 2, 110, 96, ink, { title: true });
+  card(c, 34, 34, 330, 104, '#FFF6E2', 46); hitAdd(34, 34, 330, 104, 'chBack');
+  iconArrow(c, 84, 86, Math.PI, 22, '#C4573D'); fitText(c, T('set.back'), 222, 86, 36, 220, '#7A4A52', { halo: 0, shadow: 0, weight: 'bold' });
+  if (Lc.two) { text(c, T('ch.part1'), W / 2, 190, 38, ink, { title: true }); text(c, T('ch.part2'), W / 2, 610, 38, ink, { title: true }); }
+  Lc.list.forEach((ch, i) => { if (i !== UI.chSel) drawChapterCard(c, i, ch, Lc.pos[i], t, open); });
+  if (Lc.list[UI.chSel]) drawChapterCard(c, UI.chSel, Lc.list[UI.chSel], Lc.pos[UI.chSel], t, open);       // the chosen card last, on top of its neighbours
+  richText(c, T('ch.hint'), W / 2, 1030, 30, '#7A4A52', { weight: 'bold' });
 }
 /* ---------- level story card ---------- */
-function drawIntroIcon(c, kind, x, y, t) {
+function drawIntroIcon(c, kind, x, y, t, Lx) {
   c.save();
   wash(c, x, y, 92, 92, '#FFF3DC', { a: 1.1, seed: kind.length * 3 + 1, wob: 0.05, n: 16, edgeA: 0.25 });
-  if (isLupta() && drawIntroIconL(c, kind, x, y, t)) { c.restore(); return; }
+  if (isLupta() && drawIntroIconL(c, kind, x, y, t, Lx)) { c.restore(); return; }
   if (kind === 'egg') drawEgg(c, x, y + 40, 40, t, 1, 0);
   else if (kind === 'star') drawStar(c, x, y + 44, 40, t, 0);
   else if (kind === 'bubu') { drawBubu(c, x - 22, y + 56, { scale: 1.25, t: t }); iconX(c, x + 58, y - 52, 22, Math.sin(t * 6)); }
@@ -305,8 +479,8 @@ function drawIntroIcon(c, kind, x, y, t) {
   c.restore();
 }
 /* The pictures on the story card of the second game. Returns false for a picture that is the same in both games. */
-function drawIntroIconL(c, kind, x, y, t) {
-  const L = P.L, PL = L.pal;
+function drawIntroIconL(c, kind, x, y, t, Lx) {
+  const L = Lx || P.L, PL = L.pal;      // Lx: { def, pal } of a level that is not being played (the Chapters screen)
   if (kind === 'egg') { for (let i = 0; i < 3; i++) drawCrystal(c, x - 44 + i * 44, y + 44 - (i === 1 ? 14 : 0), 26, t, i * 2, 0, (i * 2 + (t * 0.8 | 0)) % 7); }
   else if (kind === 'star') drawSecretStar(c, x, y + 56, 34, t, 0);
   else if (kind === 'boon') { drawBoon(c, x - 26, y + 70, { scale: 1.15, t: t, claw: (t * 0.7) % 1.6 < 0.8 ? ((t * 0.7) % 1.6) / 0.8 : -1 }); iconX(c, x + 58, y - 52, 22, Math.sin(t * 6)); }
@@ -361,7 +535,7 @@ function drawMedal(c, i, x, y, got, t) {
 }
 function drawLevelEnd(c, t) {
   drawWorld(c); drawDim(c, 0.5);
-  const r = Game.results[Game.levelIdx] || { eggs: 0, stars: 0, med: [false, false, false] }, cw = 1100, ch = 860, x = (W - cw) / 2, y = 110;
+  const r = Game.lastRun || emptyResult(), cw = 1100, ch = 860, x = (W - cw) / 2, y = 110;      // what was gathered this time (the save keeps the best)
   card(c, x, y, cw, ch, '#FFF6E2', 71);
   text(c, T('end.bravo'), W / 2, y + 104, 112, '#C4573D', { title: true, halo: 0 });
   text(c, lvlName(P.L.def), W / 2, y + 188, 40, '#B9802E', { halo: 0, shadow: 0 });
@@ -447,20 +621,25 @@ function drawMenu(c, t, title, rows, sel, o) {
 
 /* ---------- pause ---------- */
 function pauseRows() {
+  const leave = go => () => askYesNo(T('pause.title'), T('pause.ask'), T('ask.yes'), () => { Game.paused = false; UI.lostK = -1; Snd.setDuck(1); go(); });
   return [
     { kind: 'go', label: T('pause.cont'), ok: resumeGame },
     { kind: 'go', label: T('pause.set'), ok: openSettings, more: true },
+    { kind: 'go', label: T('pause.restart'), ok: leave(() => Game.goLevel(Game.levelIdx)) },        // the same chapter from its beginning
+    { kind: 'go', label: T('pause.chapters'), ok: leave(() => Game.toChapters()) },
     { kind: 'go', label: T('pause.quit'), ok: () => { Game.paused = false; Game.toTitle(); } }
   ];
 }
 function resumeGame() { Game.paused = false; UI.lostK = -1; Snd.setDuck(1); Snd.play('ok'); }
 function updatePause() {
   if (UI.lostK >= 0 && Input.slots[UI.lostK].pad != null) UI.lostK = -1;     // the controller is back
+  if (UI.ask) { updateAsk(); return; }
   if (Input.menu.back || Input.pause) { resumeGame(); return; }
   menuNav(UI, 'pauseSel', pauseRows());
 }
 function drawPause(c, t) {
   drawDim(c, 0.55);
+  if (UI.ask) { drawMenu(c, t, UI.ask.title, askRows(), UI.ask.sel, { w: 1100, rh: 86, sub: UI.ask.sub }); return; }
   drawMenu(c, t, T('pause.title'), pauseRows(), UI.pauseSel, { w: 900, rh: 86, sub: UI.lostK >= 0 ? T('pause.lost', CONFIG.heroes[UI.lostK].name) : '' });
 }
 
@@ -470,7 +649,7 @@ function openSettings() {
   Input.autoJoin = false; Input.kbJoin = false; Snd.play('ok');
 }
 function closeSettings() {
-  UI.set = null; Input.autoJoin = true; Input.kbJoin = Game.state !== 'select'; Input.bindTo = null; Input.cancelCapture();
+  UI.set = null; Input.autoJoin = true; Input.kbJoin = Game.state !== 'select' && Game.state !== 'chapters'; Input.bindTo = null; Input.cancelCapture();
   Save.write(); Snd.play('ok');
 }
 function setMsg(m) { if (UI.set) { UI.set.msg = m; UI.set.msgT = 6; } }
@@ -700,7 +879,7 @@ function updateEnding(dt) {
   if (t > 6.5 && !UI.hatch) { UI.hatch = true; Snd.play('giant'); burst(W / 2, 800, 50, { speed: 320, life: 1.5, size: 11, up: 120 }); Input.rumble(0, 0.4, 0.8, 400); Input.rumble(1, 0.4, 0.8, 400); }
   if (t > 7.4 && !UI.said2) { UI.said2 = true; Voice.say(T('fest.v2', CONFIG.heroes[0].name, CONFIG.heroes[1].name), true); }
   stepParts(dt);
-  if (t > 12 && pressedGo()) { Voice.stop(); Game.results = []; Game.team = { eggs: 0, stars: 0 }; Save.write(0); Game.toTitle(); }
+  if (t > 12 && pressedGo()) { Voice.stop(); Game.toTitle(); }      // the progress stays: every chapter is open now, "Continue" points at the last fight
 }
 /* The end of the second game: the Rainbow Party. The crystals are the present, the heroes get medals,
    and little stars fly in and hug them. */
@@ -758,7 +937,7 @@ function drawEndingL(c, t) {
     card(c, W / 2 - 420, 430, 840, 130, '#FFF6E2', 99);
     drawCrystal(c, W / 2 - 320, 522, 34, t, 1, 0, (t | 0) % 7); text(c, String(Game.team.eggs), W / 2 - 270, 496, 72, '#3F6FB0', { align: 'left', halo: 0, weight: 'bold' });
     c.lineJoin = 'round'; starPath(c, W / 2 + 110, 494, 38, 0); c.strokeStyle = '#F4B08E'; c.lineWidth = 8; c.stroke(); c.fillStyle = '#FFE7A0'; c.fill();
-    text(c, Game.team.stars + ' / ' + levelCount() * clamp(CONFIG.starsPerLevel | 0, 0, 3), W / 2 + 164, 496, 64, '#B9702E', { align: 'left', halo: 0, weight: 'bold' });
+    text(c, Game.team.stars + ' / ' + levelsBefore(Game.levelIdx) * clamp(CONFIG.starsPerLevel | 0, 0, 3), W / 2 + 164, 496, 64, '#B9702E', { align: 'left', halo: 0, weight: 'bold' });
     c.globalAlpha = 1;
   }
   if (te > 12) { text(c, T('fest.end'), W / 2, 330, 70, '#FFF0D0', { title: true, haloCol: 'rgba(70,56,140,0.6)' }); richText(c, pressText(), W / 2, 1040, 44, '#FFF0D0', { pulse: Math.sin(t * 5), haloCol: 'rgba(70,56,140,0.65)' }); }
@@ -793,7 +972,7 @@ function drawEnding(c, t) {
     card(c, W / 2 - 420, 500, 840, 130, '#FFF6E2', 99);
     drawEgg(c, W / 2 - 320, 590, 34, t, 1, 0); text(c, String(Game.team.eggs), W / 2 - 270, 566, 72, '#B9702E', { align: 'left', halo: 0, weight: 'bold' });
     c.lineJoin = 'round'; starPath(c, W / 2 + 110, 564, 38, 0); c.strokeStyle = '#F4B08E'; c.lineWidth = 8; c.stroke(); c.fillStyle = '#FFE7A0'; c.fill();
-    text(c, Game.team.stars + ' / ' + levelCount() * clamp(CONFIG.starsPerLevel | 0, 0, 3), W / 2 + 164, 566, 64, '#B9702E', { align: 'left', halo: 0, weight: 'bold' });
+    text(c, Game.team.stars + ' / ' + levelsBefore(Game.levelIdx) * clamp(CONFIG.starsPerLevel | 0, 0, 3), W / 2 + 164, 566, 64, '#B9702E', { align: 'left', halo: 0, weight: 'bold' });
     c.globalAlpha = 1;
   }
   if (te > 12) { text(c, T('fest.end'), W / 2, 330, 70, '#FFF0D0', { title: true, haloCol: 'rgba(106,66,112,0.55)' }); richText(c, pressText(), W / 2, 1020, 44, '#FFF0D0', { pulse: Math.sin(t * 5), haloCol: 'rgba(106,66,112,0.6)' }); }

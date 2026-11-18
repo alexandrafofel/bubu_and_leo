@@ -59,3 +59,8 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - **Capturile 01 pana la 15** din `docs/capturi/` sunt dinainte de acest update.
 - **Nu s-au facut**, din update-ul trecut: optiunea "Personajele vorbesc" in Setari, decor diferit pe fiecare nivel al primului joc.
 - **`mini-lupte-bot.js`**: cand botul care ajuta ramane blocat intr-un obstacol mai mult de 6 secunde, testul il muta langa prieten. E o limita a botului (merge in linie dreapta), nu a jocului.
+
+## Update 18 noiembrie 2026 (capitole): ce nu e verificat
+
+- **Cum inteleg copiii ecranul Capitole.** Botii si testele merg pe el cu tastatura, cu controllere false si cu mouse-ul. Nu stim daca un copil de 6 ani intelege lacatul, stelele goale sau diferenta dintre "Continuă" si "Capitole".
+- **Salvarea reala a copiilor.** Trecerea de la versiunea 3 e testata pe salvari scrise de test, nu pe salvarea de pe Mac-ul familiei. Totalul nu scade niciodata; de obicei creste putin (vezi `13-ecrane-si-meniuri.md`, "Trecerea de la versiunea 3").

@@ -141,3 +141,16 @@ Toate testele au fost rulate pe fisierul final, pentru fiecare joc (`tests/toate
 Despre timpii pe cadru: masina de test nu are placa video si nu e mereu la fel de libera. Aceeasi masuratoare a dat 16.4 si 23.9 ms la o ora distanta. Al doilea joc nu e mai lent decat primul la un nivel obisnuit. In lupta de la cuib are varfuri mai mari (41.9 ms), de la scanteile si undele lui George. Pe un Mac cu placa video nu a fost masurat.
 
 Despre varfurile vocilor: 0.36 pana la 1.1 sunt masurate inainte de compresor, ca sa poata fi comparate cu cele vechi (0.03 pana la 0.2). La boxe ajung intre 0.5 si 0.71.
+
+## Update 18 noiembrie 2026: capitole (sarcina T5)
+
+| Test | Ce verifica | Bubu și Leo | Cea mai grea luptă |
+|---|---|---|---|
+| `capitole.js` (nou) | Cu taste reale, apoi doar cu controllere false: un singur buton ("Începe!") la prima pornire; trei butoane dupa nivelul 1, "Continuă" ales din start; lista de capitole, incuiate si deschise; ✕ pe unul incuiat nu porneste nimic; un capitol rejucat pastreaza cel mai bun rezultat si nu muta "Continuă"; totalul de la inceputul unui capitol e suma celorlalte; o lovitura la inceputul unui capitol nu scapa cristale aduse; "Reia nivelul" si "Capitole" din pauza, fiecare cu intrebare si "Nu" ales din start; "Joc nou" cu "Nu" si cu "Da" (celalalt joc ramane neatins); o salvare versiunea 3 (totalul nu scade); un rand de 7 cartonase acum si doua randuri cand al doilea joc va avea 12 niveluri; progresul ramane dupa final; Enter pe ecranul Capitole sau in pauza nu il baga pe al doilea erou in joc. | OK (50 de verificari) | OK |
+
+Testul a fost verificat ca poate pica: cu salvarea care tine ultimul rezultat in loc de cel mai bun si cu tastatura pornita pe ecranul Capitole, scrie `NEREUSIT` la exact acele puncte.
+
+Doua teste vechi s-au schimbat, pentru ca foloseau salvarea veche: `alege-jocul.js` (pregateste progresul in forma noua) si `salvare-prieten.js` (o lovitura scapa doar cristale adunate in capitolul acesta, deci testul ii da capitolului 5 cristale inainte).
+
+Rezultat, `tests/toate.sh` pe codul final: toate testele OK, pentru ambele jocuri. `capturi-ecran.js` (primul joc): `errors 0`, capturi privite. Nu au fost rulate din nou: `mini-lupte-bot.js` (sarcina nu atinge luptele) si `capturi-ecran.js` pentru al doilea joc.
+

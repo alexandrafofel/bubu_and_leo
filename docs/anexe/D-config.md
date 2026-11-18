@@ -155,6 +155,7 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `lupta.boss.throwEvery` | `[3,2.5,2.1,1.8,1.6,1.4]` |  |
 | `lupta.boss.roarRadius` | `520` | back on the throne George roars: heroes closer than this are pushed away (it does not hurt) |
 | `lupta.boss.roarPush` | `1500` |  |
+| `lupta.levels` | `6` | levels of the second game that exist. Part Two (levels 7 - 12) raises it as each new level is made |
 | `lupta.duelHp` | `[3,3,4,5,5,6]` | hits George takes in the middle fight, per level (the first game: CONFIG.duel.hp) |
 | `lupta.duelFinalHp` | `[5,6,6,7,8,9]` | hits George takes at the nest, per level (the first game: CONFIG.duel.finalHp) |
 | `lupta.bossSize` | `1.5` | how big George is in his arena (in the mini-fights he grows from level to level, see DUEL_DEFS_L) |

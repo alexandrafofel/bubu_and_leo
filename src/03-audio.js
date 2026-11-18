@@ -386,6 +386,7 @@ const Snd = (() => {
     lantern(b, t) { chime(b, mtof(76 + PENT[Math.random() * 5 | 0]), t, 0.11); },
     firework(b, t) { noise(b, t, 0.3, 0.01, 0.5, 'lowpass', 900, 200); for (let i = 0; i < 5; i++) chime(b, mtof(84 + PENT[Math.random() * 10 | 0]), t + 0.08 + i * 0.06, 0.06); },
     ui(b, t) { kalimba(b, mtof(76), t, 0.13); },
+    no(b, t) { kalimba(b, mtof(67), t, 0.13); kalimba(b, mtof(64), t + 0.13, 0.13); },           // "not that one": two soft notes going down (a locked chapter)
     ok(b, t) { kalimba(b, mtof(72), t, 0.18); kalimba(b, mtof(79), t + 0.08, 0.18); },
     thud(b, t) { osc(b, 'sine', 120, t, 0.4, 0.004, 0.2, { f2: 60 }); noise(b, t, 0.1, 0.004, 0.1, 'lowpass', 500, 150); },
     goal(b, t) { [0, 7, 12, 16].forEach((d, i) => marimba(b, mtof(62 + d), t + i * 0.08, 0.34)); chime(b, mtof(86), t + 0.3, 0.12); },

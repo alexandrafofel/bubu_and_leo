@@ -8,9 +8,12 @@ const D = k => CONFIG.difficulty[Game.diff[k]] || CONFIG.difficulty.normal;
 const rank = k => Game.diff[k] === 'easy' ? 0 : Game.diff[k] === 'hard' ? 2 : 1;      // 0 Ușor, 1 Normal, 2 Greu
 const _col = { nx: 0, ny: 0, hit: null };
 
+/* Builds chapter idx: a level (its number inside the game is ch.n) or a big fight. L.ch remembers the chapter. */
 function buildLevel(idx) {
-  if (idx >= levelCount()) return isLupta() ? genArena() : genBoss();
-  for (let a = 0; a < 80; a++) { const L = genLevel(idx, 1000 + idx * 97 + a * 13); if (L) return paintLevel(L); }
+  const ch = chapters()[idx] || chapters()[0];
+  if (ch.kind === 'boss') { const B = isLupta() ? genArena() : genBoss(); B.ch = idx; return B; }
+  const n = ch.n;
+  for (let a = 0; a < 80; a++) { const L = genLevel(n, 1000 + n * 97 + a * 13); if (L) { L.ch = idx; return paintLevel(L); } }
   throw new Error(T('err.level'));
 }
 function makeHero(k, x, y) {
@@ -39,6 +42,9 @@ function startPlay(L) {
     P.boss = { phase: 0, state: 'up', t: 0, shakes: 0, throwT: 3, x: L.nest.x, y: L.nest.y, fx: 0, fy: 0, treeShake: 0, proj: [], cawT: 0, said: false, rings: [], sc: 1 };
     P.cam.x = L.W / 2; P.cam.y = L.H / 2;
   } else startWave(0);
+  // the team total is the best result of every other chapter, plus what is gathered here (so playing a chapter again cannot spoil it)
+  const ci = L.ch != null ? L.ch : Game.levelIdx, base = sumResults(Game.results.filter((r, i) => i !== ci));
+  P.baseEggs = base.eggs; P.baseStars = base.stars; Game.team = { eggs: base.eggs, stars: base.stars };
   Snd.music(L.def.music);
 }
 function startWave(k) {
@@ -172,8 +178,8 @@ function hitHero(h, sx, sy) {
   const dx = h.x - sx, dy = h.y - sy, m = Math.hypot(dx, dy) || 1; h.vx = dx / m * 260; h.vy = dy / m * 260;
   Snd.play('bonk', 0, h.k); Snd.talk(h.k, 'hurt'); h.dizzyVoice = P.time + 0.9; Input.rumble(h.k, 0.9, 0.6, 280); P.shake = Math.max(P.shake, 0.12);
   burst(h.x, h.y - 50, 8, { speed: 120, life: 0.6, cols: ['#FFE08A', '#FFF3C0'] });
-  if (Game.team.eggs > 0) {
-    Game.team.eggs--; P.levelEggs = Math.max(0, P.levelEggs - 1);
+  if (P.levelEggs > 0) {      // only what was gathered in this chapter can be dropped
+    Game.team.eggs--; P.levelEggs--;
     let cells = L.reachCells ? L.reachCells(h.x, h.y, 80, 200, 4) : [];
     const p = cells.length ? cells[Math.random() * cells.length | 0] : { x: clamp(h.x + (Math.random() - 0.5) * 240, 60, L.W - 60), y: clamp(h.y + 60 + Math.random() * 100, L.top + 60, L.H - 60) };
     P.eggs.push(makeEgg(p.x, p.y, { state: 'pop', sx: h.x, sy: h.y - 40, req: false, delay: 0.1, wait: 0.9, dropped: true }));

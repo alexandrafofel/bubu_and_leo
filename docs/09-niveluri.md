@@ -167,3 +167,10 @@ Greutatea fiecarui fel este in `DECOR_WEIGHT`. Cele care reactioneaza (`DECOR_RE
 - Nivelurile celui de-al doilea joc folosesc acelasi generator si aceeasi verificare a drumului. Campurile noi din definitii (`night`, `robots`, `snails`, `birds`, `pits`, `vines`, `quick`, `door`, `rocket`), paletele de noapte si arena lui George (`genArena`) sunt descrise in `21-cea-mai-grea-lupta.md`.
 - Gandacii si conurile au acum `hp` (vezi `10-gameplay.md`). Generatorul nu s-a schimbat: `hp` se pune la prima lovitura.
 - Numarate cu `tests/numara-elemente.js`: 11.430 de obiecte in primul joc, 11.462 in al doilea.
+
+## Update 18 noiembrie 2026
+
+- `levelCount(id)`: numarul de niveluri al jocului cerut (`CONFIG.levels` sau `CONFIG.lupta.levels`).
+- `chapters(id)`: nivelurile si luptele mari, in ordine. `chapterLabel(i, id)`, `levelsBefore(i, id)`. Vezi `13-ecrane-si-meniuri.md`, "Capitole".
+- `skyTOf(idx)`: in al doilea joc cerul se socoteste mereu pe 6 niveluri. Nivelurile Partii a doua vor avea culorile lor.
+- `buildLevel(idx)` primeste indicele unui capitol si pune `L.ch`. `L.idx` ramane numarul nivelului.

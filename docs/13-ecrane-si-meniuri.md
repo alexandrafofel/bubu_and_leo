@@ -2,21 +2,24 @@
 
 ## `UI`
 
-Starea ecranelor: cine a apasat ✕ pe ecranul de start (`seen`), cine e gata (`ready`), alegerea Continuă / Joc nou (`menuSel`), timpii ecranelor (`introT`, `lvlT`, `endT`), meniul Setari (`set`), dreptunghiurile pe care se poate da clic (`hits`), clicul si pozitia mouse-ului din cadrul curent (`click`, `hover`), eroul al carui controller s-a deconectat (`lostK`).
+Starea ecranelor: cine a apasat ✕ pe ecranul de start (`seen`), cine e gata (`ready`), butonul ales pe ecranul de start (`menuSel`), intrebarea da / nu deschisa acum (`ask`), capitolul ales pe ecranul Capitole (`chSel`), timpii ecranelor (`introT`, `lvlT`, `endT`), meniul Setari (`set`), dreptunghiurile pe care se poate da clic (`hits`), clicul si pozitia mouse-ului din cadrul curent (`click`, `hover`), eroul al carui controller s-a deconectat (`lostK`).
 
 `DIFFS = ['easy', 'normal', 'hard']`. `heroOf(p)` = eroul jucat de jucatorul `p`.
 
 ## Salvarea: `Save`
 
-In `localStorage`, sub `CONFIG.saveKey`, ca text JSON:
+In `localStorage`, sub `CONFIG.saveKey`, ca text JSON. Versiunea 4, de la 18 noiembrie 2026:
 
 ```text
 {
-  "v": 3,
+  "v": 4,
   "game": "lupta",       // jocul jucat ultima data
-  "level": 3,            // primul joc: urmatorul nivel de jucat
-  "eggs": 187, "stars": 6, "results": [ ... ],
-  "g2": { "level": 1, "eggs": 64, "stars": 2, "results": [ ... ] },   // progresul celui de-al doilea joc
+  // progresul primului joc, sus in salvare (ca inainte):
+  "level": 3,            // capitolul pornit de "Continuă" (vezi "Capitole" mai jos)
+  "max": 5,              // cel mai departe capitol la care s-a ajuns: capitolele 0 .. max sunt deschise
+  "results": [ { "eggs": 61, "stars": 3, "med": [true, false, true] }, ... ],   // cel mai bun rezultat al fiecarui capitol
+  "eggs": 187, "stars": 6,   // totalul = suma din results. Inca scris, ca o versiune mai veche a jocului sa poata citi fisierul
+  "g2": { "level": 1, "max": 1, "results": [ ... ], "eggs": 64, "stars": 2 },   // progresul celui de-al doilea joc, la fel
   "diff": ["easy", "normal"],
   "vol": { "music": 0.5, "amb": 0.7, "chr": 0.8 },
   "opt": { "lang": "ro", "fullscreen": true, "vibration": true, "swap": false,
@@ -26,11 +29,15 @@ In `localStorage`, sub `CONFIG.saveKey`, ca text JSON:
 
 | Functie | Ce face |
 |---|---|
-| `load()` | Citeste. Daca nu exista sau e stricata, `null`. |
-| `write(level)` | Scrie setarile. Cu `level`, scrie si progresul jocului ales (dupa fiecare nivel terminat). |
-| `slot(id)` | Progresul unui joc: salvarea insasi pentru primul, `g2` pentru al doilea. Fara `id`, jocul ales. |
+| `load()` | Citeste. Daca nu exista sau e stricata, `null`. O salvare mai veche trece prin `migrateSave` (mai jos). |
+| `write()` | Scrie setarile si progresul, asa cum sunt in `Save.data`. |
+| `slot(id)` | Progresul unui joc: salvarea insasi pentru primul, `g2` pentru al doilea. Fara `id`, jocul ales. Poate fi `null`. |
+| `own()` | Ca `slot()`, pentru jocul ales, dar il face daca nu exista. |
+| `finish(i, r)` | Capitolul `i` s-a terminat cu rezultatul `r`. Vezi "Totalul este o suma". |
+| `newGame()` | Sterge progresul jocului ales. Celalalt joc si setarile raman. |
+| `maxOpen(id)` | Ultimul capitol deschis pe ecranul Capitole. `-1` daca niciun capitol nu a fost terminat (atunci butonul "Capitole" lipseste). |
 | `apply()` | Pune la loc setarile salvate. Verifica fiecare valoare (o tasta rezervata sau o limba necunoscuta sunt ignorate). Citeste si salvarile din prima versiune (`v` 1), care aveau un singur volum `sfx`. |
-| `hasProgress()` | Exista un nivel inceput si neterminat in jocul ales. |
+| `hasProgress(id)` | "Continuă" are unde duce: `level` e intre 1 si ultimul capitol. |
 
 De ce dupa fiecare nivel si nu in timpul nivelului: un nivel e scurt. Salvarea in mijlocul lui ar fi trebuit sa pastreze pozitia fiecarui ou si inamic. Iesirea in mijlocul unui nivel reia nivelul de la inceput, cu ouale nivelurilor dinainte.
 
@@ -50,10 +57,15 @@ Orice element pe care se poate da clic se inregistreaza cand e desenat: `hitAdd(
 - Butonul "Setări" sus in dreapta, cu o rotita care se invarte.
 - Doua carduri, stanga pentru jucatorul 1 si dreapta pentru jucatorul 2. Fiecare are: numarul jucatorului in culoarea eroului, numele, eroul mare (transparent pana se conecteaza), starea ("Controller: apasă ✕ / sau tasta Spațiu", "Controller detectat ✓", "Tastatură ✓"), dificultatea intre doua sageti, eticheta "Gata!".
 - In mijloc: "Apasă ✕ / pe controller", apoi "✕ = Gata / apoi pornim!".
-- Daca exista progres: "Continuă: Nivelul 4" si "Joc nou".
+- Jos in mijloc, intre cartonasele jucatorilor, butoanele (`titleMenu()`), unul sub altul:
+  - "Continuă: Nivelul 4" (sau numele luptei mari), daca exista progres. E ales din start.
+  - "Capitole", daca macar un capitol a fost terminat.
+  - "Joc nou". La prima pornire e singurul buton si se numeste "Începe!".
 - Jos: vocea gasita (sau "Fără voce în română") si scurtaturile.
 
-Cum se porneste: fiecare jucator conectat apasa ✕ inca o data ("Gata!"). Cand toti cei conectati sunt gata, jocul porneste dupa 0.9 s. ○ anuleaza "Gata!". Stanga si dreapta schimba dificultatea. Sus si jos aleg Continuă sau Joc nou. △ schimba personajele.
+Cum se porneste: fiecare jucator conectat apasa ✕ inca o data ("Gata!"). Cand toti cei conectati sunt gata, dupa 0.9 s se face ce spune butonul ales (`titleGo()`). ○ anuleaza "Gata!". Stanga si dreapta schimba dificultatea. Sus si jos aleg butonul (sau mouse-ul). △ schimba personajele.
+
+"Joc nou", cand exista ceva de pierdut, intreaba intai (`askYesNo`): "Începi de la capăt? Se șterge tot ce ați adunat în acest joc." Randurile sunt "Da, de la capăt" si "Nu". **"Nu" e ales din start**, iar ✕ alege randul aratat: un copil care apasa ✕ de mai multe ori nu poate sterge nimic din greseala. Sus si jos schimba randul. ○ sau Backspace inseamna "Nu".
 
 Un singur jucator poate porni singur. Celalalt erou il va urma.
 
@@ -64,6 +76,8 @@ Lumea nivelului estompata in spate. Un card mare cu "Nivelul 2", numele nivelulu
 ## Finalul de nivel: `drawLevelEnd`
 
 "Bravo!", numele nivelului, ouale nivelului (numarate de la 0 in sus), cele trei stele (apar pe rand), cele trei medalii, totalul echipei.
+
+Ecranul arata ce s-a adunat **de data asta** (`Game.lastRun`). In salvare ramane cel mai bun rezultat al capitolului. Totalul echipei de dedesubt e suma celor mai bune rezultate.
 
 ### Medaliile: `levelMedals()`
 
@@ -92,7 +106,7 @@ Pauza si Setari folosesc acelasi sistem. Un meniu este o lista de randuri:
 
 ## Pauza
 
-OPTIONS, P sau Escape in timpul jocului. Randuri: "Continuă", "Setări", "Ieșire la meniu". ○, Backspace, OPTIONS sau P inchid pauza. Daca un controller s-a deconectat, sub titlu scrie al cui.
+OPTIONS, P sau Escape in timpul jocului. Randuri: "Continuă", "Setări", "Reia nivelul", "Capitole", "Ieșire la meniu". "Reia nivelul" porneste acelasi capitol de la inceput. "Capitole" deschide lista. Amandoua intreaba intai ("Sigur? Ce ați adunat aici se pierde."), cu "Nu" ales din start. ○, Backspace, OPTIONS sau P inchid pauza. Daca un controller s-a deconectat, sub titlu scrie al cui.
 
 ## Setari
 
@@ -156,7 +170,7 @@ Dupa conectare:
 - La 3.5 s oul se clatina si crapa de trei ori. La 6.5 s ecloseaza: un pui de dinozaur verde, cu pete galbene, care topaie.
 - Vocea: "Festivalul Apusului a început! Ciori și-a cerut iertare și a rămas la petrecere." apoi "Din oul de aur a ieșit un pui de dinozaur! Bravo, Bubu și Leo!"
 - La 8 s: "Bravo, Bubu și Leo!", ouale echipei si stelele (din totalul posibil).
-- La 12 s: "Sfârșit" si "Apasă ✕". Apasarea sterge progresul si duce la ecranul de start.
+- La 12 s: "Sfârșit" si "Apasă ✕". Apasarea duce la ecranul de start. Progresul **nu** se sterge (de la 18 noiembrie 2026): toate capitolele raman deschise, iar "Continuă" duce la lupta mare.
 
 ## Update 14 noiembrie 2026
 
@@ -190,3 +204,68 @@ Daca un difuzor salvat nu a fost gasit, jos apare 14 secunde textul `spk.lost`.
 ### Finalul celui de-al doilea joc
 
 `startEnding` si `drawEnding` trimit la `drawEndingL` cand `isLupta()`: petrecerea din jungla, cutia de cadou cu cristale, medaliile, stelutele care imbratiseaza eroii. Vezi `21-cea-mai-grea-lupta.md`.
+
+## Update 18 noiembrie 2026: capitole (sarcina T5)
+
+Cererea: "cand intri in joc apare sa incepi de la inceput sau de unde ai ramas (cum e acum level 6) - si poti merge prin chapters sa reiei un level (ca la it takes two)." Specificatia a fost `24-sisteme-noi.md`, S5. Ce scrie aici e ce s-a facut.
+
+### Ce e un capitol
+
+Un nivel sau o lupta mare. Lista o da `chapters(id)` din `06-level.js`:
+
+| Joc | Capitole |
+|---|---|
+| Bubu și Leo | nivelurile 1 - 6, apoi lupta cu Ciori (7) |
+| Cea mai grea luptă | nivelurile 1 - 6, Arena lui George (7). Nivelurile Partii a doua se adauga dupa Arena cand exista (`CONFIG.lupta.levels` creste), apoi Sala Tronului (sarcina T11). |
+
+Fiecare capitol are `kind` (`'level'` sau `'boss'`), `def`, `part` (1 sau 2) si, la niveluri, `n`: numarul nivelului in joc, de la 0.
+
+`Game.levelIdx` este acum **indicele capitolului**. Numarul nivelului e in `L.idx`, ca inainte. `buildLevel(idx)` alege din lista ce construieste si pune `L.ch = idx`.
+
+`chapterLabel(i, id)`: "Nivelul 4" pentru un nivel, numele luptei pentru o lupta mare ("Cuibul lui Ciori", "Arena lui George"). Il folosesc "Continuă: ..." de pe ecranul de start si de pe ecranul "Alege jocul". Dupa ce jocul a fost terminat, butonul arata deci "Continuă: Cuibul lui Ciori", nu "Marele final": e mai clar unde duce.
+
+### Totalul este o suma
+
+Ca un capitol sa poata fi rejucat fara sa strice socoteala:
+
+- `results[i]` este **cel mai bun** rezultat al capitolului `i`: cristale, stele, medalii. La sfarsitul unui capitol (`finishChapter` in `10-main.js`, apoi `Save.finish`) se pastreaza maximul pe fiecare camp. O medalie odata castigata ramane.
+- Totalul echipei este suma rezultatelor (`sumResults`).
+- La inceputul unui capitol (`startPlay`), totalul de pe ecran porneste de la suma **celorlalte** capitole (`P.baseEggs`) si creste cu ce se aduna aici.
+- Un erou lovit scapa doar din ce s-a adunat in capitolul acesta (`P.levelEggs`). Inainte putea scapa un cristal adus din nivelurile dinainte.
+- "Continuă" (`level`) merge mai departe doar cand se termina capitolul la care duce. Rejucarea unui capitol mai vechi nu il muta.
+- `max` creste pana la capitolul de dupa cel terminat. Dupa lupta mare raman toate deschise.
+- Rezultatul luptei mari se pastreaza si el (pentru medaliile de pe cartonasul ei).
+
+### Trecerea de la versiunea 3: `migrateSave`
+
+O salvare veche se schimba o singura data, la citire. Se schimba doar ce lipseste, deci poate rula de mai multe ori fara rau.
+
+1. `max = level` pentru fiecare joc.
+2. Daca lipsesc rezultate pentru niveluri terminate, primesc un rezultat gol.
+3. Daca suma rezultatelor e mai mica decat totalul vechi, diferenta se adauga la primul rezultat. Copiii nu vad totalul scazand dupa update.
+4. Totalul devine suma. De obicei suma e mai mare decat totalul vechi: inainte, o lovitura la inceputul unui nivel scadea totalul fara sa scada rezultatul nivelului.
+5. Indicele 6 al celui de-al doilea joc insemna Arena si inseamna tot Arena.
+
+### Ecranul Capitole: `Game.toChapters`, `updateChapters`, `drawChapters`
+
+- Se ajunge aici din butonul "Capitole" de pe ecranul de start sau din pauza.
+- Un cartonas pe capitol, 240 x 330, la 20 unul de altul, pe un rand centrat. Al doilea joc primeste un al doilea rand, "Partea a doua: Stelele furate", abia cand exista niveluri in el. Un rand gol, cu titlu, ar fi fost de neinteles pentru copii.
+- Pe cartonas: o pictura mica a nivelului (`chapterPic`: cerul, pamantul in culorile paletei lui si cele trei imagini de pe cartonasul de poveste, pictate o data), "Nivelul N" sau o coroana pentru luptele mari (`drawCrownIcon`), numele pe cel mult doua randuri, cele trei stele, cele trei medalii si cristalele (cel mai bun rezultat). Un capitol deschis, dar inca nejucat, arata stelele goale si "–".
+- Un capitol incuiat: pictura acoperita de un val lila, un lacat (`drawPadlock`) si "Încă nu". Fara gri.
+- Capitolul ales e mai mare cu 6%, are rama aurie si se leagana. E desenat ultimul, peste vecini.
+- La deschidere e ales capitolul la care duce "Continuă".
+- Stanga si dreapta (stick, D-pad, sagetile, tastele de mers ale jucatorilor) muta alegerea. Sus si jos trec intre randuri. ✕, Enter sau clic porneste capitolul (`Game.startChapter`). ○, Backspace sau butonul "Înapoi" duc la ecranul de start.
+- Pe un capitol incuiat, ✕ nu porneste nimic: lacatul tremura si se aude `no` (doua note moi care coboara).
+- Dificultatea si cine joaca pe cine sunt cele alese pe ecranul de start.
+
+### Tastatura bagă un jucator in joc doar pe ecranul de start
+
+`Input.kbJoin` este acum adevarat doar pe ecranul de start. E fals pe "Alege jocul" (ca inainte), pe ecranul Capitole si de la inceputul oricarui nivel (`Game.goLevel`). Motivul: Enter si Spatiu sunt si tastele de putere ale eroilor. Un parinte care alege un capitol cu Enter, sau care raspunde cu Enter in pauza, il baga pe al doilea erou in joc pe tastatura. Un copil care juca singur s-ar fi trezit cu un prieten pe care nu il joaca nimeni (si care trebuie ajutat si asteptat in cuib). Controllerele pot intra in joc oricand, ca inainte.
+
+### Starea noua
+
+`Game.state = 'chapters'`. Vezi `14-bucla-principala.md`.
+
+### Teste
+
+`tests/capitole.js`, pentru fiecare joc. Vezi `17-testare.md`.

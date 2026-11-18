@@ -67,13 +67,36 @@ const PALS = {
   sunset: { g0: '#D6B87E', g1: '#C5A674', tints: ['#E4A771', '#DB9C79', '#CBB47C', '#E2BB8C', '#D8A07A'], canopy: ['#D98A52', '#E2A04F', '#C96F4E', '#E6B65A', '#B98A5A'], flowers: ['#F3D36B', '#E58F6B', '#FBF3DE'], path: '#EECFA2', trunk: '#8A5A48', rock: '#C4A08E' }
 };
 const HERO_R = 27;                       // collision radius of the heroes
-const levelCount = () => clamp(CONFIG.levels | 0, 1, 12);
+const levelCount = id => clamp(((id || GAME) === 'lupta' ? CONFIG.lupta.levels : CONFIG.levels) | 0, 1, 12);
 const levelDefs = () => isLupta() ? LEVEL_DEFS_L : LEVEL_DEFS;
 const levelDef = idx => levelDefs()[idx % levelDefs().length];
 /* What the slow ground looks like: mud in the first game; slime, quicksand or tangled vines in the second. [dark rim, body, light, blotch 1, blotch 2, shine] */
 const SLOW_COLS = { mud: ['#7E5A4C', '#A07A5C', '#B08A68', '#8A6452', '#B8926E', '#DCC0A0'], slime: ['#3F8A62', '#6FD08A', '#A8EC98', '#58BF7A', '#B7F0A0', '#EEFFD8'],
   sand: ['#8A7AA0', '#D6C592', '#E8DAAC', '#C8B486', '#EADCA8', '#FFF6D8'], vines: ['#1F5A4A', '#2F7A5A', '#4E9A6A', '#2A6A52', '#62B07A', '#B7E6B0'] };
-const skyTOf = idx => levelCount() === 1 ? 0.4 : idx / (levelCount() - 1) * 0.95;
+// the sky goes from afternoon to dusk over the levels. In the second game it is always counted over 6 levels: Part Two has its own colors
+const skyTOf = idx => { const n = isLupta() ? 6 : levelCount(); return n === 1 ? 0.4 : Math.min(idx, n - 1) / (n - 1) * 0.95; };
+
+/* The chapters of a game, in order: every level and every big fight. This is what "Continue", the Chapters screen and the
+   save count in. Game.levelIdx is the index of a chapter; L.idx is still the number of the level (0-based) inside it.
+     first game:  levels 1 - 6, then the fight with Ciori                         (7 chapters)
+     second game: levels 1 - 6, George's Arena, then the levels of Part Two       (7 chapters now, 14 when Part Two is made)
+   The Throne Hall, the last fight of Part Two, is added after the Part Two levels when it exists (task T11). */
+function chapters(id) {
+  const g = id || GAME, lv = (def, n, part) => ({ kind: 'level', n, def, part });
+  if (g !== 'lupta') return [...Array.from({ length: levelCount(g) }, (_, n) => lv(LEVEL_DEFS[n % LEVEL_DEFS.length], n, 1)), { kind: 'boss', def: BOSS_DEF, part: 1 }];
+  const n = levelCount(g), first = Math.min(n, 6), list = [];
+  for (let i = 0; i < first; i++) list.push(lv(LEVEL_DEFS_L[i % LEVEL_DEFS_L.length], i, 1));
+  list.push({ kind: 'boss', def: BOSS_DEF_L, part: 1 });
+  for (let i = 6; i < n; i++) list.push(lv(LEVEL_DEFS_L[i % LEVEL_DEFS_L.length], i, 2));
+  return list;
+}
+// how a chapter is named in "Continue: ...": "Level 3", or the name of the big fight
+function chapterLabel(i, id) {
+  const ch = chapters(id)[i]; if (!ch) return '';
+  return ch.kind === 'boss' ? TG(id || GAME, 'lvl.' + ch.def.key + '.name') : TG(id || GAME, 't.level', ch.n + 1);
+}
+// how many levels (not fights) come before chapter i: used for "stars found / stars there are"
+const levelsBefore = (i, id) => chapters(id).slice(0, i).filter(ch => ch.kind === 'level').length;
 
 function spline(pts, stepLen) {          // Catmull-Rom through points, resampled evenly
   const raw = [];

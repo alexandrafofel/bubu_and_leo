@@ -11,7 +11,7 @@ for (const k of GAME_KEYS) GAME_BASE[k] = CONFIG[k];
 /* Puts the chosen game's own heroes, villain and boss values into CONFIG. */
 function applyGameConfig() { for (const k of GAME_KEYS) CONFIG[k] = (GAME === 'lupta' ? CONFIG.lupta : GAME_BASE)[k]; }
 /* A text of one of the two games, whichever game is being played (for the screen where the game is chosen). */
-function TG(id, k) { const tab = STR[Opt.lang] || STR.ro; let s = id === 'lupta' ? tab['L:' + k] : null; if (s == null) s = tab[k]; return s == null ? k : s; }
+function TG(id, k, ...a) { const tab = STR[Opt.lang] || STR.ro; let s = id === 'lupta' ? tab['L:' + k] : null; if (s == null) s = tab[k]; if (s == null) return k; a.forEach((v, i) => { s = s.split('{' + i + '}').join(v); }); return s; }
 const Opt = {
   lang: CONFIG.language === 'en' ? 'en' : 'ro',
   fullscreen: true,
@@ -31,6 +31,9 @@ const STR = {
     't.padPress': 'Controller: apasă ✕', 't.padOk': 'Controller detectat', 't.kb': 'Tastatură', 't.ready': 'Gata!',
     't.xReady': '✕ = Gata', 't.press': 'Apasă ✕', 't.then': 'apoi pornim!', 't.onPad': 'pe controller',
     't.final': 'Marele final', 't.level': 'Nivelul {0}', 't.cont': 'Continuă: {0}', 't.new': 'Joc nou',
+    't.start': 'Începe!', 't.chapters': 'Capitole', 't.newAsk': 'Începi de la capăt? Se șterge tot ce ați adunat în acest joc.', 't.newYes': 'Da, de la capăt', 't.newNo': 'Nu',
+    'ch.title': 'Capitole', 'ch.part1': 'Partea întâi', 'ch.part2': 'Partea a doua: Stelele furate', 'ch.locked': 'Încă nu', 'ch.hint': '✕ joacă   ·   ○ înapoi',
+    'pause.restart': 'Reia nivelul', 'pause.chapters': 'Capitole', 'pause.ask': 'Sigur? Ce ați adunat aici se pierde.', 'ask.yes': 'Da',
     't.voice': 'Voce: {0}', 't.novoice': 'Fără voce în română',
     't.foot': 'F = ecran complet   ·   △ = schimbă personajele   ·   ○ = alt joc', 't.click': 'Fă clic o dată pentru sunet',
     'sel.title': 'Alege jocul', 'sel.hint': 'stânga / dreapta = alege      ✕ sau Enter = pornește      OPTIONS sau P = setări',
@@ -118,6 +121,9 @@ const STR = {
     't.padPress': 'Controller: press ✕', 't.padOk': 'Controller found', 't.kb': 'Keyboard', 't.ready': 'Ready!',
     't.xReady': '✕ = Ready', 't.press': 'Press ✕', 't.then': 'then off we go!', 't.onPad': 'on the controller',
     't.final': 'Grand finale', 't.level': 'Level {0}', 't.cont': 'Continue: {0}', 't.new': 'New game',
+    't.start': 'Start!', 't.chapters': 'Chapters', 't.newAsk': 'Start over? Everything you gathered in this game is erased.', 't.newYes': 'Yes, start over', 't.newNo': 'No',
+    'ch.title': 'Chapters', 'ch.part1': 'Part One', 'ch.part2': 'Part Two: The Stolen Stars', 'ch.locked': 'Not yet', 'ch.hint': '✕ play   ·   ○ back',
+    'pause.restart': 'Restart level', 'pause.chapters': 'Chapters', 'pause.ask': 'Sure? What you gathered here is lost.', 'ask.yes': 'Yes',
     't.voice': 'Voice: {0}', 't.novoice': 'No English voice found',
     't.foot': 'F = full screen   ·   △ = swap characters   ·   ○ = other game', 't.click': 'Click once for sound',
     'sel.title': 'Choose the game', 'sel.hint': 'left / right = choose      ✕ or Enter = start      OPTIONS or P = settings',

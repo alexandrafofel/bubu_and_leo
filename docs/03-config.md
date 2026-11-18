@@ -207,3 +207,11 @@ Tasta "Ajută prietenul": `KeyE` pentru primul jucator, `ShiftRight` pentru al d
 Cat se joaca "Cea mai grea luptă", `lupta.heroes`, `lupta.villainName` si `lupta.boss` iau locul valorilor cu acelasi nume. Restul din `CONFIG` e comun. Fiecare valoare din `lupta` e explicata in `21-cea-mai-grea-lupta.md`, sectiunea "Reglaje".
 
 Atentie: `heroes[0]` si `heroes[1]` din tabelele de mai sus sunt eroii primului joc. Pentru Boon si Killer schimbi `lupta.heroes[0]` si `lupta.heroes[1]`.
+
+## Update 18 noiembrie 2026: `lupta.levels`
+
+| Cheie | Valoare | Ce face |
+|---|---|---|
+| `lupta.levels` | 6 | Cate niveluri are al doilea joc. Partea a doua il creste cu fiecare nivel nou, pana la 12. Lista de capitole (`chapters()`) se face din el. |
+
+`levels` (primul joc) ramane. `levelCount(id)` citeste valoarea jocului cerut.

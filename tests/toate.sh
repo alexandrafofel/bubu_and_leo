@@ -17,7 +17,7 @@ run() {   # run <game> <test> [args...]
 run ambele alege-jocul.js
 for g in bubu lupta; do
   for t in sunete-personaje.js sunete-controller.js sunete-volum.js sunete-limita.js joc-complet-bot.js controller-simulat.js setari-ui.js tastatura-reala.js pauza-setari-engleza.js nivele-bot-mers.js \
-           salvare-prieten.js inamici-mici.js cuib-amandoi.js cuib-adapost.js mingi-leo.js ordine-nivel.js numara-elemente.js \
+           salvare-prieten.js inamici-mici.js cuib-amandoi.js capitole.js cuib-adapost.js mingi-leo.js ordine-nivel.js numara-elemente.js \
            performanta.js performanta-lupta.js; do run $g $t; done
   if [ "$1" = "tot" ]; then run $g mini-lupte-bot.js; run $g capturi-ecran.js; fi
 done

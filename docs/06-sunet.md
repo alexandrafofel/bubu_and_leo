@@ -289,3 +289,7 @@ Masurat cu `tests/sunete-limita.js`, dupa limitator: fiecare cuvant intre 0.5 si
 - Efecte noi comune: `heal` (prietenul e ridicat) si `poof` (un inamic mic dispare). Amandoua au si o varianta in `fx2`. Mingea magica pleaca cu sunetul de sut (`kick`).
 
 Lista completa a efectelor, cu varfurile, e in anexa E.
+
+## Update 18 noiembrie 2026
+
+Efect nou in `fx`: `no`, doua note moi de kalimba care coboara o terta mica (sol, mi). Se aude cand se alege un capitol incuiat. Nu e un sunet de greseala aspru: spune doar "inca nu".
