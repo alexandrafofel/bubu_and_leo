@@ -1,5 +1,7 @@
 # 17. Testare
 
+> **Din 18 noiembrie 2026 exista un singur joc: "Cea mai grea luptă".** "Bubu și Leo" a fost scos (vezi `16-decizii.md`, "Un singur joc"). Orice schimbare se face doar in "Cea mai grea luptă". Ce scrie mai jos despre primul joc, despre alegerea jocului sau despre "ambele jocuri" este istoric.
+
 Jocul nu are teste unitare. Are scripturi care deschid jocul intr-un Chrome fara fereastra (Playwright), il joaca cu boti, apasa taste reale, simuleaza controllere si fac capturi de ecran. Un test trece cand termina cu `errors 0`: nicio eroare in consola si nicio exceptie in pagina.
 
 ## Ce iti trebuie
@@ -16,7 +18,7 @@ Fisierul testat este mereu `game/bubu-si-leo-ouale-de-aur.html`. Ruleaza `./buil
 
 ## Cum rulezi
 
-Toate testele, pentru ambele jocuri, cu o linie `OK` sau `NEREUSIT` pe test:
+Toate testele, pentru joc (`JOC` nu mai conteaza), cu o linie `OK` sau `NEREUSIT` pe test:
 
 ```
 ./build.sh
@@ -32,7 +34,7 @@ node ../joc-complet-bot.js                 # primul joc
 JOC=lupta node ../joc-complet-bot.js       # al doilea joc
 ```
 
-Minimul dupa orice schimbare (vezi `CLAUDE.md`): `joc-complet-bot.js`, `controller-simulat.js` si `setari-ui.js`, fiecare pentru ambele jocuri. Ruleaza si testul care atinge partea schimbata.
+Minimul dupa orice schimbare (vezi `CLAUDE.md`): `joc-complet-bot.js`, `controller-simulat.js` si `setari-ui.js`, fiecare o singura data. Ruleaza si testul care atinge partea schimbata.
 
 Un test a trecut daca scrie `errors 0` si nu scrie `NEREUSIT`, `GRESIT` sau `PAGEERROR`.
 
@@ -41,7 +43,7 @@ Un test a trecut daca scrie `errors 0` si nu scrie `NEREUSIT`, `GRESIT` sau `PAG
 | Fisier | Ce face |
 |---|---|
 | `tests/pw.js` | Gaseste Playwright si Chrome. Da adresa `file://` a jocului. |
-| `tests/toate.sh` | Ruleaza toate testele pe rand, pentru ambele jocuri. Iesirea fiecaruia ramane in `tests/out/log-<test>-<joc>.txt`. |
+| `tests/toate.sh` | Ruleaza toate testele pe rand. Iesirea fiecaruia ramane in `tests/out/log-<test>-<joc>.txt`. |
 | `tests/common.js` | `boot(opts)`: porneste Chrome 1920 x 1080, deschide jocul, strange erorile, face un clic (pornirea sunetului), alege jocul (`opts.game` sau `JOC`) si ajunge pe ecranul lui de start. Daca `opts.manual` nu e `false`, inlocuieste `Input.poll` cu o varianta in care testul hotaraste intrarile. |
 
 Ce pune `common.js` la dispozitia testelor, in pagina:
@@ -179,3 +181,10 @@ Lupta mare nu e in test (testul merge pe nivelurile cu grila). A fost masurata s
 Capturi privite cu ochiul, pentru fiecare joc: eroii impreuna la inceputul nivelului, eroii la marginea de sus a hartii, eroii in colturi opuse, bannerul de lupta, un banner de un rand, "Îl așteptăm pe ... în cuib!", lupta mare.
 
 Rezultat, `tests/toate.sh` pe codul final: **toate testele OK, pentru ambele jocuri** (44 de rulari). Viteza nu s-a schimbat: `performanta.js` da 24.9 ms pe cadru, iar versiunea dinainte, masurata in aceeasi zi pe aceeasi masina, 24.8 ms. Nu au fost rulate `mini-lupte-bot.js` si `capturi-ecran.js` (cele lungi); capturile au fost facute separat, cu un script pentru banda de sus.
+
+## Un singur joc (18 noiembrie 2026)
+
+- `alege-jocul.js` a fost sters. In locul lui, `un-singur-joc.js`: dupa primul clic se ajunge direct la ecranul de start, cu Boon, Killer si George; Backspace nu duce nicaieri; Setarile merg; progresul e in slotul `g2` si campurile vechi raman in fisier.
+- `controller-simulat.js`, `capitole.js`, `setari-ui.js`, `tastatura-reala.js`, `joc-complet-bot.js` nu mai trec prin alegerea jocului.
+- `tests/pw.js` da mereu `game: 'lupta'`. Variabila `JOC` e ignorata.
+- `tests/toate.sh` ruleaza fiecare test o singura data.

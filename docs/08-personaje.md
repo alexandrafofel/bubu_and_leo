@@ -1,5 +1,7 @@
 # 08. Personaje si obiecte (`src/05-chars.js`)
 
+> **Din 18 noiembrie 2026 exista un singur joc: "Cea mai grea luptă".** "Bubu și Leo" a fost scos (vezi `16-decizii.md`, "Un singur joc"). Orice schimbare se face doar in "Cea mai grea luptă". Ce scrie mai jos despre primul joc, despre alegerea jocului sau despre "ambele jocuri" este istoric.
+
 Toate personajele sunt desenate din forme moi (`puff`, `soft`) si gradiente. Nu exista imagini. Cererea: "Characters are round and cute with big friendly eyes, and move softly (gentle breathing when idle, little bounces when walking)."
 
 Reguli comune:

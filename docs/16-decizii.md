@@ -212,3 +212,16 @@ Cererea cuvant cu cuvant e in `prompts/04-cerere-14-noiembrie.md`. Fiecare punct
 | La lupta mare nu se schimba nimic | Harta e cat ecranul si eroii nu pot urca peste y = 480. Camera statea deja bine. |
 | "Îl așteptăm pe Leo în cuib!" s-a mutat din lume in banda | Era scris la 210 de unitati deasupra cuibului, adica exact peste eroul care tocmai alerga spre cuib. |
 | Numerele barei de progres au halou crem | Bara nu mai are cartonas in spate. Pe fundalul de noapte al celui de-al doilea joc, "× 16" si procentul nu se citeau. |
+
+## Un singur joc (18 noiembrie 2026)
+
+Cererea proprietarei: "scoate jocul Bubu si Leo, lasa doar Cea mai grea lupta. Modificarile sa fie facute doar in jocul Cea mai grea lupta."
+
+| Hotarare | Motivul |
+|---|---|
+| Ecranul "Alege jocul" dispare. Dupa primul clic jocul merge direct la ecranul de start. | Nu mai e nimic de ales. |
+| `GAME` e mereu `'lupta'`; `setGame` ramane doar ca sa fixeze jocul (testele il cheama). | Cea mai mica schimbare care scoate jocul fara sa rupa restul codului. |
+| Codul primului joc ramane in `src/`, nefolosit (`GAME_BASE`, ramurile `!isLupta()`, `LEVEL_DEFS`, `drawBubu`, `drawLeo`, `BABBLE.bubu`, textele fara `L:`). | A-l sterge atinge sute de locuri comune si poate strica ce merge. Se poate curata separat, cu testele de acum ca plasa. |
+| Salvarea ramane la fel (versiunea 4). Progresul jocului e in `g2`; campurile vechi, de sus, raman in fisier, neatinse si nefolosite. | O salvare veche nu trebuie sa se strice, iar un viitor `g1` nu e nevoie. |
+| Din acum, orice sarcina (T1 - T14) se implementeaza doar in "Cea mai grea luptă". "Ambele jocuri" din specificatii inseamna acum "jocul". | Cererea. |
+| `tests/alege-jocul.js` s-a inlocuit cu `tests/un-singur-joc.js`. `tests/toate.sh` ruleaza testele o singura data, fara `JOC`. | Un singur joc. |

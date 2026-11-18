@@ -1,5 +1,7 @@
 # 23. Update urmator: "Cea mai grea luptă", Partea a doua (rundele 7 - 12)
 
+> **Un singur joc (18 noiembrie 2026).** "Bubu și Leo" a fost scos. Tot ce e specificat aici se implementeaza **doar in "Cea mai grea luptă"**. Unde scrie "ambele jocuri", "primul joc", variante `L:` sau teste pentru `bubu`, se citeste: un singur joc, textele lui (varianta `L:`), un singur rand de teste. Nu se mai scrie cod pentru primul joc.
+
 Status: **specificatie, neimplementata.** Nimic din acest capitol nu exista inca in cod.
 
 Cererea proprietarei, cuvant cu cuvant, este in `../prompts/05-cerere-16-noiembrie.md`. Promptul gata de lipit pentru cel care implementeaza este in `../prompts/06-prompt-partea-a-doua.md`.

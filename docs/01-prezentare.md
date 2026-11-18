@@ -1,6 +1,8 @@
 # 01. Prezentare
 
-In fisier sunt doua jocuri. Acest capitol descrie primul, "Bubu și Leo: Ouăle de Aur". Al doilea, "Cea mai grea luptă", are aceleasi reguli si alta lume: vezi `21-cea-mai-grea-lupta.md`. La pornire, familia alege unul din ele.
+> **Din 18 noiembrie 2026 exista un singur joc: "Cea mai grea luptă".** "Bubu și Leo" a fost scos din meniuri (vezi `16-decizii.md`, "Un singur joc"). Orice schimbare se face doar in "Cea mai grea luptă". Ce scrie mai jos despre primul joc este istoric.
+
+Acest capitol descrie primul joc, "Bubu și Leo: Ouăle de Aur", **scos pe 18 noiembrie 2026**. Jocul care ramane, "Cea mai grea luptă", are aceleasi reguli si alta lume: vezi `21-cea-mai-grea-lupta.md`.
 
 ## Pentru cine
 

@@ -4,12 +4,13 @@
    all the texts, in Romanian and in English.
    Arrays with two entries are per hero: [Bubu, Leo].
    ========================================================================== */
-let GAME = 'bubu';                               // the game being played: 'bubu' (Bubu și Leo) or 'lupta' (Cea mai grea luptă)
+let GAME = 'lupta';                              // the one game: 'lupta' (Cea mai grea luptă). The first game, 'bubu' (Bubu și Leo), was taken out of the menus on 18 Nov 2026; its code is still here, unused
 const isLupta = () => GAME === 'lupta';
 const GAME_IDS = ['bubu', 'lupta'], GAME_KEYS = ['villainName', 'heroes', 'boss'], GAME_BASE = {};
 for (const k of GAME_KEYS) GAME_BASE[k] = CONFIG[k];
 /* Puts the chosen game's own heroes, villain and boss values into CONFIG. */
 function applyGameConfig() { for (const k of GAME_KEYS) CONFIG[k] = (GAME === 'lupta' ? CONFIG.lupta : GAME_BASE)[k]; }
+applyGameConfig();
 /* A text of one of the two games, whichever game is being played (for the screen where the game is chosen). */
 function TG(id, k, ...a) { const tab = STR[Opt.lang] || STR.ro; let s = id === 'lupta' ? tab['L:' + k] : null; if (s == null) s = tab[k]; if (s == null) return k; a.forEach((v, i) => { s = s.split('{' + i + '}').join(v); }); return s; }
 const Opt = {

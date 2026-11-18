@@ -1,5 +1,7 @@
 # 09. Niveluri (`src/06-level.js`)
 
+> **Din 18 noiembrie 2026 exista un singur joc: "Cea mai grea luptă".** "Bubu și Leo" a fost scos (vezi `16-decizii.md`, "Un singur joc"). Orice schimbare se face doar in "Cea mai grea luptă". Ce scrie mai jos despre primul joc, despre alegerea jocului sau despre "ambele jocuri" este istoric.
+
 Nivelurile nu sunt desenate de mana. Sunt generate dintr-o samanta, cu reguli. Apoi un test verifica daca totul se poate atinge. Daca nu, se incearca alta samanta. La final fundalul se picteaza o singura data.
 
 De ce generate: sase niveluri de 3200 x 1800 asezate de mana ar fi insemnat mii de coordonate. Cu reguli, fiecare nivel se schimba din cateva numere. Samanta fixa face ca nivelul sa arate la fel la fiecare joc.

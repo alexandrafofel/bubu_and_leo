@@ -1,5 +1,7 @@
 # 11. Mini-lupte (`src/075-duel.js`)
 
+> **Din 18 noiembrie 2026 exista un singur joc: "Cea mai grea luptă".** "Bubu și Leo" a fost scos (vezi `16-decizii.md`, "Un singur joc"). Orice schimbare se face doar in "Cea mai grea luptă". Ce scrie mai jos despre primul joc, despre alegerea jocului sau despre "ambele jocuri" este istoric.
+
 Adaugate in al doilea update. Cererea: "sa existe niste challenge-uri la fiecare nivel, niste mini lupte inainte de terminarea nivelului in care jucatorul de 8 ani (in cazul asta fotbalistul) sa aiba ceva mai antrenant si cel mic fie sa stea ascuns in cuib sau sa adune ouale care apar din lupta (sa nu aiba prea multe de facut)."
 
 ## Ideea

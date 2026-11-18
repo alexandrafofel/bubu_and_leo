@@ -19,7 +19,6 @@ const GAME = process.argv[2] === 'lupta' || process.argv[2] === 'bubu' ? process
       orig(dt); if (!bot.on) return; f++;
       const S = I.slots, st = G.Game.state, P = G.P;
       for (const s of S) { s.x = s.y = 0; s.aP = s.aR = s.a = s.bP = false; s.joined = true; s.up = s.down = s.left = s.right = false; }
-      if (st === 'select') { G.UI.gameSel = GAME === 'lupta' ? 1 : 0; if (f % 20 === 0) S[0].aP = true; return; }      // the screen with the two games
       if (st === 'title' || st === 'intro' || st === 'levelEnd' || st === 'ending') { if (f % 20 === 0) { S[0].aP = true; S[1].aP = true; } return; }
       if (st !== 'play' || !P) return;
       const h = P.heroes[0], l = P.heroes[1], L = P.L;

@@ -96,7 +96,7 @@ T('fest.bravo', 'Bubu', 'Leo') // "Bravo, Bubu și Leo!"
 
 ## Update 14 noiembrie 2026: jocul ales si textele lui
 
-`GAME` este jocul ales: `'bubu'` sau `'lupta'`. `GAME_IDS = ['bubu', 'lupta']`. `isLupta()` spune daca e al doilea. Se schimba doar prin `setGame(id)` din `09-screens.js`, care schimba si eroii din `CONFIG`, muzica si fundalul ecranului de start.
+`GAME` este mereu `'lupta'` (singurul joc, din 18 noiembrie 2026). Textul de mai jos descrie si primul joc, scos. `GAME_IDS = ['bubu', 'lupta']`. `isLupta()` spune daca e al doilea. Se schimba doar prin `setGame(id)` din `09-screens.js`, care schimba si eroii din `CONFIG`, muzica si fundalul ecranului de start.
 
 **Texte diferite pe joc.** Un text care difera in al doilea joc are inca o cheie, cu prefixul `L:`:
 
@@ -113,6 +113,6 @@ T('fest.bravo', 'Bubu', 'Leo') // "Bravo, Bubu și Leo!"
 
 **Texte noi comune**: `sel.*` (ecranul "Alege jocul"), `ban.wait` ("Îl așteptăm pe {0} în cuib!"), `key.b` ("Ajută prietenul (butonul □)"), `spk.lost`, `spk.test`. Toate sunt in anexa C.
 
-**Cand adaugi un text**: daca are sens doar in primul joc (vorbeste de oua, de Ciori, de cuib), adauga si varianta `L:` in ambele limbi. `tests/alege-jocul.js` nu verifica asta. Uita-te la ecran in al doilea joc.
+**Cand adaugi un text**: daca are sens doar in primul joc (vorbeste de oua, de Ciori, de cuib), adauga si varianta `L:` in ambele limbi. Nicio ramura de test nu verifica asta. Uita-te la ecran in al doilea joc.
 
 **Tasta noua** in `Opt.keys[k]`: `b` = ajuta prietenul. O salvare veche, fara `b`, primeste tasta din `CONFIG.keys`.

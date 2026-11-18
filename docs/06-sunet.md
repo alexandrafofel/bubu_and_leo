@@ -1,5 +1,7 @@
 # 06. Sunet (`src/03-audio.js`)
 
+> **Din 18 noiembrie 2026 exista un singur joc: "Cea mai grea luptă".** "Bubu și Leo" a fost scos (vezi `16-decizii.md`, "Un singur joc"). Orice schimbare se face doar in "Cea mai grea luptă". Ce scrie mai jos despre primul joc, despre alegerea jocului sau despre "ambele jocuri" este istoric.
+
 Cererea: sunete generate cu Web Audio, dar calde. Sinus si triunghi, filtre trece-jos, reverberatie moale. Timbre de kalimba, marimba, clopotei de lemn, flaut. Muzica pentatonica, incet, alta pe fiecare nivel. Boss-ul putin mai vioi. "Bonk" comic la lovitura, "thump" la tropait, "pok" la sut. Niciun fisier audio: totul se calculeaza in browser.
 
 Fisierul are doua obiecte: `Snd` (muzica si efecte) si `Voice` (citire cu voce).
