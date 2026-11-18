@@ -1,6 +1,6 @@
 # 25. Partea a doua: nivelurile 7 - 12 si Sala Tronului
 
-Status: **specificatie, neimplementata.** Vezi `23-update-partea-a-doua.md` pentru cerere, hotarari si cele 13 sarcini, si `24-sisteme-noi.md` pentru butoane, fuga, a doua putere, cele 10 secunde, capitole si stilul grafic.
+Status: **specificatie, neimplementata.** Vezi `23-update-partea-a-doua.md` pentru cerere, hotarari si cele 14 sarcini, si `24-sisteme-noi.md` pentru butoane, fuga, a doua putere, cele 10 secunde, capitole si stilul grafic.
 
 Cuprins: 1. Povestea. 2. Cum arata un nivel nou. 3. Mecanismele (cadrul comun). 4. Cele sase niveluri. 5. George in mini-lupte. 6. Sala Tronului. 7. "Va urma" si finalul. 8. Texte. 9. Sunete. 10. Decor si numarul de elemente. 11. Teste.
 

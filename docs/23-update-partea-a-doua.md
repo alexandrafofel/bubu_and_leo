@@ -4,14 +4,15 @@ Status: **specificatie, neimplementata.** Nimic din acest capitol nu exista inca
 
 Cererea proprietarei, cuvant cu cuvant, este in `../prompts/05-cerere-16-noiembrie.md`. Promptul gata de lipit pentru cel care implementeaza este in `../prompts/06-prompt-partea-a-doua.md`.
 
-Specificatia are patru capitole. Citeste-le in ordine. Promptul gata de lipit pentru fiecare dintre cele 13 sarcini este in `../prompts/06-prompt-partea-a-doua.md`.
+Specificatia are cinci capitole. Citeste-le in ordine. Promptul gata de lipit pentru fiecare dintre cele 14 sarcini este in `../prompts/06-prompt-partea-a-doua.md`.
 
 | Capitol | Ce contine |
 |---|---|
-| 23 (acesta) | Ce se cere, ce s-a hotarat, ce a ramas de intrebat, principiile luate din "It Takes Two", planul in 13 sarcini, regulile din `CLAUDE.md` care se schimba. |
+| 23 (acesta) | Ce se cere, ce s-a hotarat, ce a ramas de intrebat, principiile luate din "It Takes Two", planul in 14 sarcini, regulile din `CLAUDE.md` care se schimba. |
 | [24](24-sisteme-noi.md) | Sistemele noi, comune tuturor nivelurilor: butoane, fuga, a doua putere, cele 10 secunde, capitole si salvare, scrisul de sus, stilul grafic. |
 | [25](25-niveluri-7-12.md) | Povestea, mecanismele de colaborare, cele 6 niveluri noi, luptele cu George, lupta finala, texte, sunete, decor. |
 | [26](26-limba-personajelor.md) | Limba personajelor (T13): patru limbi de cam 1000 de cuvinte, generate, cu fraze, balon cu traducerea si Dictionar. |
+| [27](27-cota-de-oua.md) | Cota de oua si cristale (T14): fiecare erou are de gasit un numar pe nivel, tine cel mult 150%, ii da prietenului cu L1; insigna verde / rosie si mesajul "Ai gasit toate". |
 
 Tot ce e scris aici porneste de la codul de dupa update-ul din 14 noiembrie 2026 (`22-update-14-noiembrie.md`). Numele de functii si valorile citate au fost verificate in `src/` la 16 noiembrie 2026.
 
@@ -77,6 +78,11 @@ Implementarea poate porni fara raspunsuri: se foloseste coloana "Daca nu raspunz
 | I12 | Cuvintele sa se descopere pe parcurs si sa existe un Dictionar (ca o colectie)? | Da. | `CONFIG.lang.on`, ecranul `dict` |
 | I13 | Pot limbile sa aiba si consoane moi (m, n, l, b, d...), nu doar vocale? | Da: fara ele nu ies 1000 de cuvinte care se deosebesc. | `LANG_PHON[].con` |
 | I14 | Copiii vor sa-si aleaga ei cateva cuvinte (de exemplu 20 pentru fiecare erou: cum zice "ou", "salut", "mama")? | Nu; locul e pregatit in `CONFIG.lang.own`. | `CONFIG.lang.own` |
+| I15 | Cota creste cu 5 pe nivel si la nivelurile 7 - 12 (40, 45, ... 65)? | Da. | `CONFIG.quota.perLevel` |
+| I16 | Exemplul "unul gaseste 20, celalalt 0": un erou plin (150%) lasa oul pe jos, sau il ia si doar 150% se numara? | Oul ramane pe jos, pentru prieten. | `CONFIG.quota.cap` |
+| I17 | Daca dupa 120 de secunde in cuib cota cuiva tot lipseste, jocul sa dea singur oua? | Da (regula 6: nimeni nu ramane blocat). `0` il opreste. | `CONFIG.quota.autoGive` |
+| I18 | Portretul din insigna: cel pictat de joc dupa desenele copiilor, sau poza reala a desenului? | Pictat de joc (regula 1: fara imagini in fisier). | `drawBadge` |
+| I19 | Oul uriaș, ouale din paznic si bonusul curcubeului intra in cota? | Nu: raman premii pentru echipa. | `egg.goal` |
 
 ---
 
@@ -99,7 +105,7 @@ Despre grafica, cinstit: "It Takes Two" este un joc 3D facut cu un motor mare. J
 
 ---
 
-## 5. Planul: 13 sarcini
+## 5. Planul: 14 sarcini
 
 Fiecare sarcina se poate termina, testa si trimite separat. Ordinea conteaza: fiecare se sprijina pe cea dinainte. Promptul gata de lipit pentru fiecare este in `../prompts/06-prompt-partea-a-doua.md`.
 
@@ -120,6 +126,7 @@ Inainte de orice sarcina si dupa fiecare: `./build.sh`, `node tools/gen-docs.js`
 | T11 | Sala Tronului, scena "Va urma", finalul nou. | 25, 6 si 7 | `tests/sala-tronului.js` trece. `joc-complet-bot.js` ajunge de la capitolul 1 la finalul nou. |
 | T12 | Sunete, muzica, cuvinte noi, decor, capturi, toata documentatia. | 25, 8 - 11 | `tests/toate.sh tot` trece. `numara-elemente.js` da peste 22.000 in al doilea joc. |
 | T13 | Limba personajelor: fiecare erou are propria limba, cu cam 1000 de cuvinte generate, fraze, balon cu traducerea si Dictionar. Se face **dupa T12** (cele 13 cuvinte noi din T12 devin exclamatiile limbii) si dupa T1 (regulile pentru scrisul de sus se aplica si balonului). | 26 | `tests/limba.js` trece pentru ambele jocuri. 950 - 1100 de cuvinte pe limba, niciunul la fel cu altul. |
+| T14 | Cota de oua / cristale: fiecare erou are de gasit un numar pe nivel (10, 15, 20...), tine cel mult 150%, ii da prietenului cu L1. Insigna verde / rosie cu portret si "gasite / cota", mesajul "Ai găsit toate". Se face **dupa T1** (banda de sus, facuta) si **dupa T2** (butonul L1 si tabelul de butoane). Nu depinde de T13. | 27 | `tests/cota.js` trece pentru ambele jocuri. Exemplul din cerere (cota 10, un erou 15, celalalt 7) nu termina nivelul. `hud-acoperire.js` ramane la 0%. |
 
 Dupa **T5** jocul are deja toate regulile cerute, pe nivelurile de acum: butoane, fuga, a doua putere, cele 10 secunde, capitole, scrisul reparat. Este cel mai bun moment sa il incerce copiii si sa primim raspunsurile la intrebarile I1 - I9 de mai sus, inainte de nivelurile noi. T1 - T5 sunt un update intreg si folositor chiar fara nimic dupa el.
 
@@ -131,9 +138,9 @@ Se rescriu in `CLAUDE.md` in sarcina in care devin adevarate, nu inainte.
 |---|---|---|---|
 | 4 | "Stilul vizual: pictura in acuarela dintr-o carte pentru copii." | Se adauga: "Nivelurile 7 - 12 ale celui de-al doilea joc sunt pictate ca o diorama cu lumina (vezi `docs/24`, S7). Ramane valabil peste tot: fara contururi negre, fara gri, fara negru." | T6 |
 | 6 | "Un erou lovit (...) asteapta pe loc pana il ajuta prietenul cu □. (...) daca amandoi sunt loviti se ridica amandoi dupa cateva secunde." | "Jocul nu spune niciodata 'Game Over'. Un erou lovit asteapta pe loc. Prietenul are 10 secunde sa il ajute cu ○. Daca nu, nivelul reincepe de la inceput, cu mesajul 'Încă o dată!'. Un copil care joaca singur se ridica singur." | T4 |
-| 8 | "✕ pentru putere, □ pentru a ajuta prietenul" | "✕ prima putere, □ a doua putere, ○ ajuta prietenul, L3 (apasarea stick-ului) fuga, OPTIONS pauza." | T2 |
+| 8 | "✕ pentru putere, □ pentru a ajuta prietenul" | "✕ prima putere, □ a doua putere, ○ ajuta prietenul, L3 (apasarea stick-ului) fuga, L1 da un ou / cristal prietenului, OPTIONS pauza." | T2, T14 (L1) |
 | 9 | "6 niveluri + lupta finala" | "Primul joc: 6 niveluri si o lupta finala. Al doilea: 12 niveluri si doua lupte mari. Minimum 10.000 de elemente pentru fiecare 6 niveluri." | T11 (cand exista toate nivelurile si a doua lupta mare), T12 (elementele) |
-| 10 | "Nivelul se termina doar cand amandoi jucatorii sunt in cuib." | Neschimbata. | - |
+| 10 | "Nivelul se termina doar cand amandoi jucatorii sunt in cuib." | "Nivelul se termina doar cand amandoi jucatorii sunt in cuib si fiecare si-a gasit cota de oua / cristale (`docs/27`)." | T14 |
 | noua, 11 | - | "In nivelurile 7 - 12 fiecare poarta are nevoie de amandoi eroii. Cu un singur jucator, jocul face singur partea celuilalt." | T7 |
 | 9 (a doua schimbare) | "minimum 30 de cuvinte pe erou, niciunul la fel cu ale primului joc" | "Fiecare erou are propria limba, cu cel putin 950 de cuvinte generate (`docs/26`). Niciun cuvant nu e la fel cu al altui erou." | T13 |
 
@@ -160,6 +167,7 @@ Se rescriu in `CLAUDE.md` in sarcina in care devin adevarate, nu inainte.
 | Lumina si planul din fata incetinesc jocul. | Bugetul din 24, S7.6. Harta de lumina e la un sfert din rezolutie. |
 | Fisierul creste (acum 458 KB). | Nu e o problema pentru Chrome. Se estimeaza 750 - 850 KB la final, plus cel mult 60 KB pentru limba (T13). |
 | 1000 de cuvinte inventate pot suna toate la fel sau pot incurca un copil de 6 ani. | Regulile de deosebire din `26`, L3, si testul 7 din L8. Se judeca doar ascultand cu copiii; `seeds` si `LANG_PHON` se schimba usor. |
+| Cota de oua (T14): 60 de oua pe nivel, toate necesare, nu se potrivesc cu cote de 10, 15... si cu limita de 150%. Daca E < 2q nivelul nu se poate termina, daca E > 2 * cap poate ramane blocat. | Numarul de oua pe nivel devine `ceil(2.2 * cota)` (intre 2q si 2 * cap, verificat de test la fiecare nivel). Doar ouale din valuri si copaci intra in cota. Ajutor automat dupa 120 s. Vezi `27`, C2 si C3. |
 | Nimic din toate acestea nu poate fi incercat de un asistent pe un controller real. | La fiecare sarcina se spune ce nu a fost verificat, ca in `19-limitari.md`. |
 
 Surse despre "It Takes Two": pagina jocului pe Steam (`store.steampowered.com/app/1426210/It_Takes_Two/`) si interviul echipei Hazelight publicat de Unreal Engine ("It Takes Two lovingly marries story and gameplay together"). Principiile din sectiunea 4 sunt formulate de noi, pe baza jocului.

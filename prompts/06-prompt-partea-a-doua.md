@@ -1,6 +1,6 @@
 # Prompturi pentru "Partea a doua" (rundele 7 - 12)
 
-Update-ul e impartit in **13 sarcini**. Fiecare se poate termina, testa si trimite separat.
+Update-ul e impartit in **14 sarcini**. Fiecare se poate termina, testa si trimite separat.
 
 Cum folosesti fisierul:
 
@@ -26,6 +26,7 @@ Sarcinile merg in ordine: fiecare se sprijina pe cea dinainte. Dupa sarcina 5 jo
 | [T11](#t11) | Sala Tronului si finalurile | 25, 6 si 7 |
 | [T12](#t12) | Sunete, decor, documentatie, totul testat | 25, 8 - 11 |
 | [T13](#t13) | Limba personajelor: cam 1000 de cuvinte pe erou, Dictionar | 26 |
+| [T14](#t14) | Cota de oua / cristale pe erou, dat cu L1, insigna verde / rosie | 27 |
 
 ---
 
@@ -42,8 +43,8 @@ De citit, in ordinea aceasta, inainte de orice sarcina:
 
 1. `CLAUDE.md`: regulile care nu se schimba si pasii de lucru.
 2. `docs/00-cuprins.md`, apoi `docs/02-arhitectura.md` si `docs/21-cea-mai-grea-lupta.md`.
-3. `docs/23-update-partea-a-doua.md`: cererea, hotararile, intrebarile deschise, principiile luate din "It Takes Two", planul in 13 sarcini.
-4. Capitolul de specificatie al sarcinii tale: `docs/24-sisteme-noi.md` sau `docs/25-niveluri-7-12.md`.
+3. `docs/23-update-partea-a-doua.md`: cererea, hotararile, intrebarile deschise, principiile luate din "It Takes Two", planul in 14 sarcini.
+4. Capitolul de specificatie al sarcinii tale: `docs/24-sisteme-noi.md`, `docs/25-niveluri-7-12.md`, `docs/26-limba-personajelor.md` sau `docs/27-cota-de-oua.md`.
 5. `prompts/05-cerere-16-noiembrie.md`: cererea proprietarei, cuvant cu cuvant. **Daca specificatia si cererea spun lucruri diferite, cererea are dreptate: spune-i, nu alege singur.**
 
 Sarcinile pornesc din ramura `claude/partea-a-doua` (pull request-ul care aduce specificatia). Daca a fost deja integrata in `main`, porneste din `main`.
@@ -516,5 +517,39 @@ Gata cand:
 
 Nu face in aceasta sarcina: nimic din nivelurile noi, nimic din grafica. Nu schimba cele 47 de exclamatii de acum.
 
-La final scrie proprietarei raportul obisnuit si, pentru toate cele 13 sarcini, o lista scurta cu tot ce a ramas neverificat (controllere reale, cum suna, cum se simt vibratiile, daca mecanismele sunt intelese de un copil de 6 ani, daca cele 10 secunde sunt prea putine, daca fuga strica luptele, daca limbile se deosebesc pentru urechea unui copil de 6 ani, daca balonul incurca) si ce ar trebui sa incerce cu copiii, in ordine.
+La final scrie proprietarei raportul obisnuit si, pentru toate sarcinile facute pana atunci, o lista scurta cu tot ce a ramas neverificat (controllere reale, cum suna, cum se simt vibratiile, daca mecanismele sunt intelese de un copil de 6 ani, daca cele 10 secunde sunt prea putine, daca fuga strica luptele, daca limbile se deosebesc pentru urechea unui copil de 6 ani, daca balonul incurca) si ce ar trebui sa incerce cu copiii, in ordine.
+````
+
+---
+
+<a id="t14"></a>
+## T14. Cota de oua si cristale
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+
+Sarcina T14: fiecare erou trebuie sa gaseasca un numar de oua (primul joc) sau cristale (al doilea) pe nivel. Un erou poate tine cel mult 150% din cota si ii poate da prietenului un ou apasand L1. Daca limita e 10 si un erou are 20, iar celalalt 0, nivelul nu se termina. Cererea proprietarei, cuvant cu cuvant, e la inceputul docs/27-cota-de-oua.md. Daca specificatia si cererea difera, cererea are dreptate: spune-i proprietarei.
+
+Specificatia: docs/27-cota-de-oua.md, toate sectiunile (C1 - C11). Citeste si docs/24-sisteme-noi.md, S1 (butoane) si S6 (banda de sus: insigna mai inalta trebuie sa incapa in 132 de unitati).
+
+Inainte sa incepi, verifica ca T1 si T2 sunt facute (in main sau in ramura de la care pornesti). Daca T2 nu e facuta, adauga doar butonul L1 (indice 4, campul `g` / `gP`) cum scrie in C6 si spune asta in raport. Daca T1 nu e facuta, opreste-te.
+
+Ce ai de facut:
+1. CONFIG.quota (C7) si generatorul: genLevel foloseste ceil(extra * cota) in locul eggsPerMinute. Daca 2q <= E <= 2 * cap nu e adevarat pentru un nivel, buildLevel incearca urmatoarea samanta. Durata nivelului: max(levelDuration, E / eggsPerMinute * 60).
+2. Starea si regulile din C4: P.found, P.cap, canTake, giveEgg, updateGifts, quotaState. Campul `goal` pe ou. Un ou peste limita ramane pe jos, cu balonul "Plin!". Tropaitul si mingea ocolesc eroul plin. Un erou lovit scapa un ou al lui. Nivelul se termina doar daca fiecare si-a gasit cota. Cu un singur jucator nu exista limita. Ajutorul automat dupa autoGive secunde.
+3. L1: Input (campul `g`, `gP`, tastele KeyR si Period dupa ce verifici RESERVED), pagina "Alege tastele", sunetul `give`, vibratia.
+4. HUD (C5): insigna de 300 x 108 cu portret, ou / cristal mic si "gasite / cota", verde / rosu cu bifa, mesajul "Ai găsit toate" in cardul din mijloc cu `iconL1`, sagetile, ecranul de sfarsit de nivel. Textele in STR, romana si engleza, cu varianta `L:` pentru al doilea joc.
+5. tests/cota.js cu cele 16 verificari din C10, ambele jocuri, in tests/toate.sh. Verifica o data ca fiecare poate sa pice. Adapteaza botii (tests/common.js: `balanseaza()`) sa dea cu L1 cand e nevoie, si tests/hud-acoperire.js (STRICT=1 trebuie sa ramana 0%).
+6. Documentatia: 03, 07, 09, 10, 12, 13, 16 (C1 - C16 cu motivul), 17, 19, 00-cuprins.md, README.md si regulile 8 si 10 din CLAUDE.md, cum scrie in docs/23, sectiunea 6. Capitolul 27 devine istoric, cu o nota in cap ca a fost implementat.
+
+Gata cand:
+- tests/cota.js trece pentru amandoua jocurile, cu errors 0 si fara NEREUSIT.
+- Exemplul din cerere (cota 10, un erou 15, celalalt 7, ambii in cuib) nu termina nivelul; dupa ce primeste ouale cu L1, il termina.
+- tests/toate.sh trece intreg pentru ambele jocuri. hud-acoperire.js: 0%.
+- Ai capturi (ro si en, ambele jocuri) cu insigna rosie, insigna verde si mesajul "Ai găsit toate", privite cu ochiul.
+
+Nu face in aceasta sarcina: nivelurile noi, limba, grafica noua. Nu schimba medaliile.
+
+La final scrie proprietarei raportul obisnuit si ce nu s-a putut verifica (C11).
 ````
