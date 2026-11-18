@@ -333,7 +333,7 @@ function drawHints(c, v) {
     else { const cx = clamp(sx, m, W - m), cy = clamp(sy, 260, H - m); iconArrow(c, cx + Math.sin(t * 6) * 6, cy, Math.atan2(sy - cy, sx - cx), 38, '#F8C24E'); }
   }
   // first steps: stick, then ✕, shown above each hero
-  if (Game.levelIdx === 0 || L.boss) for (const h of P.heroes) {
+  if (L.idx === 0 || L.boss) for (const h of P.heroes) {
     const tu = P.tut[h.k]; if (!Input.slots[h.k].joined || (tu.moved > 0.8 && tu.used) || P.time > 90) continue;
     if (L.boss && (tu.used || P.time > 12)) continue;
     const sx = (h.x - v.l) * v.z, sy = (h.y - v.tp) * v.z - (h.tagT > 0 ? 200 : 160) * v.z + Math.sin(t * 5) * 5;

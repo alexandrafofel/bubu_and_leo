@@ -26,10 +26,12 @@ Mouse-ul dispare cat se joaca (clasa CSS `playing`, `cursor: none`) si reapare i
 |---|---|
 | `Game.toSelect()` | Ecranul "Alege jocul": inchide meniurile, opreste intrarea in joc cu tastatura (`kbJoin = false`), muzica de start. |
 | `Game.toTitle()` | Ecranul de start: reseteaza "Gata!", inchide meniurile, reporneste atribuirea automata a controllerelor, opreste vocea, citeste salvarea, muzica de start. |
-| `Game.startGame(cont)` | Cu `cont`: reia de la nivelul salvat, cu scorul salvat. Fara: scor 0, salveaza nivelul 0, incepe nivelul 1. |
-| `Game.goLevel(idx)` | Trece la `loading` pentru nivelul `idx`. |
-| `Game.levelEnd()` | Pastreaza rezultatul nivelului (cu medaliile), trece la `levelEnd`, salveaza nivelul urmator. |
-| `Game.toEnding()` | Trece la festival. |
+| `Game.startGame(cont)` | Cu `cont`: porneste capitolul la care duce "Continuă". Fara: sterge progresul jocului ales (`Save.newGame`) si porneste capitolul 1. |
+| `Game.startChapter(i)` | Porneste capitolul `i` ales pe ecranul Capitole. Nu sterge nimic. |
+| `Game.toChapters()` | Ecranul Capitole: alege capitolul la care duce "Continuă", opreste intrarea in joc cu tastatura, muzica de start. |
+| `Game.goLevel(idx)` | Trece la `loading` pentru capitolul `idx`. Opreste intrarea in joc cu tastatura (vezi `13-ecrane-si-meniuri.md`). |
+| `Game.levelEnd()` | `finishChapter()`: tine minte ce s-a adunat acum (`Game.lastRun`), pastreaza cel mai bun rezultat al capitolului (`Save.finish`), totalul devine suma. Apoi trece la `levelEnd`. |
+| `Game.toEnding()` | `finishChapter()`, apoi festivalul. |
 
 ## `update(dt)`
 
@@ -39,10 +41,11 @@ Mouse-ul dispare cat se joaca (clasa CSS `playing`, `cursor: none`) si reapare i
 | meniul Setari deschis | Doar `updateSettings`. Jocul din spate sta pe loc. |
 | `select` | `updateSelect`. |
 | `title` | `updateTitle`. |
+| `chapters` | `updateChapters`: ecranul Capitole. |
 | `loading` | Al treilea cadru: construieste nivelul, trece la `intro`, coboara muzica, citeste povestea. |
 | `intro` | Dupa 0.8 s, orice "mai departe" porneste jocul. |
 | `play` | Daca e pauza: `updatePause`. Altfel: daca un controller s-a pierdut sau s-a cerut pauza, pune pauza. Altfel `updatePlay`. |
-| `levelEnd` | Particulele continua. Dupa 1.5 s, "mai departe" trece la nivelul urmator. |
+| `levelEnd` | Particulele continua. Dupa 1.5 s, "mai departe" trece la capitolul urmator. Si dupa un capitol rejucat din lista: ca in "It Takes Two", jocul merge mai departe de acolo. |
 | `ending` | `updateEnding`. |
 
 La sfarsitul fiecarui `update`, clicul si pozitia mouse-ului se sterg, iar `UI.spkLostT` (cat mai sta pe ecran mesajul despre difuzorul negasit) scade.

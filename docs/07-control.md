@@ -123,3 +123,9 @@ De ce: vibratia mica la oua confirma ca s-a luat ceva, fara sa obosesca. Cea mar
 - `Input.kbJoin` este `false` pe ecranul "Alege jocul" si `true` pe ecranul de start. Motivul: parintele alege jocul cu Enter. Daca Enter l-ar fi si bagat in joc pe al doilea erou, cu tastatura, al doilea controller n-ar mai fi avut loc.
 - Controllerele intra in joc ca inainte, de pe orice ecran: primul care apasa ✕ e jucatorul 1.
 - In testerul din Setari, □ se aprinde ca inainte.
+
+## Update 18 noiembrie 2026
+
+`Input.kbJoin` (un jucator fara controller intra in joc apasand tasta lui de putere) este adevarat **doar pe ecranul de start**. E fals pe "Alege jocul", pe ecranul Capitole si de la inceputul fiecarui nivel. Inainte era adevarat si in timpul jocului, deci Enter apasat in meniul de pauza il baga pe al doilea erou in joc. Motivul complet e in `13-ecrane-si-meniuri.md`.
+
+Pe ecranul Capitole navigarea foloseste `Input.menu`: orice controller (D-pad sau stick), sagetile si tastele de mers ale jucatorilor.

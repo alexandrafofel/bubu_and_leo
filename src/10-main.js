@@ -33,21 +33,33 @@ Game.toSelect = function () {             // the screen where one of the two gam
   Voice.stop(); Save.load(); Snd.music('title'); Snd.setDuck(1);
 };
 Game.toTitle = function () {
-  Game.state = 'title'; Game.paused = false; UI.ready = [false, false]; UI.menuSel = 0; UI.startT = -1; UI.lostK = -1; UI.set = null;
+  Game.state = 'title'; Game.paused = false; UI.ready = [false, false]; UI.menuSel = 0; UI.startT = -1; UI.lostK = -1; UI.set = null; UI.ask = null;
   Input.autoJoin = true; Input.kbJoin = true; Input.bindTo = null;
   Voice.stop(); Save.load(); Snd.music('title'); Snd.setDuck(1);
 };
+/* cont: from the chapter "Continue" points at. Otherwise a new game from the first chapter (the progress of this game is erased). */
 Game.startGame = function (cont) {
   const d = Save.slot();
-  if (cont && d) { Game.team = { eggs: d.eggs || 0, stars: d.stars || 0 }; Game.results = d.results || []; Game.goLevel(clamp(d.level | 0, 0, levelCount())); }
-  else { Game.team = { eggs: 0, stars: 0 }; Game.results = []; Save.write(0); Game.goLevel(0); }
+  if (cont && d) { Game.results = Array.isArray(d.results) ? d.results : []; Game.goLevel(clamp(d.level | 0, 0, chapters().length - 1)); }
+  else { Save.newGame(); Game.goLevel(0); }
 };
-Game.goLevel = function (idx) { Game.levelIdx = idx; Game.state = 'loading'; UI.loadStep = 0; Voice.stop(); };
-Game.levelEnd = function () {
-  Game.results[Game.levelIdx] = { eggs: P.levelEggs, stars: P.levelStars, med: levelMedals() };
-  Game.state = 'levelEnd'; UI.lvlT = 0; Save.write(Game.levelIdx + 1);
+/* One chapter chosen on the Chapters screen. Nothing is erased. */
+Game.startChapter = function (i) {
+  const d = Save.slot(); Game.results = d && Array.isArray(d.results) ? d.results : [];
+  Input.muteHeld();      // the Enter that chose the chapter is ignored until it is let go
+  Game.paused = false; Game.goLevel(clamp(i, 0, chapters().length - 1));
 };
-Game.toEnding = function () { Game.state = 'ending'; startEnding(); };
+/* A player joins with the keyboard only on the start screen. In a level, Enter or Space in the pause menu must not make
+   the second hero join (a child playing alone would suddenly have a friend nobody plays). Controllers can still join any time. */
+Game.goLevel = function (idx) { Game.levelIdx = idx; Game.state = 'loading'; UI.loadStep = 0; Input.kbJoin = false; Voice.stop(); };
+/* The chapter that is being played is over: its best result is kept and the team total becomes the sum of all results. */
+function finishChapter() {
+  Game.lastRun = { eggs: P.levelEggs, stars: P.levelStars, med: levelMedals() };
+  Save.finish(Game.levelIdx, Game.lastRun);
+  const tt = sumResults(Game.results); Game.team = { eggs: tt.eggs, stars: tt.stars };
+}
+Game.levelEnd = function () { finishChapter(); Game.state = 'levelEnd'; UI.lvlT = 0; };
+Game.toEnding = function () { finishChapter(); Game.state = 'ending'; startEnding(); };
 
 function update(dt) {
   Game.t += dt;
@@ -62,6 +74,7 @@ function update(dt) {
   } else if (UI.set && (st === 'title' || st === 'select' || (st === 'play' && Game.paused))) updateSettings(dt);
   else if (st === 'select') updateSelect(dt);
   else if (st === 'title') updateTitle(dt);
+  else if (st === 'chapters') updateChapters(dt);
   else if (st === 'loading') {
     UI.loadStep++;
     if (UI.loadStep >= 3) {
@@ -77,7 +90,7 @@ function update(dt) {
     else {
       const lost = Input.slots.findIndex(s => s.lost);
       if (lost >= 0) UI.lostK = lost;
-      if (Input.pause || lost >= 0) { Game.paused = true; UI.pauseSel = 0; Snd.setDuck(0.35); }
+      if (Input.pause || lost >= 0) { Game.paused = true; UI.pauseSel = 0; UI.ask = null; Snd.setDuck(0.35); }
       else updatePlay(dt);
     }
   } else if (st === 'levelEnd') {
@@ -98,6 +111,7 @@ function draw() {
   if (st === 'boot') drawBoot(c, t);
   else if (st === 'select') { drawSelect(c, t); ov = titleBackdrop('bubu').ov; }
   else if (st === 'title') drawTitle(c, t);
+  else if (st === 'chapters') drawChapters(c, t);
   else if (st === 'loading') drawLoading(c, t);
   else if (st === 'intro') { drawIntro(c, t); ov = P.L.overlay; }
   else if (st === 'play') { drawPlay(c); if (Game.paused && !UI.set) drawPause(c, t); ov = P.L.overlay; }
@@ -121,5 +135,5 @@ function frame(ts) {
 Save.load(); Save.apply(); setLanguage(Opt.lang);
 resize();
 initScreens();
-window.__game = { Game, Input, UI, Save, CONFIG, Opt, STR, T, Snd, Voice, Perf, get P() { return P; }, get GAME() { return GAME; }, setGame, buildLevel, genLevel, startPlay, startDuel, duelHit, openNest, hitHero, getUp, tryRescue, hurtSmall, kickBall, recallBalls, update, draw, openSettings, closeSettings, swapHeroes, settingsRows };
+window.__game = { Game, Input, UI, Save, CONFIG, Opt, STR, T, Snd, Voice, Perf, get P() { return P; }, get GAME() { return GAME; }, setGame, buildLevel, genLevel, startPlay, startDuel, duelHit, openNest, hitHero, getUp, tryRescue, hurtSmall, kickBall, recallBalls, chapters, chapterLabel, titleMenu, chapterLayout, update, draw, openSettings, closeSettings, swapHeroes, settingsRows };
 requestAnimationFrame(ts => { _last = ts; requestAnimationFrame(frame); });

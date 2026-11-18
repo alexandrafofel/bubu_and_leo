@@ -11,7 +11,7 @@ Doua jocuri HTML in acelasi fisier, pentru doi copii (6 si 8 ani), cooperative, 
 
 La pornire se alege unul. Amandoua folosesc acelasi cod si aceleasi reguli. Ce le deosebeste e hotarat de `GAME` (`'bubu'` sau `'lupta'`). Ultimul update, pe puncte: `docs/22-update-14-noiembrie.md`.
 
-Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece secunde, capitole) este specificat, nu implementat, in `docs/23-update-partea-a-doua.md`, `docs/24-sisteme-noi.md` si `docs/25-niveluri-7-12.md`. Regulile de mai jos descriu jocul de acum. Cele care se schimba cu acel update sunt aratate in `docs/23-update-partea-a-doua.md`, sectiunea 6, si se rescriu aici abia cand sarcina lor e gata. Update-ul e impartit in 12 sarcini, cu cate un prompt pentru fiecare, in `prompts/06-prompt-partea-a-doua.md`.
+Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece secunde, capitole) este specificat, nu implementat, in `docs/23-update-partea-a-doua.md`, `docs/24-sisteme-noi.md` si `docs/25-niveluri-7-12.md`. Regulile de mai jos descriu jocul de acum. Cele care se schimba cu acel update sunt aratate in `docs/23-update-partea-a-doua.md`, sectiunea 6, si se rescriu aici abia cand sarcina lor e gata. Update-ul e impartit in 12 sarcini, cu cate un prompt pentru fiecare, in `prompts/06-prompt-partea-a-doua.md`. Facute: T5 (capitole, 18 noiembrie 2026).
 
 ## Regulile care nu se schimba fara acordul proprietarei
 
@@ -48,6 +48,7 @@ Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece sec
 | Cum arata Boon, Killer, George si lumea lor | `src/055-lupta.js` | `docs/21-cea-mai-grea-lupta.md` |
 | Ajutorul cu □, inamicii mici, cuibul | `src/07-play.js`, `CONFIG.rescue`, `CONFIG.smallEnemy` | `docs/10-gameplay.md`, `docs/22-update-14-noiembrie.md` |
 | Ecranul "Alege jocul", `setGame` | `src/09-screens.js` | `docs/13-ecrane-si-meniuri.md` |
+| Capitolele, meniul de start, salvarea (`chapters`, `Save.finish`) | `src/06-level.js`, `src/09-screens.js`, `src/10-main.js` | `docs/13-ecrane-si-meniuri.md` |
 | Nivelurile si generarea lor | `src/06-level.js` | `docs/09-niveluri.md` |
 | Regulile jocului, puterile, inamicii, boss-ul | `src/07-play.js` | `docs/10-gameplay.md` |
 | Mini-luptele cu paznicii | `src/075-duel.js` | `docs/11-mini-lupte.md` |
@@ -60,6 +61,8 @@ Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece sec
 - Ordinea fisierelor din `build.sh` conteaza. Un fisier poate folosi la incarcare doar nume definite in fisierele de dinaintea lui. In functii care ruleaza mai tarziu poate folosi orice.
 - Codul ruleaza intr-un singur `<script>` cu `'use strict'`. Toate numele de sus sunt globale si unice in tot jocul. Verifica cu `grep` ca un nume nou nu exista deja.
 - `T` este functia de traducere. Nu folosi `T` ca nume de variabila locala.
+- `Game.levelIdx` este indicele unui **capitol** (nivel sau lupta mare), nu numarul nivelului. Numarul nivelului e `P.L.idx`. Lista capitolelor o da `chapters()`.
+- Tastatura baga un jucator in joc doar pe ecranul de start (`Input.kbJoin`). Nu il porni pe alte ecrane: Enter si Spatiu sunt si tastele de putere.
 - Lumea are coordonate logice. Ecranul are mereu 1920 x 1080 unitati, scalate la fereastra. Nivelurile au 3200 x 1800.
 - Grila nivelului are celule de 40 (`CS`). Codurile celulelor sunt in `docs/09-niveluri.md`.
 - `Snd.play(nume, valoare, erou)`: al treilea argument spune al cui este sunetul. Fara el, sunetul unui personaj nu poate merge in difuzorul controllerului lui.

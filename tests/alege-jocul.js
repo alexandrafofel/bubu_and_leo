@@ -22,13 +22,15 @@ const boot = require('./common.js');
   await key('Enter'); await page.waitForTimeout(300);
   await check('Enter: Cea mai grea luptă, cu eroii si textele ei', s => s.st === 'title' && s.game === 'lupta' && s.title === 'Cea mai grea luptă' && s.heroes.join() === 'Boon,Killer' && s.villain === 'George cel Rău' && s.egg === 'cristale');
   await shot('s_title_lupta');
-  await page.evaluate(() => { const G = __game; G.Game.team = { eggs: 77, stars: 3 }; G.Game.results = []; G.Save.write(4); });      // ca si cum ar fi ajuns la nivelul 5
+  // progresul jocului ales, ca si cum echipa ar fi terminat nivelurile 1 - 4 cu 77 de cristale in total (rezultatul fiecarui capitol e in results)
+  const prog = (lvl, eggs) => page.evaluate(([lvl, eggs]) => { const G = __game, sl = G.Save.own(); sl.level = lvl; sl.max = lvl; sl.results = Array.from({ length: lvl }, (_, i) => ({ eggs: i ? 0 : eggs, stars: 0, med: [false, false, false] })); sl.eggs = eggs; sl.stars = 0; G.Save.write(); }, [lvl, eggs]);
+  await prog(4, 77);      // ca si cum ar fi ajuns la nivelul 5
   await key('Backspace'); await page.waitForTimeout(300); await check('Backspace: inapoi la alegerea jocului', s => s.st === 'select' && s.sel === 1);
   await key('ArrowLeft'); await key('Enter'); await page.waitForTimeout(300);
   await check('Enter: Bubu și Leo, cu eroii si textele lui', s => s.st === 'title' && s.game === 'bubu' && s.title === 'Bubu și Leo' && s.heroes.join() === 'Bubu,Leo' && s.villain === 'Ciori' && s.egg === 'ouă');
   await check('progresul e separat: doar al doilea joc are progres', s => s.has[0] === false && s.has[1] === true && s.lvl[1] === 4);
   await shot('s_title_bubu');
-  await page.evaluate(() => { const G = __game; G.Game.team = { eggs: 20, stars: 1 }; G.Game.results = []; G.Save.write(2); });
+  await prog(2, 20);
   await check('acum amandoua au progres, fiecare al lui', s => s.has[0] && s.has[1] && s.lvl[0] === 2 && s.lvl[1] === 4);
   // dupa repornire: jocul jucat ultima data e cel ales din start, progresul amandurora e pastrat
   await page.reload(); await page.waitForTimeout(900); await page.mouse.click(900, 500); await page.waitForTimeout(700);

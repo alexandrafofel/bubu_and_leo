@@ -181,3 +181,20 @@ Cererea cuvant cu cuvant e in `prompts/04-cerere-14-noiembrie.md`. Fiecare punct
 | Totemurile din jungla au morisca in culorile curcubeului, nu pale de moara | Paletele de moara ale primului joc nu se potriveau noaptea. |
 | Lumina calda in jurul eroilor noaptea | Cu 1700 de lucruri colorate pe nivel, eroii se pierdeau. |
 | Noaptea e indigo si violet, nu neagra | Regula 4: fara negru, fara gri. |
+
+## Update 18 noiembrie 2026: capitole (sarcina T5)
+
+| Decizie | De ce |
+|---|---|
+| T5 s-a facut inaintea T1 - T4 | Proprietara a cerut-o. Capitolele, meniul si salvarea ating alte parti din cod decat butoanele, fuga, puterile si cele 10 secunde. Singurul punct comun, numarul de reluari ale unui nivel (`tries`), ramane pentru T4. |
+| Un capitol pastreaza cel mai bun rezultat; totalul e suma | Altfel rejucarea unui capitol ar fi stricat totalul (in sus sau in jos). |
+| Ecranul de sfarsit de nivel arata ce s-a adunat de data asta | Un copil care rejoaca un nivel vrea sa vada ce a facut acum, nu un numar vechi. In salvare ramane cel mai bun. |
+| O lovitura scapa doar cristale adunate in capitolul acesta | Altfel, la inceputul unui capitol rejucat, copilul ar pierde din ce castigase pe alte niveluri. |
+| Butoanele de start sunt unul sub altul, in mijloc, nu pe un rand de 1200 de pixeli | Specificatia le punea pe un rand la y = 930. Acolo sunt cartonasele celor doi jucatori: le-ar fi acoperit. In mijloc, intre ele, incap trei butoane. |
+| La intrebarea "Joc nou" e ales din start "Nu", iar ✕ alege randul aratat | Specificatia spunea "✕ = Da". Un copil care apasa ✕ de mai multe ori ar fi sters tot. Acum trebuie ales "Da" anume, cu sus, si abia apoi ✕. ○ inseamna "Nu". La fel la intrebarile din pauza. |
+| "Continuă" arata numele luptei mari, nu "Marele final" | E mai limpede unde duce, si e aceeasi regula ca pe cartonase. |
+| Dupa final progresul ramane | Cerut ("sa reiei un level"). Toate capitolele raman deschise. |
+| Al doilea rand al listei (Partea a doua) apare abia cand are niveluri | Un rand gol cu titlu ar fi fost de neinteles pentru copii. |
+| Tastatura baga un jucator in joc doar pe ecranul de start | Enter si Spatiu sunt si tastele de putere ale eroilor. Pe ecranul Capitole si in pauza, un parinte care apasa Enter l-ar fi bagat in joc pe al doilea erou, pe care nu il joaca nimeni. Testul a prins asta. |
+| Luptele mari au pe cartonas o coroana, nu coroana lui George | La marimea aceea coroana-corn a lui George arata ca un con. |
+| Un capitol incuiat raspunde (lacatul tremura, sunetul `no`) | Copilul vede ca apasarea a ajuns, dar ca acolo inca nu se poate. |
