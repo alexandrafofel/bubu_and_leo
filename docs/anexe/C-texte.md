@@ -4,7 +4,7 @@
 
 Textele sunt in `STR` din src/015-lang.js. Cheia este numele folosit in cod: `T('cheie')`. `{0}` si `{1}` sunt locuri completate de cod (un nume, un numar).
 
-Total: 194 texte in romana si 194 in engleza.
+Total: 196 texte in romana si 196 in engleza.
 
 | Cheie | Linia (ro) | Romana | Engleza |
 |---|---|---|---|
@@ -40,7 +40,7 @@ Total: 194 texte in romana si 194 in engleza.
 | `ask.yes` | 37 | Da | Yes |
 | `t.voice` | 38 | Voce: {0} | Voice: {0} |
 | `t.novoice` | 38 | Fără voce în română | No English voice found |
-| `t.foot` | 39 | F = ecran complet   ·   △ = schimbă personajele   ·   ○ = alt joc | F = full screen   ·   △ = swap characters   ·   ○ = other game |
+| `t.foot` | 39 | F = ecran complet   ·   △ = schimbă personajele | F = full screen   ·   △ = swap characters |
 | `t.click` | 39 | Fă clic o dată pentru sunet | Click once for sound |
 | `sel.title` | 40 | Alege jocul | Choose the game |
 | `sel.hint` | 40 | stânga / dreapta = alege      ✕ sau Enter = pornește      OPTIONS sau P = setări | left / right = choose      ✕ or Enter = start      OPTIONS or P = settings |
@@ -89,7 +89,7 @@ Total: 194 texte in romana si 194 in engleza.
 | `err.level` | 56 | Nivelul nu a putut fi construit | The level could not be built |
 | `err` | 56 | Eroare:  | Error:  |
 | `lvl.meadow.name` | 57 | Pajiștea Însorită | The Sunny Meadow |
-| `lvl.meadow.intro` | 58 | Ciori, cioara cea poznașă, a furat ouăle de aur și le-a împrăștiat prin Valea Caldă! Bubu și Leo, adunați-le pe toate înainte de apus. Bubu tropăie tare. Leo șutează mingea. Dacă prietenul tău este lovit, mergi la el și apasă pe pătrat! | Ciori, the cheeky crow, stole the golden eggs and scattered them all over the Warm Valley! Bubu and Leo, gather them all before sunset. Bubu stomps hard. Leo kicks the ball. If your friend gets hit, go to them and press the square! |
+| `lvl.meadow.intro` | 58 | Ciori, cioara cea poznașă, a furat ouăle de aur și le-a împrăștiat prin Valea Caldă! Bubu și Leo, adunați-le pe toate înainte de apus. Bubu tropăie tare. Leo șutează mingea. Dacă prietenul tău este lovit, mergi la el și apasă pe cerc! Apasă stick-ul stâng ca să fugi. | Ciori, the cheeky crow, stole the golden eggs and scattered them all over the Warm Valley! Bubu and Leo, gather them all before sunset. Bubu stomps hard. Leo kicks the ball. If your friend gets hit, go to them and press the circle! Press the left stick to run. |
 | `lvl.forest.name` | 59 | Pădurea Somnoroasă | The Sleepy Forest |
 | `lvl.forest.intro` | 60 | În pădure dorm gândaci morocănoși. Treceți încet pe lângă ei! Copacii care sclipesc ascund ouă. Scuturați-i cu un tropăit sau cu mingea. Un gândac lovit de două ori dispare. | Grumpy beetles sleep in the forest. Tiptoe past them! Sparkling trees hide eggs. Shake them with a stomp or with the ball. A beetle that is hit twice disappears. |
 | `lvl.river.name` | 61 | Malul Noroios | The Muddy Bank |
@@ -148,8 +148,10 @@ Total: 194 texte in romana si 194 in engleza.
 | `key.down` | 82 | Jos | Down |
 | `key.left` | 82 | Stânga | Left |
 | `key.right` | 82 | Dreapta | Right |
-| `key.a` | 82 | Putere (butonul ✕) | Power (the ✕ button) |
-| `key.b` | 82 | Ajută prietenul (butonul □) | Help your friend (the □ button) |
+| `key.a` | 82 | Prima putere (butonul ✕) | First power (the ✕ button) |
+| `key.b` | 82 | Ajută prietenul (butonul ○) | Help your friend (the ○ button) |
+| `key.c` | 82 | A doua putere (butonul □) | Second power (the □ button) |
+| `key.r` | 82 | Fugă (apasă stick-ul, L3) | Run (press the stick, L3) |
 | `key.press` | 83 | Apasă tasta nouă | Press the new key |
 | `key.reset` | 83 | Tastele de la început | Starting keys |
 | `key.space` | 83 | Spațiu | Space |
@@ -189,7 +191,7 @@ Total: 194 texte in romana si 194 in engleza.
 | `L:fest.v2` | 102 | Medalii pentru eroi! Steluțele îi îmbrățișează pe {0} și pe {1}. Bravo! | Medals for the heroes! The little stars hug {0} and {1}. Well done! |
 | `duel.george` | 103 | George cel Rău | George the Bad |
 | `lvl.glade.name` | 104 | Poiana Licuricilor | Firefly Glade |
-| `lvl.glade.intro` | 105 | George cel Rău, dinozaurul cu coroană, a ascuns cristalele curcubeu prin junglă! Boon și Killer, adunați-le: sunt cadoul pentru petrecere. Boon își rotește ghearele. Killer aruncă mingi. Dacă prietenul tău se face mic, mergi la el și apasă pe pătrat! | George the Bad, the dinosaur with the crown, hid the rainbow crystals all over the jungle! Boon and Killer, gather them: they are the present for the party. Boon spins his claws. Killer throws balls. If your friend turns tiny, go to them and press the square! |
+| `lvl.glade.intro` | 105 | George cel Rău, dinozaurul cu coroană, a ascuns cristalele curcubeu prin junglă! Boon și Killer, adunați-le: sunt cadoul pentru petrecere. Boon își rotește ghearele. Killer aruncă mingi. Dacă prietenul tău se face mic, mergi la el și apasă pe cerc! Apasă stick-ul stâng ca să fugi. | George the Bad, the dinosaur with the crown, hid the rainbow crystals all over the jungle! Boon and Killer, gather them: they are the present for the party. Boon spins his claws. Killer throws balls. If your friend turns tiny, go to them and press the circle! Press the left stick to run. |
 | `lvl.robots.name` | 106 | Jungla Roboților | The Robot Jungle |
 | `lvl.robots.intro` | 107 | Printre copaci dorm roboții lui George. Treceți încet pe lângă ei! Un robot lovit de două ori dispare. Florile uriașe care sclipesc ascund cristale: scuturați-le cu ghearele sau cu mingea. | George's robots sleep among the trees. Tiptoe past them! A robot that is hit twice disappears. The giant sparkling flowers hide crystals: shake them with the claws or with the ball. |
 | `lvl.snails.name` | 108 | Râul Melcilor Lipicioși | Sticky Snail River |

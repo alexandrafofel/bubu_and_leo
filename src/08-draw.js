@@ -8,7 +8,7 @@ function heroOpts(h) {
     happy: P.done || (P.boss && P.boss.state === 'won'), scale: h.small, hug: h.hugT > 0 ? h.hugT / 0.7 : 0,
     claw: h.spinT >= 0 ? clamp(h.spinT / (CONFIG.heroes[0].spinTime || 1), 0, 1) : -1 };
 }
-const heroTop = k => (isLupta() ? [148, 128] : [100, 122])[k];        // how tall each hero is: where the stars, the name and the □ go
+const heroTop = k => (isLupta() ? [148, 128] : [100, 122])[k];        // how tall each hero is: where the stars, the name and the ○ go
 /* The band at the top. Everything written over the world (badges, the middle card, the progress bar, the banners)
    stays inside it, and the camera (camTarget, 07-play.js) keeps every hero under it. See docs/24-sisteme-noi.md, S6. */
 const HUD_TOP = 132;                  // how tall the band is, in screen units
@@ -43,6 +43,28 @@ function drawClawRing(c, h) {
     }
   }
 }
+/* The trail of a running hero: three fading copies of him, and six speed lines behind. */
+function drawRunTrail(c, h) {
+  const cfg = CONFIG.heroes[h.k], al = [0.28, 0.18, 0.09];
+  for (let i = 0; i < h.ghosts.length; i++) {
+    const g = h.ghosts[i];
+    c.globalAlpha = al[i] || 0.08;
+    c.save(); c.translate(g.x, g.y); c.rotate(0.14 * g.face); c.translate(-g.x, -g.y);
+    drawHero(c, h.k, g.x, g.y, Object.assign(heroOpts(h), { face: g.face, walk: g.walk, z: g.z }));
+    c.restore();
+  }
+  c.globalAlpha = 1;
+  const v = Math.hypot(h.vx, h.vy); if (v < 60) return;
+  const ux = -h.vx / v, uy = -h.vy / v, t = P.time;
+  c.strokeStyle = rgba(mix(cfg.color, '#FFF6E2', 0.65), 0.5); c.lineCap = 'round';
+  for (let i = 0; i < 6; i++) {
+    const ph = (t * 3.4 + i * 0.37) % 1, len = 60 + ((i * 37) % 61), off = ((i * 29) % 70) - 35;
+    const bx = h.x + ux * (26 + ph * 40) - uy * off, by = h.y - 44 + uy * (26 + ph * 40) + ux * off * 0.5;
+    c.globalAlpha = 0.5 * Math.sin(ph * Math.PI); c.lineWidth = 3 + (i % 2);
+    c.beginPath(); c.moveTo(bx, by); c.lineTo(bx + ux * len, by + uy * len); c.stroke();
+  }
+  c.globalAlpha = 1;
+}
 function drawHeroFull(c, h) {
   const cfg = CONFIG.heroes[h.k], fr = P.heroes[1 - h.k], fcfg = CONFIG.heroes[fr.k], t = P.time, top = heroTop(h.k) * h.small;
   if (P.L.night) {                          // second game: a soft light around each hero, so they stand out in the dark jungle
@@ -62,18 +84,21 @@ function drawHeroFull(c, h) {
   if (h.boost > 0) { const g = c.createRadialGradient(h.x, h.y - 40, 10, h.x, h.y - 40, 110); g.addColorStop(0, 'rgba(255,214,140,0.5)'); g.addColorStop(1, 'rgba(255,214,140,0)'); c.fillStyle = g; c.beginPath(); c.arc(h.x, h.y - 40, 110, 0, TAU); c.fill(); }
   if (h.safe) { c.strokeStyle = rgba('#7FB06A', 0.9); c.lineWidth = 5; c.setLineDash([12, 9]); c.beginPath(); c.ellipse(h.x, h.y + 2, 58, 24, 0, 0, TAU); c.stroke(); c.setLineDash([]); }
   if (h.spinT >= 0) drawClawRing(c, h);
+  if (h.run) drawRunTrail(c, h);           // running: three ghosts behind, then the speed lines
   if (h.inv > 0 && h.dizzy <= 0) c.globalAlpha = 0.55 + Math.sin(P.time * 22) * 0.25;
+  if (h.run) { c.save(); c.translate(h.x, h.y); c.rotate(0.14 * h.face); c.translate(-h.x, -h.y); }      // leaning into the run
   drawHero(c, h.k, h.x, h.y, heroOpts(h));
+  if (h.run) c.restore();
   c.globalAlpha = 1;
   if (h.carried) return;
   if (h.dizzy > 0) drawDizzyStars(c, h.x + (h.k === 0 && !isLupta() ? 30 * h.face : 0), h.y - top, P.time);
-  if (h.down) {                            // □ and a dot in the friend's color: "friend, press □ for me"
+  if (h.down) {                            // ○ and a dot in the friend's color: "friend, press ○ for me"
     const by = h.y - top - 52 + Math.sin(t * 5) * 5;
-    iconSq(c, h.x, by, 28, Math.sin(t * 6));
+    iconO(c, h.x, by, 28, Math.sin(t * 6));
     c.fillStyle = fcfg.color; c.beginPath(); c.arc(h.x + 30, by - 24, 12, 0, TAU); c.fill(); c.strokeStyle = '#FFF8E8'; c.lineWidth = 3.5; c.stroke();
-  } else if (fr.down && Input.slots[h.k].joined && h.dizzy <= 0) {    // the helper: close enough = a big □ over the head
+  } else if (fr.down && Input.slots[h.k].joined && h.dizzy <= 0) {    // the helper: close enough = a big ○ over the head
     const reach = h.k === 0 ? CONFIG.rescue.reachNear : CONFIG.rescue.reachFar;
-    if (dist(h.x, h.y, fr.x, fr.y) <= reach) iconSq(c, h.x, h.y - top - 44 + Math.sin(t * 7) * 6, 34, Math.sin(t * 9) * 1.5);
+    if (dist(h.x, h.y, fr.x, fr.y) <= reach) iconO(c, h.x, h.y - top - 44 + Math.sin(t * 7) * 6, 34, Math.sin(t * 9) * 1.5);
   }
   if (h.k === 1 && ballReady() && h.dizzy <= 0) {       // aim arrow, grows while charging
     const pw = h.charging ? h.charge : 0, len = 62 + pw * 70;
@@ -317,7 +342,7 @@ function drawGuides(c) {
   for (const h of P.heroes) {
     const fr = P.heroes[1 - h.k], help = fr.down && !h.down && Input.slots[h.k].joined;      // a friend who waits for help: the arrow shows the way to them, for every player
     if (!help && (!Opt.guide[h.k] || !Input.slots[h.k].joined || h.dizzy > 0 || h.carried)) continue;
-    const g = help ? { x: fr.x, y: fr.y, kind: 'sq' } : guideTarget(h); if (!g) continue;
+    const g = help ? { x: fr.x, y: fr.y, kind: 'help' } : guideTarget(h); if (!g) continue;
     const dx = g.x - h.x, dy = g.y - h.y, m = Math.hypot(dx, dy); if (m < (help ? (h.k === 0 ? CONFIG.rescue.reachNear : CONFIG.rescue.reachFar) : 130)) continue;
     const ux = dx / m, uy = dy / m, ang = Math.atan2(uy, ux), col = CONFIG.heroes[h.k].color, fade = clamp((m - 130) / 90, 0, 1);
     for (let i = 0; i < 3; i++) {                        // three chevrons run toward the goal
@@ -332,7 +357,7 @@ function drawGuides(c) {
       if (g.kind === 'egg') drawEgg(c, ix, iy + 14, 12, 0, 1, 0, 4);
       else if (g.kind === 'nest') c.drawImage(sprite('gNest', 56, 44, cc => drawNest(cc, 28, 22, 21, 3, 0)), ix - 28, iy - 22, 56, 44);
       else if (g.kind === 'x') iconX(c, ix, iy, 16, 0);
-      else if (g.kind === 'sq') iconSq(c, ix, iy, 18, Math.sin(t * 8));
+      else if (g.kind === 'help') iconO(c, ix, iy, 18, Math.sin(t * 8));
       else if (g.kind === 'ball') drawBall(c, ix, iy, 14, t * 2);
       else text(c, '!', ix, iy + 2, 40, '#D9463C', { halo: 0, shadow: 0, weight: 'bold' });
     }
@@ -352,6 +377,12 @@ function drawHints(c, v) {
     if (L.boss && (tu.used || P.time > 12)) continue;
     const sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 30, (h.y - v.tp) * v.z - (h.tagT > 0 ? 200 : 160) * v.z) + Math.sin(t * 5) * 5;      // never over the band at the top
     if (tu.moved <= 0.8 && !L.boss) iconStick(c, sx, sy, 28, t); else iconX(c, sx, sy, 30, Math.sin(t * 6));
+  }
+  // running: L3 over each hero who has not run yet, the first time the two are far apart
+  if (P.runHint > 0) for (const h of P.heroes) {
+    if (!Input.slots[h.k].joined || P.tut[h.k].ran || h.down) continue;
+    const sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 44, (h.y - v.tp) * v.z - (h.tagT > 0 ? 260 : 220) * v.z) + Math.sin(t * 5) * 5;      // above the name and above the ✕ of the first steps
+    c.globalAlpha = Math.min(1, P.runHint); iconL3(c, sx, sy, 26, t); c.globalAlpha = 1;
   }
   if (P.hintCharge > 0) { const h = P.heroes[1], sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 30, (h.y - v.tp) * v.z - 200 * v.z - 20), u = (t * 0.9) % 1; iconX(c, sx - 24, sy, 28, 0); c.strokeStyle = '#3F78C8'; c.lineWidth = 8; c.lineCap = 'round'; c.beginPath(); c.arc(sx + 34, sy, 20, -Math.PI / 2, -Math.PI / 2 + TAU * u); c.stroke(); }
   if (P.boss) {

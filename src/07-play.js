@@ -19,7 +19,8 @@ function buildLevel(idx) {
 function makeHero(k, x, y) {
   return { k, x, y, px: x, py: y, vx: 0, vy: 0, face: 1, ax: 1, ay: 0, walk: 0, moving: false, dizzy: 0, inv: 0, boost: 0, squash: 0, z: 0, cd: 0,
     stompT: -1, charge: 0, charging: false, kickT: 0, inMud: false, mudT: 0, tagT: 5, t: Math.random() * 5,
-    down: false, downT: 0, callT: 0, small: 1, spinT: -1, spinNo: 0, shield: false, carried: null, hugT: 0, reachHint: 0 };
+    down: false, downT: 0, callT: 0, small: 1, spinT: -1, spinNo: 0, shield: false, carried: null, hugT: 0, reachHint: 0,
+    run: false, runIdle: 0, runT: 0, runRest: 0, runWord: -99, ghosts: [], ghostT: 0 };       // run (L3): ghosts = the trail left behind
 }
 function makeEgg(x, y, o) {
   return Object.assign({ x, y, r: 17, seed: Math.random() * 10, req: true, value: 1, state: 'idle', t: 0, delay: 0, z: 0, pull: null, pullT: 0, big: false, hue: Math.random() * 7 | 0 }, o || {});   // hue: the color of a rainbow crystal (second game)
@@ -29,7 +30,7 @@ function startPlay(L) {
   P = { L, eggs: [], stars: L.stars, parts: [], rings: [], wave: -1, time: 0, sinceEgg: 0, levelEggs: 0, levelStars: 0, combo: 0, comboT: 0,
     cam: { x: L.spawn.x, y: L.spawn.y, zoom: 1 }, shake: 0, wind: { t: CONFIG.windEvery * 0.7, state: 'calm', dir: 1, power: 0 },
     bfly: null, bflyT: 20 + Math.random() * 12, bflyCount: 0, crow: null, nestOpen: false, nestT: 0, done: false, doneT: 0, banner: null,
-    tut: [{ moved: 0, used: false }, { moved: 0, used: false }], nextWaveT: -1, waveNeed: 1, waveGot: 0, duel: null, hits: 0, hintCharge: 0, rumbleT: 0, bounceT: 0, glint: 0,
+    tut: [{ moved: 0, used: false, ran: false }, { moved: 0, used: false, ran: false }], runHint: 0, runHintDone: false, nextWaveT: -1, waveNeed: 1, waveGot: 0, duel: null, hits: 0, hintCharge: 0, rumbleT: 0, bounceT: 0, glint: 0,
     heroes: [makeHero(0, bs ? 700 : L.spawn.x - 55, bs ? 830 : L.spawn.y), makeHero(1, bs ? 1220 : L.spawn.x + 55, bs ? 830 : L.spawn.y + 10)],
     ball: { state: 'held', x: 0, y: 0, vx: 0, vy: 0, life: 0, spin: 0, power: 0, r: 15, px: 0, py: 0 },   // Leo's home ball (drawn when held)
     flock: [], ballCool: 0, kickNo: 0, midFought: false, nestFought: false, rustleT: 0, boss: null,                                                         // the balls in the air (one kick = many balls)
@@ -303,6 +304,39 @@ function recallBalls() {
   Snd.play('swish', 0.2, 1);
 }
 
+/* Running (L3). One press with the stick tilted starts it; it lasts until the stick is let go.
+   canRun says when a hero is allowed to run at all; everything that stops a run is in one place, below. */
+function canRun(h) {
+  const S = CONFIG.sprint;
+  return S.enabled && !h.down && h.dizzy <= 0 && !h.carried && !h.charging && !P.done && h.runRest <= 0
+    && (S.inDuel || !(P.duel && !P.duel.over));
+}
+function startRun(h) {
+  const S = CONFIG.sprint;
+  h.run = true; h.runIdle = 0; h.runT = 0;
+  Snd.play('dash', 0, h.k);
+  if (P.time - h.runWord > S.wordGap) { h.runWord = P.time; Snd.talk(h.k, 'run'); }
+  Input.rumble(h.k, 0, 0.35, 70);
+  P.tut[h.k].ran = true;
+}
+function stopRun(h) { h.run = false; h.runIdle = 0; h.ghosts.length = 0; }
+function updateRun(h, s, ix, iy, dt) {
+  const S = CONFIG.sprint, tilt = Math.hypot(ix, iy);
+  if (h.runRest > 0) h.runRest = Math.max(0, h.runRest - dt);
+  if (!s.joined) {                       // nobody holds this hero: it runs when the friend runs and is far away
+    const o = P.heroes[1 - h.k];
+    h.run = canRun(h) && o.run && dist(h.x, h.y, o.x, o.y) > 300;
+    return;
+  }
+  if (!canRun(h)) { if (h.run) stopRun(h); return; }
+  if (S.mode === 'hold') { const want = s.run && tilt > 0.5; if (want && !h.run) startRun(h); else if (!want && h.run) stopRun(h); }
+  else if (s.runP) { if (h.run) stopRun(h); else if (tilt > 0.5) startRun(h); }      // a second press stops it
+  if (!h.run) return;
+  h.runT += dt;
+  if (S.max > 0 && h.runT > S.max) { stopRun(h); h.runRest = S.rest; return; }       // out of breath (max = 0: never)
+  h.runIdle = tilt > 0.25 ? 0 : h.runIdle + dt;
+  if (h.runIdle > S.stopAfter) stopRun(h);
+}
 function updateHero(h, dt) {
   const L = P.L, s = Input.slots[h.k], d = D(h.k), cfg = CONFIG.heroes[h.k];
   let ix = s.x, iy = s.y, aP = s.aP, aR = s.aR, aH = s.a;
@@ -320,7 +354,7 @@ function updateHero(h, dt) {
     if (!Input.slots[1 - h.k].joined || (RS.autoAfter > 0 && h.downT > RS.autoAfter)) getUp(h, null);
   }
   if (h.carried) { h.moving = false; return; }   // a bird is carrying this hero
-  if (s.bP && s.joined && !h.down && h.dizzy <= 0 && !P.done) tryRescue(h);
+  if (s.hP && s.joined && !h.down && h.dizzy <= 0 && !P.done) tryRescue(h);
   h.kickT = Math.max(0, h.kickT - dt); h.squash += (0 - h.squash) * Math.min(1, dt * 9); h.tagT = Math.max(0, h.tagT - dt);
   if (!s.joined) {                       // nobody holds this controller: the hero follows a friend
     const o = P.heroes[1 - h.k]; let tx = o.x - o.face * 85, ty = o.y + 26; aP = aR = aH = false;
@@ -338,6 +372,7 @@ function updateHero(h, dt) {
   h.safe = !!CONFIG.nestSafe && !L.boss && dist(h.x, h.y, L.nest.x, L.nest.y) < CONFIG.nestSafeRadius;   // not on the boss level: that nest is Ciori's, up in the tree
   if (h.safe && !wasSafe && s.joined && P.time - (h.hideAt ?? -99) > CONFIG.nestHideSoundGap) { h.hideAt = P.time; Snd.talk(h.k, 'hide'); Input.rumble(h.k, 0, 0.3, 60); }
   else if (!h.safe && wasSafe && s.joined) Snd.talk(h.k, 'unhide');
+  updateRun(h, s, ix, iy, dt);
   let sp = cfg.speed;
   h.inMud = L.grid[L.ci(h.x, h.y)] === 1;
   if (h.inMud && !h.wasMud && s.joined) Snd.talk(h.k, 'mud'); h.wasMud = h.inMud;
@@ -349,22 +384,41 @@ function updateHero(h, dt) {
   if (h.charging) sp *= 0.65;
   if (h.stompT >= 0) sp *= 0.35;
   if (h.spinT >= 0) sp *= 0.8;
+  if (h.run) sp = Math.min(sp * CONFIG.sprint.mult, CONFIG.sprint.maxSpeed);      // running: three times faster, but never over the limit
   const m = Math.hypot(ix, iy), f = m > 0.01 ? (0.45 + 0.55 * Math.min(1, m)) / m : 0;
   h.vx += (ix * f * sp - h.vx) * Math.min(1, dt * 12); h.vy += (iy * f * sp - h.vy) * Math.min(1, dt * 12);
   if (m > 0.3) { h.ax = ix / m; h.ay = iy / m; P.tut[h.k].moved += dt; }
   // bored: standing still for 8 seconds while a player holds this hero
   h.idleT = (s.joined && !h.moving && !h.charging && h.dizzy <= 0) ? (h.idleT || 0) + dt : 0;
   if (h.idleT > 8) { h.idleT = 0; Snd.talk(h.k, 'bored'); }
-  h.px = h.x; h.py = h.y;
-  h.x += h.vx * dt; h.y += h.vy * dt;
-  if (P.wind.power > 0.02 && !h.safe && !h.down) { h.x += P.wind.dir * P.wind.power * CONFIG.windForce * d.wind * dt; h.y += P.wind.power * CONFIG.windForce * d.wind * 0.12 * dt; }
-  collide(L, h, HERO_R, false);
+  // The hero moves in small steps, like the balls: at full running speed one frame would be longer than a cell
+  // and the hero would go through a thin wall or over the water.
+  {
+    const v0 = Math.hypot(h.vx, h.vy), n = Math.max(1, Math.ceil(v0 * dt / CONFIG.sprint.step)), sdt = dt / n;
+    const wind = P.wind.power > 0.02 && !h.safe && !h.down ? P.wind.power * CONFIG.windForce * d.wind : 0;
+    for (let i = 0; i < n; i++) {
+      h.px = h.x; h.py = h.y;
+      h.x += h.vx * sdt; h.y += h.vy * sdt;
+      if (wind) { h.x += P.wind.dir * wind * sdt; h.y += wind * 0.12 * sdt; }
+      collide(L, h, HERO_R, false);
+    }
+  }
+  if (h.run && h.moving) {               // the trail of three ghosts, and a little dust at every step
+    h.ghostT -= dt;
+    if (h.ghostT <= 0) { h.ghostT = 0.04; h.ghosts.unshift({ x: h.x, y: h.y, face: h.face, walk: h.walk, z: h.z }); if (h.ghosts.length > 3) h.ghosts.length = 3; }
+  } else if (h.ghosts.length) h.ghosts.length = 0;
   const v = Math.hypot(h.vx, h.vy);
   h.moving = v > 35;
   if (h.moving) {
     const w0 = h.walk; h.walk += dt * (7 + v / 55); if (Math.abs(h.vx) > 25) h.face = Math.sign(h.vx);
     // footsteps: one soft sound each time a foot lands
-    if (CONFIG.footsteps && s.joined && !h.inMud && h.z <= 0 && Math.floor(w0 / Math.PI) !== Math.floor(h.walk / Math.PI)) Snd.play('step', h.k * 2 + (Math.floor(h.walk / Math.PI) & 1), h.k);
+    if (CONFIG.footsteps && s.joined && !h.inMud && h.z <= 0 && Math.floor(w0 / Math.PI) !== Math.floor(h.walk / Math.PI)) {
+      Snd.play('step', h.k * 2 + (Math.floor(h.walk / Math.PI) & 1), h.k, h.run ? 0.8 : 1);
+      if (h.run) {                       // a little cloud of dust in the color of this level's ground
+        const pl = PALS[P.L.def.pal] || PALS.glade;
+        part(h.x - h.face * 22 + (Math.random() - 0.5) * 16, h.y + 2, { vx: -h.face * (30 + Math.random() * 40), vy: -18 - Math.random() * 22, life: 0.5, max: 0.5, size: 11 + Math.random() * 7, col: mix(pl.g0, '#FFF6E2', 0.45), kind: 'dust', drag: 2.2 });
+      }
+    }
   }
   if (h.inMud && h.moving) { h.mudT -= dt; if (h.mudT <= 0) { h.mudT = 0.3; Snd.play('squelch', 0, h.k); burst(h.x, h.y, 4, { kind: 'dot', cols: ['#A9764F', '#8E5E48'], speed: 90, life: 0.5, up: 70, g: 400, size: 6 }); } }
   if (h.boost > 0 && Math.random() < dt * 14) part(h.x + (Math.random() - 0.5) * 40, h.y - 30 - Math.random() * 40, { vy: -20, life: 0.7, max: 0.7, size: 6, col: '#FFD48A', kind: 'spark' });
@@ -691,6 +745,9 @@ function updatePlay(dt) {
   P.time += dt; P.sinceEgg += dt; P.comboT -= dt; P.rumbleT -= dt; P.bounceT -= dt; P.shake = Math.max(0, P.shake - dt); P.hintCharge = Math.max(0, P.hintCharge - dt);
   // the two friends: one calls for the other when they are far apart, and they cheer when they meet again
   { const a = P.heroes[0], c = P.heroes[1], sep = dist(a.x, a.y, c.x, c.y);
+    // the first time they are far apart on a level, L3 is shown over each hero who has not run yet
+    P.runHint = Math.max(0, P.runHint - dt);
+    if (sep > 900 && !P.runHintDone && CONFIG.sprint.enabled && !(P.tut[0].ran && P.tut[1].ran)) { P.runHint = 4; P.runHintDone = true; }
     for (const h of P.heroes) {
       if (sep > 1200) { h.farT = (h.farT || 0) + dt; if (h.farT > 5) { h.farT = 0; h.wasFar = true; Snd.talk(h.k, 'callFriend'); } }
       else { h.farT = 0; if (h.wasFar && sep < 250) { h.wasFar = false; Snd.talk(h.k, 'together'); } }
@@ -786,9 +843,11 @@ function updatePlay(dt) {
   for (let i = P.rings.length - 1; i >= 0; i--) { P.rings[i].t += dt; if (P.rings[i].t > 0.55) P.rings.splice(i, 1); }
   // camera: keep both heroes on screen, under the band at the top, and zoom out when they are far apart
   const a = P.heroes[0], b2 = P.heroes[1], cam = P.cam, tgt = camTarget(L, a, b2);
-  cam.zoom += (tgt.zoom - cam.zoom) * Math.min(1, dt * 2.5);
+  const fast = a.run || b2.run;                                       // while anyone runs the camera keeps up, or the hero reaches the edge first
+  cam.zoom += (tgt.zoom - cam.zoom) * Math.min(1, dt * (fast ? 5 : 2.5));
   const vw = W / cam.zoom, vh = H / cam.zoom, lo = vh / 2 - (HUD_TOP + 20) / cam.zoom;
-  cam.x += (tgt.x - cam.x) * Math.min(1, dt * 4); cam.y += (tgt.y - cam.y) * Math.min(1, dt * 4);
+  const cf = Math.min(1, dt * (fast ? 9 : 4));
+  cam.x += (tgt.x - cam.x) * cf; cam.y += (tgt.y - cam.y) * cf;
   cam.x = clamp(cam.x, vw / 2, L.W - vw / 2); cam.y = clamp(cam.y, lo, Math.max(lo, L.H - vh / 2));
 }
 /* Where the camera wants to be for two heroes: no side effects, so a test can ask the game itself.

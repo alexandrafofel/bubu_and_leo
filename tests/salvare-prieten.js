@@ -1,4 +1,4 @@
-// Regula noua, in ambele jocuri: un erou lovit nu mai poate merge pana cand prietenul vine si apasa pe patrat (□).
+// Regula noua, in ambele jocuri: un erou lovit nu mai poate merge pana cand prietenul vine si apasa pe cerc (○).
 // Primul erou (Bubu, Boon) trebuie sa vina aproape. Al doilea (Leo, Killer) poate sta departe: trimite o minge magica.
 // In "Cea mai grea luptă" eroul lovit se face mic si creste la loc cand e ajutat. Jocul: variabila JOC (bubu sau lupta).
 const boot = require('./common.js');

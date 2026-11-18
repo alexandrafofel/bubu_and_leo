@@ -294,7 +294,8 @@ const Snd = (() => {
         together: [['o', 5, 0.16, 3], ['a', 9, 0.26, 3]], nestOpen: [['a', 0, 0.14, 3], ['o', 4, 0.14, 3], ['a', 9, 0.42, -2]],
         levelWin: [['a', 2, 0.16, 2], ['a', 5, 0.16, 2], ['a', 9, 0.16, 2], ['o', 12, 0.52, 2]],
         bossDown: [['a', 0, 0.16, -3], ['a', 0, 0.16, -3], ['o', -3, 0.44, -7]],
-        help: [['i', 10, 0.22, -3], ['i', 8, 0.3, -4]], rescue: [['o', 2, 0.12, 4], ['a', 7, 0.14, 3], ['o', 11, 0.3, -2]], thanks: [['a', 6, 0.14, 4], ['o', 11, 0.3, 0]] },
+        help: [['i', 10, 0.22, -3], ['i', 8, 0.3, -4]], rescue: [['o', 2, 0.12, 4], ['a', 7, 0.14, 3], ['o', 11, 0.3, -2]], thanks: [['a', 6, 0.14, 4], ['o', 11, 0.3, 0]],
+        run: [['a', 7, 0.08, 7], ['o', 13, 0.15, 9]] },
       // Killer
       { hello: [['a', 0, 0.09, 5], ['i', 7, 0.09, 0], ['a', 3, 0.2, 4]], ready: [['e', 4, 0.07, 0], ['e', 4, 0.07, 0], ['a', 9, 0.18, 5]],
         egg: [[['a', 2, 0.07, 4]], [['i', 6, 0.07, 3]], [['e', 9, 0.07, 2]]], eggs5: [['a', 0, 0.06, 0], ['e', 3, 0.06, 0], ['a', 7, 0.06, 0], ['i', 12, 0.18, 3]],
@@ -312,7 +313,8 @@ const Snd = (() => {
         together: [['e', 5, 0.1, 5], ['i', 12, 0.2, 3]], nestOpen: [['e', 2, 0.09, 3], ['a', 5, 0.09, 3], ['e', 9, 0.09, 3], ['i', 14, 0.24, 2]],
         levelWin: [['a', 0, 0.09, 4], ['e', 4, 0.09, 4], ['a', 7, 0.09, 4], ['e', 11, 0.09, 4], ['i', 14, 0.32, 2]],
         bossDown: [['e', 7, 0.09, -3], ['e', 7, 0.09, -3], ['a', 3, 0.3, -6]],
-        help: [['a', 10, 0.14, -5], ['a', 10, 0.14, -5], ['e', 6, 0.26, -5]], rescue: [['e', 2, 0.07, 5], ['a', 7, 0.07, 4], ['e', 12, 0.2, 3]], thanks: [['a', 5, 0.08, 3], ['i', 12, 0.2, 2]] }
+        help: [['a', 10, 0.14, -5], ['a', 10, 0.14, -5], ['e', 6, 0.26, -5]], rescue: [['e', 2, 0.07, 5], ['a', 7, 0.07, 4], ['e', 12, 0.2, 3]], thanks: [['a', 5, 0.08, 3], ['i', 12, 0.2, 2]],
+        run: [['i', 9, 0.05, 8], ['a', 16, 0.13, 7]] }
     ]
   };
   // How loud a voice is: a quiet one never cuts in on a louder one that is still talking.
@@ -437,14 +439,20 @@ const Snd = (() => {
     tired(b, t) { growl(b, t, 130, 80, 0.5, 0.2, 9); },
     duel(b, t) { [0, 0, 3].forEach((d, i) => marimba(b, mtof(50 + d), t + i * 0.14, 0.32)); growl(b, t + 0.35, 150, 90, 0.7, 0.4, 21); },
     flee(b, t) { for (let i = 0; i < 5; i++) voc(b, t + i * 0.11, 520 - i * 50, 380 - i * 40, 0.08, 0.09, 1200, 800); },
-    goal(b, t) { [0, 7, 12, 17].forEach((d, i) => marimba(b, mtof(64 + d), t + i * 0.08, 0.34)); chime(b, mtof(88), t + 0.3, 0.12); }
+    goal(b, t) { [0, 7, 12, 17].forEach((d, i) => marimba(b, mtof(64 + d), t + i * 0.08, 0.34)); chime(b, mtof(88), t + 0.3, 0.12); },
+    dash(b, t) { noise(b, t, 0.16, 0.015, 0.17, 'bandpass', 500, 2100, 1.1); osc(b, 'sine', 330, t, 0.1, 0.01, 0.16, { f2: 760, gt: 0.14 }); }      // starting to run: a short soft "whoosh" going up
   };
-  const CHR = { egg: 1, star: 1, giant: 1, stomp: 1, kick: 1, bounce: 1, bonk: 1, drop: 1, squelch: 1, step: 1, swish: 1, heal: 1, grab: 1 };
+  /* Running (L3) in the first game too: the same short soft whoosh. */
+  fx.dash = fx2.dash;
+  const CHR = { egg: 1, star: 1, giant: 1, stomp: 1, kick: 1, bounce: 1, bonk: 1, drop: 1, squelch: 1, step: 1, swish: 1, heal: 1, grab: 1, dash: 1 };
   /* play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. */
-  function play(name, arg, k) {
+  function play(name, arg, k, vol) {
     const f = (GAME === 'lupta' && fx2[name]) || fx[name];
     if (!ac || ac.state !== 'running' || !f) return;
     let b = CHR[name] ? ((k === 0 || k === 1) && outs[k] && outs[k].context.state === 'running' ? outs[k] : chrBus) : ambBus;
+    if (vol != null && vol !== 1) {      // a quieter copy of the same sound (running footsteps): a small gain in front of the bus
+      const g = b.context.createGain(); g.gain.value = vol; g.connect(b); g.small = b.small; g.lead = b.lead; b = g;
+    }
     try { f(b, b.context.currentTime + (b.lead || 0), arg); } catch (e) { console.error('sound ' + name, e); }      // lead: see setSink
   }
 

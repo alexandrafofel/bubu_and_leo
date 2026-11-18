@@ -300,16 +300,41 @@ function iconSq(c, x, y, r, pulse) {
   c.restore();
 }
 /* Text that may contain ✕ or □, drawn with the painted icons. Returns nothing. */
+/* ○: help the friend. Same shape as ✕ and □, in the warm coral of the ○ button. */
+function iconO(c, x, y, r, pulse) {
+  const s = 1 + (pulse || 0) * 0.08;
+  c.save(); c.translate(x, y); c.scale(s, s);
+  soft(c, r * 0.06, r * 0.1, r, r, SHADOW, 0.25, 3);
+  puff(c, 0, 0, r, r, '#FFF6E2', 4, 'rgba(226,120,100,0.5)');
+  c.strokeStyle = '#E4583C'; c.lineWidth = r * 0.22;
+  c.beginPath(); c.arc(0, 0, r * 0.42, 0, TAU); c.stroke();
+  c.restore();
+}
+/* L3: the cap of the left stick with the letter L and a little arrow pressing it down. */
+function iconL3(c, x, y, r, t) {
+  const pu = 0.5 + 0.5 * Math.sin((t || 0) * 5);
+  c.save(); c.translate(x, y);
+  soft(c, r * 0.06, r * 0.12, r, r, SHADOW, 0.25, 3);
+  puff(c, 0, 0, r, r, '#C9C0E8', 4, 'rgba(142,124,195,0.55)');
+  c.strokeStyle = '#8E7CC3'; c.lineWidth = r * 0.16; c.beginPath(); c.arc(0, 0, r * 0.66, 0, TAU); c.stroke();
+  text(c, 'L', 0, r * 0.02, r * 0.86, '#5A4A8E', { halo: 0, shadow: 0, weight: 'bold' });
+  c.strokeStyle = '#F8C24E'; c.lineWidth = r * 0.17; c.lineCap = 'round'; c.lineJoin = 'round';
+  const ay = -r * 1.5 + pu * r * 0.3;                 // the arrow bobs down onto the cap
+  c.beginPath(); c.moveTo(0, ay - r * 0.3); c.lineTo(0, ay + r * 0.3); c.moveTo(-r * 0.22, ay + r * 0.08); c.lineTo(0, ay + r * 0.32); c.lineTo(r * 0.22, ay + r * 0.08); c.stroke();
+  c.restore();
+}
+/* The four button signs that can stand inside a text: ✕ □ ○ and ◉ (= L3, pressing the left stick). */
+const ICONS = { '✕': iconX, '□': iconSq, '○': iconO, '◉': (cc, ix, iy, ir, pu) => iconL3(cc, ix, iy, ir * 0.92, pu) };
 function richText(c, str, x, y, size, col, o) {
   o = o || {};
-  const parts = str.split(/(✕|□)/);
+  const parts = str.split(/(✕|□|○|◉)/);
   if (parts.length === 1) { text(c, str, x, y, size, col, o); return; }
   setFont(c, size, o.title, o.weight);
-  const iw = size * 1.25, isIcon = p => p === '✕' || p === '□', widths = parts.map(p => isIcon(p) ? iw : c.measureText(p).width);
+  const iw = size * 1.25, isIcon = p => !!ICONS[p], widths = parts.map(p => isIcon(p) ? iw : c.measureText(p).width);
   const total = widths.reduce((a, b) => a + b, 0);
   let cx = o.align === 'left' ? x : x - total / 2;
   for (let i = 0; i < parts.length; i++) {
-    if (isIcon(parts[i])) (parts[i] === '✕' ? iconX : iconSq)(c, cx + iw / 2, y, size * 0.5, o.pulse || 0);
+    if (isIcon(parts[i])) ICONS[parts[i]](c, cx + iw / 2, y, size * 0.5, o.pulse || 0);
     else if (parts[i]) text(c, parts[i], cx, y, size, col, Object.assign({}, o, { align: 'left' }));
     cx += widths[i];
   }

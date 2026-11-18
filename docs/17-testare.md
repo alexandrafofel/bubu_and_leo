@@ -50,7 +50,7 @@ Ce pune `common.js` la dispozitia testelor, in pagina:
 
 | Nume | Ce face |
 |---|---|
-| `inp[0]`, `inp[1]` | Intrarile fiecarui erou: `{ x, y, aP, a, aR, bP }`. `aP` = ✕ apasat acum, `a` = tinut, `aR` = eliberat, `bP` = □ apasat acum. |
+| `inp[0]`, `inp[1]` | Intrarile fiecarui erou: `{ x, y, aP, a, aR, hP, cP, c, cR, runP, run }`. `aP` = ✕ apasat acum, `a` = tinut, `aR` = eliberat, `hP` = ○ (ajuta prietenul) apasat acum, `cP` / `c` / `cR` = □ (a doua putere), `runP` / `run` = L3 (fuga). `bP` merge inca, ca alt nume pentru `hP`, pentru testele vechi. |
 | `inp.pause` | `true` = OPTIONS apasat o data. |
 | `joined[k]` | Daca jucatorul `k` e in joc. |
 | `step(n)` | Ruleaza `n` cadre de 1/60 s, apoi deseneaza o data. |
@@ -188,3 +188,43 @@ Rezultat, `tests/toate.sh` pe codul final: **toate testele OK, pentru ambele joc
 - `controller-simulat.js`, `capitole.js`, `setari-ui.js`, `tastatura-reala.js`, `joc-complet-bot.js` nu mai trec prin alegerea jocului.
 - `tests/pw.js` da mereu `game: 'lupta'`. Variabila `JOC` e ignorata.
 - `tests/toate.sh` ruleaza fiecare test o singura data.
+
+## Update 18 noiembrie 2026: butoanele noi si fuga (sarcina T2)
+
+Doua teste noi, amandoua in `tests/toate.sh`.
+
+### `control-nou.js`
+
+Doua controllere false si taste reale. Verifica, cu numere:
+
+| Nr | Ce verifica | Rezultat |
+|---|---|---|
+| 1 - 4 | ○ (butonul 1) ridica eroul lovit; □ (butonul 2) nu il mai ridica. | OK |
+| 5 | □ da un singur `cP` pe apasare. | OK |
+| 6 | L3 (butonul 10) da un singur `runP` pe apasare. | OK |
+| 7 - 10 | Tastatura: E ridica prietenul, Q da `cP`, Shift stanga da `runP`. | OK |
+| 11 | O salvare veche, fara `c` si `r`, se incarca si cele doua taste vin din `CONFIG`; `b` ramane cum era. | OK |
+| 12 | Pagina "Alege tastele": 8 taste + "Tastele de la început" + "Înapoi" = 10 randuri, 976 de unitati, incape pe ecran. | OK, captura `c_taste.png` |
+
+Verificat ca poate sa pice: cu ajutorul mutat inapoi pe `cP`, testul scrie `NEREUSIT` la pasii 3 si 8.
+
+### `fuga.js`
+
+| Nr | Ce verifica | Rezultat |
+|---|---|---|
+| 1a | Mers normal, o secunda pe teren liber (dupa 0.4 s de pornire). | 330 de unitati, exact cat `CONFIG.heroes[0].speed` |
+| 1b | Fuga, la fel. | 989 de unitati (asteptat 990, adica x 3) |
+| 2 | Racheta plus fuga nu trec de `maxSpeed`. | varf 1100, limita 1100 |
+| 3 | Stick-ul lasat 0.35 s: fuga s-a oprit, mersul e iar 330. | OK |
+| 4 | `mode: 'hold'`: fuga tine doar cat L3 e apasat. | OK |
+| 5 | Fuga in opt directii, din trei locuri, pe trei niveluri, cu `dt` fortat la 0.05: 7200 de cadre (1200 din ele mai lungi de o celula) si niciun punct al drumului nu cade intr-un perete sau in apa. | OK |
+| 5b | Un perete de **o singura celula**, construit anume de test, de sus pana jos, si viteza urcata la 2400: eroul nu trece prin el, din 12 pozitii de pornire. | OK |
+| 6 | Lovit in timpul fugii: `h.run` devine fals. | OK |
+
+Verificat ca poate sa pice: cu pasii mici scosi (`n = 1`), testul 5b scrie `NEREUSIT` (eroul ajunge dincolo de perete).
+
+Nivelurile de acum nu au pereti mai subtiri de doua celule, deci fara pasii mici jocul **de azi** nu s-ar strica. Testul 5b e pentru nivelurile 7 - 12, care vor avea porti si praguri subtiri.
+
+### Testele vechi schimbate
+
+`controller-simulat.js` (acum apasa ○, si verifica si ca □ nu mai ridica eroul), `joc-complet-bot.js`, `mini-lupte-bot.js`, `salvare-prieten.js`, `capturi-ecran.js` si `common.js` (`inp[k].hP`, `cP`, `runP`; `bP` a ramas ca alt nume pentru `hP`).

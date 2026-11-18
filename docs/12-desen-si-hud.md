@@ -161,3 +161,16 @@ Bug-ul semnalat de proprietara: "scrisul de sus vine peste joc si de multe ori n
 | Textele ramase in lume nu se mai scriu peste un erou | `heroInWay`, `drawHeroFull`, `drawDuelTop` |
 
 Masurat cu `tests/hud-acoperire.js` (procent din asezari in care un erou e acoperit): inainte 6.5 - 47%, iar bannerul de lupta pana la 50.2%. Acum **0%** peste tot, in ambele jocuri, pe toate nivelurile si la boss.
+
+## Update 18 noiembrie 2026 (T2): iconitele butoanelor si fuga
+
+### `iconO` si `iconL3` (`src/02-core.js`)
+
+- `iconO(c, x, y, r, pulse)`: disc crem cu un cerc rosu-corai (`#E4583C`), aceeasi forma ca `iconX` si `iconSq`. Se deseneaza peste eroul lovit ("prietene, apasa ○") si peste prietenul destul de aproape ca sa ajute.
+- `iconL3(c, x, y, r, t)`: capul stick-ului stang (disc lila `#C9C0E8` cu margine `#8E7CC3`), litera "L" si o sageata galbena care coboara peste el. Se foloseste in tutorialul fugii.
+- `richText` desparte acum textul dupa `✕`, `□`, `○` si `◉` (`◉` = L3). `fitText` trimite la `richText` pentru oricare din cele patru semne.
+- Sageata ajutatoare: `g.kind === 'sq'` s-a facut `'help'` si deseneaza `iconO`.
+
+### Eroul care fuge: `drawRunTrail(c, h)`
+
+Trei copii ale eroului in spate (0.28, 0.18, 0.09), apoi sase linii subtiri de viteza in culoarea eroului amestecata cu crem. Corpul e aplecat cu 0.14 radiani in jurul picioarelor. Nimic nu se deseneaza cand eroul nu fuge, deci jocul de acum arata exact la fel.

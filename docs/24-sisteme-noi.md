@@ -18,152 +18,22 @@ Sapte sisteme. Fiecare are: cerinta, ce e acum in cod, ce se face, valorile din 
 
 ---
 
-## S1. Butoane si taste
+## S1. Butoane si taste - **facuta (T2, 18 noiembrie 2026)**
 
-**Cerinta:** "pe x apasa pentru puterea lor initiala, pe O sa se salveze reciproc si pe patrat sa fie cea de-a doua putere". Si L3 pentru fuga (S2).
-
-### Acum
-
-In `Input.poll` (`src/04-input.js`), pentru fiecare jucator: `a = b(0)` (✕), `back = b(1)` (○, doar in meniuri), `sq = b(2)` (□), `tri = b(3)`, `start = b(9)`. Din ele ies `s.a / s.aP / s.aR` (puterea) si `s.b / s.bP` (ajutorul, pe □). Tastatura: `Opt.keys[k]` are campurile `up, down, left, right, a, b`. `b` e tasta de ajutor (E, respectiv Shift dreapta).
-
-### Dupa
-
-| Buton | Indice | In joc | Campuri in `Input.slots[k]` |
-|---|---|---|---|
-| ✕ | 0 | Prima putere | `a`, `aP`, `aR` (neschimbate) |
-| ○ | 1 | Ajuta prietenul | `h`, `hP` (noi). `back` ramane pentru meniuri. |
-| □ | 2 | A doua putere | `c`, `cP`, `cR` (noi) |
-| △ | 3 | Schimba eroii, pe ecranul de start | `tri` (neschimbat) |
-| L3 | 10 | Fuga | `run`, `runP` (noi) |
-| OPTIONS | 9 | Pauza | `start` (neschimbat) |
-| Stick stanga, D-pad | axe 0 - 1, 12 - 15 | Mers | `x`, `y` (neschimbate) |
-
-Campurile vechi `b` si `bP` dispar. Tot codul care citeste `s.bP` trece pe `s.hP`.
-
-Tastatura. Campul `b` isi pastreaza intelesul (ajutor), ca salvarile vechi sa ramana bune. Se adauga doua campuri:
-
-| Camp | Inteles | Jucatorul 1 | Jucatorul 2 |
-|---|---|---|---|
-| `a` | prima putere | `Space` | `Enter` |
-| `b` | ajuta prietenul | `KeyE` | `ShiftRight` |
-| `c` | a doua putere (nou) | `KeyQ` | `Slash` |
-| `r` | fuga (nou) | `ShiftLeft` | `AltRight` |
-
-### De facut
-
-1. `src/04-input.js`: in `mk()` adauga `h, hP, c, cP, cR, run, runP`. In `poll`: `hp = b(1)`, `sq = b(2)`, `l3 = b(10)`. Pentru tastatura: `hp = kd(kb.b)`, `sq = kd(kb.c)`, `l3 = kd(kb.r)`. Calculeaza fronturile cu `s._p`, ca la `a`. Sterge `b`, `bP`.
-2. `src/01-config.js`: `keys[k]` primeste `c` si `r`. Comentariul de la "Controls" se rescrie.
-3. `src/09-screens.js`: `KEY_FIELDS = ['up', 'down', 'left', 'right', 'a', 'b', 'c', 'r']`. Pagina "Alege tastele" are doua randuri in plus. Verifica inaltimea paginii: 8 randuri plus "Tastele de la început" trebuie sa incapa. Daca nu, randurile scad de la 86 la 74 de unitati.
-4. `Save.apply` citeste deja doar campurile din `KEY_FIELDS`. O salvare veche, fara `c` si `r`, ramane cu valorile din `CONFIG`.
-5. `src/07-play.js`, `updateHero`: `if (s.hP && ...) tryRescue(h)` in loc de `s.bP`.
-6. Iconite. In `src/02-core.js`, langa `iconX` si `iconSq`:
-   - `iconO(c, x, y, r, pulse)`: disc crem cu un cerc rosu-corai (`#E4583C`), grosime `r * 0.22`. Aceeasi forma ca celelalte doua.
-   - `iconL3(c, x, y, r, t)`: capul stick-ului (disc lila deschis `#C9C0E8` cu margine `#8E7CC3`), cu litera "L" si o sageata mica in jos care pulseaza. Se foloseste alaturi de `iconStick` din `05-chars.js`.
-   - `richText` desparte acum textul dupa `(✕|□)`. Devine `(✕|□|○|◉)`. `◉` este semnul pentru L3 in texte.
-7. Peste tot unde se deseneaza □ pentru ajutor se deseneaza ○: `drawHeroFull` (deasupra eroului lovit si deasupra celui care poate ajuta), `drawGuides` (`g.kind === 'sq'` devine `'help'`).
-8. Texte de schimbat (ambele limbi): `key.b` ("Ajută prietenul (butonul ○)"), `lvl.meadow.intro` si `lvl.glade.intro` (pomenesc patratul), orice text cu □. Texte noi: `key.c` ("A doua putere (butonul □)" / "Second power (the □ button)"), `key.r` ("Fugă (apasă stick-ul, L3)" / "Run (press the stick, L3)").
-9. Testerul de butoane din Setari (`drawPadTester`) aprinde deja orice buton. Verifica doar ca L3 (indicele 10) are un loc desenat: capul stick-ului stang se face mai inchis cand e apasat.
-10. `tests/common.js`: in `I.poll` inlocuit, citeste `b.hP`, `b.cP`, `b.c`, `b.cR`, `b.run`, `b.runP`. Pastreaza `b.bP` ca alt nume pentru `hP` pana sunt rescrise testele vechi.
-
-### Cazuri de margine
-
-- In meniuri ○ ramane "inapoi". In joc e ajutor. Nu se ciocnesc: meniurile nu sunt deschise in timpul jocului, iar pauza opreste `updatePlay`.
-- Pe ecranul de start, ○ scoate "Gata!" (ca acum, prin `s.back`). Neschimbat.
-- In "Bubu și Leo", □ nu face nimic (H3). Nu apare in tutorial.
-- `RESERVED` (taste pastrate pentru meniu) ramane la fel. `ShiftLeft`, `AltRight`, `KeyQ`, `Slash` nu sunt in el.
-
-### Test: `tests/control-nou.js`
-
-Cu controllere false, ca in `controller-simulat.js`:
-
-1. Butonul 1 apasat de prieten ridica eroul lovit. Butonul 2 nu il mai ridica.
-2. Butonul 2 porneste a doua putere (dupa sarcina T3; in T2 testul verifica doar ca `s.cP` se aprinde).
-3. Butonul 10 seteaza `runP` o singura data pe apasare.
-4. Cu tastatura: `KeyE` ajuta, `KeyQ` da `cP`, `ShiftLeft` da `runP`.
-5. O salvare cu `keys` fara `c` si `r` se incarca si jucatorii au tastele din `CONFIG`.
-6. Pagina "Alege tastele" arata 8 randuri si niciunul nu iese din cartonas (captura).
+Butoanele si tastele sunt acum in joc. Descrierea lor, la timpul prezent: `07-control.md` (butoanele, campurile din `Input.slots`, tastele noi), `03-config.md` (`keys[k].c`, `keys[k].r`), `12-desen-si-hud.md` (`iconO`, `iconL3`, `richText`), `13-ecrane-si-meniuri.md` (pagina "Alege tastele"). Hotararile: `16-decizii.md`. Testul: `tests/control-nou.js`.
 
 ---
 
-## S2. Fuga
+## S2. Fuga - **facuta (T2, 18 noiembrie 2026)**
 
-**Cerinta:** "Stick-ul Stâng (L3) (...) poate fi apăsat ca un buton (L3) - cand il apasa sa mearga mult mai repede (x3)."
+Fuga e acum in joc. Descrierea ei, la timpul prezent: `10-gameplay.md`, "Fuga" (pornire si oprire, viteza, pasii de coliziune, camera, cum arata si cum suna, tutorialul), `03-config.md` (`sprint`), `06-sunet.md` (`dash`, cuvantul `run`), `12-desen-si-hud.md` (`drawRunTrail`). Hotararile: `16-decizii.md`. Ce n-a putut fi verificat: `19-limitari.md`. Testul: `tests/fuga.js`.
 
-### Acum
+Ce s-a facut altfel decat scria in specificatie:
 
-`updateHero` calculeaza `sp = cfg.speed` (330 sau 350), il inmulteste cu noroiul, racheta (`butterflyBoost` 1.5), ameteala, incarcarea sutului, apoi misca eroul o singura data pe cadru: `h.x += h.vx * dt` si `collide(L, h, HERO_R, false)`. `dt` poate fi pana la 0.05 s.
-
-### Reguli
-
-1. O apasare de L3 cu stick-ul inclinat (peste 0.5) porneste fuga: `h.run = true`.
-2. Fuga tine cat stick-ul ramane inclinat. Se opreste cand stick-ul sta in mijloc 0.25 s, cand eroul e lovit, cand incepe sa incarce o aruncare, cand ridica Cristalul-Soare (capitolul 25) sau la o a doua apasare de L3.
-3. Cu `mode: 'hold'` fuga tine doar cat L3 e apasat (I4).
-4. Viteza: `sp *= CONFIG.sprint.mult` (3). Apoi limita: `sp = Math.min(sp, CONFIG.sprint.maxSpeed)` (1100). Racheta si fuga nu se inmultesc peste limita.
-5. Pe teren lent (noroi, nisip, liane, urme de melc) fuga ramane pornita, dar terenul inmulteste ca acum. Deci in nisip eroul fuge cu 330 x 3 x 0.32 = 317.
-6. In timpul rotirii (ghearele, manusile) fuga merge, cu inmultitorul de acum (0.8).
-7. Un erou pe care nu il joaca nimeni (il urmeaza pe prieten) fuge cand prietenul fuge si e la mai mult de 300 de unitati.
-
-### Miscarea in pasi mici (obligatoriu)
-
-La 1100 unitati pe secunda si `dt` = 0.05, eroul ar sari 55 de unitati intr-un cadru. O celula are 40. Ar trece prin pereti subtiri si peste benzile de apa. De aceea miscarea eroului se face in pasi, ca la mingi (`stepFlyBall` face deja asa):
-
-```js
-const v = Math.hypot(h.vx, h.vy), n = Math.max(1, Math.ceil(v * dt / 12)), sdt = dt / n;
-for (let i = 0; i < n; i++) { h.px = h.x; h.py = h.y; h.x += h.vx * sdt; h.y += h.vy * sdt; /* vantul */ collide(L, h, HERO_R, false); }
-```
-
-Vantul se aduna in acelasi pas. La mers obisnuit (350 x 0.016 = 5.6 unitati) ramane un singur pas, deci nimic nu se schimba pentru jocul de acum.
-
-### Camera
-
-In `updatePlay`, camera urmeaza mijlocul dintre eroi cu `Math.min(1, dt * 4)`. Cand macar un erou fuge, factorul devine `dt * 9` pentru pozitie si `dt * 5` (in loc de 2.5) pentru zoom. Altfel eroul ajunge la marginea ecranului inaintea camerei.
-
-### Cum arata si cum suna
-
-| Ce | Cum |
-|---|---|
-| Corpul | Aplecat inainte cu 0.14 radiani. Pasii de 1.6 ori mai repezi (`h.walk`). |
-| Urma | Trei "umbre" ale eroului in spatele lui, cu alpha 0.28, 0.18, 0.09, la 0.04 s distanta una de alta. Se deseneaza din sprite-ul eroului din cadrul acela, nu se repicteaza. |
-| Praf | Un norisor la fiecare pas (`part` cu `kind: 'dust'`), in culoarea pamantului nivelului. |
-| Linii de viteza | 6 linii subtiri, deschise, in spatele eroului, lungi de 60 - 120. |
-| Pornire | Sunet nou `dash` (un "fiu" scurt: zgomot filtrat trece-banda care urca, 0.18 s). Cuvantul `run` al eroului, cel mult o data la 6 secunde. |
-| Pasi | Sunetul `step` de acum, la ritmul nou. Volum x 0.8, ca sa nu acopere restul. |
-| Vibratie | La pornire: `Input.rumble(k, 0, 0.35, 70)`. Nimic cat fuge. |
-
-### `CONFIG.sprint`
-
-```js
-// ---- Run: press the left stick (L3). Both games.
-sprint: {
-  enabled: true,
-  mult: 3,              // how many times faster
-  maxSpeed: 1100,       // never faster than this, even with the rocket boost
-  mode: 'click',        // 'click' = one press, runs until the stick is let go. 'hold' = only while L3 is held
-  stopAfter: 0.25,      // seconds with the stick in the middle before the run ends
-  inDuel: true,         // false = no running during a mini-fight
-  max: 0,               // seconds of running before a rest is needed. 0 = no limit
-  rest: 2,              // the rest, when max is not 0
-  games: ['bubu', 'lupta']
-},
-```
-
-### Cazuri de margine
-
-- Fuga nu porneste cand eroul e jos, ametit, dus de o pasare, pe pluta sau cand poarta cristalul.
-- Culesul din fuga: raza de cules e aceeasi. La 1100 unitati pe secunda si 60 de cadre, eroul face 18 unitati pe cadru. Raza cea mai mica e 54. Nu sare peste cristale.
-- Inamicii lovesc la fel un erou care fuge.
-- Fuga impotriva vantului: vantul impinge la fel ca acum (185 pe secunda). Nu se inmulteste.
-- Tutorial: la prima despartire mai mare de 900 de unitati intre eroi, deasupra fiecaruia apare `iconL3` timp de 4 secunde, o singura data pe nivel, pana cand a fugit o data (`P.tut[k].ran`).
-
-### Test: `tests/fuga.js`
-
-1. Fara fuga, in 1 s pe teren liber eroul face 330 (350) de unitati, +-5%. Cu fuga, de 3 ori mai mult, +-5%.
-2. Cu racheta si fuga, viteza nu trece de `maxSpeed`.
-3. Lasat stick-ul 0.3 s: fuga s-a oprit. Reluat stick-ul: merge normal.
-4. `mode: 'hold'`: fuga tine doar cat `run` e adevarat.
-5. Eroul fuge 5 secunde spre fiecare din cele patru margini si spre raul de pe nivelul 3, cu `dt` fortat la 0.05: nu ajunge niciodata intr-o celula cu cod 2 sau 3.
-6. Lovit in fuga: `h.run` e fals.
-7. In ambele jocuri.
+- Pasii de coliziune au marimea in `CONFIG.sprint.step` (12), nu scrisa in cod.
+- `Snd.play` a primit un al patrulea argument (volumul), ca pasii din fuga sa fie mai incet fara un sunet nou.
+- Iconita L3 din tutorial sta deasupra numelui eroului si deasupra lui ✕ (la 220 - 260 de unitati), altfel se suprapunea peste ele.
+- Fuga se opreste si cand eroul incarca o aruncare (era in specificatie) si cand nivelul e terminat.
 
 ---
 

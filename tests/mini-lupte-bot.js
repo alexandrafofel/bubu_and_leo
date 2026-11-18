@@ -1,5 +1,5 @@
 // mini-fights: a simple bot plays each guardian at each difficulty. Jocul: variabila JOC (bubu sau lupta).
-// Botii se ajuta intre ei: cand un erou e lovit si asteapta, celalalt merge la el si apasa pe patrat.
+// Botii se ajuta intre ei: cand un erou e lovit si asteapta, celalalt merge la el si apasa pe cerc.
 const boot = require('./common.js');
 (async () => {
   const { page, shot, done } = await boot();

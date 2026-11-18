@@ -72,3 +72,13 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - **Eroii la cele doua capete ale unei harti inalte.** Cand distanta pe verticala dintre eroi trece de ~1390 de unitati si zoom-ul e deja la minim (0.6), banda si "amandoi eroii intregi pe ecran" nu mai incap deodata. Castiga banda: eroului de jos i se taie picioarele, cel mult 54 de pixeli. Masurat cu o socoteala facuta o data, ca in `hud-acoperire.js`: se intampla in 0 pana la 1.5% din perechile de celule alese la intamplare, si deloc cand eroii sunt impreuna. Daca deranjeaza, se poate cobori `minZoom` (`06-level.js`) si umple si marginile laterale cu culoarea de la marginea picturii.
 - **Cum arata banda pe un ecran real.** Capturile sunt facute la 1920 x 1080. Scrisul e mai mic decat inainte (numele eroului 36 in loc de 44, dificultatea 22 in loc de 28, numarul de oua 52 in loc de 72). Pe televizorul sau laptopul familiei poate fi prea mic pentru cel de 6 ani. Se regleaza din `drawBadge` si `drawMidCard`.
 - **Fasia de cer de deasupra lumii.** Se umple cu culoarea primului pixel al picturii. La nivelurile de noapte si la cel cu faleza culoarea e potrivita in capturi, dar nimeni nu a jucat asa, in miscare, pe un ecran mare.
+
+## T2 (18 noiembrie 2026): ce nu s-a putut verifica
+
+- **Cum se simte L3 pe un controller adevarat.** Apasarea stick-ului cere putina forta; un copil de 6 ani ar putea sa o apese din greseala cand impinge stick-ul tare, sau sa nu o gaseasca deloc. Daca se intampla des, `CONFIG.sprint.mode` poate deveni `'hold'`, sau fuga se poate muta pe alt buton.
+- **Daca x 3 e prea repede** pentru hartile de acum (3200 x 1800). Se regleaza din `CONFIG.sprint.mult` si `maxSpeed`.
+- **Daca fuga strica mini-luptele** (eroii se invart prea usor in jurul paznicului). `CONFIG.sprint.inDuel = false` o opreste acolo.
+- **Cum suna `dash` si cuvantul "fug!"** pe boxele familiei si in difuzorul controllerului.
+- **Daca urma si liniile de viteza se vad destul** pe jungla de noapte, care e deja plina de culori. Pe capturi se vad, dar nu e acelasi lucru cu un televizor.
+- **Daca un copil intelege din iconita L3** ca trebuie sa apese stick-ul, nu sa-l impinga.
+- **Daca ○ in loc de □ ii incurca** pe copiii care au jucat deja cu □ pentru ajutor.
