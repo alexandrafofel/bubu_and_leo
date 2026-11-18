@@ -4,7 +4,7 @@
 
 Fiecare functie, functie sageata si metoda din cod, in ordinea din fisier. Coloana "Comentariul din cod" este textul scris chiar langa functie. Explicatiile pe larg sunt in capitolele din docs/.
 
-Total: 478 intrari.
+Total: 486 intrari.
 
 ## 01-config.js
 
@@ -58,12 +58,14 @@ Nicio functie.
 | 271 | `wrapLines(c, str, maxW, size, title)` | functie |  |
 | 283 | `iconX(c, x, y, r, pulse)` | functie | The ✕ button as a painted icon (blue cross on a cream disc). |
 | 293 | `iconSq(c, x, y, r, pulse)` | functie | The □ button as a painted icon (pink square on a cream disc): help the friend. |
-| 303 | `richText(c, str, x, y, size, col, o)` | functie | Text that may contain ✕ or □, drawn with the painted icons. Returns nothing. |
-| 317 | `starPath(c, x, y, r, rot)` | functie |  |
-| 328 | `sprite(key, w, h, paint)` | functie | Things that never change are painted once and then stamped: much faster per frame. |
-| 333 | `card(c, x, y, w, h, col, seed)` | functie |  |
-| 338 | `paintCard(c, x, y, w, h, col, seed)` | functie |  |
-| 341 | `p(dx, dy, sc, fill, a)` | functie sageata |  |
+| 304 | `iconO(c, x, y, r, pulse)` | functie | ○: help the friend. Same shape as ✕ and □, in the warm coral of the ○ button. |
+| 314 | `iconL3(c, x, y, r, t)` | functie | L3: the cap of the left stick with the letter L and a little arrow pressing it down. |
+| 326 | `richText(c, str, x, y, size, col, o)` | functie |  |
+| 341 | `starPath(c, x, y, r, rot)` | functie |  |
+| 352 | `sprite(key, w, h, paint)` | functie | Things that never change are painted once and then stamped: much faster per frame. |
+| 357 | `card(c, x, y, w, h, col, seed)` | functie |  |
+| 362 | `paintCard(c, x, y, w, h, col, seed)` | functie |  |
+| 365 | `p(dx, dy, sc, fill, a)` | functie sageata |  |
 
 ## 03-audio.js
 
@@ -96,108 +98,109 @@ Nicio functie.
 | 200 | `tick()` | functie |  |
 | 225 | `ambience(key)` | functie |  |
 | 226 | `music(key)` | functie |  |
-| 325 | `syl(b, t, k, s, V)` | functie | One syllable. Two triangle waves (the note and its octave) go through two "mouth" filters; a little of the plain note keeps the tune clear. Loud enough to be heard next to the other sounds, also in a controller's small speaker. |
-| 343 | `talk(k, key)` | functie | Talk(k, word): hero k says one of its words. Routed like the hero's other sounds (own speaker when one was chosen). |
-| 361 | `egg(b, t, n)` | metoda | --- the heroes' own sounds (volume "Sunete personaje"; they can play in the controller) --- |
-| 362 | `star(b, t)` | metoda |  |
-| 363 | `giant(b, t)` | metoda |  |
-| 364 | `stomp(b, t)` | metoda |  |
-| 365 | `kick(b, t, p)` | metoda |  |
-| 366 | `bounce(b, t)` | metoda |  |
-| 367 | `bonk(b, t)` | metoda |  |
-| 368 | `drop(b, t)` | metoda |  |
-| 369 | `squelch(b, t)` | metoda |  |
-| 370 | `step(b, t, x)` | metoda | x = hero * 2 + (left or right foot) |
-| 376 | `wake(b, t)` | metoda | --- the world (volume "Sunete ambientale") --- |
-| 377 | `stun(b, t)` | metoda |  |
-| 378 | `pop(b, t)` | metoda |  |
-| 379 | `rustle(b, t)` | metoda |  |
-| 380 | `butterfly(b, t)` | metoda |  |
-| 381 | `wave(b, t)` | metoda |  |
-| 382 | `win(b, t)` | metoda |  |
-| 383 | `caw(b, t)` | metoda |  |
-| 384 | `whoosh(b, t)` | metoda |  |
-| 385 | `swish(b, t)` | metoda |  |
-| 386 | `lantern(b, t)` | metoda |  |
-| 387 | `firework(b, t)` | metoda |  |
-| 388 | `ui(b, t)` | metoda |  |
-| 389 | `no(b, t)` | metoda |  |
-| 390 | `ok(b, t)` | metoda |  |
-| 391 | `thud(b, t)` | metoda |  |
-| 392 | `goal(b, t)` | metoda |  |
-| 393 | `crack(b, t)` | metoda |  |
-| 394 | `splash(b, t)` | metoda |  |
-| 395 | `tonk(b, t)` | metoda | the ball bounces off a guardian that is not tired yet |
-| 396 | `warn(b, t)` | metoda | a guardian gets ready to attack |
-| 397 | `squeak(b, t, p)` | metoda | a guardian got hit |
-| 398 | `tired(b, t)` | metoda |  |
-| 399 | `duel(b, t)` | metoda |  |
-| 400 | `flee(b, t)` | metoda |  |
-| 401 | `heal(b, t)` | metoda | a friend helped a hero up |
-| 402 | `grab(b, t)` | metoda | a bird picks a hero up |
-| 403 | `poof(b, t)` | metoda | a small enemy disappears |
-| 404 | `bird(b, t)` | metoda | a big bird is coming |
-| 409 | `egg(b, t, n)` | metoda | a crystal rings like glass |
-| 410 | `star(b, t)` | metoda |  |
-| 411 | `giant(b, t)` | metoda |  |
-| 412 | `stomp(b, t)` | metoda | Boon's claws: three quick swishes |
-| 413 | `kick(b, t, p)` | metoda | Killer's kick: a springy "boing" |
-| 414 | `bounce(b, t)` | metoda |  |
-| 415 | `bonk(b, t)` | metoda | a hero shrinks |
-| 416 | `heal(b, t)` | metoda | a hero grows back |
-| 417 | `drop(b, t)` | metoda |  |
-| 418 | `squelch(b, t)` | metoda |  |
-| 419 | `step(b, t, x)` | metoda |  |
-| 424 | `wake(b, t)` | metoda | a robot switches on: beep-beep |
-| 425 | `stun(b, t)` | metoda | a robot runs down |
-| 426 | `poof(b, t)` | metoda |  |
-| 427 | `caw(b, t)` | metoda | George's roar: low and warm, never harsh |
-| 428 | `pop(b, t)` | metoda |  |
-| 429 | `rustle(b, t)` | metoda |  |
-| 430 | `butterfly(b, t)` | metoda | the rocket |
-| 431 | `wave(b, t)` | metoda |  |
-| 432 | `win(b, t)` | metoda |  |
-| 433 | `lantern(b, t)` | metoda | a torch catches fire |
-| 434 | `warn(b, t)` | metoda |  |
-| 435 | `tonk(b, t)` | metoda |  |
-| 436 | `squeak(b, t, p)` | metoda | George got hit |
-| 437 | `tired(b, t)` | metoda |  |
-| 438 | `duel(b, t)` | metoda |  |
-| 439 | `flee(b, t)` | metoda |  |
-| 440 | `goal(b, t)` | metoda |  |
-| 444 | `play(name, arg, k)` | functie | play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. |
-| 452 | `canSink()` | functie sageata | ---- the controller's own speaker (only when the system shows it as an audio output) ---- |
-| 454 | `listOutputs(ask)` | functie | Chrome only tells the names of the speakers after the microphone permission was given (ask = true asks for it). |
-| 463 | `setSink(k, dev)` | functie | dev = { id, label } or null for the computer's speakers |
-| 483 | `swapOuts()` | functie |  |
-| 489 | `setVol(k, v)` | metoda |  |
-| 490 | `setDuck(d)` | metoda |  |
-| 497 | `init()` | metoda |  |
-| 502 | `pick()` | metoda |  |
-| 508 | `say(txt, keep)` | metoda |  |
-| 523 | `stop()` | metoda |  |
+| 327 | `syl(b, t, k, s, V)` | functie | One syllable. Two triangle waves (the note and its octave) go through two "mouth" filters; a little of the plain note keeps the tune clear. Loud enough to be heard next to the other sounds, also in a controller's small speaker. |
+| 345 | `talk(k, key)` | functie | Talk(k, word): hero k says one of its words. Routed like the hero's other sounds (own speaker when one was chosen). |
+| 363 | `egg(b, t, n)` | metoda | --- the heroes' own sounds (volume "Sunete personaje"; they can play in the controller) --- |
+| 364 | `star(b, t)` | metoda |  |
+| 365 | `giant(b, t)` | metoda |  |
+| 366 | `stomp(b, t)` | metoda |  |
+| 367 | `kick(b, t, p)` | metoda |  |
+| 368 | `bounce(b, t)` | metoda |  |
+| 369 | `bonk(b, t)` | metoda |  |
+| 370 | `drop(b, t)` | metoda |  |
+| 371 | `squelch(b, t)` | metoda |  |
+| 372 | `step(b, t, x)` | metoda | x = hero * 2 + (left or right foot) |
+| 378 | `wake(b, t)` | metoda | --- the world (volume "Sunete ambientale") --- |
+| 379 | `stun(b, t)` | metoda |  |
+| 380 | `pop(b, t)` | metoda |  |
+| 381 | `rustle(b, t)` | metoda |  |
+| 382 | `butterfly(b, t)` | metoda |  |
+| 383 | `wave(b, t)` | metoda |  |
+| 384 | `win(b, t)` | metoda |  |
+| 385 | `caw(b, t)` | metoda |  |
+| 386 | `whoosh(b, t)` | metoda |  |
+| 387 | `swish(b, t)` | metoda |  |
+| 388 | `lantern(b, t)` | metoda |  |
+| 389 | `firework(b, t)` | metoda |  |
+| 390 | `ui(b, t)` | metoda |  |
+| 391 | `no(b, t)` | metoda |  |
+| 392 | `ok(b, t)` | metoda |  |
+| 393 | `thud(b, t)` | metoda |  |
+| 394 | `goal(b, t)` | metoda |  |
+| 395 | `crack(b, t)` | metoda |  |
+| 396 | `splash(b, t)` | metoda |  |
+| 397 | `tonk(b, t)` | metoda | the ball bounces off a guardian that is not tired yet |
+| 398 | `warn(b, t)` | metoda | a guardian gets ready to attack |
+| 399 | `squeak(b, t, p)` | metoda | a guardian got hit |
+| 400 | `tired(b, t)` | metoda |  |
+| 401 | `duel(b, t)` | metoda |  |
+| 402 | `flee(b, t)` | metoda |  |
+| 403 | `heal(b, t)` | metoda | a friend helped a hero up |
+| 404 | `grab(b, t)` | metoda | a bird picks a hero up |
+| 405 | `poof(b, t)` | metoda | a small enemy disappears |
+| 406 | `bird(b, t)` | metoda | a big bird is coming |
+| 411 | `egg(b, t, n)` | metoda | a crystal rings like glass |
+| 412 | `star(b, t)` | metoda |  |
+| 413 | `giant(b, t)` | metoda |  |
+| 414 | `stomp(b, t)` | metoda | Boon's claws: three quick swishes |
+| 415 | `kick(b, t, p)` | metoda | Killer's kick: a springy "boing" |
+| 416 | `bounce(b, t)` | metoda |  |
+| 417 | `bonk(b, t)` | metoda | a hero shrinks |
+| 418 | `heal(b, t)` | metoda | a hero grows back |
+| 419 | `drop(b, t)` | metoda |  |
+| 420 | `squelch(b, t)` | metoda |  |
+| 421 | `step(b, t, x)` | metoda |  |
+| 426 | `wake(b, t)` | metoda | a robot switches on: beep-beep |
+| 427 | `stun(b, t)` | metoda | a robot runs down |
+| 428 | `poof(b, t)` | metoda |  |
+| 429 | `caw(b, t)` | metoda | George's roar: low and warm, never harsh |
+| 430 | `pop(b, t)` | metoda |  |
+| 431 | `rustle(b, t)` | metoda |  |
+| 432 | `butterfly(b, t)` | metoda | the rocket |
+| 433 | `wave(b, t)` | metoda |  |
+| 434 | `win(b, t)` | metoda |  |
+| 435 | `lantern(b, t)` | metoda | a torch catches fire |
+| 436 | `warn(b, t)` | metoda |  |
+| 437 | `tonk(b, t)` | metoda |  |
+| 438 | `squeak(b, t, p)` | metoda | George got hit |
+| 439 | `tired(b, t)` | metoda |  |
+| 440 | `duel(b, t)` | metoda |  |
+| 441 | `flee(b, t)` | metoda |  |
+| 442 | `goal(b, t)` | metoda |  |
+| 443 | `dash(b, t)` | metoda | starting to run: a short soft "whoosh" going up |
+| 449 | `play(name, arg, k, vol)` | functie | play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. |
+| 460 | `canSink()` | functie sageata | ---- the controller's own speaker (only when the system shows it as an audio output) ---- |
+| 462 | `listOutputs(ask)` | functie | Chrome only tells the names of the speakers after the microphone permission was given (ask = true asks for it). |
+| 471 | `setSink(k, dev)` | functie | dev = { id, label } or null for the computer's speakers |
+| 491 | `swapOuts()` | functie |  |
+| 497 | `setVol(k, v)` | metoda |  |
+| 498 | `setDuck(d)` | metoda |  |
+| 505 | `init()` | metoda |  |
+| 510 | `pick()` | metoda |  |
+| 516 | `say(txt, keep)` | metoda |  |
+| 531 | `stop()` | metoda |  |
 
 ## 04-input.js
 
 | Linia | Nume si parametri | Tip | Comentariul din cod |
 |---|---|---|---|
-| 9 | `Input(()` | functie sageata | INPUT: two DualShock 4 controllers through the Gamepad API (standard mapping) or the keyboard. ✕ (button 0) = power, □ (button 2) = help the friend. Each hero is played with what was chosen in Setări: a controller ('pad') or the keyboard ('kb') with its own keys. Menus listen to everything: every controller, the arrow keys, Enter, Space, Backspace and the players' own keys. |
-| 11 | `kd(code)` | functie sageata |  |
-| 12 | `mk()` | functie sageata |  |
-| 31 | `pads()` | functie |  |
-| 36 | `assigned(i)` | functie |  |
-| 37 | `freeSlot()` | functie | the hero a newly pressed controller will play |
-| 44 | `poll(dt)` | functie |  |
-| 51 | `b(n)` | functie sageata |  |
-| 72 | `b(n)` | functie sageata |  |
-| 125 | `rumble(k, strong, weak, ms, force)` | functie | returns false when this controller cannot vibrate |
-| 138 | `setCtrl(k, kind)` | functie | Settings: play hero k with a controller or with the keyboard. |
-| 143 | `unbind(k)` | functie |  |
-| 144 | `swap()` | functie | the two players trade heroes: controllers go with the players |
-| 151 | `capture(f)` | metoda |  |
-| 152 | `muteHeld()` | metoda |  |
-| 153 | `any(f)` | metoda |  |
-| 154 | `padCount()` | metoda |  |
+| 10 | `Input(()` | functie sageata | INPUT: two DualShock 4 controllers through the Gamepad API (standard mapping) or the keyboard. ✕ (button 0) = first power, ○ (button 1) = help the friend, □ (button 2) = second power, L3 (button 10, pressing the left stick) = run. Each hero is played with what was chosen in Setări: a controller ('pad') or the keyboard ('kb') with its own keys. Menus listen to everything: every controller, the arrow keys, Enter, Space, Backspace and the players' own keys. |
+| 12 | `kd(code)` | functie sageata |  |
+| 13 | `mk()` | functie sageata |  |
+| 35 | `pads()` | functie |  |
+| 40 | `assigned(i)` | functie |  |
+| 41 | `freeSlot()` | functie | the hero a newly pressed controller will play |
+| 48 | `poll(dt)` | functie |  |
+| 55 | `b(n)` | functie sageata |  |
+| 76 | `b(n)` | functie sageata |  |
+| 131 | `rumble(k, strong, weak, ms, force)` | functie | returns false when this controller cannot vibrate |
+| 144 | `setCtrl(k, kind)` | functie | Settings: play hero k with a controller or with the keyboard. |
+| 149 | `unbind(k)` | functie |  |
+| 150 | `swap()` | functie | the two players trade heroes: controllers go with the players |
+| 157 | `capture(f)` | metoda |  |
+| 158 | `muteHeld()` | metoda |  |
+| 159 | `any(f)` | metoda |  |
+| 160 | `padCount()` | metoda |  |
 
 ## 05-chars.js
 
@@ -324,48 +327,52 @@ Nicio functie.
 | 8 | `rank(k)` | functie sageata | 0 Ușor, 1 Normal, 2 Greu |
 | 12 | `buildLevel(idx)` | functie | Builds chapter idx: a level (its number inside the game is ch.n) or a big fight. L.ch remembers the chapter. |
 | 19 | `makeHero(k, x, y)` | functie |  |
-| 24 | `makeEgg(x, y, o)` | functie |  |
-| 27 | `startPlay(L)` | functie |  |
-| 50 | `startWave(k)` | functie |  |
-| 63 | `part(x, y, o)` | functie | ---------- particles ---------- |
-| 67 | `burst(x, y, n, o)` | functie |  |
-| 77 | `stepParts(dt)` | functie |  |
-| 85 | `collide(L, e, r, isBall)` | functie | ---------- collisions ---------- |
-| 110 | `collectEgg(e, k)` | functie | ---------- eggs and stars ---------- |
-| 128 | `rainbowAdd(e, k)` | functie | Second game only: crystals come in seven colors. One of each color = a rainbow: a few bonus crystals for the team. |
-| 136 | `collectStar(s, k)` | functie |  |
-| 142 | `checkWave()` | functie | The order on a level: wave 1, wave 2, MIDDLE FIGHT (after the second-to-last wave), wave 3, NEST FIGHT, then the nest opens. |
-| 152 | `openNest()` | functie |  |
-| 153 | `shakeTree(t, power, byStomp)` | functie |  |
-| 169 | `hitHero(h, sx, sy)` | functie |  |
-| 191 | `getUp(h, by)` | functie |  |
-| 200 | `tryRescue(h)` | functie | □ pressed. The first hero must stand close (a hug, healing hands). The second one may stand far: he sends a magic ball. |
-| 209 | `updateRescue(dt)` | functie |  |
-| 221 | `hurtSmall(e)` | functie | A small enemy loses one of its hits. true = that was the last one: it disappears, another one comes later. |
-| 231 | `powerSweep(h, id)` | functie | What the first hero's power does to everything around him. id = this stomp (or this spin of the claws): every enemy, tree and guardian feels it once per id. |
-| 250 | `doStomp(h)` | functie |  |
-| 259 | `startPower(h)` | functie | The first hero starts his power: Bubu jumps and stomps; Boon's claws grow and spin around him (a shield that also gathers crystals). |
-| 268 | `bossShake(h)` | functie | A stomp (or the claws) next to the big tree, or next to George's throne, shakes it. |
-| 280 | `newBall(x, y, vx, vy, power, life, kick, size, hop)` | functie |  |
-| 283 | `ballReady()` | functie sageata | all balls home, or the cooldown is over |
-| 285 | `kickBall(h, power, ax, ay)` | functie | One kick sends n balls out in a circle, so Leo's power goes in every direction. Stick direction = the first ball. |
-| 301 | `recallBalls()` | functie | A second press while the balls are still out (inside the cooldown) calls every ball back to Leo. |
-| 306 | `updateHero(h, dt)` | functie |  |
-| 401 | `updateBall(dt)` | functie |  |
-| 413 | `stepFlyBall(b, dt, h)` | functie | One ball in the air. Returns false when the ball has come home to Leo and can go. |
-| 460 | `updateEggs(dt)` | functie |  |
-| 485 | `enemyMul(x, y)` | functie | enemies slow down near a player on "Ușor" |
-| 490 | `updateEnemies(dt)` | functie |  |
-| 538 | `bossGoal()` | functie | Where the ball must land. Ciori: the nest in the tree. George: George himself, while he lies dizzy on the ground. |
-| 542 | `bossBall(b)` | functie |  |
-| 557 | `updateBoss(dt)` | functie |  |
-| 609 | `hitBird(bd)` | functie | ---------- second game: big birds that pick a hero up and carry him a little way (it does not hurt) ---------- |
-| 614 | `dropHero(bd)` | functie |  |
-| 623 | `updateBirds(dt)` | functie |  |
-| 647 | `stepProj(list, dt, spare)` | functie | Thrown things (pinecones, mud balls) fly in an arc and land on a marked spot. |
-| 662 | `updateDecor(dt)` | functie | The reacting decor. Grass, clover, daisies, reeds, dandelions and leaves send up a little puff of leaves, petals or seeds and rustle when a hero walks past (a stomp makes the dandelions and leaves jump). Snails pull in and a ladybug flies off and comes back. Only what is near a hero or a ball reacts. |
-| 689 | `updatePlay(dt)` | functie |  |
-| 797 | `camTarget(L, a, b)` | functie | Where the camera wants to be for two heroes: no side effects, so a test can ask the game itself. Rules: both heroes on screen; nothing of a hero (name included) above the band at the top (HUD_TOP, 08-draw.js); the camera may look up to HUD_TOP + 20 screen pixels above the top edge of the world, and that strip is painted sky. |
+| 25 | `makeEgg(x, y, o)` | functie |  |
+| 28 | `startPlay(L)` | functie |  |
+| 51 | `startWave(k)` | functie |  |
+| 64 | `part(x, y, o)` | functie | ---------- particles ---------- |
+| 68 | `burst(x, y, n, o)` | functie |  |
+| 78 | `stepParts(dt)` | functie |  |
+| 86 | `collide(L, e, r, isBall)` | functie | ---------- collisions ---------- |
+| 111 | `collectEgg(e, k)` | functie | ---------- eggs and stars ---------- |
+| 129 | `rainbowAdd(e, k)` | functie | Second game only: crystals come in seven colors. One of each color = a rainbow: a few bonus crystals for the team. |
+| 137 | `collectStar(s, k)` | functie |  |
+| 143 | `checkWave()` | functie | The order on a level: wave 1, wave 2, MIDDLE FIGHT (after the second-to-last wave), wave 3, NEST FIGHT, then the nest opens. |
+| 153 | `openNest()` | functie |  |
+| 154 | `shakeTree(t, power, byStomp)` | functie |  |
+| 170 | `hitHero(h, sx, sy)` | functie |  |
+| 192 | `getUp(h, by)` | functie |  |
+| 201 | `tryRescue(h)` | functie | □ pressed. The first hero must stand close (a hug, healing hands). The second one may stand far: he sends a magic ball. |
+| 210 | `updateRescue(dt)` | functie |  |
+| 222 | `hurtSmall(e)` | functie | A small enemy loses one of its hits. true = that was the last one: it disappears, another one comes later. |
+| 232 | `powerSweep(h, id)` | functie | What the first hero's power does to everything around him. id = this stomp (or this spin of the claws): every enemy, tree and guardian feels it once per id. |
+| 251 | `doStomp(h)` | functie |  |
+| 260 | `startPower(h)` | functie | The first hero starts his power: Bubu jumps and stomps; Boon's claws grow and spin around him (a shield that also gathers crystals). |
+| 269 | `bossShake(h)` | functie | A stomp (or the claws) next to the big tree, or next to George's throne, shakes it. |
+| 281 | `newBall(x, y, vx, vy, power, life, kick, size, hop)` | functie |  |
+| 284 | `ballReady()` | functie sageata | all balls home, or the cooldown is over |
+| 286 | `kickBall(h, power, ax, ay)` | functie | One kick sends n balls out in a circle, so Leo's power goes in every direction. Stick direction = the first ball. |
+| 302 | `recallBalls()` | functie | A second press while the balls are still out (inside the cooldown) calls every ball back to Leo. |
+| 309 | `canRun(h)` | functie | Running (L3). One press with the stick tilted starts it; it lasts until the stick is let go. canRun says when a hero is allowed to run at all; everything that stops a run is in one place, below. |
+| 314 | `startRun(h)` | functie |  |
+| 322 | `stopRun(h)` | functie |  |
+| 323 | `updateRun(h, s, ix, iy, dt)` | functie |  |
+| 340 | `updateHero(h, dt)` | functie |  |
+| 455 | `updateBall(dt)` | functie |  |
+| 467 | `stepFlyBall(b, dt, h)` | functie | One ball in the air. Returns false when the ball has come home to Leo and can go. |
+| 514 | `updateEggs(dt)` | functie |  |
+| 539 | `enemyMul(x, y)` | functie | enemies slow down near a player on "Ușor" |
+| 544 | `updateEnemies(dt)` | functie |  |
+| 592 | `bossGoal()` | functie | Where the ball must land. Ciori: the nest in the tree. George: George himself, while he lies dizzy on the ground. |
+| 596 | `bossBall(b)` | functie |  |
+| 611 | `updateBoss(dt)` | functie |  |
+| 663 | `hitBird(bd)` | functie | ---------- second game: big birds that pick a hero up and carry him a little way (it does not hurt) ---------- |
+| 668 | `dropHero(bd)` | functie |  |
+| 677 | `updateBirds(dt)` | functie |  |
+| 701 | `stepProj(list, dt, spare)` | functie | Thrown things (pinecones, mud balls) fly in an arc and land on a marked spot. |
+| 716 | `updateDecor(dt)` | functie | The reacting decor. Grass, clover, daisies, reeds, dandelions and leaves send up a little puff of leaves, petals or seeds and rustle when a hero walks past (a stomp makes the dandelions and leaves jump). Snails pull in and a ladybug flies off and comes back. Only what is near a hero or a ball reacts. |
+| 743 | `updatePlay(dt)` | functie |  |
+| 856 | `camTarget(L, a, b)` | functie | Where the camera wants to be for two heroes: no side effects, so a test can ask the game itself. Rules: both heroes on screen; nothing of a hero (name included) above the band at the top (HUD_TOP, 08-draw.js); the camera may look up to HUD_TOP + 20 screen pixels above the top edge of the world, and that strip is painted sky. |
 
 ## 075-duel.js
 
@@ -408,35 +415,36 @@ Nicio functie.
 | Linia | Nume si parametri | Tip | Comentariul din cod |
 |---|---|---|---|
 | 6 | `heroOpts(h)` | functie |  |
-| 11 | `heroTop(k)` | functie sageata | how tall each hero is: where the stars, the name and the □ go |
+| 11 | `heroTop(k)` | functie sageata | how tall each hero is: where the stars, the name and the ○ go |
 | 18 | `heroInWay(x, y, w, h, only)` | functie | Is a hero standing where we want to write? Used by the few texts that stay in the world, so they never cover anybody. only: check just this hero. The box is the painted body, without the name above it. |
 | 22 | `drawParts(c)` | functie |  |
 | 33 | `drawClawRing(c, h)` | functie | Boon's claws while they spin: rainbow slashes that run around him, on a soft shield. |
-| 46 | `drawHeroFull(c, h)` | functie |  |
-| 92 | `drawSmallHp(c, e, x, y)` | functie | Small enemies show how many hits they still take, once they were hit. |
-| 96 | `drawBossTargets(c)` | functie |  |
-| 109 | `drawProjWarn(c, list)` | functie | the spot where a thrown pinecone will land |
-| 116 | `drawProjs(c, list)` | functie |  |
-| 125 | `drawWorld(c)` | functie |  |
-| 279 | `hintTarget()` | functie |  |
-| 289 | `nearestEgg(h, reqOnly, maxD)` | functie | The helper arrow: a soft arrow next to a hero that shows where to go and, in a small bubble, what waits there. |
-| 294 | `guideTarget(h)` | functie |  |
-| 315 | `drawGuides(c)` | functie |  |
-| 342 | `drawHints(c, v)` | functie |  |
-| 365 | `pressLabel(k)` | functie sageata |  |
-| 367 | `levelProgress()` | functie | How far the level is: eggs in groups, then the guardian, then the nest. |
-| 370 | `seg(k)` | functie sageata |  |
-| 379 | `drawProgress(c)` | functie |  |
-| 408 | `drawBadge(c, k, x, y)` | functie |  |
-| 425 | `waitBanner()` | functie | "We wait for X in the nest": it used to be written in the world, over the nest. Now it is a banner in the band. |
-| 432 | `drawMidCard(c, ban)` | functie | The card in the middle, with what a banner says when there is one. A banner never comes down over the world. |
-| 484 | `drawHUD(c)` | functie |  |
-| 489 | `drawPlay(c)` | functie |  |
-| 495 | `drawNestShelter(c)` | functie | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
-| 503 | `drawDecor(c, l, tp, vw, vh)` | functie | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
-| 519 | `drawArenaBack(c)` | functie | the torches of fire around the arena |
-| 523 | `drawThrone(c)` | functie |  |
-| 530 | `drawGeorgeBoss(c, o, t)` | functie |  |
+| 47 | `drawRunTrail(c, h)` | functie | The trail of a running hero: three fading copies of him, and six speed lines behind. |
+| 68 | `drawHeroFull(c, h)` | functie |  |
+| 117 | `drawSmallHp(c, e, x, y)` | functie | Small enemies show how many hits they still take, once they were hit. |
+| 121 | `drawBossTargets(c)` | functie |  |
+| 134 | `drawProjWarn(c, list)` | functie | the spot where a thrown pinecone will land |
+| 141 | `drawProjs(c, list)` | functie |  |
+| 150 | `drawWorld(c)` | functie |  |
+| 304 | `hintTarget()` | functie |  |
+| 314 | `nearestEgg(h, reqOnly, maxD)` | functie | The helper arrow: a soft arrow next to a hero that shows where to go and, in a small bubble, what waits there. |
+| 319 | `guideTarget(h)` | functie |  |
+| 340 | `drawGuides(c)` | functie |  |
+| 367 | `drawHints(c, v)` | functie |  |
+| 396 | `pressLabel(k)` | functie sageata |  |
+| 398 | `levelProgress()` | functie | How far the level is: eggs in groups, then the guardian, then the nest. |
+| 401 | `seg(k)` | functie sageata |  |
+| 410 | `drawProgress(c)` | functie |  |
+| 439 | `drawBadge(c, k, x, y)` | functie |  |
+| 456 | `waitBanner()` | functie | "We wait for X in the nest": it used to be written in the world, over the nest. Now it is a banner in the band. |
+| 463 | `drawMidCard(c, ban)` | functie | The card in the middle, with what a banner says when there is one. A banner never comes down over the world. |
+| 515 | `drawHUD(c)` | functie |  |
+| 520 | `drawPlay(c)` | functie |  |
+| 526 | `drawNestShelter(c)` | functie | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
+| 534 | `drawDecor(c, l, tp, vw, vh)` | functie | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
+| 550 | `drawArenaBack(c)` | functie | the torches of fire around the arena |
+| 554 | `drawThrone(c)` | functie |  |
+| 561 | `drawGeorgeBoss(c, o, t)` | functie |  |
 
 ## 09-screens.js
 

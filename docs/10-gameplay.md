@@ -251,3 +251,53 @@ Vezi sectiunea "Cuibul si finalul nivelului" de mai sus, schimbata.
 ### Boss-ul
 
 Cat un erou asteapta ajutor, `bs.throwT` nu mai scade: Ciori (sau George) nu arunca nimic nou. Ce e deja in aer cade.
+
+## Update 18 noiembrie 2026 (T2): fuga
+
+Cererea: "Stick-ul Stâng (L3) (...) poate fi apăsat ca un buton (L3) - cand il apasa sa mearga mult mai repede (x3)".
+
+### Pornire si oprire: `updateRun(h, s, ix, iy, dt)`, `canRun(h)`, `startRun(h)`, `stopRun(h)`
+
+- O apasare de L3 cu stick-ul inclinat peste 0.5 porneste fuga (`h.run`).
+- Fuga tine cat stick-ul e inclinat. Se opreste cand stick-ul sta in centru `CONFIG.sprint.stopAfter` (0.25 s), la o a doua apasare de L3, cand eroul e lovit, ametit, dus de o pasare, cand incarca o aruncare sau cand nivelul e terminat (toate intr-un singur loc, `canRun`).
+- Cu `mode: 'hold'` fuga tine doar cat L3 e apasat.
+- Un erou pe care nu-l joaca nimeni (merge dupa prieten) fuge cand prietenul fuge si e la mai mult de 300 de unitati.
+- Cu `max` diferit de 0, dupa atatea secunde eroul oboseste si se odihneste `rest` secunde.
+
+### Viteza
+
+`sp = min(sp * CONFIG.sprint.mult, CONFIG.sprint.maxSpeed)`, dupa toti ceilalti inmultitori. Deci:
+
+- Pe teren lent inmultirea ramane: in noroi 330 x 0.32 x 3 = 317.
+- Cu racheta (x 1.5) si fuga, viteza se opreste la 1100: cele doua nu se aduna peste limita.
+- In timpul rotirii ghearelor fuga merge, cu inmultitorul de acum (0.8).
+
+### Miscarea in pasi mici
+
+La 1100 de unitati pe secunda si un cadru de 0.05 s, eroul ar sari 55 de unitati odata, mai mult decat o celula (40). De aceea eroul se misca acum **in pasi**, ca mingile:
+
+```js
+const v0 = Math.hypot(h.vx, h.vy), n = Math.max(1, Math.ceil(v0 * dt / CONFIG.sprint.step)), sdt = dt / n;
+for (let i = 0; i < n; i++) { h.px = h.x; h.py = h.y; h.x += h.vx * sdt; h.y += h.vy * sdt; /* vant */ collide(L, h, HERO_R, false); }
+```
+
+Vantul se aduna in acelasi pas. La mers obisnuit (350 x 0.016 = 5.6 unitati) ramane un singur pas, deci nimic nu se schimba pentru restul jocului. Testul `tests/fuga.js` verifica regula cu un perete de o singura celula si cu viteza urcata la 2400: fara pasii mici eroul trece prin el.
+
+### Camera
+
+Cat timp macar un erou fuge, camera merge mai repede spre tinta: x 9 pe secunda pentru pozitie (in loc de x 4) si x 5 pentru zoom (in loc de x 2.5). Altfel eroul ajunge la marginea ecranului inaintea camerei.
+
+### Cum arata si cum suna
+
+| Ce | Cum |
+|---|---|
+| Corpul | Aplecat inainte cu 0.14 radiani, in jurul picioarelor. |
+| Urma | Trei copii ale eroului in spate, cu 0.28, 0.18 si 0.09 transparenta, la 0.04 s una de alta (`h.ghosts`, `drawRunTrail`). |
+| Praf | Un norisor la fiecare pas, in culoarea pamantului nivelului. |
+| Linii de viteza | Sase linii subtiri in spatele eroului, lungi de 60 - 120. |
+| Pornire | Sunetul `dash` (un "fiu" scurt care urca), cuvantul `run` al eroului (cel mult o data la 6 secunde), vibratie `rumble(k, 0, 0.35, 70)`. |
+| Pasi | Sunetul `step` de acum, la ritmul nou, la 0.8 din volum. |
+
+### Tutorialul
+
+Prima data cand eroii se despart la mai mult de 900 de unitati pe un nivel, deasupra fiecarui erou care nu a fugit inca apare `iconL3` timp de 4 secunde (`P.runHint`, `P.runHintDone`, `P.tut[k].ran`).

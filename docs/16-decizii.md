@@ -225,3 +225,19 @@ Cererea proprietarei: "scoate jocul Bubu si Leo, lasa doar Cea mai grea lupta. M
 | Salvarea ramane la fel (versiunea 4). Progresul jocului e in `g2`; campurile vechi, de sus, raman in fisier, neatinse si nefolosite. | O salvare veche nu trebuie sa se strice, iar un viitor `g1` nu e nevoie. |
 | Din acum, orice sarcina (T1 - T14) se implementeaza doar in "Cea mai grea luptă". "Ambele jocuri" din specificatii inseamna acum "jocul". | Cererea. |
 | `tests/alege-jocul.js` s-a inlocuit cu `tests/un-singur-joc.js`. `tests/toate.sh` ruleaza testele o singura data, fara `JOC`. | Un singur joc. |
+
+## Butoanele noi si fuga (T2, 18 noiembrie 2026)
+
+| Hotarare | Motivul |
+|---|---|
+| ○ ajuta prietenul, □ ramane pentru a doua putere. | Cererea proprietarei. ○ e butonul din dreapta, usor de gasit cu degetul mare fara sa te uiti. |
+| Campurile `b` / `bP` din `Input.slots` devin `h` / `hP`; campul **tastei** ramane `b`. | In cod numele trebuie sa spuna ce face butonul. In salvare numele trebuie sa ramana, altfel copiii pierd tastele alese. |
+| ○ inseamna "inapoi" in meniuri si "ajuta" in joc, din acelasi buton. | Meniurile nu sunt deschise in timpul jocului, iar pauza opreste jocul. Nu se pot ciocni. |
+| Tastele noi: Q si Slash (a doua putere), Shift stanga si Alt dreapta (fuga). | Sunt langa degetele care tin deja tastele de mers si nu sunt in `RESERVED`. |
+| Fuga porneste la o apasare si tine pana lasi stick-ul (`mode: 'click'`), nu cat tii L3 apasat. | Un copil de 6 ani nu poate tine L3 apasat si misca stick-ul in acelasi timp. `mode: 'hold'` ramane in `CONFIG` daca se razgandesc. |
+| Viteza are o limita (`maxSpeed` 1100) peste care racheta si fuga nu se aduna. | La peste 1100 jocul devine greu de condus si camera nu mai tine pasul. |
+| Eroul se misca in pasi de cel mult 12 unitati, oricat de repede ar merge. | La viteza mare un cadru lung l-ar duce peste un perete subtire sau peste apa. Mingile fac asta de la inceput. Nu schimba nimic la mersul obisnuit (un singur pas). |
+| Camera merge mai repede (x 9 in loc de x 4) cat timp cineva fuge. | Altfel eroul ajunge la marginea ecranului inaintea camerei. |
+| Fuga nu porneste cand eroul e lovit, ametit, dus de o pasare sau incarca o aruncare. | Sunt momentele in care jocul deja ii ia controlul; o fuga pornita atunci ar fi o surpriza neplacuta. |
+| Un erou pe care nu-l joaca nimeni fuge dupa prietenul care fuge, daca e la peste 300 de unitati. | Altfel un copil care joaca singur ar lasa in urma eroul celalalt la fiecare fuga. |
+| Tutorialul arata L3 doar o data pe nivel, cand eroii se despart mult, si numai pentru cine n-a fugit inca. | Asa invata singuri, fara un ecran de instructiuni. |

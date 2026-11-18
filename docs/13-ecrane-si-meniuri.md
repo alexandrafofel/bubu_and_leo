@@ -262,3 +262,11 @@ O salvare veche se schimba o singura data, la citire. Se schimba doar ce lipsest
 ### Teste
 
 `tests/capitole.js`, pentru fiecare joc. Vezi `17-testare.md`.
+
+## Update 18 noiembrie 2026 (T2): pagina "Alege tastele"
+
+`KEY_FIELDS` are acum opt campuri: `up`, `down`, `left`, `right`, `a` (prima putere, ✕), `b` (ajuta prietenul, ○), `c` (a doua putere, □), `r` (fuga, L3). Pagina are 10 randuri cu tot cu "Tastele de la început" si "Înapoi", la 70 de unitati randul: 976 de unitati inaltime, deci incape pe ecran fara sa scada randurile. Verificat de `tests/control-nou.js` (si cu o captura).
+
+`Save.apply` copiaza doar campurile din `KEY_FIELDS`, deci o salvare veche fara `c` si `r` ramane buna: cele doua taste noi vin din `CONFIG`.
+
+In testerul de controller din Setari, capul stick-ului stang se face mai inchis cand butonul L3 (indicele 10) e apasat.

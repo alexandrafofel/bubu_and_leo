@@ -17,7 +17,7 @@ Totul este intr-un singur fisier HTML. Nu are imagini, sunete sau biblioteci ext
 5. Fiecare jucator apasa ✕ pe controllerul lui. Fara controller: primul erou cu W A S D si Spatiu, al doilea cu sagetile si Enter.
 6. Stanga si dreapta aleg dificultatea. ✕ inseamna "Gata!".
 
-In joc: ✕ este puterea eroului. Un erou lovit de un inamic ramane pe loc pana il ajuta prietenul cu □ (tastatura: E, respectiv Shift dreapta). Primul erou trebuie sa vina aproape. Al doilea poate ajuta de departe, cu o minge magica. Nivelul se termina cand amandoi sunt in cuib.
+In joc: ✕ este prima putere a eroului. ○ ajuta prietenul lovit (tastatura: E, respectiv Shift dreapta): el ramane pe loc pana vine celalalt. Primul erou trebuie sa vina aproape, al doilea poate ajuta de departe, cu o minge magica. L3 (apasarea stick-ului stang; tastatura: Shift stanga, respectiv Alt dreapta) porneste fuga: de trei ori mai repede, pana lasi stick-ul. □ este a doua putere, care nu e inca facuta. Nivelul se termina cand amandoi sunt in cuib.
 
 Sunetele personajelor se pot auzi in difuzorul controllerului doar daca acesta e legat cu cablu USB: Setari, "Conectează controllerul", "Caută difuzorul controllerului".
 
@@ -50,7 +50,7 @@ Cele mai multe schimbari cerute de copii (viteze, nume, culori, numar de nivelur
 
 ## Ultimul update
 
-14 noiembrie 2026: al doilea joc, ajutorul cu □, inamicii mici care dispar dupa doua lovituri, cuibul care ii asteapta pe amandoi, sunetele personajelor reparate. Totul, pe puncte, in `docs/22-update-14-noiembrie.md`. Ce nu a putut fi verificat fara un Mac si controllere reale este in `docs/19-limitari.md`.
+14 noiembrie 2026: al doilea joc, ajutorul cu □ (mutat pe ○ in 18 noiembrie), inamicii mici care dispar dupa doua lovituri, cuibul care ii asteapta pe amandoi, sunetele personajelor reparate. Totul, pe puncte, in `docs/22-update-14-noiembrie.md`. Ce nu a putut fi verificat fara un Mac si controllere reale este in `docs/19-limitari.md`.
 
 ## Urmatorul update
 
