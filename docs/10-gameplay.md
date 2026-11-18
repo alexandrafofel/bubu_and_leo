@@ -193,7 +193,17 @@ Ouale din cuibul lui Ciori: 9 la inceput, 3 dispar la fiecare gol.
 
 ## Camera
 
-Urmareste mijlocul dintre eroi (putin mai sus). Zoom-ul se potriveste ca amandoi sa incapa, intre 1 si `minZoom` (0.6). Miscarea e lina (x 4 pe secunda pentru pozitie, x 2.5 pentru zoom). Nu iese din harta.
+Regula sta in `camTarget(L, a, b)`, o functie fara efecte care intoarce `{ x, y, zoom }` pentru doi eroi. `updatePlay` o cheama si merge lin spre rezultat (x 4 pe secunda pentru pozitie, x 2.5 pentru zoom). E functie separata ca sa o poata chema si testul `hud-acoperire.js`: asa testul masoara exact regula jocului, nu o copie a ei. E si in `window.__game`.
+
+Ce face, pe rand:
+
+1. **Zoom**: amandoi eroii trebuie sa incapa, pe orizontala in 1920 cu o margine de 760, pe verticala in **1080 minus banda de sus** cu o margine de 560. Intre `minZoom` (0.6) si 1.
+2. **Stanga - dreapta**: mijlocul dintre eroi, fara sa iasa din harta.
+3. **Sus - jos**: mijlocul dintre eroi, coborat cu 30 si cu inca o jumatate de banda, ca eroii sa stea in mijlocul partii libere a ecranului. Apoi doua limite:
+   - **nimic din eroul de sus nu are voie sa intre sub banda** (`HUD_TOP`, `08-draw.js`), nici numele lui (`HERO_BOX`, 190 de unitati). Pentru asta camera poate privi si mai sus decat marginea de sus a lumii, cu cel mult `HUD_TOP + 20` pixeli de ecran. Fasia fara pictura se umple cu culoarea cerului (vezi `12-desen-si-hud.md`).
+   - **cand incape, eroul de jos ramane cu picioarele pe ecran**. Daca cele doua limite nu pot fi respectate amandoua (eroi la cele doua capete ale unei harti inalte, cu zoom-ul deja la minim), castiga banda: vezi `19-limitari.md`.
+
+La lupta mare nu se schimba nimic: harta e cat ecranul, `minZoom` e 1 si eroii nu pot urca peste y = 480.
 
 ## Particule
 

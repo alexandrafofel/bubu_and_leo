@@ -108,7 +108,7 @@ De ce verificarea: la inceput nivelul 5 nu se putea construi. Pestera nu era ati
 
 ## Pictura fundalului: `paintLevel(L)`
 
-Se picteaza o singura data, la incarcarea nivelului, intr-un canvas de 3200 x 1800 (`L.bg`). Ordinea este cea a unui pictor: de la fond spre detalii.
+Se picteaza o singura data, la incarcarea nivelului, intr-un canvas de 3200 x 1800 (`L.bg`). Ordinea este cea a unui pictor: de la fond spre detalii. La sfarsit se retine si culoarea primului pixel (`L.skyTop`, prin `topColor`): cu ea se umple fasia de deasupra lumii, cand camera priveste mai sus decat marginea picturii (vezi `12-desen-si-hud.md`).
 
 1. Gradientul pamantului si 110 pete de acuarela din `tints`.
 2. Pe deal: 9 linii de nivel (terase).

@@ -107,7 +107,7 @@ Inainte de orice sarcina si dupa fiecare: `./build.sh`, `node tools/gen-docs.js`
 
 | Nr | Ce se face | Specificatia | Gata cand |
 |---|---|---|---|
-| T1 | Scrisul de sus nu mai acopera eroii. | 24, S6 | `tests/hud-acoperire.js` cu `STRICT=1` scrie 0% pentru toate coloanele, in ambele jocuri, si intra in `tests/toate.sh`. |
+| T1 | Scrisul de sus nu mai acopera eroii. **Facuta pe 18 noiembrie 2026.** | 24, S6 | `tests/hud-acoperire.js` cu `STRICT=1` scrie 0% pentru toate coloanele, in ambele jocuri, si intra in `tests/toate.sh`. |
 | T2 | Butoanele (○ ajuta, □ citit pentru a doua putere, L3) si fuga. | 24, S1 si S2 | `tests/control-nou.js` si `tests/fuga.js` trec. Niciun erou nu trece printr-un perete la viteza x 3. |
 | T3 | Puterile devin abilitati (rotire, aruncare) pe care le poate avea orice erou. Apoi oasele lui Boon si manusile lui Killer. | 24, S3 | `tests/puteri-doi.js` trece. Testele vechi trec neschimbate in primul joc. |
 | T4 | Cele 10 secunde si reinceperea nivelului. | 24, S4 | `tests/zece-secunde.js` trece. |

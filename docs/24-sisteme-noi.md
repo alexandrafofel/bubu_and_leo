@@ -11,7 +11,7 @@ Sapte sisteme. Fiecare are: cerinta, ce e acum in cod, ce se face, valorile din 
 | S3 | A doua putere | T3 | doar "Cea mai grea luptă" |
 | S4 | Cele 10 secunde | T4 | ambele |
 | S5 | Capitole, meniu de start, salvare | T5, **facuta** | ambele |
-| S6 | Scrisul de sus | T1 | ambele |
+| S6 | Scrisul de sus | T1, **facuta** | ambele |
 | S7 | Stilul grafic | T6 | nivelurile 7 - 12 si eroii celui de-al doilea joc |
 
 ---
@@ -422,6 +422,12 @@ limitGames: ['bubu', 'lupta'],
 ---
 
 ## S6. Scrisul de sus nu mai acopera eroii
+
+**Implementat pe 18 noiembrie 2026 (sarcina T1).** Descrierea a fost mutata in `12-desen-si-hud.md` (banda de sus) si in `10-gameplay.md` (camera). Hotararile luate pe drum sunt in `16-decizii.md`, iar ce nu s-a putut verifica in `19-limitari.md`. Ce s-a facut altfel decat scrie mai jos:
+
+- Bannerul de lupta sta tot in cardul din mijloc (16 - 104), nu in dreptunghiul 16 - 124 din tabel: altfel ar fi acoperit bara de progres, adica inimile paznicului, exact in timpul luptei.
+- Bara de progres e la 105 - 131, nu 108 - 128: semnele de etapa au raza 13, deci ies cu 3 unitati in sus si in jos fata de linie.
+- `camTarget` are doua limite in plus fata de formula de mai jos: eroul de sus nu intra sub banda (limita tare) si, cand incape, eroul de jos ramane cu picioarele pe ecran. Formula din tabel singura lasa un erou sub banda cand eroii sunt departe pe verticala si zoom-ul e la minim.
 
 **Cerinta:** "scrisul de sus vine peste joc si de multe ori nu se vad personajele - de rezolvat acest bug."
 

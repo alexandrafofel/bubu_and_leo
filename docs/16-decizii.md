@@ -198,3 +198,17 @@ Cererea cuvant cu cuvant e in `prompts/04-cerere-14-noiembrie.md`. Fiecare punct
 | Tastatura baga un jucator in joc doar pe ecranul de start | Enter si Spatiu sunt si tastele de putere ale eroilor. Pe ecranul Capitole si in pauza, un parinte care apasa Enter l-ar fi bagat in joc pe al doilea erou, pe care nu il joaca nimeni. Testul a prins asta. |
 | Luptele mari au pe cartonas o coroana, nu coroana lui George | La marimea aceea coroana-corn a lui George arata ca un con. |
 | Un capitol incuiat raspunde (lacatul tremura, sunetul `no`) | Copilul vede ca apasarea a ajuns, dar ca acolo inca nu se poate. |
+
+## Update 18 noiembrie 2026: banda de sus (sarcina T1)
+
+| Hotarare | De ce |
+|---|---|
+| Tot scrisul de sus intra in 132 de unitati | Inainte ocupa 218, iar bannerele coborau pana la 420. Masurat: un erou era acoperit in pana la 50% din asezari. 132 e cat trebuie pentru doua randuri de insigna si bara de progres sub ele. |
+| Bannerele nu mai sunt cartonase separate: iau locul continutului din cardul din mijloc | Un cartonas in plus ar fi trebuit sa stea tot in banda, iar doua cartonase unul langa altul la 1920 de pixeli nu incap. Asa textul apare chiar acolo unde se uita copilul dupa oua si stele. |
+| Bannerul de lupta e in cardul din mijloc (16 - 104), nu in dreptunghiul 16 - 124 din specificatie | La 124 ar fi intrat peste bara de progres, care arata cate inimi mai are paznicul, exact in timpul luptei. Doua randuri (40 si 26) incap si in 88. |
+| Regula camerei e o functie fara efecte, `camTarget(L, a, b)` | Testul `hud-acoperire.js` poate chema exact regula jocului. Altfel testul ar fi masurat o copie a regulii, care se poate desincroniza. |
+| Camera poate privi peste marginea de sus a lumii, cu cel mult 152 de pixeli de ecran | Fara asta, eroii ajunsi la marginea de sus a hartii ar fi ramas sub banda: camera s-ar fi oprit la marginea picturii. Fasia se umple cu culoarea cerului (primul pixel al picturii), deci nu se vede ca lipseste ceva. |
+| Cand banda si "amandoi eroii intregi pe ecran" nu incap deodata, castiga banda | Cerinta proprietarei a fost sa se vada personajele. Se intampla doar cand eroii sunt la cele doua capete ale unei harti inalte si zoom-ul e deja la minim: vezi `19-limitari.md`. |
+| La lupta mare nu se schimba nimic | Harta e cat ecranul si eroii nu pot urca peste y = 480. Camera statea deja bine. |
+| "Îl așteptăm pe Leo în cuib!" s-a mutat din lume in banda | Era scris la 210 de unitati deasupra cuibului, adica exact peste eroul care tocmai alerga spre cuib. |
+| Numerele barei de progres au halou crem | Bara nu mai are cartonas in spate. Pe fundalul de noapte al celui de-al doilea joc, "× 16" si procentul nu se citeau. |

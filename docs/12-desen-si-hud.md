@@ -5,6 +5,7 @@ Fisierul pune lumea pe ecran in fiecare cadru si deseneaza tot ce ajuta jucatori
 ## `drawWorld(c)`
 
 1. Calculeaza coltul camerei (`l`, `tp`). Adauga tremurul (`P.shake`) daca e cazul.
+   - `tp` are voie sa fie negativ, pana la `-(HUD_TOP + 20) / z`: camera poate privi putin mai sus decat marginea de sus a picturii, ca niciun erou sa nu ajunga sub banda de sus (vezi "Banda de sus" mai jos). Fasia aceea nu are pictura, deci se umple intai cu culoarea cerului (`L.skyTop`, primul pixel al picturii, luat de `topColor` la generarea nivelului).
 2. Copiaza bucata vazuta din fundalul pictat (`L.bg`), scalata cu zoom-ul.
 3. Intra in coordonatele lumii (`scale`, `translate`).
 4. Lucruri pe pamant, in ordine:
@@ -33,7 +34,7 @@ Intoarce `{ l, tp, z }`, folosit de indicii ca sa transforme pozitii din lume in
 - Clipeste cand e invulnerabil.
 - Stelele de ameteala.
 - Pentru Leo cu mingea: sageata de tintire. Cat incarca, sageata se lungeste (62 pana la 132), creste, trece de la galben la portocaliu, iar deasupra capului se umple un cerc albastru.
-- Numele, primele 5 secunde din nivel.
+- Numele, primele 5 secunde din nivel. Nu se scrie niciodata peste prieten: daca prietenul e in drum, numele urca cu 46 de unitati, iar daca nici acolo nu e loc, nu se scrie deloc. Numele celui de-al doilea erou urca si el daca s-ar suprapune peste numele primului (`heroInWay`).
 
 ## Sageata ajutatoare: `guideTarget(h)` si `drawGuides(c)`
 
@@ -87,24 +88,36 @@ Drumul nivelului are `n` parti, in ordinea asta: valul 1, valul 2, lupta din mij
 | `midSeg`, `fightSeg` | Al catelea segment e lupta din mijloc (2) si cea de la cuib (4). -1 daca nu exista. Dupa ele alege `drawProgress` intre ou si inima. |
 | `u` | Progresul total intre 0 si 1. |
 
-`drawProgress` deseneaza, sub contorul de oua:
+`drawProgress` deseneaza, pe randul de jos al benzii de sus (y = 118), fara cartonas in spate, doar cu o umbra moale sub linie:
 
 - Stanga: ce e de facut acum. Un ou cu "× 12" (oua ramase), o inima cu "× 3" (inimi ramase) sau cuibul cu o sageata.
-- Mijloc: un drum. Partea facuta e aurie. Pe drum, un semn la capatul fiecarei parti: cerc cu ou pentru valuri, cerc cu inima pentru lupta, cuibul la capat. Semnele facute se umplu cu auriu, cel curent pulseaza.
-- Pe drum: un punct jumatate portocaliu, jumatate galben (cei doi eroi), unde e echipa acum. Se misca lin (12% din distanta pe cadru).
+- Mijloc: un drum gros de 12. Partea facuta e aurie. Pe drum, un semn la capatul fiecarei parti (raza 13): cerc cu ou pentru valuri, cerc cu inima pentru lupta, cuibul la capat. Semnele facute se umplu cu auriu, cel curent pulseaza.
+- Pe drum: un punct jumatate portocaliu, jumatate galben (cei doi eroi, raza 11), unde e echipa acum. Se misca lin (12% din distanta pe cadru).
 - Dreapta: procentul.
+
+Cele doua numere (marimea 22) au halou crem, pentru ca stau direct peste lume, nu peste un cartonas. Fara halou nu se citeau pe fundalul de noapte al celui de-al doilea joc.
 
 De ce un drum si nu doar un procent: cel de 6 ani nu citeste procente, dar vede punctul care se apropie de cuib.
 
 Nu apare la boss. Acolo HUD-ul arata cele trei mingi (golurile).
 
-## HUD: `drawHUD(c)` si `drawBadge(c, k, x, y)`
+## Banda de sus: `HUD_TOP`, `drawHUD(c)`, `drawBadge`, `drawMidCard`
 
-- **Insignele** din colturi: portretul eroului (pictat o data), numele, dificultatea. Daca eroul nu e jucat, scrie ce trebuie apasat ("Apasă ✕" sau tasta). Un fluture mic cand are viteza.
-- **Cardul din mijloc**: oul cu numarul de oua al echipei (oul pulseaza la o serie), cele trei stele ale nivelului (pline cand sunt luate) si soarele care coboara spre deal in `levelDuration`. La boss: cercuri care se umplu cu mingi la fiecare gol.
-- **Bara de progres** (de mai sus).
-- La boss, cercurile pentru goluri sunt cate `CONFIG.boss.hits` (5). Cand sunt mai mult de 3, sunt mai mici si cardul e mai lat, ca sa nu intre peste numarul de oua. Ouale din cuibul lui Ciori scad cu fiecare gol (`9 * (1 - faza / hits)`).
-- **Bannerele**: "Mai departe!" (val nou, cu sageata), "La cuib!" (cu cuib si sageata), "Oul uriaș!" (cu ou), "Provocare!" (cu numele paznicului: "Regele Gândac păzește cuibul!" la lupta de la cuib, "Regele Gândac vă stă în cale!" la lupta din mijloc). Apar si dispar lin.
+Tot ce scrie jocul peste lume sta intr-o banda de sus de **132 de unitati** (`HUD_TOP`, constanta din `08-draw.js`). Sub ea nu coboara nimic, niciodata. Camera (`camTarget`, vezi `10-gameplay.md`) tine amandoi eroii sub linia asta. Inainte de 18 noiembrie 2026 scrisul ocupa 218 de unitati, iar bannerele coborau pana la 420: acoperea un erou in pana la 50% din asezari. Vezi `24-sisteme-noi.md`, S6.
+
+| Element | Dreptunghi pe ecran |
+|---|---|
+| Insigna eroului 1 | 28, 16, 328, 104 |
+| Insigna eroului 2 | 1592, 16, 1892, 104 |
+| Cardul din mijloc | 640, 16, 1280, 104 (mai lat la boss si cand tine un banner) |
+| Bara de progres | 500, 105, 1420, 131 |
+
+- **Insignele** din colturi (`drawBadge`, 300 x 88): portretul eroului de 68 (pictat o data), numele la marimea 36, dificultatea la 22. Daca eroul nu e jucat, scrie ce trebuie apasat ("Apasă ✕" sau tasta). Un fluture mic cand are viteza.
+- **Cardul din mijloc** (`drawMidCard`): oul cu numarul de oua al echipei la marimea 52 (oul pulseaza la o serie), cele trei stele ale nivelului (raza 24, pline cand sunt luate) si soarele care coboara spre deal in `levelDuration`. La boss: cercuri care se umplu cu mingi la fiecare gol.
+- **Bara de progres** (de mai sus). Nu apare la boss.
+- La boss, cercurile pentru goluri sunt cate `CONFIG.boss.hits` (5). Cand sunt mai mult de 3, sunt mai mici (raza 18) si cardul e mai lat, ca sa nu intre peste numarul de oua. Ouale din cuibul lui Ciori scad cu fiecare gol (`9 * (1 - faza / hits)`).
+- **Bannerele** nu mai sunt cartonase care coboara peste lume. Cat tine unul, **ia locul** continutului din cardul din mijloc: cardul se lateste (880, sau 1000 pentru bannerul de lupta), se face crem deschis (`#FFF6E2`) si arata textul. La intrare "respira" (scara 1.06 spre 1, in 0.2 secunde), iar la iesire se stinge lin. Textele: "Mai departe!" (val nou, cu sageata), "La cuib!" (cu cuib si sageata), "Oul uriaș!" (cu ou), "Curcubeu!" (cu cele sapte culori), "Provocare!" pe doua randuri (cu numele paznicului).
+- **"Îl așteptăm pe Leo în cuib!"** (`waitBanner`) era scris in lume, deasupra cuibului. Acum e si el un banner in banda, cat timp un erou e in cuib si celalalt nu. Un banner adevarat are prioritate.
 
 `pressLabel(k)`: "Apasă ✕" pentru controller sau numele tastei de putere pentru tastatura.
 
@@ -125,7 +138,7 @@ Ce se deseneaza in plus, in ambele jocuri:
 | Sageata spre prietenul lovit, cu □ in bula | `drawGuides`, `guideTarget` | mereu, si pentru jucatorul cu sageata oprita. Are prioritate fata de orice alta tinta. |
 | Mingea magica, cu o inimioara si o dara | `drawWorld`, din `P.heal` | cat zboara |
 | Doua inimioare mici deasupra unui inamic mic | `drawSmallHp` | dupa prima lovitura |
-| "Îl așteptăm pe Leo în cuib!" deasupra cuibului | `drawWorld` | cuibul e deschis si doar un erou e in el |
+| "Îl așteptăm pe Leo în cuib!" | `drawWorld`, deasupra cuibului (din 18 noiembrie 2026: banner in banda de sus, `waitBanner`) | cuibul e deschis si doar un erou e in el |
 
 In al doilea joc, in plus:
 
@@ -133,3 +146,16 @@ In al doilea joc, in plus:
 - Totemurile au o morisca in culorile curcubeului (`drawPinwheel`) in locul palelor de moara.
 - La boss, sageata si indiciul (minge + sageata in jos) arata spre George cazut (`bossGoal()`), nu spre varful tronului.
 - HUD-ul arata cristalul in locul oului si culorile curcubeului adunate (sapte puncte). Vezi `21-cea-mai-grea-lupta.md`.
+
+## Update 18 noiembrie 2026 (sarcina T1)
+
+Bug-ul semnalat de proprietara: "scrisul de sus vine peste joc si de multe ori nu se vad personajele".
+
+| Ce s-a schimbat | Unde |
+|---|---|
+| Tot scrisul de sus intra in 132 de unitati (era 218, plus bannere pana la 420) | `HUD_TOP`, `drawHUD`, `drawBadge`, `drawMidCard`, `drawProgress` |
+| Bannerele si "Îl așteptăm..." intra in cardul din mijloc, nu mai coboara peste lume | `drawMidCard`, `waitBanner` |
+| Camera tine amandoi eroii sub banda si poate privi putin peste marginea de sus a lumii | `camTarget` (`07-play.js`), `drawWorld`, `L.skyTop` |
+| Textele ramase in lume nu se mai scriu peste un erou | `heroInWay`, `drawHeroFull`, `drawDuelTop` |
+
+Masurat cu `tests/hud-acoperire.js` (procent din asezari in care un erou e acoperit): inainte 6.5 - 47%, iar bannerul de lupta pana la 50.2%. Acum **0%** peste tot, in ambele jocuri, pe toate nivelurile si la boss.

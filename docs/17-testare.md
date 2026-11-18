@@ -109,9 +109,13 @@ Teste noi din update-ul 13 noiembrie 2026:
 
 Testele de sunet (`sunete-volum.js`, `sunete-personaje.js`) se ruleaza singure. Pornite in acelasi timp cu alte teste, masoara varfuri gresite si pot pica fara motiv.
 
-## Un test care doar masoara: `hud-acoperire.js`
+## `hud-acoperire.js`
 
-Adaugat pe 16 noiembrie 2026. Masoara cat de des acopera scrisul de sus un erou (bug-ul C10 din `23-update-partea-a-doua.md`). Acum scrie pana la 50%. Nu e in `tests/toate.sh`, pentru ca bug-ul nu e reparat. Dupa reparare (etapa E1) se ruleaza cu `STRICT=1`, trebuie sa scrie 0% si intra in `tests/toate.sh`. Vezi `24-sisteme-noi.md`, S6.
+Adaugat pe 16 noiembrie 2026, ca sa masoare bug-ul C10 din `23-update-partea-a-doua.md`: cat de des acopera scrisul de sus un erou. Pentru fiecare nivel aseaza eroii in doua feluri (amandoi in aceeasi celula libera, pentru toate celulele; apoi 400 de perechi de celule alese la intamplare), pune camera unde o pune jocul si se uita daca dreptunghiul unui erou (corp si nume, 190 de unitati) atinge banda de sus.
+
+Testul intreaba jocul cat e banda (`__game.HUD_TOP`) si unde pune camera (`__game.camTarget`). Daca nu le gaseste, foloseste dreptunghiurile de dinainte de reparare.
+
+Din 18 noiembrie 2026 bug-ul e reparat (sarcina T1): testul e in `tests/toate.sh`, se ruleaza cu `STRICT=1` si trebuie sa scrie **0%** peste tot. Inainte scria 6.5 - 47% pentru HUD si pana la 50.2% pentru bannerul de lupta. Vezi `24-sisteme-noi.md`, S6.
 
 ## Rezultate dupa update-ul din 14 noiembrie 2026
 
@@ -154,3 +158,22 @@ Doua teste vechi s-au schimbat, pentru ca foloseau salvarea veche: `alege-jocul.
 
 Rezultat, `tests/toate.sh` pe codul final: toate testele OK, pentru ambele jocuri. `capturi-ecran.js` (primul joc): `errors 0`, capturi privite. Nu au fost rulate din nou: `mini-lupte-bot.js` (sarcina nu atinge luptele) si `capturi-ecran.js` pentru al doilea joc.
 
+## Update 18 noiembrie 2026: banda de sus (sarcina T1)
+
+| Test | Ce verifica | Bubu și Leo | Cea mai grea luptă |
+|---|---|---|---|
+| `hud-acoperire.js` (acum in `tests/toate.sh`, cu `STRICT=1`) | Niciun erou nu ajunge sub banda de sus, pe niciun nivel, in nicio asezare. | 0% peste tot | 0% peste tot |
+
+Masuratoarea de dinainte si de dupa, pe aceeasi masina (procent din asezari in care un erou e acoperit, HUD / banner / bannerul de lupta):
+
+| Cum stau eroii | Inainte | Acum |
+|---|---|---|
+| Impreuna, nivelurile 1 - 4 si 6 | 6.5 - 6.7 / 12 - 12.2 / 48.8 - 50.2 | 0 / 0 / 0 |
+| Impreuna, nivelul 5 | 0 / 2.2 / 43.4 | 0 / 0 / 0 |
+| Departe unul de altul | 24.5 - 47.3 / 24 - 26.3 / 38.3 - 44 | 0 / 0 / 0 |
+
+Testul a fost verificat ca poate pica: cu limita camerei scoasa din `camTarget` scrie `NEREUSIT: un erou e acoperit in 14.5% din asezari`. Pus la loc, scrie 0%.
+
+Lupta mare nu e in test (testul merge pe nivelurile cu grila). A fost masurata separat, cu acelasi fel de socoteala: tot 0%, in ambele jocuri. Acolo camera nu s-a schimbat deloc.
+
+Capturi privite cu ochiul, pentru fiecare joc: eroii impreuna la inceputul nivelului, eroii la marginea de sus a hartii, eroii in colturi opuse, bannerul de lupta, un banner de un rand, "Îl așteptăm pe ... în cuib!", lupta mare.

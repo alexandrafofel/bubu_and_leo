@@ -9,6 +9,16 @@ function heroOpts(h) {
     claw: h.spinT >= 0 ? clamp(h.spinT / (CONFIG.heroes[0].spinTime || 1), 0, 1) : -1 };
 }
 const heroTop = k => (isLupta() ? [148, 128] : [100, 122])[k];        // how tall each hero is: where the stars, the name and the □ go
+/* The band at the top. Everything written over the world (badges, the middle card, the progress bar, the banners)
+   stays inside it, and the camera (camTarget, 07-play.js) keeps every hero under it. See docs/24-sisteme-noi.md, S6. */
+const HUD_TOP = 132;                  // how tall the band is, in screen units
+const HERO_BOX = 190;                 // how tall a hero is with its name above it, in world units
+/* Is a hero standing where we want to write? Used by the few texts that stay in the world, so they never cover anybody.
+   only: check just this hero. The box is the painted body, without the name above it. */
+function heroInWay(x, y, w, h, only) {
+  return P.heroes.some(o => (only == null || o.k === only) && !o.carried &&
+    Math.abs(o.x - x) < w / 2 + 50 && o.y + 6 > y - h / 2 && o.y - heroTop(o.k) * o.small - 20 < y + h / 2);
+}
 function drawParts(c) {
   for (const p of P.parts) {
     const a = clamp(p.life / p.max, 0, 1);
@@ -70,7 +80,13 @@ function drawHeroFull(c, h) {
     iconArrow(c, h.x + h.ax * len, h.y - 14 + h.ay * len * 0.8, Math.atan2(h.ay, h.ax), 13 + pw * 13, pw > 0.95 ? '#E9703C' : mix('#F6C63C', '#E9703C', pw));
     if (h.charging) { c.strokeStyle = rgba(isLupta() ? '#E4583C' : '#3F78C8', 0.8); c.lineWidth = 6; c.lineCap = 'round'; c.beginPath(); c.arc(h.x, h.y - top - 8, 17, -Math.PI / 2, -Math.PI / 2 + TAU * pw); c.stroke(); }
   }
-  if (h.tagT > 0) text(c, cfg.name, h.x, h.y - top - 18, 34, shade(cfg.color, -0.35), { title: true });
+  if (h.tagT > 0) {                        // the name of the hero: never written over the friend, and the two names never over each other
+    let nx = h.x, ny = h.y - top - 18;
+    const fy = fr.y - heroTop(fr.k) * fr.small - 18;
+    if (h.k === 1 && fr.tagT > 0 && Math.abs(fr.x - h.x) < 150 && Math.abs(fy - ny) < 38) nx += h.x >= fr.x ? 70 : -70;     // the second name steps aside
+    if (heroInWay(nx, ny, 160, 40, fr.k)) ny = Math.max(ny - 46, h.y - HERO_BOX + 22);                                      // never higher than the camera keeps free
+    if (!heroInWay(nx, ny, 160, 40, fr.k)) text(c, cfg.name, nx, ny, 34, shade(cfg.color, -0.35), { title: true });
+  }
 }
 /* Small enemies show how many hits they still take, once they were hit. */
 function drawSmallHp(c, e, x, y) {
@@ -110,7 +126,9 @@ function drawWorld(c) {
   const L = P.L, cam = P.cam, z = cam.zoom, vw = W / z, vh = H / z, t = P.time;
   let l = cam.x - vw / 2, tp = cam.y - vh / 2;
   if (P.shake > 0) { l += Math.sin(t * 90) * P.shake * 22; tp += Math.cos(t * 77) * P.shake * 22; }
-  l = clamp(l, 0, L.W - vw); tp = clamp(tp, 0, L.H - vh);
+  const tpMin = -(HUD_TOP + 20) / z;         // the camera may look above the top edge of the world, so no hero hides under the band
+  l = clamp(l, 0, L.W - vw); tp = clamp(tp, tpMin, Math.max(tpMin, L.H - vh));
+  if (tp < 0) { c.fillStyle = L.skyTop || '#CFE4F2'; c.fillRect(0, 0, W, Math.ceil(-tp * z) + 1); }      // that strip has no painting: it is sky
   c.drawImage(L.bg, l, tp, vw, vh, 0, 0, W, H);
   c.save(); c.scale(z, z); c.translate(-l, -tp);
   // water shimmer
@@ -243,11 +261,7 @@ function drawWorld(c) {
     card(c, bx - 430, by - 80, 860, 150, '#FFF6E2', 5);
     text(c, T('sorry1'), bx, by - 32, 42, '#5F4E80', { halo: 0 }); text(c, T('sorry2'), bx, by + 22, 42, '#5F4E80', { halo: 0 });
   }
-  if (P.nestOpen && !P.done && !L.boss && Input.slots[0].joined && Input.slots[1].joined) {    // one is in the nest: we wait for the other
-    const nr = P.heroes.map(h => dist(h.x, h.y, L.nest.x, L.nest.y) < 185);
-    if (nr[0] !== nr[1]) text(c, T('ban.wait', CONFIG.heroes[nr[0] ? 1 : 0].name), L.nest.x, L.nest.y - 210 + Math.sin(t * 4) * 5, 46, '#C4573D', { title: true });
-  }
-  c.restore();
+  c.restore();      // "we wait for X in the nest" used to be written here, over the nest: it is a banner now (waitBanner)
   // wind streaks in screen space
   if (P.wind.power > 0.04) {
     c.lineCap = 'round';
@@ -328,18 +342,18 @@ function drawGuides(c) {
 function drawHints(c, v) {
   const t = P.time, L = P.L, tg = hintTarget();
   if (tg) {
-    const sx = (tg.x - v.l) * v.z, sy = (tg.y - v.tp) * v.z, m = 90;
-    if (sx > m && sx < W - m && sy > 240 && sy < H - m) iconArrow(c, sx, sy - 30 + Math.sin(t * 6) * 10, Math.PI / 2, 30, '#F8C24E');
-    else { const cx = clamp(sx, m, W - m), cy = clamp(sy, 260, H - m); iconArrow(c, cx + Math.sin(t * 6) * 6, cy, Math.atan2(sy - cy, sx - cx), 38, '#F8C24E'); }
+    const sx = (tg.x - v.l) * v.z, sy = (tg.y - v.tp) * v.z, m = 90, hm = HUD_TOP + 50;      // hm: the arrow stays under the band at the top
+    if (sx > m && sx < W - m && sy > hm && sy < H - m) iconArrow(c, sx, sy - 30 + Math.sin(t * 6) * 10, Math.PI / 2, 30, '#F8C24E');
+    else { const cx = clamp(sx, m, W - m), cy = clamp(sy, hm + 20, H - m); iconArrow(c, cx + Math.sin(t * 6) * 6, cy, Math.atan2(sy - cy, sx - cx), 38, '#F8C24E'); }
   }
   // first steps: stick, then ✕, shown above each hero
   if (L.idx === 0 || L.boss) for (const h of P.heroes) {
     const tu = P.tut[h.k]; if (!Input.slots[h.k].joined || (tu.moved > 0.8 && tu.used) || P.time > 90) continue;
     if (L.boss && (tu.used || P.time > 12)) continue;
-    const sx = (h.x - v.l) * v.z, sy = (h.y - v.tp) * v.z - (h.tagT > 0 ? 200 : 160) * v.z + Math.sin(t * 5) * 5;
+    const sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 30, (h.y - v.tp) * v.z - (h.tagT > 0 ? 200 : 160) * v.z) + Math.sin(t * 5) * 5;      // never over the band at the top
     if (tu.moved <= 0.8 && !L.boss) iconStick(c, sx, sy, 28, t); else iconX(c, sx, sy, 30, Math.sin(t * 6));
   }
-  if (P.hintCharge > 0) { const h = P.heroes[1], sx = (h.x - v.l) * v.z, sy = (h.y - v.tp) * v.z - 200 * v.z - 20, u = (t * 0.9) % 1; iconX(c, sx - 24, sy, 28, 0); c.strokeStyle = '#3F78C8'; c.lineWidth = 8; c.lineCap = 'round'; c.beginPath(); c.arc(sx + 34, sy, 20, -Math.PI / 2, -Math.PI / 2 + TAU * u); c.stroke(); }
+  if (P.hintCharge > 0) { const h = P.heroes[1], sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 30, (h.y - v.tp) * v.z - 200 * v.z - 20), u = (t * 0.9) % 1; iconX(c, sx - 24, sy, 28, 0); c.strokeStyle = '#3F78C8'; c.lineWidth = 8; c.lineCap = 'round'; c.beginPath(); c.arc(sx + 34, sy, 20, -Math.PI / 2, -Math.PI / 2 + TAU * u); c.stroke(); }
   if (P.boss) {
     const bs = P.boss, sc = v.z;
     if (bs.state === 'up' && P.time > 3) { const x = (L.treeBase.x - 250 - v.l) * sc, y = (L.treeBase.y + 10 - v.tp) * sc + Math.sin(t * 6) * 8; iconX(c, x, y, 26, Math.sin(t * 6)); iconArrow(c, x, y + 52, Math.PI / 2, 20, CONFIG.heroes[0].color); }
@@ -363,101 +377,114 @@ function levelProgress() {
   return { n, cur, frac, left, kind, midSeg, fightSeg: on ? n - 2 : -1, u: clamp((cur + frac) / n, 0, 1) };
 }
 function drawProgress(c) {
-  const pr = levelProgress(), t = P.time, NW = P.L.NW, y = 184, x0 = W / 2 - 372, x1 = W / 2 + 392, len = x1 - x0;
+  const pr = levelProgress(), t = P.time, y = 118, x0 = W / 2 - 360, x1 = W / 2 + 380, len = x1 - x0;
   P.progU = P.progU == null ? pr.u : P.progU + (pr.u - P.progU) * 0.12;
-  card(c, W / 2 - 520, 152, 1040, 66, '#FFF3DC', 12);
+  c.fillStyle = rgba(SHADOW, 0.16); c.beginPath(); c.ellipse(W / 2 - 40, y + 11, 492, 11, 0, 0, TAU); c.fill();     // a soft shadow under the line, instead of a card
   // left: what is still to do right now
-  if (pr.kind === 'eggs') { c.save(); c.translate(W / 2 - 478, y + 12); const g = c.createRadialGradient(-3, -16, 1, 0, -10, 18); g.addColorStop(0, isLupta() ? '#E8FBFF' : '#FFF6C4'); g.addColorStop(1, isLupta() ? '#46B8D8' : '#E9A93A'); c.translate(0, -12); itemPath(c, 14); c.fillStyle = g; c.fill(); c.restore(); text(c, '× ' + pr.left, W / 2 - 456, y + 1, 34, '#B9702E', { align: 'left', halo: 0, shadow: 0, weight: 'bold' }); }
-  else if (pr.kind === 'duel') { heartPath(c, W / 2 - 478, y, 11); c.fillStyle = '#E2574C'; c.fill(); text(c, '× ' + pr.left, W / 2 - 456, y + 1, 34, '#C4573D', { align: 'left', halo: 0, shadow: 0, weight: 'bold' }); }
-  else { c.drawImage(sprite('gNest', 56, 44, cc => drawNest(cc, 28, 22, 21, 3, 0)), W / 2 - 500, y - 22, 56, 44); iconArrow(c, W / 2 - 424 + Math.sin(t * 6) * 4, y, 0, 13, '#F8C24E'); }
+  if (pr.kind === 'eggs') { c.save(); c.translate(W / 2 - 448, y); const g = c.createRadialGradient(-2, -8, 1, 0, -5, 12); g.addColorStop(0, isLupta() ? '#E8FBFF' : '#FFF6C4'); g.addColorStop(1, isLupta() ? '#46B8D8' : '#E9A93A'); itemPath(c, 10); c.fillStyle = g; c.fill(); c.restore(); text(c, '× ' + pr.left, W / 2 - 432, y + 1, 22, '#B9702E', { align: 'left', shadow: 0, weight: 'bold' }); }
+  else if (pr.kind === 'duel') { heartPath(c, W / 2 - 448, y, 8); c.fillStyle = '#E2574C'; c.fill(); text(c, '× ' + pr.left, W / 2 - 432, y + 1, 22, '#C4573D', { align: 'left', shadow: 0, weight: 'bold' }); }
+  else { c.drawImage(sprite('gNest', 56, 44, cc => drawNest(cc, 28, 22, 21, 3, 0)), W / 2 - 462, y - 13, 34, 27); iconArrow(c, W / 2 - 410 + Math.sin(t * 6) * 4, y, 0, 9, '#F8C24E'); }
   // the road
-  c.lineCap = 'round'; c.strokeStyle = 'rgba(190,150,130,0.32)'; c.lineWidth = 16; c.beginPath(); c.moveTo(x0, y); c.lineTo(x1, y); c.stroke();
+  c.lineCap = 'round'; c.strokeStyle = 'rgba(190,150,130,0.32)'; c.lineWidth = 12; c.beginPath(); c.moveTo(x0, y); c.lineTo(x1, y); c.stroke();
   const mx = x0 + len * P.progU;
   c.strokeStyle = '#F8C24E'; c.beginPath(); c.moveTo(x0, y); c.lineTo(Math.max(x0 + 0.1, mx), y); c.stroke();
-  c.strokeStyle = 'rgba(255,246,214,0.7)'; c.lineWidth = 4; c.beginPath(); c.moveTo(x0, y - 3); c.lineTo(Math.max(x0 + 0.1, mx), y - 3); c.stroke();
+  c.strokeStyle = 'rgba(255,246,214,0.7)'; c.lineWidth = 3; c.beginPath(); c.moveTo(x0, y - 2); c.lineTo(Math.max(x0 + 0.1, mx), y - 2); c.stroke();
   for (let i = 0; i < pr.n; i++) {                      // a sign at the end of every part of the level
     const x = x0 + len * (i + 1) / pr.n, done = i < pr.cur || (i === pr.cur && pr.frac >= 1), now = i === pr.cur && !done;
-    if (i === pr.n - 1) { c.drawImage(sprite('gNest', 56, 44, cc => drawNest(cc, 28, 22, 21, 3, 0)), x - 30, y - 24, 60, 48); continue; }
+    if (i === pr.n - 1) { c.drawImage(sprite('gNest', 56, 44, cc => drawNest(cc, 28, 22, 21, 3, 0)), x - 21, y - 17, 42, 33); continue; }
     const pop = now ? 1 + Math.sin(t * 5) * 0.08 : 1;
-    c.fillStyle = done ? '#F8C24E' : '#FFF6E2'; c.strokeStyle = done ? '#E3952F' : 'rgba(170,130,110,0.6)'; c.lineWidth = 3; c.beginPath(); c.arc(x, y, 19 * pop, 0, TAU); c.fill(); c.stroke();
-    if (i !== pr.midSeg && i !== pr.fightSeg) { c.save(); c.translate(x, y - 1); itemPath(c, 10 * pop); c.fillStyle = done ? '#FFF6C4' : 'rgba(233,169,58,0.55)'; c.fill(); c.restore(); }
-    else { heartPath(c, x, y, 8.5 * pop); c.fillStyle = done ? '#FFF6C4' : '#E2574C'; c.fill(); }
+    c.fillStyle = done ? '#F8C24E' : '#FFF6E2'; c.strokeStyle = done ? '#E3952F' : 'rgba(170,130,110,0.6)'; c.lineWidth = 2.5; c.beginPath(); c.arc(x, y, 13 * pop, 0, TAU); c.fill(); c.stroke();
+    if (i !== pr.midSeg && i !== pr.fightSeg) { c.save(); c.translate(x, y - 1); itemPath(c, 7 * pop); c.fillStyle = done ? '#FFF6C4' : 'rgba(233,169,58,0.55)'; c.fill(); c.restore(); }
+    else { heartPath(c, x, y, 6 * pop); c.fillStyle = done ? '#FFF6C4' : '#E2574C'; c.fill(); }
   }
   // where the team is now
   const h0 = CONFIG.heroes[0], h1 = CONFIG.heroes[1];
-  c.fillStyle = rgba(SHADOW, 0.25); c.beginPath(); c.arc(mx + 2, y + 3, 15, 0, TAU); c.fill();
-  c.fillStyle = h0.color; c.beginPath(); c.arc(mx, y, 14, Math.PI / 2, Math.PI * 1.5); c.fill();
-  c.fillStyle = h1.color; c.beginPath(); c.arc(mx, y, 14, -Math.PI / 2, Math.PI / 2); c.fill();
-  c.strokeStyle = '#FFF8E8'; c.lineWidth = 3.5; c.beginPath(); c.arc(mx, y, 14, 0, TAU); c.stroke();
-  text(c, Math.round(pr.u * 100) + '%', W / 2 + 474, y + 1, 30, '#9A7A6A', { halo: 0, shadow: 0, weight: 'bold' });
+  c.fillStyle = rgba(SHADOW, 0.25); c.beginPath(); c.arc(mx + 2, y + 2, 12, 0, TAU); c.fill();
+  c.fillStyle = h0.color; c.beginPath(); c.arc(mx, y, 11, Math.PI / 2, Math.PI * 1.5); c.fill();
+  c.fillStyle = h1.color; c.beginPath(); c.arc(mx, y, 11, -Math.PI / 2, Math.PI / 2); c.fill();
+  c.strokeStyle = '#FFF8E8'; c.lineWidth = 3; c.beginPath(); c.arc(mx, y, 11, 0, TAU); c.stroke();
+  text(c, Math.round(pr.u * 100) + '%', W / 2 + 432, y + 1, 22, '#8A6A5A', { align: 'left', shadow: 0, weight: 'bold' });
 }
 function drawBadge(c, k, x, y) {
-  const cfg = CONFIG.heroes[k], h = P.heroes[k], s = Input.slots[k], w = 340, hh = 112;
+  const cfg = CONFIG.heroes[k], h = P.heroes[k], s = Input.slots[k], w = 300, hh = 88;
   card(c, x, y, w, hh, '#FFF3DC', 20 + k);
-  c.fillStyle = rgba(cfg.color, 0.95); c.beginPath(); c.arc(x + 62, y + hh / 2, 44, 0, TAU); c.fill();
-  if (k === 1) { c.strokeStyle = cfg.color2; c.lineWidth = 6; c.beginPath(); c.arc(x + 62, y + hh / 2, 44, 0, TAU); c.stroke(); }
+  c.fillStyle = rgba(cfg.color, 0.95); c.beginPath(); c.arc(x + 50, y + hh / 2, 34, 0, TAU); c.fill();
+  if (k === 1) { c.strokeStyle = cfg.color2; c.lineWidth = 5; c.beginPath(); c.arc(x + 50, y + hh / 2, 34, 0, TAU); c.stroke(); }
   const dz = h.dizzy > 0, ps = sprite('port' + k + (dz ? 'd' : ''), 90, 90, cc => {
     cc.beginPath(); cc.arc(45, 45, 41, 0, TAU); cc.clip(); cc.fillStyle = '#FFF3DC'; cc.fillRect(0, 0, 90, 90);
     const pp = (isLupta() ? [[14, 131, 0.8], [43, 128, 0.92]] : [[27, 89, 0.8], [41, 129, 0.9]])[k];      // where the face sits in the round picture
     drawHero(cc, k, pp[0], pp[1], { scale: pp[2], t: 1, dizzy: dz });
   });
-  c.drawImage(ps, x + 17, y + hh / 2 - 45, 90, 90);
-  text(c, cfg.name, x + 122, y + 42, 44, shade(cfg.color, -0.5), { align: 'left', title: true, halo: 0 });
-  if (!s.joined) richText(c, pressLabel(k), x + 122 + 78, y + 82, 28, '#8A6A6A', { halo: 0, shadow: 0, pulse: Math.sin(P.time * 5) });
-  else text(c, T('diff.' + Game.diff[k]), x + 122, y + 82, 28, '#8A6A6A', { align: 'left', halo: 0, shadow: 0 });
-  if (h.boost > 0) drawButterfly(c, x + w - 44, y + 56, P.time, 0.8);
+  c.drawImage(ps, x + 16, y + hh / 2 - 34, 68, 68);
+  text(c, cfg.name, x + 96, y + 34, 36, shade(cfg.color, -0.5), { align: 'left', title: true, halo: 0 });
+  if (!s.joined) richText(c, pressLabel(k), x + 96 + 62, y + 66, 22, '#8A6A6A', { halo: 0, shadow: 0, pulse: Math.sin(P.time * 5) });
+  else text(c, T('diff.' + Game.diff[k]), x + 96, y + 66, 22, '#8A6A6A', { align: 'left', halo: 0, shadow: 0 });
+  if (h.boost > 0) drawButterfly(c, x + w - 32, y + 44, P.time, 0.62);
 }
-function drawHUD(c) {
-  const L = P.L, t = P.time;
-  drawBadge(c, 0, 36, 28); drawBadge(c, 1, W - 36 - 340, 28);
-  const bh = CONFIG.boss.hits, bsp = bh > 3 ? 68 : 86, br = bh > 3 ? 25 : 30;      // the boss goals: smaller circles when there are many
-  const cw = L.boss ? Math.max(560, 320 + bh * bsp) : 660, cx = W / 2 - cw / 2;
-  card(c, cx, 24, cw, 120, '#FFF3DC', 9);
-  const pop = P.comboT > 1.0 ? 1 + (P.comboT - 1.0) * 0.6 : 1;
+/* "We wait for X in the nest": it used to be written in the world, over the nest. Now it is a banner in the band. */
+function waitBanner() {
+  const L = P.L;
+  if (!P.nestOpen || P.done || L.boss || !Input.slots[0].joined || !Input.slots[1].joined) return null;
+  const nr = P.heroes.map(h => dist(h.x, h.y, L.nest.x, L.nest.y) < 185);
+  return nr[0] === nr[1] ? null : { kind: 'wait', t: 2, name: CONFIG.heroes[nr[0] ? 1 : 0].name };
+}
+/* The card in the middle, with what a banner says when there is one. A banner never comes down over the world. */
+function drawMidCard(c, ban) {
+  const L = P.L, t = P.time, y0 = 16, hh = 88, yc = y0 + hh / 2;
+  const bh = CONFIG.boss.hits, bsp = bh > 3 ? 52 : 66, br = bh > 3 ? 18 : 22;      // the boss goals: smaller circles when there are many
+  let cw = L.boss ? Math.max(520, 300 + bh * bsp) : 640;
+  if (ban) cw = Math.max(cw, ban.kind === 'duel' ? 1000 : 880);
+  const cx = W / 2 - cw / 2;
+  const el = ban && ban.max != null ? ban.max - ban.t : 9, pop = ban ? 1 + 0.06 * (1 - clamp(el / 0.2, 0, 1)) : 1;      // the card breathes when a banner comes in
+  if (ban) { c.save(); c.translate(W / 2, yc); c.scale(pop, pop); c.translate(-W / 2, -yc); c.globalAlpha = clamp(Math.min(ban.t, 1), 0, 1); }
+  card(c, cx, y0, cw, hh, ban ? '#FFF6E2' : '#FFF3DC', ban ? 31 : 9);
+  if (ban) {
+    const label = T('ban.' + ban.kind, ban.kind === 'wait' ? ban.name : isLupta() ? CONFIG.lupta.rainbowBonus : '');
+    if (ban.kind === 'duel') {
+      text(c, label, W / 2, y0 + 30, 40, '#C4573D', { title: true, halo: 0 });
+      text(c, T(ban.mid ? 'duel.mid' : 'duel.guard', T('duel.' + ban.id)), W / 2, y0 + 66, 26, '#7A4A52', { halo: 0, shadow: 0, weight: 'bold' });
+    } else {
+      text(c, label, W / 2, yc, 46, '#C4573D', { title: true, halo: 0 });
+      const ex = W / 2 + cw / 2 - 54;                 // the little picture sits at the right edge of the card
+      if (ban.kind === 'more') iconArrow(c, ex + Math.sin(t * 6) * 6, yc, 0, 22, '#F8C24E');
+      if (ban.kind === 'nest' || ban.kind === 'wait') { drawNest(c, ex, yc + 4, 32, 5, 0); iconArrow(c, W / 2 - cw / 2 + 48 + Math.sin(t * 6) * 6, yc, 0, 19, '#F8C24E'); }
+      if (ban.kind === 'giant') drawEgg(c, ex, yc + 18, 19, t, 1, 0, 0, true);
+      if (ban.kind === 'rainbow') for (let i = 0; i < 7; i++) { c.save(); c.translate(W / 2 + (i < 3 ? -cw / 2 + 34 + i * 24 : cw / 2 - 106 + (i - 3) * 24), yc + Math.sin(t * 6 + i) * 4); itemPath(c, 9); c.fillStyle = RAINBOW[i]; c.fill(); c.restore(); }
+    }
+    c.globalAlpha = 1; c.restore();
+    return;
+  }
+  const cpop = P.comboT > 1.0 ? 1 + (P.comboT - 1.0) * 0.6 : 1;
   if (isLupta()) {                         // a crystal, and under the number the seven colors gathered so far (all seven = a rainbow, bonus crystals)
-    c.save(); c.translate(cx + 74, 84); c.scale(pop, pop); drawCrystal(c, 0, 26, 30, 0, 0, 0, (t * 0.7 | 0) % 7); c.restore();
-    for (let i = 0; i < 7; i++) { const on = P.rainbow.indexOf(i) >= 0; c.save(); c.translate(cx + 132 + i * 24, 128); itemPath(c, 8); c.fillStyle = on ? RAINBOW[i] : 'rgba(150,120,140,0.25)'; c.fill(); if (on) { c.strokeStyle = 'rgba(255,255,255,0.8)'; c.lineWidth = 1.5; c.stroke(); } c.restore(); }
-  } else { c.save(); c.translate(cx + 74, 96); c.scale(pop, pop); const g = c.createRadialGradient(-8, -18, 2, 0, -6, 40); g.addColorStop(0, '#FFF6C4'); g.addColorStop(0.5, '#F8CC4E'); g.addColorStop(1, '#E3952F'); c.translate(0, -12); eggPath(c, 30); c.fillStyle = g; c.fill(); c.strokeStyle = 'rgba(190,110,50,0.4)'; c.lineWidth = 3; c.stroke(); c.restore(); }
-  text(c, String(Game.team.eggs), cx + 122, isLupta() ? 76 : 86, isLupta() ? 64 : 72, isLupta() ? '#3F6FB0' : '#B9702E', { align: 'left', halo: 0, weight: 'bold' });
+    c.save(); c.translate(cx + 56, yc - 6); c.scale(cpop, cpop); drawCrystal(c, 0, 19, 22, 0, 0, 0, (t * 0.7 | 0) % 7); c.restore();
+    for (let i = 0; i < 7; i++) { const on = P.rainbow.indexOf(i) >= 0; c.save(); c.translate(cx + 96 + i * 18, y0 + 76); itemPath(c, 6); c.fillStyle = on ? RAINBOW[i] : 'rgba(150,120,140,0.25)'; c.fill(); if (on) { c.strokeStyle = 'rgba(255,255,255,0.8)'; c.lineWidth = 1.2; c.stroke(); } c.restore(); }
+  } else { c.save(); c.translate(cx + 56, yc + 10); c.scale(cpop, cpop); const g = c.createRadialGradient(-6, -13, 2, 0, -4, 29); g.addColorStop(0, '#FFF6C4'); g.addColorStop(0.5, '#F8CC4E'); g.addColorStop(1, '#E3952F'); c.translate(0, -9); eggPath(c, 22); c.fillStyle = g; c.fill(); c.strokeStyle = 'rgba(190,110,50,0.4)'; c.lineWidth = 2.5; c.stroke(); c.restore(); }
+  text(c, String(Game.team.eggs), cx + 90, isLupta() ? yc - 12 : yc, 52, isLupta() ? '#3F6FB0' : '#B9702E', { align: 'left', halo: 0, weight: 'bold' });
   if (L.boss) {
     for (let i = 0; i < bh; i++) {
-      const x = cx + cw - 64 - (bh - 1 - i) * bsp, done = i < P.boss.phase;
-      c.fillStyle = done ? '#F8C24E' : 'rgba(180,140,120,0.3)'; c.beginPath(); c.arc(x, 84, br, 0, TAU); c.fill();
-      if (done) drawBall(c, x, 84, br - 8, 0.4); else { c.strokeStyle = 'rgba(150,110,100,0.5)'; c.lineWidth = 4; c.setLineDash([8, 8]); c.beginPath(); c.arc(x, 84, br - 8, 0, TAU); c.stroke(); c.setLineDash([]); }
+      const x = cx + cw - 50 - (bh - 1 - i) * bsp, done = i < P.boss.phase;
+      c.fillStyle = done ? '#F8C24E' : 'rgba(180,140,120,0.3)'; c.beginPath(); c.arc(x, yc, br, 0, TAU); c.fill();
+      if (done) drawBall(c, x, yc, br - 6, 0.4); else { c.strokeStyle = 'rgba(150,110,100,0.5)'; c.lineWidth = 3; c.setLineDash([6, 6]); c.beginPath(); c.arc(x, yc, br - 6, 0, TAU); c.stroke(); c.setLineDash([]); }
     }
-  } else {
-    c.lineJoin = 'round';
-    for (let i = 0; i < P.stars.length; i++) {
-      const s = P.stars[i], x = cx + 330 + i * 78;
-      starPath(c, x, 78, 30, 0);
-      if (s.got) { c.fillStyle = '#FFE7A0'; c.strokeStyle = '#F4B08E'; c.lineWidth = 6; c.stroke(); c.fill(); } else { c.fillStyle = 'rgba(190,150,130,0.28)'; c.fill(); }
-    }
-    // sun timer: the sun travels toward the hill while the level lasts (second game: the moon travels toward sunrise)
-    const u = clamp(t / CONFIG.levelDuration, 0, 1), x0 = cx + 580, yy = 108;
-    c.strokeStyle = 'rgba(160,120,110,0.4)'; c.lineWidth = 4; c.lineCap = 'round'; c.beginPath(); c.arc(x0, yy, 44, Math.PI, TAU); c.stroke();
-    const a = Math.PI + u * Math.PI; soft(c, x0 + Math.cos(a) * 44, yy + Math.sin(a) * 44, 13, 13, isLupta() ? mix('#E8ECFF', '#FFD86A', u) : mix('#FFD86A', '#EE8A5A', u), 1, 3);
-    if (isLupta()) soft(c, x0 + Math.cos(a) * 44 + 5, yy + Math.sin(a) * 44 - 3, 10, 10, '#FFF3DC', 1 - u, 4);      // a crescent moon that grows into a sun
-    c.fillStyle = isLupta() ? '#6A6FB0' : '#9DB37E'; c.beginPath(); c.ellipse(x0, yy + 8, 56, 12, 0, Math.PI, TAU); c.fill();
-    drawProgress(c);
+    return;
   }
-  if (P.banner) {
-    const b = P.banner, a = clamp(Math.min(b.t, 1), 0, 1), y = (L.boss ? 232 : 306) + (1 - easeOut(a)) * -40;
-    c.globalAlpha = a;
-    const label = T('ban.' + b.kind, isLupta() ? CONFIG.lupta.rainbowBonus : '');
-    if (b.kind === 'duel') {
-      card(c, W / 2 - 480, y - 62, 960, 176, '#FFF6E2', 33);
-      text(c, label, W / 2, y - 6, 64, '#C4573D', { title: true, halo: 0 });
-      text(c, T(b.mid ? 'duel.mid' : 'duel.guard', T('duel.' + b.id)), W / 2, y + 66, 40, '#7A4A52', { halo: 0, shadow: 0, weight: 'bold' });
-    } else {
-    card(c, W / 2 - 330, y - 56, 660, 112, '#FFF6E2', 31);
-    text(c, label, W / 2 - 10, y, 60, '#C4573D', { title: true, halo: 0 });
-    if (b.kind === 'more') iconArrow(c, W / 2 + 240 + Math.sin(t * 6) * 8, y, 0, 30, '#F8C24E');
-    if (b.kind === 'nest') { drawNest(c, W / 2 + 232, y + 4, 44, 5, 0); iconArrow(c, W / 2 - 250 + Math.sin(t * 6) * 8, y, 0, 26, '#F8C24E'); }
-    if (b.kind === 'giant') drawEgg(c, W / 2 + 250, y + 26, 26, t, 1, 0, 0, true);
-    if (b.kind === 'rainbow') for (let i = 0; i < 7; i++) { c.save(); c.translate(W / 2 + (i < 3 ? -300 + i * 30 : 215 + (i - 3) * 30), y + Math.sin(t * 6 + i) * 5); itemPath(c, 11); c.fillStyle = RAINBOW[i]; c.fill(); c.restore(); }
-    }
-    c.globalAlpha = 1;
+  c.lineJoin = 'round';
+  for (let i = 0; i < P.stars.length; i++) {
+    const s = P.stars[i], x = cx + 274 + i * 56;
+    starPath(c, x, yc - 2, 24, 0);
+    if (s.got) { c.fillStyle = '#FFE7A0'; c.strokeStyle = '#F4B08E'; c.lineWidth = 5; c.stroke(); c.fill(); } else { c.fillStyle = 'rgba(190,150,130,0.28)'; c.fill(); }
   }
+  // sun timer: the sun travels toward the hill while the level lasts (second game: the moon travels toward sunrise)
+  const u = clamp(t / CONFIG.levelDuration, 0, 1), x0 = cx + 496, yy = y0 + 72;
+  c.strokeStyle = 'rgba(160,120,110,0.4)'; c.lineWidth = 3.5; c.lineCap = 'round'; c.beginPath(); c.arc(x0, yy, 34, Math.PI, TAU); c.stroke();
+  const a = Math.PI + u * Math.PI; soft(c, x0 + Math.cos(a) * 34, yy + Math.sin(a) * 34, 10, 10, isLupta() ? mix('#E8ECFF', '#FFD86A', u) : mix('#FFD86A', '#EE8A5A', u), 1, 3);
+  if (isLupta()) soft(c, x0 + Math.cos(a) * 34 + 4, yy + Math.sin(a) * 34 - 2, 8, 8, '#FFF3DC', 1 - u, 4);      // a crescent moon that grows into a sun
+  c.fillStyle = isLupta() ? '#6A6FB0' : '#9DB37E'; c.beginPath(); c.ellipse(x0, yy + 6, 44, 9, 0, Math.PI, TAU); c.fill();
+}
+function drawHUD(c) {
+  drawBadge(c, 0, 28, 16); drawBadge(c, 1, W - 28 - 300, 16);
+  drawMidCard(c, P.banner || waitBanner());
+  if (!P.L.boss) drawProgress(c);
 }
 function drawPlay(c) {
   const v = drawWorld(c);

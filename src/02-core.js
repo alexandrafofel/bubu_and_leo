@@ -101,6 +101,12 @@ function brushLine(c, pts, width, col, alpha, seed) {
 }
 
 function makeCanvas(w, h) { const cv = document.createElement('canvas'); cv.width = w; cv.height = h; return cv; }
+/* The colour of the very first pixel of a painting: the sky at the top. Used to fill the strip above the world
+   when the camera looks a little higher than the painting goes (docs/24-sisteme-noi.md, S6). */
+function topColor(cv) {
+  try { const d = cv.getContext('2d').getImageData(0, 0, 1, 1).data; return 'rgb(' + d[0] + ',' + d[1] + ',' + d[2] + ')'; }
+  catch (e) { return '#CFE4F2'; }
+}
 
 /* Paper: noise-generated grain, soft blotches and a few fibers. Multiplied over the whole screen. */
 let PAPER = null;

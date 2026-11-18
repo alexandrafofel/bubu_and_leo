@@ -695,7 +695,7 @@ function updatePlay(dt) {
       if (sep > 1200) { h.farT = (h.farT || 0) + dt; if (h.farT > 5) { h.farT = 0; h.wasFar = true; Snd.talk(h.k, 'callFriend'); } }
       else { h.farT = 0; if (h.wasFar && sep < 250) { h.wasFar = false; Snd.talk(h.k, 'together'); } }
     } }
-  if (P.banner) { P.banner.t -= dt; if (P.banner.t <= 0) P.banner = null; }
+  if (P.banner) { if (P.banner.max == null) P.banner.max = P.banner.t; P.banner.t -= dt; if (P.banner.t <= 0) P.banner = null; }      // max: how long it lasts, so the card can breathe when it comes in
   // wind
   const w = P.wind;
   if (L.def.wind) {
@@ -784,12 +784,22 @@ function updatePlay(dt) {
   // particles and rings
   stepParts(dt);
   for (let i = P.rings.length - 1; i >= 0; i--) { P.rings[i].t += dt; if (P.rings[i].t > 0.55) P.rings.splice(i, 1); }
-  // camera: keep both heroes on screen, zoom out when they are far apart
-  const a = P.heroes[0], b2 = P.heroes[1], cam = P.cam;
-  let tz = Math.min(1, W / (Math.abs(a.x - b2.x) + 760), H / (Math.abs(a.y - b2.y) + 560)); tz = clamp(tz, L.minZoom, 1);
-  cam.zoom += (tz - cam.zoom) * Math.min(1, dt * 2.5);
-  const vw = W / cam.zoom, vh = H / cam.zoom;
-  const tx = clamp((a.x + b2.x) / 2, vw / 2, L.W - vw / 2), ty = clamp((a.y + b2.y) / 2 - 30, vh / 2, L.H - vh / 2);
-  cam.x += (tx - cam.x) * Math.min(1, dt * 4); cam.y += (ty - cam.y) * Math.min(1, dt * 4);
-  cam.x = clamp(cam.x, vw / 2, L.W - vw / 2); cam.y = clamp(cam.y, vh / 2, L.H - vh / 2);
+  // camera: keep both heroes on screen, under the band at the top, and zoom out when they are far apart
+  const a = P.heroes[0], b2 = P.heroes[1], cam = P.cam, tgt = camTarget(L, a, b2);
+  cam.zoom += (tgt.zoom - cam.zoom) * Math.min(1, dt * 2.5);
+  const vw = W / cam.zoom, vh = H / cam.zoom, lo = vh / 2 - (HUD_TOP + 20) / cam.zoom;
+  cam.x += (tgt.x - cam.x) * Math.min(1, dt * 4); cam.y += (tgt.y - cam.y) * Math.min(1, dt * 4);
+  cam.x = clamp(cam.x, vw / 2, L.W - vw / 2); cam.y = clamp(cam.y, lo, Math.max(lo, L.H - vh / 2));
+}
+/* Where the camera wants to be for two heroes: no side effects, so a test can ask the game itself.
+   Rules: both heroes on screen; nothing of a hero (name included) above the band at the top (HUD_TOP, 08-draw.js);
+   the camera may look up to HUD_TOP + 20 screen pixels above the top edge of the world, and that strip is painted sky. */
+function camTarget(L, a, b) {
+  const safe = HUD_TOP + 20, z = clamp(Math.min(1, W / (Math.abs(a.x - b.x) + 760), (H - safe) / (Math.abs(a.y - b.y) + 560)), L.minZoom, 1);
+  const vw = W / z, vh = H / z;
+  const cap = Math.min(a.y, b.y) - HERO_BOX + (H / 2 - HUD_TOP - 4) / z;        // the highest the camera may look: the top hero stays under the band
+  const hi = Math.min(L.H - vh / 2, cap);                                       // never look below the bottom edge of the world
+  const lo = Math.max(Math.min(vh / 2, Math.max(vh / 2 - safe / z, cap)),       // the world's top edge, left only as far as the band asks
+    Math.min(hi, Math.max(a.y, b.y) - (H / 2 - 10) / z));                       // and, when it fits, the lower hero keeps its feet on screen
+  return { x: clamp((a.x + b.x) / 2, vw / 2, L.W - vw / 2), y: clamp((a.y + b.y) / 2 - 30 - safe / 2 / z, lo, Math.max(lo, hi)), zoom: z };
 }
