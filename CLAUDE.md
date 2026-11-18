@@ -4,14 +4,14 @@ Acest fisier este pentru orice asistent care lucreaza la joc. Citeste-l primul.
 
 ## Ce este proiectul
 
-Doua jocuri HTML in acelasi fisier, pentru doi copii (6 si 8 ani), cooperative, cu doua controllere DualShock 4 pe Mac in Chrome. Fara nimic extern.
+Un joc HTML, pentru doi copii (6 si 8 ani), cooperative, cu doua controllere DualShock 4 pe Mac in Chrome. Fara nimic extern.
 
-- "Bubu și Leo: Ouăle de Aur": primul joc. Detalii in `docs/01-prezentare.md`.
-- "Cea mai grea luptă": inventat de copii (Boon, Killer, George cel Rău, jungla de noapte). Detalii in `docs/21-cea-mai-grea-lupta.md`.
+- "Cea mai grea luptă": jocul inventat de copii (Boon, Killer, George cel Rău, jungla de noapte). **Singurul joc.** Detalii in `docs/21-cea-mai-grea-lupta.md`.
+- "Bubu și Leo: Ouăle de Aur" a fost scos pe 18 noiembrie 2026 (`docs/16-decizii.md`, "Un singur joc"). **Nu se mai modifica nimic pentru el.** Codul lui (`GAME_BASE`, ramurile `!isLupta()`, `LEVEL_DEFS`, `drawBubu`, `drawLeo`...) a ramas in `src/`, nefolosit; la o curatare se poate sterge. Capitolele din `docs/` scrise despre el sunt istorice.
 
-La pornire se alege unul. Amandoua folosesc acelasi cod si aceleasi reguli. Ce le deosebeste e hotarat de `GAME` (`'bubu'` sau `'lupta'`). Ultimul update, pe puncte: `docs/22-update-14-noiembrie.md`.
+`GAME` este mereu `'lupta'`. Ultimul update, pe puncte: `docs/22-update-14-noiembrie.md`.
 
-Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece secunde, capitole) este specificat, nu implementat, in `docs/23-update-partea-a-doua.md`, `docs/24-sisteme-noi.md` si `docs/25-niveluri-7-12.md`, iar limba personajelor (cam 1000 de cuvinte pe erou) in `docs/26-limba-personajelor.md`, iar cota de oua / cristale pe erou (L1 da un ou prietenului) in `docs/27-cota-de-oua.md`. Regulile de mai jos descriu jocul de acum. Cele care se schimba cu acel update sunt aratate in `docs/23-update-partea-a-doua.md`, sectiunea 6, si se rescriu aici abia cand sarcina lor e gata. Update-ul e impartit in 14 sarcini, cu cate un prompt pentru fiecare, in `prompts/06-prompt-partea-a-doua.md`. Facute: T5 (capitole) si T1 (banda de sus), amandoua pe 18 noiembrie 2026.
+Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece secunde, capitole) este specificat, nu implementat, in `docs/23-update-partea-a-doua.md`, `docs/24-sisteme-noi.md` si `docs/25-niveluri-7-12.md`, iar limba personajelor (cam 1000 de cuvinte pe erou) in `docs/26-limba-personajelor.md`, iar cota de oua / cristale pe erou (L1 da un ou prietenului) in `docs/27-cota-de-oua.md`. Regulile de mai jos descriu jocul de acum. Cele care se schimba cu acel update sunt aratate in `docs/23-update-partea-a-doua.md`, sectiunea 6, si se rescriu aici abia cand sarcina lor e gata. Update-ul e impartit in 14 sarcini (se implementeaza doar in "Cea mai grea luptă"; ce spun specificatiile despre "ambele jocuri" sau despre primul joc nu se mai aplica), cu cate un prompt pentru fiecare, in `prompts/06-prompt-partea-a-doua.md`. Facute: T5 (capitole) si T1 (banda de sus), amandoua pe 18 noiembrie 2026.
 
 ## Regulile care nu se schimba fara acordul proprietarei
 
@@ -23,7 +23,7 @@ Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece sec
 6. Jocul nu se termina niciodata cu "Game Over". Un erou lovit scapa un ou, care poate fi luat inapoi, si asteapta pe loc pana il ajuta prietenul cu □. Nimeni nu ramane blocat: un copil care joaca singur se ridica singur, iar daca amandoi sunt loviti se ridica amandoi dupa cateva secunde.
 7. Totul se reglaza din `CONFIG` (`src/01-config.js`) cand se poate. Valori noi de reglaj se adauga acolo, cu un comentariu.
 8. Controalele: stick stanga sau D-pad pentru mers, ✕ pentru putere, □ pentru a ajuta prietenul, OPTIONS pentru pauza. Zona moarta a stick-ului minimum 0.25.
-9. Orice regula de joc e aceeasi in ambele jocuri. Al doilea joc are aceleasi caracteristici ca primul, dar altele: 6 niveluri + lupta finala, peste 10.000 de elemente, minimum 30 de cuvinte pe erou, niciunul la fel cu ale primului joc.
+9. Exista un singur joc, "Cea mai grea luptă": 6 niveluri + lupta finala, peste 10.000 de elemente, minimum 30 de cuvinte pe erou. Toate schimbarile se fac doar in el. Nu adauga cod nou pentru Bubu si Leo si nu mai face ramuri pentru doua jocuri.
 10. Nivelul se termina doar cand amandoi jucatorii sunt in cuib.
 
 ## Cum lucrezi
@@ -31,7 +31,7 @@ Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece sec
 1. Modifici doar fisierele din `src/`. Fisierul din `game/` se genereaza.
 2. Rulezi `./build.sh`. Scriptul lipeste fisierele in ordinea din `FILES` si verifica sintaxa cu `node --check`.
 3. Rulezi `node tools/gen-docs.js`. Anexele din `docs/anexe/` se refac din cod.
-4. Rulezi testele relevante din `tests/` (vezi `docs/17-testare.md`), pentru ambele jocuri. Minimum: `joc-complet-bot.js`, `controller-simulat.js`, `setari-ui.js`, fiecare cu `JOC=bubu` si cu `JOC=lupta`. Toate trebuie sa termine cu `errors 0` si fara `NEREUSIT`. `tests/toate.sh` le ruleaza pe toate.
+4. Rulezi testele relevante din `tests/` (vezi `docs/17-testare.md`), pentru joc. Minimum: `joc-complet-bot.js`, `controller-simulat.js`, `setari-ui.js`. Toate trebuie sa termine cu `errors 0` si fara `NEREUSIT`. `tests/toate.sh` le ruleaza pe toate.
 5. Te uiti la capturi de ecran (`capturi-ecran.js`) dupa orice schimbare vizuala.
 6. Actualizezi capitolul din `docs/` care descrie partea schimbata. Daca schimbarea este o decizie noua, o adaugi in `docs/16-decizii.md` cu motivul.
 
@@ -47,7 +47,7 @@ Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece sec
 | Cum arata personajele si obiectele | `src/05-chars.js` | `docs/08-personaje.md` |
 | Cum arata Boon, Killer, George si lumea lor | `src/055-lupta.js` | `docs/21-cea-mai-grea-lupta.md` |
 | Ajutorul cu □, inamicii mici, cuibul | `src/07-play.js`, `CONFIG.rescue`, `CONFIG.smallEnemy` | `docs/10-gameplay.md`, `docs/22-update-14-noiembrie.md` |
-| Ecranul "Alege jocul", `setGame` | `src/09-screens.js` | `docs/13-ecrane-si-meniuri.md` |
+| Ecranul de start, `setGame` (acum fixeaza jocul) | `src/09-screens.js` | `docs/13-ecrane-si-meniuri.md` |
 | Capitolele, meniul de start, salvarea (`chapters`, `Save.finish`) | `src/06-level.js`, `src/09-screens.js`, `src/10-main.js` | `docs/13-ecrane-si-meniuri.md` |
 | Nivelurile si generarea lor | `src/06-level.js` | `docs/09-niveluri.md` |
 | Regulile jocului, puterile, inamicii, boss-ul | `src/07-play.js` | `docs/10-gameplay.md` |
@@ -71,7 +71,7 @@ Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece sec
 - Chrome nu accepta un buton de controller ca gest pentru ecran complet sau pentru pornirea sunetului. Trebuie o tasta sau un clic.
 - `CONFIG.heroes`, `CONFIG.villainName` si `CONFIG.boss` se schimba cand se schimba jocul. Eroii primului joc sunt mereu in `GAME_BASE`. Pentru Boon si Killer reglezi `CONFIG.lupta.heroes`.
 - Un text care vorbeste de oua, de Ciori sau de cuib are nevoie si de varianta `'L:cheie'` pentru al doilea joc.
-- Testele pornesc pe ecranul "Alege jocul". `tests/common.js` alege jocul din variabila `JOC`. Ruleaza-le din `tests/out/`, ca acolo raman capturile.
+- Testele pornesc pe ecranul de start (nu mai exista "Alege jocul"). `tests/common.js` porneste jocul. Variabila `JOC` e ignorata. Ruleaza-le din `tests/out/`, ca acolo raman capturile.
 - Testele de sunet si de viteza se ruleaza singure, fara alt test in acelasi timp.
 - Testele ruleaza in Chrome fara placa video (SwiftShader). Timpii de cadru masurati acolo sunt mai mari decat pe un Mac real.
 

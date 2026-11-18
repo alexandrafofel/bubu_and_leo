@@ -1,10 +1,10 @@
-# Bubu si Leo: Ouale de Aur + Cea mai grea lupta
+# Cea mai grea lupta
 
-Doua jocuri video cooperative, intr-un singur fisier, pentru doi frati de 6 si 8 ani. Se joaca pe un Mac, in Google Chrome, cu doua controllere PlayStation 4 (DualShock 4) sau cu tastatura.
-
-Bubu este un pui de dinozaur. Leo este un mic fotbalist. Cioara Ciori a furat ouale de aur si le-a imprastiat prin Valea Calda. Cei doi le aduna inainte de apus, trec prin sase niveluri si il prind pe Ciori in cuibul lui.
+Un joc video cooperativ, intr-un singur fisier, pentru doi frati de 6 si 8 ani. Se joaca pe un Mac, in Google Chrome, cu doua controllere PlayStation 4 (DualShock 4) sau cu tastatura.
 
 "Cea mai grea lupta" este jocul inventat de copii. Boon, un dinozaur cu gheare care se invart, si Killer, un fotbalist cu tricoul 10, aduna cristale curcubeu printr-o jungla de noapte, ca sa le dea cadou la o petrecere. Pe fiecare nivel ii asteapta George cel Rau, un dinozaur cu coroana, din ce in ce mai mare. Personajele sunt pictate dupa desenele copiilor.
+
+Jocul "Bubu si Leo: Ouale de Aur" (primul joc) a fost scos pe 18 noiembrie 2026. Orice schimbare se face doar in "Cea mai grea lupta".
 
 Totul este intr-un singur fisier HTML. Nu are imagini, sunete sau biblioteci externe. Desenele sunt pictate cu cod pe canvas. Muzica si sunetele sunt generate cu Web Audio. Merge fara internet.
 
@@ -13,7 +13,7 @@ Totul este intr-un singur fisier HTML. Nu are imagini, sunete sau biblioteci ext
 1. Descarca `game/bubu-si-leo-ouale-de-aur.html`.
 2. Trage fisierul intr-o fereastra Google Chrome.
 3. Fa clic o data pe ecran. Chrome porneste sunetul si ecranul complet doar dupa un clic sau o tasta.
-4. Alege jocul: stanga sau dreapta, apoi ✕ sau Enter.
+4. Apare ecranul de start. Fiecare apasa ✕ (sau tasta lui de putere) ca sa intre in joc.
 5. Fiecare jucator apasa ✕ pe controllerul lui. Fara controller: primul erou cu W A S D si Spatiu, al doilea cu sagetile si Enter.
 6. Stanga si dreapta aleg dificultatea. ✕ inseamna "Gata!".
 
@@ -33,7 +33,7 @@ Setarile se deschid cu OPTIONS pe controller, cu tasta P sau cu clic pe butonul 
 | `docs/` | Documentatia completa. Incepe cu `docs/00-cuprins.md`. |
 | `docs/anexe/` | Liste generate automat din cod: toate functiile, culorile, textele, sunetele, valorile din CONFIG. |
 | `tools/gen-docs.js` | Scriptul care genereaza anexele. |
-| `tests/` | Testele automate (Chrome fara fereastra, cu boti si controllere simulate). `tests/toate.sh` le ruleaza pe toate, pentru ambele jocuri. |
+| `tests/` | Testele automate (Chrome fara fereastra, cu boti si controllere simulate). `tests/toate.sh` le ruleaza pe toate, pentru joc. |
 | `prompts/` | Cererile originale, cuvant cu cuvant, si promptul pentru urmatorul update (`06-prompt-partea-a-doua.md`). |
 | `CLAUDE.md` | Instructiuni pentru orice cont Claude care modifica jocul. |
 

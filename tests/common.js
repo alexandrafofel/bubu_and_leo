@@ -1,7 +1,7 @@
 const { chromium } = require('./pw.js');
 /* boot(opts): opens the game in a headless Chrome, clicks once (sound), and (unless opts.manual === false)
-   chooses a game and replaces Input.poll so the test decides what the players press.
-   opts.game: 'bubu' or 'lupta'. Without it the environment variable JOC decides (default 'bubu'). */
+   starts the game and replaces Input.poll so the test decides what the players press.
+   opts.game: always 'lupta' (the only game). */
 module.exports = async function boot(opts = {}) {
   const browser = await chromium.launch({ executablePath: require('./pw.js').chrome, headless: true, args: ['--no-sandbox'] });
   const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
@@ -17,7 +17,7 @@ module.exports = async function boot(opts = {}) {
       const G = __game, I = G.Input, orig = I.poll; window.inp = [{}, {}]; window.joined = [true, true];
       I.poll = function (dt) { orig(dt); const S = I.slots; for (let k = 0; k < 2; k++) { const s = S[k], b = inp[k]; s.joined = joined[k]; if (b.x != null) { s.x = b.x; s.y = b.y; } if (b.aP) { s.aP = true; b.aP = false; } if (b.a) s.a = true; if (b.aR) { s.aR = true; b.aR = false; } if (b.bP) { s.bP = true; b.bP = false; } } if (inp.pause) { I.pause = true; inp.pause = false; } };
       window.step = (n) => { for (let i = 0; i < n; i++) { I.poll(1 / 60); G.update(1 / 60); } G.draw(); };
-      step(2);                                   // boot -> the screen with the two games
+      step(2);                                   // boot -> the title screen
       G.setGame(game); G.Game.toTitle(); step(2);
       window.go = (i) => { G.Game.team = { eggs: 12 * i, stars: i }; G.Game.goLevel(i); step(5); G.UI.introT = 2; inp[0].aP = true; step(3); };
     }, game);

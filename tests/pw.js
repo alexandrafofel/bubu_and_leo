@@ -1,7 +1,7 @@
 /* Shared settings for every test script.
    PLAYWRIGHT  path of the playwright package (default: the normal require)
    CHROME      path of a Chrome or Chromium binary (default: the one Playwright installed)
-   JOC         which of the two games the test plays: bubu (default) or lupta
+   JOC         ignored: there is one game, lupta
    The game file is always ../game/bubu-si-leo-ouale-de-aur.html. Run ./build.sh first. */
 const path = require('path');
 let pw;
@@ -9,6 +9,6 @@ try { pw = require(process.env.PLAYWRIGHT || 'playwright'); } catch (e) { throw 
 module.exports = {
   chromium: pw.chromium,
   chrome: process.env.CHROME || undefined,
-  game: process.env.JOC === 'lupta' ? 'lupta' : 'bubu',
+  game: 'lupta',      // singurul joc (Bubu si Leo a fost scos pe 18 noiembrie 2026)
   url: 'file://' + path.resolve(__dirname, '../game/bubu-si-leo-ouale-de-aur.html')
 };

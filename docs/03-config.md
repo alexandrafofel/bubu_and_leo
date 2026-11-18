@@ -1,5 +1,7 @@
 # 03. CONFIG
 
+> **Din 18 noiembrie 2026 exista un singur joc: "Cea mai grea luptă".** "Bubu și Leo" a fost scos (vezi `16-decizii.md`, "Un singur joc"). Orice schimbare se face doar in "Cea mai grea luptă". Ce scrie mai jos despre primul joc, despre alegerea jocului sau despre "ambele jocuri" este istoric.
+
 `CONFIG` este primul lucru din cod (`src/01-config.js`). A fost cerut explicit: "Put a CONFIG object at the top of the code ... so I can easily make changes the kids ask for". Aici sunt toate valorile care se pot schimba fara sa intelegi restul codului.
 
 Dupa o schimbare: salvezi, rulezi `./build.sh`, reincarci pagina. Daca modifici direct fisierul din `game/` (fara build), cauti `const CONFIG = {` la inceputul scriptului. Merge si asa, dar schimbarea se pierde la urmatorul build.

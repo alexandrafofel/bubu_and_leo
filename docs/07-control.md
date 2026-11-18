@@ -12,7 +12,7 @@ Cererea: Gamepad API, "standard mapping". Cu aceasta mapare, butoanele DualShock
 | Buton | Index | Ce face in joc |
 |---|---|---|
 | ✕ | 0 | Puterea, OK in meniuri, "Gata!" |
-| ○ | 1 | Inapoi in meniuri. Pe ecranul de start: inapoi la "Alege jocul". |
+| ○ | 1 | Inapoi in meniuri. Pe ecranul de start nu face nimic (nu mai exista "Alege jocul"). |
 | □ | 2 | Ajuta prietenul lovit (`bP`). De la update-ul din 14 noiembrie. |
 | △ | 3 | Schimba personajele pe ecranul de start |
 | OPTIONS | 9 | Pauza, deschide sau inchide Setari |

@@ -4,7 +4,7 @@
 
 Fiecare functie, functie sageata si metoda din cod, in ordinea din fisier. Coloana "Comentariul din cod" este textul scris chiar langa functie. Explicatiile pe larg sunt in capitolele din docs/.
 
-Total: 482 intrari.
+Total: 478 intrari.
 
 ## 01-config.js
 
@@ -16,12 +16,12 @@ Nicio functie.
 |---|---|---|---|
 | 8 | `isLupta()` | functie sageata |  |
 | 12 | `applyGameConfig()` | functie | Puts the chosen game's own heroes, villain and boss values into CONFIG. |
-| 14 | `TG(id, k, ...a)` | functie | A text of one of the two games, whichever game is being played (for the screen where the game is chosen). |
-| 25 | `playerOf(k)` | functie sageata | which player (0 or 1) plays hero k |
-| 210 | `T(k, a, b)` | functie | T('key') gives the text in the chosen language. {0} and {1} are filled in from the extra arguments. In the second game a text with the key 'L:key' takes the place of 'key' (its own title, its own words for crystals...). |
-| 218 | `lvlName(def)` | functie sageata | {0} = how many goals the boss needs |
-| 219 | `eggWord(n)` | functie sageata |  |
-| 221 | `keyName(code)` | functie | Readable name of a keyboard key, for the "choose the keys" screen. |
+| 15 | `TG(id, k, ...a)` | functie | A text of one of the two games, whichever game is being played (for the screen where the game is chosen). |
+| 26 | `playerOf(k)` | functie sageata | which player (0 or 1) plays hero k |
+| 211 | `T(k, a, b)` | functie | T('key') gives the text in the chosen language. {0} and {1} are filled in from the extra arguments. In the second game a text with the key 'L:key' takes the place of 'key' (its own title, its own words for crystals...). |
+| 219 | `lvlName(def)` | functie sageata | {0} = how many goals the boss needs |
+| 220 | `eggWord(n)` | functie sageata |  |
+| 222 | `keyName(code)` | functie | Readable name of a keyboard key, for the "choose the keys" screen. |
 
 ## 02-core.js
 
@@ -466,72 +466,69 @@ Nicio functie.
 | 123 | `paintMeadowScene(skyT, horizon, seed)` | functie |  |
 | 142 | `paintJungleScene(horizon, seed)` | functie | The backdrop of the second game: the jungle at night, under the moon and the northern lights. |
 | 160 | `titleBackdrop(id)` | functie | The start-screen backdrop of each game is painted once, the first time it is needed. |
-| 165 | `setGame(id)` | functie | Chooses which of the two games is played: its heroes, villain and boss values, its texts, pictures, music and progress. |
+| 165 | `setGame(id)` | functie | Sets up the game (the second game is the only one now): its heroes, villain and boss values, its texts, pictures, music and progress. |
 | 172 | `initScreens()` | functie |  |
 | 175 | `drawBackdrop(c, cv)` | functie |  |
 | 176 | `prompt(c, str, x, y, size, t)` | functie |  |
 | 180 | `drawBoot(c, t)` | functie | ---------- boot + title ---------- |
-| 190 | `updateSelect(dt)` | functie | ---------- the first screen: which of the two games? ---------- |
-| 199 | `drawSelect(c, t)` | functie |  |
-| 219 | `bob(q)` | functie sageata |  |
-| 235 | `titleMenu()` | functie | The buttons under the heroes: "Continue: ...", "Chapters", "New game". At the very first start only one, and it says "Start!". |
-| 243 | `titleGo()` | functie | What the chosen button does, once every player who joined is "Ready!". |
-| 252 | `askYesNo(title, sub, yes, ok)` | functie | A small yes / no question over the start screen or the pause. "No" is the one shown first, so a child who keeps pressing ✕ cannot erase anything by chance. ○ or Backspace also say no. |
-| 253 | `askRows()` | functie |  |
-| 254 | `updateAsk()` | functie |  |
-| 255 | `drawAsk(c, t)` | functie |  |
-| 256 | `updateTitle(dt)` | functie |  |
-| 280 | `drawGear(c, x, y, r, col, t)` | functie |  |
-| 287 | `drawTitle(c, t)` | functie |  |
-| 353 | `chapterLayout()` | functie |  |
-| 363 | `Game.toChapters()` | functie |  |
-| 370 | `updateChapters(dt)` | functie |  |
-| 375 | `move(row, col)` | functie sageata |  |
-| 388 | `chapterPic(i, ch)` | functie | the little picture at the top of a card: the level's sky and ground and the three pictures of its story card. Painted once. |
-| 401 | `drawCrownIcon(c, x, y, s)` | functie |  |
-| 410 | `drawPadlock(c, x, y, s)` | functie |  |
-| 419 | `drawChapterCard(c, i, ch, p, t, open)` | functie |  |
-| 449 | `drawChapters(c, t)` | functie |  |
-| 461 | `drawIntroIcon(c, kind, x, y, t, Lx)` | functie | ---------- level story card ---------- |
-| 482 | `drawIntroIconL(c, kind, x, y, t, Lx)` | functie | The pictures on the story card of the second game. Returns false for a picture that is the same in both games. |
-| 500 | `drawDim(c, a)` | functie |  |
-| 501 | `drawIntro(c, t)` | functie |  |
-| 513 | `drawLoading(c, t)` | functie |  |
-| 520 | `levelMedals()` | functie | Three little medals give the bigger player something extra to aim for. |
-| 521 | `drawMedal(c, i, x, y, got, t)` | functie |  |
-| 536 | `drawLevelEnd(c, t)` | functie |  |
-| 568 | `menuNav(o, key, rows)` | functie | ---------- menus: pause and settings ---------- A menu is a list of rows. A row is one of: go { label, ok() } a button opt { label, value, chg(dir) } a choice, changed with left / right (or OK) slide { label, v, chg(dir), set(v) } a volume slider, 0 to 1 text { label } a line of text, cannot be chosen |
-| 583 | `drawMenu(c, t, title, rows, sel, o)` | functie |  |
-| 623 | `pauseRows()` | functie | ---------- pause ---------- |
-| 624 | `leave(go)` | functie sageata |  |
-| 633 | `resumeGame()` | functie |  |
-| 634 | `updatePause()` | functie |  |
-| 640 | `drawPause(c, t)` | functie |  |
-| 647 | `openSettings()` | functie | ---------- settings ---------- |
-| 651 | `closeSettings()` | functie |  |
-| 655 | `setMsg(m)` | functie |  |
-| 656 | `setPage(page, p)` | functie |  |
-| 657 | `settingsBack()` | functie |  |
-| 661 | `toggleFullscreen()` | functie |  |
-| 669 | `findSpeakers(k)` | functie |  |
-| 686 | `pickSpeaker(k, d)` | functie |  |
-| 698 | `captureKey(k, f)` | functie |  |
-| 711 | `settingsRows()` | functie |  |
-| 713 | `vol(label, id, test)` | functie sageata |  |
-| 753 | `updateSettings(dt)` | functie |  |
-| 766 | `drawPadTester(c, x, y, g, t)` | functie |  |
-| 768 | `b(n)` | functie sageata |  |
-| 793 | `drawPadBody(c, x, y, cw, k, t)` | functie |  |
-| 795 | `step(n, yy, done, label, w)` | functie sageata |  |
-| 800 | `small(str, yy, col)` | functie sageata |  |
-| 813 | `drawSettings(c, t)` | functie |  |
-| 826 | `restoreSpeakers(ask)` | functie | Chrome only tells the names of the speakers while it has the microphone permission, and for a page opened from a file it forgets that permission when the page is closed. So when the saved speaker is not in the list, the question is asked again (ask = true). If the speaker is still not there, the start screen says so: the sounds are then on the computer. |
-| 838 | `startEnding()` | functie | ---------- the Sunset Festival ---------- |
-| 867 | `updateEnding(dt)` | functie |  |
-| 886 | `drawEndingL(c, t)` | functie | The end of the second game: the Rainbow Party. The crystals are the present, the heroes get medals, and little stars fly in and hug them. |
-| 891 | `bob(k)` | functie sageata |  |
-| 945 | `drawEnding(c, t)` | functie |  |
-| 951 | `bob(k)` | functie sageata |  |
+| 189 | `titleMenu()` | functie | The buttons under the heroes: "Continue: ...", "Chapters", "New game". At the very first start only one, and it says "Start!". |
+| 197 | `titleGo()` | functie | What the chosen button does, once every player who joined is "Ready!". |
+| 206 | `askYesNo(title, sub, yes, ok)` | functie | A small yes / no question over the start screen or the pause. "No" is the one shown first, so a child who keeps pressing ✕ cannot erase anything by chance. ○ or Backspace also say no. |
+| 207 | `askRows()` | functie |  |
+| 208 | `updateAsk()` | functie |  |
+| 209 | `drawAsk(c, t)` | functie |  |
+| 210 | `updateTitle(dt)` | functie |  |
+| 233 | `drawGear(c, x, y, r, col, t)` | functie |  |
+| 240 | `drawTitle(c, t)` | functie |  |
+| 303 | `chapterLayout()` | functie |  |
+| 313 | `Game.toChapters()` | functie |  |
+| 320 | `updateChapters(dt)` | functie |  |
+| 325 | `move(row, col)` | functie sageata |  |
+| 338 | `chapterPic(i, ch)` | functie | the little picture at the top of a card: the level's sky and ground and the three pictures of its story card. Painted once. |
+| 351 | `drawCrownIcon(c, x, y, s)` | functie |  |
+| 360 | `drawPadlock(c, x, y, s)` | functie |  |
+| 369 | `drawChapterCard(c, i, ch, p, t, open)` | functie |  |
+| 399 | `drawChapters(c, t)` | functie |  |
+| 411 | `drawIntroIcon(c, kind, x, y, t, Lx)` | functie | ---------- level story card ---------- |
+| 432 | `drawIntroIconL(c, kind, x, y, t, Lx)` | functie | The pictures on the story card of the second game. Returns false for a picture that is the same in both games. |
+| 450 | `drawDim(c, a)` | functie |  |
+| 451 | `drawIntro(c, t)` | functie |  |
+| 463 | `drawLoading(c, t)` | functie |  |
+| 470 | `levelMedals()` | functie | Three little medals give the bigger player something extra to aim for. |
+| 471 | `drawMedal(c, i, x, y, got, t)` | functie |  |
+| 486 | `drawLevelEnd(c, t)` | functie |  |
+| 518 | `menuNav(o, key, rows)` | functie | ---------- menus: pause and settings ---------- A menu is a list of rows. A row is one of: go { label, ok() } a button opt { label, value, chg(dir) } a choice, changed with left / right (or OK) slide { label, v, chg(dir), set(v) } a volume slider, 0 to 1 text { label } a line of text, cannot be chosen |
+| 533 | `drawMenu(c, t, title, rows, sel, o)` | functie |  |
+| 573 | `pauseRows()` | functie | ---------- pause ---------- |
+| 574 | `leave(go)` | functie sageata |  |
+| 583 | `resumeGame()` | functie |  |
+| 584 | `updatePause()` | functie |  |
+| 590 | `drawPause(c, t)` | functie |  |
+| 597 | `openSettings()` | functie | ---------- settings ---------- |
+| 601 | `closeSettings()` | functie |  |
+| 605 | `setMsg(m)` | functie |  |
+| 606 | `setPage(page, p)` | functie |  |
+| 607 | `settingsBack()` | functie |  |
+| 611 | `toggleFullscreen()` | functie |  |
+| 619 | `findSpeakers(k)` | functie |  |
+| 636 | `pickSpeaker(k, d)` | functie |  |
+| 648 | `captureKey(k, f)` | functie |  |
+| 661 | `settingsRows()` | functie |  |
+| 663 | `vol(label, id, test)` | functie sageata |  |
+| 703 | `updateSettings(dt)` | functie |  |
+| 716 | `drawPadTester(c, x, y, g, t)` | functie |  |
+| 718 | `b(n)` | functie sageata |  |
+| 743 | `drawPadBody(c, x, y, cw, k, t)` | functie |  |
+| 745 | `step(n, yy, done, label, w)` | functie sageata |  |
+| 750 | `small(str, yy, col)` | functie sageata |  |
+| 763 | `drawSettings(c, t)` | functie |  |
+| 776 | `restoreSpeakers(ask)` | functie | Chrome only tells the names of the speakers while it has the microphone permission, and for a page opened from a file it forgets that permission when the page is closed. So when the saved speaker is not in the list, the question is asked again (ask = true). If the speaker is still not there, the start screen says so: the sounds are then on the computer. |
+| 788 | `startEnding()` | functie | ---------- the Sunset Festival ---------- |
+| 817 | `updateEnding(dt)` | functie |  |
+| 836 | `drawEndingL(c, t)` | functie | The end of the second game: the Rainbow Party. The crystals are the present, the heroes get medals, and little stars fly in and hug them. |
+| 841 | `bob(k)` | functie sageata |  |
+| 895 | `drawEnding(c, t)` | functie |  |
+| 901 | `bob(k)` | functie sageata |  |
 
 ## 10-main.js
 
@@ -540,14 +537,13 @@ Nicio functie.
 | 7 | `resize()` | functie |  |
 | 15 | `goFullscreen()` | functie |  |
 | 16 | `mousePos(e)` | functie |  |
-| 30 | `Game.toSelect()` | functie | the screen where one of the two games is chosen |
-| 35 | `Game.toTitle()` | functie |  |
-| 41 | `Game.startGame(cont)` | functie | cont: from the chapter "Continue" points at. Otherwise a new game from the first chapter (the progress of this game is erased). |
-| 47 | `Game.startChapter(i)` | functie | One chapter chosen on the Chapters screen. Nothing is erased. |
-| 54 | `Game.goLevel(idx)` | functie | A player joins with the keyboard only on the start screen. In a level, Enter or Space in the pause menu must not make the second hero join (a child playing alone would suddenly have a friend nobody plays). Controllers can still join any time. |
-| 56 | `finishChapter()` | functie | The chapter that is being played is over: its best result is kept and the team total becomes the sum of all results. |
-| 61 | `Game.levelEnd()` | functie |  |
-| 62 | `Game.toEnding()` | functie |  |
-| 64 | `update(dt)` | functie |  |
-| 105 | `draw()` | functie |  |
-| 126 | `frame(ts)` | functie |  |
+| 30 | `Game.toTitle()` | functie |  |
+| 36 | `Game.startGame(cont)` | functie | cont: from the chapter "Continue" points at. Otherwise a new game from the first chapter (the progress of this game is erased). |
+| 42 | `Game.startChapter(i)` | functie | One chapter chosen on the Chapters screen. Nothing is erased. |
+| 49 | `Game.goLevel(idx)` | functie | A player joins with the keyboard only on the start screen. In a level, Enter or Space in the pause menu must not make the second hero join (a child playing alone would suddenly have a friend nobody plays). Controllers can still join any time. |
+| 51 | `finishChapter()` | functie | The chapter that is being played is over: its best result is kept and the team total becomes the sum of all results. |
+| 56 | `Game.levelEnd()` | functie |  |
+| 57 | `Game.toEnding()` | functie |  |
+| 59 | `update(dt)` | functie |  |
+| 97 | `draw()` | functie |  |
+| 117 | `frame(ts)` | functie |  |

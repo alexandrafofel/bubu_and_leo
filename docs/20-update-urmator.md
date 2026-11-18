@@ -1,5 +1,7 @@
 # 20. Update urmator: specificatie
 
+> **Din 18 noiembrie 2026 exista un singur joc: "Cea mai grea luptă".** "Bubu și Leo" a fost scos (vezi `16-decizii.md`, "Un singur joc"). Orice schimbare se face doar in "Cea mai grea luptă". Ce scrie mai jos despre primul joc, despre alegerea jocului sau despre "ambele jocuri" este istoric.
+
 > Nota din 14 noiembrie 2026: acest capitol este specificatia update-ului din 13 noiembrie, care a fost facut. Update-ul de dupa el (doua jocuri, ajutorul cu □) este in `22-update-14-noiembrie.md`. Doua lucruri de aici s-au schimbat de atunci: eroul lovit asteapta acum prietenul, iar nivelul se termina doar cu amandoi in cuib.
 
 Cererea proprietarei, 13 noiembrie 2026, cuvant cu cuvant:

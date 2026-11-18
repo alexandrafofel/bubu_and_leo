@@ -1,5 +1,7 @@
 # 10. Gameplay (`src/07-play.js`)
 
+> **Din 18 noiembrie 2026 exista un singur joc: "Cea mai grea luptă".** "Bubu și Leo" a fost scos (vezi `16-decizii.md`, "Un singur joc"). Orice schimbare se face doar in "Cea mai grea luptă". Ce scrie mai jos despre primul joc, despre alegerea jocului sau despre "ambele jocuri" este istoric.
+
 Aici sunt regulile: cum merg eroii, ce fac puterile, cum se iau ouale, cum se misca inamicii, vantul, fluturele si boss-ul.
 
 ## `Game`

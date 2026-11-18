@@ -42,7 +42,7 @@ Toate numele de sus sunt globale. Cele importante:
 | `CONFIG` | 01-config.js | Valorile de reglaj. Nu se schimba in timpul jocului. |
 | `Opt` | 015-lang.js | Setarile alese de jucatori. Se salveaza. |
 | `STR`, `T()` | 015-lang.js | Textele si functia care le alege dupa limba si dupa joc. |
-| `GAME`, `isLupta()` | 015-lang.js | Jocul ales: `'bubu'` sau `'lupta'`. Se schimba doar cu `setGame(id)` (in `09-screens.js`). |
+| `GAME`, `isLupta()` | 015-lang.js | Jocul: mereu `'lupta'` (singurul). `setGame` il fixeaza, argumentul e ignorat. |
 | `GAME_BASE` | 015-lang.js | Eroii, numele personajului rau si boss-ul primului joc, asa cum sunt in `CONFIG` la incarcare. Pictorii lui Bubu si Leo citesc de aici. |
 | `W`, `H` | 02-core.js | 1920 si 1080: marimea logica a ecranului. |
 | `CS` | 02-core.js | 40: marimea unei celule din grila nivelului. |
@@ -62,8 +62,7 @@ Toate numele de sus sunt globale. Cele importante:
 `Game.state` are una din valorile:
 
 ```
-boot ──(clic, tasta sau ✕)──> select ──(✕ pe un joc)──> title ──(toti "Gata!")──> loading ──> intro ──(✕)──> play
-                                 ^  <──(○ sau Backspace)──  ^                                                  │
+boot ──(clic, tasta sau ✕)──> title ──(toti "Gata!")──> loading ──> intro ──(✕)──> play
                                                             │                          nivel terminat          v
                                                             │                     <── loading <── (✕) <── levelEnd
                                                             │
@@ -71,7 +70,7 @@ boot ──(clic, tasta sau ✕)──> select ──(✕ pe un joc)──> titl
 ```
 
 - `boot`: ecranul "Fă clic sau apasă o tastă". Exista pentru ca Chrome nu porneste sunetul fara un gest.
-- `select`: ecranul "Alege jocul", cu cele doua jocuri. Vezi `22-update-14-noiembrie.md`, V1.
+- (`select`, ecranul "Alege jocul", a fost scos pe 18 noiembrie 2026.)
 - `title`: ecranul de start al jocului ales, cu cei doi eroi ai lui.
 - `loading`: dureaza 3 cadre. In primele doua se deseneaza "Se pictează...", in al treilea se genereaza si se picteaza nivelul. Fara asta ecranul ar ingheta fara niciun mesaj.
 - `intro`: cardul cu povestea nivelului.
@@ -79,7 +78,7 @@ boot ──(clic, tasta sau ✕)──> select ──(✕ pe un joc)──> titl
 - `levelEnd`: ecranul "Bravo!".
 - `ending`: Festivalul Apusului.
 
-Peste `select`, peste `title` si peste pauza poate fi deschis meniul Setari (`UI.set` nu este `null`). Cat timp e deschis, el primeste toate apasarile.
+Peste `title` si peste pauza poate fi deschis meniul Setari (`UI.set` nu este `null`). Cat timp e deschis, el primeste toate apasarile.
 
 ## Bucla de cadre
 

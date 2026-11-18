@@ -1,5 +1,7 @@
 # 21. Al doilea joc: "Cea mai grea luptă"
 
+> **Din 18 noiembrie 2026 exista un singur joc: "Cea mai grea luptă".** "Bubu și Leo" a fost scos (vezi `16-decizii.md`, "Un singur joc"). Orice schimbare se face doar in "Cea mai grea luptă". Ce scrie mai jos despre primul joc, despre alegerea jocului sau despre "ambele jocuri" este istoric.
+
 Jocul inventat de copii pe 13 noiembrie 2026. Raspunsurile lor, cuvant cu cuvant, sunt in `../prompts/04-cerere-14-noiembrie.md`. Desenele lor (Boon, Killer, George cel Rău) au fost modelul pentru personaje.
 
 Capitolul acesta aduna tot ce tine doar de al doilea joc. Regulile comune celor doua jocuri (ajutorul cu □, inamicii mici, cuibul) sunt in `10-gameplay.md` si in `22-update-14-noiembrie.md`.

@@ -162,9 +162,7 @@ const other = game === 'lupta' ? 'bubu' : 'lupta';
   await p2.evaluate(() => { fakePads[0] = mkPad(0); });
   await press(0, 0, 500);      // ✕ on the first screen: the choice of the game
   let c2 = await st2();
-  if (c2.gsel !== (game === 'lupta' ? 1 : 0)) await press(0, game === 'lupta' ? 15 : 14);      // the game played last time is chosen first
-  await press(0, 0, 400); c2 = await st2();
-  check('10a. controller: jocul ales, ecranul de start', c2.st === 'title' && c2.game === game, c2);
+  check('10a. controller: ecranul de start (jocul e unul singur)', c2.st === 'title' && c2.game === game, c2);
   await press(0, 0, 200);      // the controller joins
   await press(0, 13); c2 = await st2();
   check('10b. controller, jos pe D-pad: "Capitole"', c2.sel === 1, c2);

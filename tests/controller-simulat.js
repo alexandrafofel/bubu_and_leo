@@ -27,13 +27,7 @@ const { chromium, game } = require('./pw.js');
   // two controllers. Only buttons, no click: the game must still leave the first screen
   await page.evaluate(() => { fakePads[1] = mkPad(1); fakePads[0] = mkPad(0); });
   await press(1, 0); await fr(500);
-  await check('✕ pe primul ecran: apare alegerea jocului', s => s.st === 'select');
-  // the screen with the two games: right, left, then the wanted game
-  await press(1, 15); await check('dreapta: al doilea joc', s => s.sel === 1);
-  await press(1, 14); await check('stanga: primul joc', s => s.sel === 0);
-  if (game === 'lupta') await press(1, 15);
-  await press(1, 0); await fr(300);
-  await check('✕: jocul ales, ecranul de start', s => s.st === 'title' && s.game === game);
+  await check('✕ pe primul ecran: ecranul de start al jocului (nu mai exista alegerea jocului)', s => s.st === 'title' && s.game === game);
   await page.screenshot({ path: 'g_title.png' });
   // the controller that pressed first plays the first hero; the second one joins with ✕
   await press(0, 0); await fr(200);

@@ -31,15 +31,15 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 140-145 | Look |
 | 146-190 | The second game, "Cea mai grea luptă" (invented by the children) |
 
-## 015-lang.js (228 linii)
+## 015-lang.js (229 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 2-10 | SETTINGS chosen in the game's "Setări" menu (saved on this computer) and |
-| 11-12 | Puts the chosen game's own heroes, villain and boss values into CONFIG. |
-| 13-95 | A text of one of the two games, whichever game is being played (for the screen where the game is chosen). |
-| 96-219 | the second game, "Cea mai grea luptă". A key that starts with L: takes the place of the same key without it. |
-| 220-228 | Readable name of a keyboard key, for the "choose the keys" screen. |
+| 11-13 | Puts the chosen game's own heroes, villain and boss values into CONFIG. |
+| 14-96 | A text of one of the two games, whichever game is being played (for the screen where the game is chosen). |
+| 97-220 | the second game, "Cea mai grea luptă". A key that starts with L: takes the place of the same key without it. |
+| 221-229 | Readable name of a keyboard key, for the "choose the keys" screen. |
 
 ## 02-core.js (360 linii)
 
@@ -208,7 +208,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 502-517 | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
 | 518-541 | George's arena (the last level of the second game) |
 
-## 09-screens.js (980 linii)
+## 09-screens.js (930 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -224,26 +224,25 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 110-140 | The two players trade heroes. Controllers, keys, difficulty and the helper arrow stay with the players. |
 | 141-158 | The backdrop of the second game: the jungle at night, under the moon and the northern lights. |
 | 159-163 | The start-screen backdrop of each game is painted once, the first time it is needed. |
-| 164-178 | Chooses which of the two games is played: its heroes, villain and boss values, its texts, pictures, music and progress. |
-| 179-188 | boot + title |
-| 189-233 | the first screen: which of the two games? |
-| 234-241 | The buttons under the heroes: "Continue: ...", "Chapters", "New game". At the very first start only one, and it says "Start!". |
-| 242-386 | What the chosen button does, once every player who joined is "Ready!". |
-| 387-459 | the little picture at the top of a card: the level's sky and ground and the three pictures of its story card. Painted once. |
-| 460-480 | level story card |
-| 481-517 | The pictures on the story card of the second game. Returns false for a picture that is the same in both games. |
-| 518-518 | level end |
-| 519-621 | Three little medals give the bigger player something extra to aim for. |
-| 622-645 | pause |
-| 646-821 | settings |
-| 822-836 | After a restart: send each hero's sounds to the speaker chosen last time, if Chrome still shows it. |
-| 837-980 | the Sunset Festival |
+| 164-178 | Sets up the game (the second game is the only one now): its heroes, villain and boss values, its texts, pictures, music and progress. |
+| 179-187 | boot + title |
+| 188-195 | The buttons under the heroes: "Continue: ...", "Chapters", "New game". At the very first start only one, and it says "Start!". |
+| 196-336 | What the chosen button does, once every player who joined is "Ready!". |
+| 337-409 | the little picture at the top of a card: the level's sky and ground and the three pictures of its story card. Painted once. |
+| 410-430 | level story card |
+| 431-467 | The pictures on the story card of the second game. Returns false for a picture that is the same in both games. |
+| 468-468 | level end |
+| 469-571 | Three little medals give the bigger player something extra to aim for. |
+| 572-595 | pause |
+| 596-771 | settings |
+| 772-786 | After a restart: send each hero's sounds to the speaker chosen last time, if Chrome still shows it. |
+| 787-930 | the Sunset Festival |
 
-## 10-main.js (140 linii)
+## 10-main.js (131 linii)
 
 | Liniile | Sectiunea |
 |---|---|
-| 2-39 | MAIN: canvas, game states, main loop |
-| 40-45 | cont: from the chapter "Continue" points at. Otherwise a new game from the first chapter (the progress of this game is erased). |
-| 46-54 | One chapter chosen on the Chapters screen. Nothing is erased. |
-| 55-140 | The chapter that is being played is over: its best result is kept and the team total becomes the sum of all results. |
+| 2-34 | MAIN: canvas, game states, main loop |
+| 35-40 | cont: from the chapter "Continue" points at. Otherwise a new game from the first chapter (the progress of this game is erased). |
+| 41-49 | One chapter chosen on the Chapters screen. Nothing is erased. |
+| 50-131 | The chapter that is being played is over: its best result is kept and the team total becomes the sum of all results. |

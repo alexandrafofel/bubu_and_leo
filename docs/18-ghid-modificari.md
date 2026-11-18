@@ -1,5 +1,7 @@
 # 18. Ghid de modificari
 
+> **Din 18 noiembrie 2026 exista un singur joc: "Cea mai grea luptă".** "Bubu și Leo" a fost scos (vezi `16-decizii.md`, "Un singur joc"). Orice schimbare se face doar in "Cea mai grea luptă". Ce scrie mai jos despre primul joc, despre alegerea jocului sau despre "ambele jocuri" este istoric.
+
 Retete pas cu pas pentru schimbarile cele mai probabile. Dupa fiecare reteta: `./build.sh`, `node tools/gen-docs.js`, testele minime din `17-testare.md`, si actualizezi capitolul din `docs/` care descrie partea schimbata.
 
 ## Inainte de orice
@@ -117,7 +119,7 @@ Vezi `prompts/03-prompt-update-urmator.md`. Principiul: lipesti promptul, atasez
 
 ## Update 14 noiembrie 2026: retete pentru doua jocuri
 
-**Testezi ambele jocuri.** Orice schimbare in reguli atinge amandoua. `tests/toate.sh` ruleaza toate testele pentru fiecare. Un test singur: `JOC=lupta node ../salvare-prieten.js`, din `tests/out/`.
+**Testezi jocul.** Exista un singur joc. `tests/toate.sh` ruleaza toate testele pentru fiecare. Un test singur: `JOC=lupta node ../salvare-prieten.js`, din `tests/out/`.
 
 **Schimbi un text doar in al doilea joc.** Adaugi sau schimbi cheia `'L:cheie'` in `STR.ro` si `STR.en`.
 

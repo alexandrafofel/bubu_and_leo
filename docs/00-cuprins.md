@@ -1,6 +1,8 @@
 # Cuprins
 
-Documentatia completa a celor doua jocuri din acelasi fisier: "Bubu și Leo: Ouăle de Aur" si "Cea mai grea luptă" (inventat de copii, vezi capitolul 21). Este scrisa ca oricine (om sau orice cont Claude) sa poata intelege si modifica jocul fara sa fi vazut conversatiile in care a fost facut.
+> **Din 18 noiembrie 2026 exista un singur joc: "Cea mai grea luptă".** "Bubu și Leo" a fost scos (vezi `16-decizii.md`, "Un singur joc"). Orice schimbare se face doar in "Cea mai grea luptă". Ce scrie mai jos despre primul joc, despre alegerea jocului sau despre "ambele jocuri" este istoric.
+
+Documentatia completa a jocului "Cea mai grea luptă" (inventat de copii, vezi capitolul 21). Pana pe 17 noiembrie 2026 fisierul avea si "Bubu și Leo: Ouăle de Aur"; capitolele despre el sunt istorice. Este scrisa ca oricine (om sau orice cont Claude) sa poata intelege si modifica jocul fara sa fi vazut conversatiile in care a fost facut.
 
 ## Cum citesti
 

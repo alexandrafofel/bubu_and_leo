@@ -1,5 +1,7 @@
 # Prompturi pentru "Partea a doua" (rundele 7 - 12)
 
+> **Un singur joc (18 noiembrie 2026).** "Bubu și Leo" a fost scos. Tot ce e specificat aici se implementeaza **doar in "Cea mai grea luptă"**. Unde scrie "ambele jocuri", "primul joc", variante `L:` sau teste pentru `bubu`, se citeste: un singur joc, textele lui (varianta `L:`), un singur rand de teste. Nu se mai scrie cod pentru primul joc.
+
 Update-ul e impartit in **14 sarcini**. Fiecare se poate termina, testa si trimite separat.
 
 Cum folosesti fisierul:
