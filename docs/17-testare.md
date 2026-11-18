@@ -177,3 +177,5 @@ Testul a fost verificat ca poate pica: cu limita camerei scoasa din `camTarget` 
 Lupta mare nu e in test (testul merge pe nivelurile cu grila). A fost masurata separat, cu acelasi fel de socoteala: tot 0%, in ambele jocuri. Acolo camera nu s-a schimbat deloc.
 
 Capturi privite cu ochiul, pentru fiecare joc: eroii impreuna la inceputul nivelului, eroii la marginea de sus a hartii, eroii in colturi opuse, bannerul de lupta, un banner de un rand, "Îl așteptăm pe ... în cuib!", lupta mare.
+
+Rezultat, `tests/toate.sh` pe codul final: **toate testele OK, pentru ambele jocuri** (44 de rulari). Viteza nu s-a schimbat: `performanta.js` da 24.9 ms pe cadru, iar versiunea dinainte, masurata in aceeasi zi pe aceeasi masina, 24.8 ms. Nu au fost rulate `mini-lupte-bot.js` si `capturi-ecran.js` (cele lungi); capturile au fost facute separat, cu un script pentru banda de sus.
