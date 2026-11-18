@@ -1,6 +1,6 @@
 # 24. Partea a doua: sistemele noi
 
-Status: **specificatie, neimplementata.** Vezi `23-update-partea-a-doua.md` pentru cerere, hotarari si cele 13 sarcini, si `../prompts/06-prompt-partea-a-doua.md` pentru promptul fiecareia.
+Status: **specificatie, neimplementata.** Vezi `23-update-partea-a-doua.md` pentru cerere, hotarari si cele 14 sarcini, si `../prompts/06-prompt-partea-a-doua.md` pentru promptul fiecareia.
 
 Sapte sisteme. Fiecare are: cerinta, ce e acum in cod, ce se face, valorile din `CONFIG`, cazurile de margine si testul.
 

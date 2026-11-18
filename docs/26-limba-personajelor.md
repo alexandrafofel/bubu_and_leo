@@ -1,6 +1,6 @@
 # 26. Limba personajelor (sarcina T13)
 
-Status: **specificatie, neimplementata.** Vezi `23-update-partea-a-doua.md` pentru cerere, hotarari si planul in 13 sarcini, si `../prompts/06-prompt-partea-a-doua.md` (T13) pentru promptul gata de lipit.
+Status: **specificatie, neimplementata.** Vezi `23-update-partea-a-doua.md` pentru cerere, hotarari si planul in 14 sarcini, si `../prompts/06-prompt-partea-a-doua.md` (T13) pentru promptul gata de lipit.
 
 Cererea proprietarei (18 noiembrie 2026): "personajele sa aiba o limba a lor (undeva la 1000 de cuvinte in vocabular)".
 
