@@ -1,6 +1,6 @@
 # Prompturi pentru "Partea a doua" (rundele 7 - 12)
 
-Update-ul e impartit in **12 sarcini**. Fiecare se poate termina, testa si trimite separat.
+Update-ul e impartit in **13 sarcini**. Fiecare se poate termina, testa si trimite separat.
 
 Cum folosesti fisierul:
 
@@ -25,6 +25,7 @@ Sarcinile merg in ordine: fiecare se sprijina pe cea dinainte. Dupa sarcina 5 jo
 | [T10](#t10) | Nivelul 12 si George cu puteri noi | 25, 4 si 5 |
 | [T11](#t11) | Sala Tronului si finalurile | 25, 6 si 7 |
 | [T12](#t12) | Sunete, decor, documentatie, totul testat | 25, 8 - 11 |
+| [T13](#t13) | Limba personajelor: cam 1000 de cuvinte pe erou, Dictionar | 26 |
 
 ---
 
@@ -41,7 +42,7 @@ De citit, in ordinea aceasta, inainte de orice sarcina:
 
 1. `CLAUDE.md`: regulile care nu se schimba si pasii de lucru.
 2. `docs/00-cuprins.md`, apoi `docs/02-arhitectura.md` si `docs/21-cea-mai-grea-lupta.md`.
-3. `docs/23-update-partea-a-doua.md`: cererea, hotararile, intrebarile deschise, principiile luate din "It Takes Two", planul in 12 sarcini.
+3. `docs/23-update-partea-a-doua.md`: cererea, hotararile, intrebarile deschise, principiile luate din "It Takes Two", planul in 13 sarcini.
 4. Capitolul de specificatie al sarcinii tale: `docs/24-sisteme-noi.md` sau `docs/25-niveluri-7-12.md`.
 5. `prompts/05-cerere-16-noiembrie.md`: cererea proprietarei, cuvant cu cuvant. **Daca specificatia si cererea spun lucruri diferite, cererea are dreptate: spune-i, nu alege singur.**
 
@@ -456,7 +457,7 @@ Nu face in aceasta sarcina: sunetele noi si decorul (sunt sarcina urmatoare), in
 Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
 Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
 
-Sarcina T12: ultima. Jocul e intreg, dar inca nu suna si nu arata ca un joc terminat.
+Sarcina T12: jocul e intreg, dar inca nu suna si nu arata ca un joc terminat.
 
 Specificatia: docs/25-niveluri-7-12.md, sectiunile 8, 9, 10 si 11.
 
@@ -473,7 +474,47 @@ Gata cand:
 - sunete-personaje.js: niciun cuvant la fel cu altul, in niciunul dintre jocuri.
 - sunete-volum.js, sunete-limita.js si sunete-controller.js trec: nimic nu se aude rupt sau prea incet.
 - tests/toate.sh tot trece intreg, pentru ambele jocuri.
-- Documentatia nu mai spune nicaieri "specificatie, neimplementata" despre ceva ce exista in cod.
+- Documentatia nu mai spune nicaieri "specificatie, neimplementata" despre ceva ce exista in cod. Singura exceptie: capitolul 26 (limba personajelor, T13), care ramane specificatie.
 
-La final, pe langa raportul obisnuit, scrie proprietarei o lista scurta cu tot ce a ramas neverificat in toate cele 12 sarcini (controllere reale, cum suna, cum se simt vibratiile, daca mecanismele sunt intelese de un copil de 6 ani, daca cele 10 secunde sunt prea putine, daca fuga strica luptele) si ce ar trebui sa incerce cu copiii, in ordine.
+La final, pe langa raportul obisnuit, spune ce a ramas neverificat in aceasta sarcina. Lista completa pentru toate sarcinile se scrie la sfarsitul T13.
+
+Nu face in aceasta sarcina: limba cu 1000 de cuvinte (T13). Cele 13 cuvinte noi de aici raman exclamatii, ca cele 33 de acum.
+````
+
+---
+
+<a id="t13"></a>
+## T13. Limba personajelor
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+
+Sarcina T13: fiecare erou (Bubu, Leo, Boon, Killer) primeste o limba a lui, cu cam 1000 de cuvinte. Acum are doar 33 (47 dupa T12) de exclamatii fara sens.
+
+Specificatia: docs/26-limba-personajelor.md, toate sectiunile (L1 - L9). Citeste si docs/06-sunet.md, sectiunea "Limba personajelor", si docs/24-sisteme-noi.md, S6 (balonul trebuie sa respecte aceleasi reguli ca scrisul de sus).
+
+Inainte sa incepi, verifica ca T1 si T12 sunt facute (in main sau in ramura de la care pornesti). Daca nu sunt, spune si opreste-te.
+
+Ce ai de facut:
+1. Scrie intai lista celor 1000 de sensuri in src/016-lexic.js, cu romana si engleza, pe cele 12 categorii din L2, cu numarul exact de sensuri pe categorie. Cuvinte pe intelesul unui copil de 6 ani, nimic urat, nimic care sperie. Adauga-l in FILES din build.sh. Numerele (id) nu se mai schimba niciodata dupa aceea.
+2. Generatorul de cuvinte: LANG_PHON pentru cele patru limbi, buildLexicon(hero), determinist (fara Math.random), cu regulile de respingere din L3. Valorile `seeds` si celelalte reglaje merg in CONFIG.lang.
+3. Consoanele moi in syl() din src/03-audio.js, ca al cincilea element al silabei. Silabele vechi nu se schimba. Nimic aspru: regula 5 din CLAUDE.md ramane. Adauga Snd.say(k, id) si Snd.phrase(k, key).
+4. Cel putin 30 de fraze (exclamatie + 1 - 3 cuvinte) cu traducere in romana si engleza, in STR. Frazele nu se aud la fiecare eveniment (phraseGap).
+5. Eroii spun numele lucrurilor din apropiere (L7). Balonul cu traducerea, asezat dupa regulile S6. Optiunea "Text la cuvinte" in Setari.
+6. Ecranul Dictionar, din pauza si din meniul de start, cu tastatura si controller. Cuvintele descoperite se salveaza in campul `lex` al slotului, fara versiune noua de salvare.
+7. tests/limba.js cu cele 14 verificari din L8, ambele jocuri, in tests/toate.sh. Verifica o data ca fiecare poate sa pice. Adapteaza tests/sunete-personaje.js si hud-acoperire.js daca trebuie.
+8. Documentatia: capitolele 03, 06 (consoanele si lexicul; regula veche "doar vocale" se rescrie), 13, 16 (hotararile L1 - L10 cu motivul), 17, 19, 00-cuprins.md, README.md si regula 9 din CLAUDE.md, cum scrie in docs/23, sectiunea 6. Capitolul 26 devine istoric, cu o nota in cap ca a fost implementat.
+
+Gata cand:
+- tests/limba.js trece pentru amandoua jocurile, cu errors 0 si fara NEREUSIT.
+- Fiecare din cele 4 limbi are intre 950 si 1100 de cuvinte, niciunul la fel cu altul, nici in aceeasi limba, nici in alta.
+- Generarea celor patru limbi dureaza sub 80 ms, iar fisierul creste cu cel mult 60 KB.
+- tests/toate.sh tot trece pentru ambele jocuri. performanta.js: cel mult 3% mai incet.
+- Ai capturi cu un balon si cu ecranul Dictionar, in ambele limbi (ro si en), privite cu ochiul.
+- La sfarsit, ai ascultat (cu analizatorul din tests/sunete-*.js) ca nicio consoana nu depaseste limita si nicio fraza nu e mai lunga de maxPhrase.
+
+Nu face in aceasta sarcina: nimic din nivelurile noi, nimic din grafica. Nu schimba cele 47 de exclamatii de acum.
+
+La final scrie proprietarei raportul obisnuit si, pentru toate cele 13 sarcini, o lista scurta cu tot ce a ramas neverificat (controllere reale, cum suna, cum se simt vibratiile, daca mecanismele sunt intelese de un copil de 6 ani, daca cele 10 secunde sunt prea putine, daca fuga strica luptele, daca limbile se deosebesc pentru urechea unui copil de 6 ani, daca balonul incurca) si ce ar trebui sa incerce cu copiii, in ordine.
 ````

@@ -4,13 +4,14 @@ Status: **specificatie, neimplementata.** Nimic din acest capitol nu exista inca
 
 Cererea proprietarei, cuvant cu cuvant, este in `../prompts/05-cerere-16-noiembrie.md`. Promptul gata de lipit pentru cel care implementeaza este in `../prompts/06-prompt-partea-a-doua.md`.
 
-Specificatia are trei capitole. Citeste-le in ordine. Promptul gata de lipit pentru fiecare dintre cele 12 sarcini este in `../prompts/06-prompt-partea-a-doua.md`.
+Specificatia are patru capitole. Citeste-le in ordine. Promptul gata de lipit pentru fiecare dintre cele 13 sarcini este in `../prompts/06-prompt-partea-a-doua.md`.
 
 | Capitol | Ce contine |
 |---|---|
-| 23 (acesta) | Ce se cere, ce s-a hotarat, ce a ramas de intrebat, principiile luate din "It Takes Two", planul in 12 sarcini, regulile din `CLAUDE.md` care se schimba. |
+| 23 (acesta) | Ce se cere, ce s-a hotarat, ce a ramas de intrebat, principiile luate din "It Takes Two", planul in 13 sarcini, regulile din `CLAUDE.md` care se schimba. |
 | [24](24-sisteme-noi.md) | Sistemele noi, comune tuturor nivelurilor: butoane, fuga, a doua putere, cele 10 secunde, capitole si salvare, scrisul de sus, stilul grafic. |
 | [25](25-niveluri-7-12.md) | Povestea, mecanismele de colaborare, cele 6 niveluri noi, luptele cu George, lupta finala, texte, sunete, decor. |
+| [26](26-limba-personajelor.md) | Limba personajelor (T13): patru limbi de cam 1000 de cuvinte, generate, cu fraze, balon cu traducerea si Dictionar. |
 
 Tot ce e scris aici porneste de la codul de dupa update-ul din 14 noiembrie 2026 (`22-update-14-noiembrie.md`). Numele de functii si valorile citate au fost verificate in `src/` la 16 noiembrie 2026.
 
@@ -71,6 +72,11 @@ Implementarea poate porni fara raspunsuri: se foloseste coloana "Daca nu raspunz
 | I7 | Sa fie repictate si nivelurile 1 - 6 in stilul nou? | Nu, mai tarziu. | - |
 | I8 | Reinceperea e "de la inceput". Sa existe varianta "de la ultimul val de cristale"? | Nu: de la inceput, cum e cerut. | `CONFIG.rescue.restart` |
 | I9 | Copiii vor sa aleaga ei numele nivelurilor, ce fura George si cum arata lupta finala? | Se folosesc cele din capitolul 25. | texte in `STR` |
+| I10 | Limba: una pentru fiecare erou (patru limbi) sau una pentru Bubu si Leo si alta pentru Boon si Killer? | Patru limbi. | `CONFIG.lang.seeds`, `LANG_PHON` |
+| I11 | Cand un erou vorbeste, sa se vada si traducerea intr-un balon mic? | Da, se poate opri din Setari. | `CONFIG.lang.bubble` |
+| I12 | Cuvintele sa se descopere pe parcurs si sa existe un Dictionar (ca o colectie)? | Da. | `CONFIG.lang.on`, ecranul `dict` |
+| I13 | Pot limbile sa aiba si consoane moi (m, n, l, b, d...), nu doar vocale? | Da: fara ele nu ies 1000 de cuvinte care se deosebesc. | `LANG_PHON[].con` |
+| I14 | Copiii vor sa-si aleaga ei cateva cuvinte (de exemplu 20 pentru fiecare erou: cum zice "ou", "salut", "mama")? | Nu; locul e pregatit in `CONFIG.lang.own`. | `CONFIG.lang.own` |
 
 ---
 
@@ -93,7 +99,7 @@ Despre grafica, cinstit: "It Takes Two" este un joc 3D facut cu un motor mare. J
 
 ---
 
-## 5. Planul: 12 sarcini
+## 5. Planul: 13 sarcini
 
 Fiecare sarcina se poate termina, testa si trimite separat. Ordinea conteaza: fiecare se sprijina pe cea dinainte. Promptul gata de lipit pentru fiecare este in `../prompts/06-prompt-partea-a-doua.md`.
 
@@ -113,6 +119,7 @@ Inainte de orice sarcina si dupa fiecare: `./build.sh`, `node tools/gen-docs.js`
 | T10 | Nivelul 12 si atacurile noi ale lui George. | 25, 4 si 5 | `mini-lupte-bot.js`: toate cele 144 de lupte castigate, niciuna peste 180 s. |
 | T11 | Sala Tronului, scena "Va urma", finalul nou. | 25, 6 si 7 | `tests/sala-tronului.js` trece. `joc-complet-bot.js` ajunge de la capitolul 1 la finalul nou. |
 | T12 | Sunete, muzica, cuvinte noi, decor, capturi, toata documentatia. | 25, 8 - 11 | `tests/toate.sh tot` trece. `numara-elemente.js` da peste 22.000 in al doilea joc. |
+| T13 | Limba personajelor: fiecare erou are propria limba, cu cam 1000 de cuvinte generate, fraze, balon cu traducerea si Dictionar. Se face **dupa T12** (cele 13 cuvinte noi din T12 devin exclamatiile limbii) si dupa T1 (regulile pentru scrisul de sus se aplica si balonului). | 26 | `tests/limba.js` trece pentru ambele jocuri. 950 - 1100 de cuvinte pe limba, niciunul la fel cu altul. |
 
 Dupa **T5** jocul are deja toate regulile cerute, pe nivelurile de acum: butoane, fuga, a doua putere, cele 10 secunde, capitole, scrisul reparat. Este cel mai bun moment sa il incerce copiii si sa primim raspunsurile la intrebarile I1 - I9 de mai sus, inainte de nivelurile noi. T1 - T5 sunt un update intreg si folositor chiar fara nimic dupa el.
 
@@ -128,6 +135,7 @@ Se rescriu in `CLAUDE.md` in sarcina in care devin adevarate, nu inainte.
 | 9 | "6 niveluri + lupta finala" | "Primul joc: 6 niveluri si o lupta finala. Al doilea: 12 niveluri si doua lupte mari. Minimum 10.000 de elemente pentru fiecare 6 niveluri." | T11 (cand exista toate nivelurile si a doua lupta mare), T12 (elementele) |
 | 10 | "Nivelul se termina doar cand amandoi jucatorii sunt in cuib." | Neschimbata. | - |
 | noua, 11 | - | "In nivelurile 7 - 12 fiecare poarta are nevoie de amandoi eroii. Cu un singur jucator, jocul face singur partea celuilalt." | T7 |
+| 9 (a doua schimbare) | "minimum 30 de cuvinte pe erou, niciunul la fel cu ale primului joc" | "Fiecare erou are propria limba, cu cel putin 950 de cuvinte generate (`docs/26`). Niciun cuvant nu e la fel cu al altui erou." | T13 |
 
 ---
 
@@ -150,7 +158,8 @@ Se rescriu in `CLAUDE.md` in sarcina in care devin adevarate, nu inainte.
 | Reinceperea unui nivel de 6 minute supara copilul mic. | H9 (timpul creste dupa 3 reinceperi), `CONFIG.rescue.restart` poate deveni `'wave'`. |
 | Portile pot bloca un erou de o parte si pe celalalt de alta. | Regulile de siguranta din capitolul 25, sectiunea 3.6. Testul `mecanisme.js` le verifica pe fiecare. |
 | Lumina si planul din fata incetinesc jocul. | Bugetul din 24, S7.6. Harta de lumina e la un sfert din rezolutie. |
-| Fisierul creste (acum 440 KB). | Nu e o problema pentru Chrome. Se estimeaza 750 - 850 KB la final. |
+| Fisierul creste (acum 458 KB). | Nu e o problema pentru Chrome. Se estimeaza 750 - 850 KB la final, plus cel mult 60 KB pentru limba (T13). |
+| 1000 de cuvinte inventate pot suna toate la fel sau pot incurca un copil de 6 ani. | Regulile de deosebire din `26`, L3, si testul 7 din L8. Se judeca doar ascultand cu copiii; `seeds` si `LANG_PHON` se schimba usor. |
 | Nimic din toate acestea nu poate fi incercat de un asistent pe un controller real. | La fiecare sarcina se spune ce nu a fost verificat, ca in `19-limitari.md`. |
 
 Surse despre "It Takes Two": pagina jocului pe Steam (`store.steampowered.com/app/1426210/It_Takes_Two/`) si interviul echipei Hazelight publicat de Unreal Engine ("It Takes Two lovingly marries story and gameplay together"). Principiile din sectiunea 4 sunt formulate de noi, pe baza jocului.
