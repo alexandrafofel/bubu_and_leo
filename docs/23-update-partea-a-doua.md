@@ -118,7 +118,7 @@ Inainte de orice sarcina si dupa fiecare: `./build.sh`, `node tools/gen-docs.js`
 | T1 | Scrisul de sus nu mai acopera eroii. **Facuta pe 18 noiembrie 2026.** | 24, S6 | `tests/hud-acoperire.js` cu `STRICT=1` scrie 0% pentru toate coloanele, in ambele jocuri, si intra in `tests/toate.sh`. |
 | T2 | Butoanele (○ ajuta, □ citit pentru a doua putere, L3) si fuga. **Facuta pe 18 noiembrie 2026.** | 24, S1 si S2 | `tests/control-nou.js` si `tests/fuga.js` trec. Niciun erou nu trece printr-un perete la viteza x 3. |
 | T3 | Puterile devin abilitati (rotire, aruncare) pe care le poate avea orice erou. Apoi oasele lui Boon si manusile lui Killer. **Facuta pe 19 noiembrie 2026.** | 24, S3 | `tests/puteri-doi.js` trece. Testele vechi trec neschimbate in primul joc. |
-| T4 | Cele 10 secunde si reinceperea nivelului. | 24, S4 | `tests/zece-secunde.js` trece. |
+| T4 | Cele 10 secunde si reinceperea nivelului. **Facuta pe 19 noiembrie 2026.** | 24, S4 | `tests/zece-secunde.js` trece. |
 | T5 | Capitole, meniul de start, salvarea versiunea 4. **Facuta pe 18 noiembrie 2026**, inaintea T1 - T4 (nu depinde de ele). | 24, S5 | `tests/capitole.js` trece. O salvare veche isi pastreaza progresul. |
 | T6 | Stilul grafic: lumina, materiale, umbre, planul din fata, eroii repictati. | 24, S7 | Lista de verificare S7.8 bifata pe capturi. `tests/stil-grafic.js` trece. `performanta.js` cel mult 20% peste valoarea de dinainte. |
 | T7 | Cadrul mecanismelor (benzi, porti, intrari) si nivelul 7. | 25, 3 si 4 | `tests/mecanisme.js` trece pentru nivelul 7, cu regulile G1 - G10. Botul termina nivelul. |
@@ -139,7 +139,7 @@ Se rescriu in `CLAUDE.md` in sarcina in care devin adevarate, nu inainte.
 | Regula | Acum | Dupa update | Sarcina |
 |---|---|---|---|
 | 4 | "Stilul vizual: pictura in acuarela dintr-o carte pentru copii." | Se adauga: "Nivelurile 7 - 12 ale celui de-al doilea joc sunt pictate ca o diorama cu lumina (vezi `docs/24`, S7). Ramane valabil peste tot: fara contururi negre, fara gri, fara negru." | T6 |
-| 6 | "Un erou lovit (...) asteapta pe loc pana il ajuta prietenul cu □. (...) daca amandoi sunt loviti se ridica amandoi dupa cateva secunde." | "Jocul nu spune niciodata 'Game Over'. Un erou lovit asteapta pe loc. Prietenul are 10 secunde sa il ajute cu ○. Daca nu, nivelul reincepe de la inceput, cu mesajul 'Încă o dată!'. Un copil care joaca singur se ridica singur." | T4 |
+| 6 | "Un erou lovit (...) asteapta pe loc pana il ajuta prietenul cu □. (...) daca amandoi sunt loviti se ridica amandoi dupa cateva secunde." | "Jocul nu spune niciodata 'Game Over'. Un erou lovit asteapta pe loc. Prietenul are 10 secunde sa il ajute cu ○. Daca nu, nivelul reincepe de la inceput, cu mesajul 'Încă o dată!'. Un copil care joaca singur se ridica singur." | **T4 facuta** |
 | 8 | "✕ pentru putere, □ pentru a ajuta prietenul" | "✕ prima putere, □ a doua putere, ○ ajuta prietenul, L3 (apasarea stick-ului) fuga, L1 da un ou / cristal prietenului, OPTIONS pauza." | **T2 facuta** (fara L1), T14 (L1) |
 | 9 | "6 niveluri + lupta finala" | "Primul joc: 6 niveluri si o lupta finala. Al doilea: 12 niveluri si doua lupte mari. Minimum 10.000 de elemente pentru fiecare 6 niveluri." | T11 (cand exista toate nivelurile si a doua lupta mare), T12 (elementele) |
 | 10 | "Nivelul se termina doar cand amandoi jucatorii sunt in cuib." | "Nivelul se termina doar cand amandoi jucatorii sunt in cuib si fiecare si-a gasit cota de oua / cristale (`docs/27`)." | T14 |

@@ -270,3 +270,18 @@ O salvare veche se schimba o singura data, la citire. Se schimba doar ce lipsest
 `Save.apply` copiaza doar campurile din `KEY_FIELDS`, deci o salvare veche fara `c` si `r` ramane buna: cele doua taste noi vin din `CONFIG`.
 
 In testerul de controller din Setari, capul stick-ului stang se face mai inchis cand butonul L3 (indicele 10) e apasat.
+
+## Update 19 noiembrie 2026 (T4): ecranul "Încă o dată!"
+
+Stare noua: `Game.state = 'retry'`, intre `play` si `loading`. Tine `CONFIG.rescue.retryScreen` (2.2) secunde si nu are butoane: nu e nimic de ales, nivelul se reia singur.
+
+`drawRetry(c, t)`:
+
+- Nivelul ramane desenat in spate, sub `drawDim(c, 0.7)`.
+- Un cartonas crem de 900 x 470 care creste putin la intrare (0.92 -> 1 in 0.3 s).
+- Titlul "Încă o dată!" (92, rosu-caramiziu), sub el "Ajutați-vă repede: aveți 10 secunde." sau, dupa trei reinceperi, "Acum aveți 15 secunde.".
+- Jos, cei doi eroi unul langa altul, tinandu-se de mana (o linie in culoarea pielii peste bratele lor), legananadu-se, cu trei inimioare care urca intre ei.
+
+Dupa cele 2.2 secunde: `Game.goLevel(Game.levelIdx)` si `UI.skipIntro = true`, deci nivelul porneste direct, fara povestea lui.
+
+Rezultatul salvat al unui capitol are si `tries`: de cate ori a fost reinceput inainte sa fie terminat (se pastreaza cel mai mic numar). Salvarea ramane la versiunea 4: o salvare veche, fara campul acesta, se incarca la fel.

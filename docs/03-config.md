@@ -262,3 +262,16 @@ Fiecare erou spune ce abilitate are pe fiecare buton:
 `spin` al lui Killer (manusile): `look: 'gloves'`, `radius: 220`, `pull: 300`, `time: 0.85`, `cooldown: 1.6`, `stun: 2.8`.
 
 Un erou fara bloc propriu foloseste numele vechi de pe el (`stompRadius`, `kickSpeed`...), prin `abil(k, kind)`. `power2: null` inseamna ca □ nu face nimic.
+
+## Update 19 noiembrie 2026 (T4): `CONFIG.rescue`, cele 10 secunde
+
+| Cheie | Valoare | Ce face |
+|---|---|---|
+| `limit` | 10 | Secundele pe care le are prietenul ca sa ajute. 0 = fara numaratoare (regula de dinainte). |
+| `limitMercy` | 15 | Limita dupa `retryMercy` reinceperi ale aceluiasi capitol. |
+| `retryMercy` | 3 | Dupa cate reinceperi creste limita. 0 = nu creste niciodata. |
+| `bothDownRestart` | `true` | Amandoi jos: nivelul reincepe dupa `bothDown` secunde. `false` = se ridica singuri, ca inainte. |
+| `restart` | `'level'` | De unde se reia: inceputul capitolului. (`'wave'` e pastrat pentru mai tarziu, nu e facut.) |
+| `retryScreen` | 2.2 | Cat sta pe ecran cartonasul "Încă o dată!". |
+
+`autoAfter` ramane in `CONFIG`, dar nu se mai foloseste cat timp `limit` e mai mare ca 0.

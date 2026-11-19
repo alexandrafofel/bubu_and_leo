@@ -315,3 +315,12 @@ Toate trei sunt sunete de personaj (`CHR`), deci merg in difuzorul controllerulu
 `osc(...)` are acum optiunea `trem`: o unda lenta peste volum, pentru note care tremura (folosita de `bone`).
 
 Cuvinte noi pentru Boon si pentru Killer: `power2` si `power2Big` (a doua putere, si varianta incarcata).
+
+## Update 19 noiembrie 2026 (T4): sunetele celor 10 secunde
+
+| Sunet | Cand | Cum e facut |
+|---|---|---|
+| `tick` | la fiecare secunda a numaratorii | Sinus 660 -> 580 Hz, 0.05 s: un toc moale de lemn. In ultimele 3 secunde, 880 -> 760 Hz si de doua ori pe secunda. |
+| `retry` | cand nivelul reincepe | Trei note de marimba care coboara (do, sol, mi) si un clopotel la sfarsit. Blande, nu o alarma: nu e o pedeapsa. |
+
+Cuvant nou pentru amandoi eroii: `hurry` ("repede!"), spus o data de prieten cand mai sunt 3 secunde.

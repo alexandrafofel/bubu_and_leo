@@ -89,6 +89,12 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `rescue.bothDown` | `3` |  |
 | `rescue.autoAfter` | `0` |  |
 | `rescue.callEvery` | `5` |  |
+| `rescue.limit` | `10` |  |
+| `rescue.limitMercy` | `15` |  |
+| `rescue.retryMercy` | `3` |  |
+| `rescue.bothDownRestart` | `true` |  |
+| `rescue.restart` | `"level"` |  |
+| `rescue.retryScreen` | `2.2` |  |
 | `smallEnemy.hits` | `2` |  |
 | `smallEnemy.respawn` | `22` |  |
 | `beetleSpeed` | `150` |  |

@@ -11,7 +11,7 @@ Un joc HTML, pentru doi copii (6 si 8 ani), cooperative, cu doua controllere Dua
 
 `GAME` este mereu `'lupta'`. Ultimul update, pe puncte: `docs/22-update-14-noiembrie.md`.
 
-Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece secunde, capitole) este specificat, nu implementat, in `docs/23-update-partea-a-doua.md`, `docs/24-sisteme-noi.md` si `docs/25-niveluri-7-12.md`, iar limba personajelor (cam 1000 de cuvinte pe erou) in `docs/26-limba-personajelor.md`, iar cota de oua / cristale pe erou (L1 da un ou prietenului) in `docs/27-cota-de-oua.md`. Regulile de mai jos descriu jocul de acum. Cele care se schimba cu acel update sunt aratate in `docs/23-update-partea-a-doua.md`, sectiunea 6, si se rescriu aici abia cand sarcina lor e gata. Update-ul e impartit in 14 sarcini (se implementeaza doar in "Cea mai grea luptă"; ce spun specificatiile despre "ambele jocuri" sau despre primul joc nu se mai aplica), cu cate un prompt pentru fiecare, in `prompts/06-prompt-partea-a-doua.md`. Facute: T5 (capitole), T1 (banda de sus) si T2 (butoanele noi si fuga) pe 18 noiembrie 2026, T3 (a doua putere) pe 19 noiembrie 2026.
+Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece secunde, capitole) este specificat, nu implementat, in `docs/23-update-partea-a-doua.md`, `docs/24-sisteme-noi.md` si `docs/25-niveluri-7-12.md`, iar limba personajelor (cam 1000 de cuvinte pe erou) in `docs/26-limba-personajelor.md`, iar cota de oua / cristale pe erou (L1 da un ou prietenului) in `docs/27-cota-de-oua.md`. Regulile de mai jos descriu jocul de acum. Cele care se schimba cu acel update sunt aratate in `docs/23-update-partea-a-doua.md`, sectiunea 6, si se rescriu aici abia cand sarcina lor e gata. Update-ul e impartit in 14 sarcini (se implementeaza doar in "Cea mai grea luptă"; ce spun specificatiile despre "ambele jocuri" sau despre primul joc nu se mai aplica), cu cate un prompt pentru fiecare, in `prompts/06-prompt-partea-a-doua.md`. Facute: T5 (capitole), T1 (banda de sus) si T2 (butoanele noi si fuga) pe 18 noiembrie 2026, T3 (a doua putere) si T4 (cele 10 secunde) pe 19 noiembrie 2026.
 
 ## Regulile care nu se schimba fara acordul proprietarei
 
@@ -20,7 +20,7 @@ Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece sec
 3. Toate textele din joc exista in romana si in engleza, in tabelul `STR` din `src/015-lang.js`. Nu scrie text direct in cod: adauga o cheie in `STR.ro` si `STR.en` si foloseste `T('cheie')`.
 4. Stilul vizual: pictura in acuarela dintr-o carte pentru copii. Fara contururi negre, fara gri, fara negru. Umbrele sunt violet cald sau maro (`SHADOW = '#6A4270'`). Vezi `docs/15-culori.md`.
 5. Sunetele sunt calde si moi: sinus, triunghi, filtre trece-jos, reverberatie. Fara sunete patrate sau aspre, nimic care sperie.
-6. Jocul nu se termina niciodata cu "Game Over". Un erou lovit scapa un ou, care poate fi luat inapoi, si asteapta pe loc pana il ajuta prietenul cu ○. Nimeni nu ramane blocat: un copil care joaca singur se ridica singur, iar daca amandoi sunt loviti se ridica amandoi dupa cateva secunde.
+6. Jocul nu se termina niciodata cu "Game Over". Un erou lovit scapa un ou, care poate fi luat inapoi, si asteapta pe loc. Prietenul are 10 secunde sa il ajute cu ○; daca nu ajunge, nivelul reincepe de la inceput cu mesajul "Încă o dată!" (niciodata "Ai pierdut"). Dupa trei reinceperi ale aceluiasi nivel, limita creste la 15 secunde. Nimeni nu ramane blocat: un copil care joaca singur se ridica singur si nu are numaratoare.
 7. Totul se reglaza din `CONFIG` (`src/01-config.js`) cand se poate. Valori noi de reglaj se adauga acolo, cu un comentariu.
 8. Controalele: stick stanga sau D-pad pentru mers, ✕ prima putere, □ a doua putere, ○ ajuta prietenul, L3 (apasarea stick-ului) fuga, OPTIONS pauza. Zona moarta a stick-ului minimum 0.25.
 9. Exista un singur joc, "Cea mai grea luptă": 6 niveluri + lupta finala, peste 10.000 de elemente, minimum 30 de cuvinte pe erou. Toate schimbarile se fac doar in el. Nu adauga cod nou pentru Bubu si Leo si nu mai face ramuri pentru doua jocuri.
@@ -48,6 +48,7 @@ Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece sec
 | Cum arata Boon, Killer, George si lumea lor | `src/055-lupta.js` | `docs/21-cea-mai-grea-lupta.md` |
 | Ajutorul cu ○, inamicii mici, cuibul | `src/07-play.js`, `CONFIG.rescue`, `CONFIG.smallEnemy` | `docs/10-gameplay.md`, `docs/22-update-14-noiembrie.md` |
 | Fuga cu L3, viteza, pasii de coliziune | `src/07-play.js`, `CONFIG.sprint` | `docs/10-gameplay.md` |
+| Cele 10 secunde, ecranul "Încă o dată!" | `src/07-play.js`, `src/10-main.js`, `CONFIG.rescue` | `docs/10-gameplay.md`, `docs/13-ecrane-si-meniuri.md` |
 | Ecranul de start, `setGame` (acum fixeaza jocul) | `src/09-screens.js` | `docs/13-ecrane-si-meniuri.md` |
 | Capitolele, meniul de start, salvarea (`chapters`, `Save.finish`) | `src/06-level.js`, `src/09-screens.js`, `src/10-main.js` | `docs/13-ecrane-si-meniuri.md` |
 | Nivelurile si generarea lor | `src/06-level.js` | `docs/09-niveluri.md` |
@@ -64,6 +65,7 @@ Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece sec
 - Ordinea fisierelor din `build.sh` conteaza. Un fisier poate folosi la incarcare doar nume definite in fisierele de dinaintea lui. In functii care ruleaza mai tarziu poate folosi orice.
 - Codul ruleaza intr-un singur `<script>` cu `'use strict'`. Toate numele de sus sunt globale si unice in tot jocul. Verifica cu `grep` ca un nume nou nu exista deja.
 - `T` este functia de traducere. Nu folosi `T` ca nume de variabila locala.
+- In `text(...)`, `halo` e grosimea conturului **ca parte din marimea fontului** (0.2 implicit). `halo: 5` deseneaza un cerc crem cat jumatate de ecran.
 - Tot scrisul de sus sta in banda de 132 de unitati (`HUD_TOP`, `08-draw.js`). Nimic nu coboara sub ea peste lume, niciun banner. Camera (`camTarget`, `07-play.js`) tine eroii sub banda. Daca schimbi inaltimea unui cartonas de sus, ruleaza `tests/hud-acoperire.js` cu `STRICT=1`.
 - `Game.levelIdx` este indicele unui **capitol** (nivel sau lupta mare), nu numarul nivelului. Numarul nivelului e `P.L.idx`. Lista capitolelor o da `chapters()`.
 - Tastatura baga un jucator in joc doar pe ecranul de start (`Input.kbJoin`). Nu il porni pe alte ecrane: Enter si Spatiu sunt si tastele de putere.

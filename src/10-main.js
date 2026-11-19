@@ -47,13 +47,22 @@ Game.startChapter = function (i) {
 /* A player joins with the keyboard only on the start screen. In a level, Enter or Space in the pause menu must not make
    the second hero join (a child playing alone would suddenly have a friend nobody plays). Controllers can still join any time. */
 Game.goLevel = function (idx) { Game.levelIdx = idx; Game.state = 'loading'; UI.loadStep = 0; Input.kbJoin = false; Voice.stop(); };
+/* Nobody came in time: the chapter starts again from its beginning. Never "Game Over": "Încă o dată!".
+   Game.tries counts the restarts of each chapter, so after a few of them the children get more seconds (CONFIG.rescue). */
+Game.failLevel = function () {
+  if (Game.state !== 'play') return;
+  Game.tries[Game.levelIdx] = (Game.tries[Game.levelIdx] || 0) + 1;
+  Game.state = 'retry'; UI.retryT = 0; UI.retryMercy = CONFIG.rescue.retryMercy > 0 && Game.tries[Game.levelIdx] >= CONFIG.rescue.retryMercy;
+  Snd.play('retry'); Snd.setDuck(0.5); Voice.stop();
+  for (let k = 0; k < 2; k++) if (Input.slots[k].joined) Input.rumble(k, 0.3, 0.3, 400);
+};
 /* The chapter that is being played is over: its best result is kept and the team total becomes the sum of all results. */
 function finishChapter() {
-  Game.lastRun = { eggs: P.levelEggs, stars: P.levelStars, med: levelMedals() };
+  Game.lastRun = { eggs: P.levelEggs, stars: P.levelStars, med: levelMedals(), tries: Game.tries[Game.levelIdx] || 0 };      // tries: how many times this chapter started again before it was finished
   Save.finish(Game.levelIdx, Game.lastRun);
   const tt = sumResults(Game.results); Game.team = { eggs: tt.eggs, stars: tt.stars };
 }
-Game.levelEnd = function () { finishChapter(); Game.state = 'levelEnd'; UI.lvlT = 0; };
+Game.levelEnd = function () { Game.tries[Game.levelIdx] = 0; finishChapter(); Game.state = 'levelEnd'; UI.lvlT = 0; };
 Game.toEnding = function () { finishChapter(); Game.state = 'ending'; startEnding(); };
 
 function update(dt) {
@@ -71,9 +80,15 @@ function update(dt) {
     UI.loadStep++;
     if (UI.loadStep >= 3) {
       startPlay(buildLevel(Game.levelIdx));
-      Game.state = 'intro'; UI.introT = 0; Snd.setDuck(0.45);
-      Voice.say(lvlName(P.L.def) + '. ' + lvlIntro(P.L.def));
+      if (UI.skipIntro) { UI.skipIntro = false; Game.state = 'play'; Snd.setDuck(1); }      // after a restart the heroes start right away
+      else {
+        Game.state = 'intro'; UI.introT = 0; Snd.setDuck(0.45);
+        Voice.say(lvlName(P.L.def) + '. ' + lvlIntro(P.L.def));
+      }
     }
+  } else if (st === 'retry') {
+    UI.retryT += dt; stepParts(dt);
+    if (UI.retryT > CONFIG.rescue.retryScreen) { UI.skipIntro = true; Snd.setDuck(1); Game.goLevel(Game.levelIdx); }      // the same chapter, without its story again
   } else if (st === 'intro') {
     UI.introT += dt;
     if (UI.introT > 0.8 && pressedGo()) { Voice.stop(); Snd.setDuck(1); Snd.play('ok'); Game.state = 'play'; Snd.talk(0, 'hello'); Snd.talk(1, 'hello'); }
@@ -106,6 +121,7 @@ function draw() {
   else if (st === 'loading') drawLoading(c, t);
   else if (st === 'intro') { drawIntro(c, t); ov = P.L.overlay; }
   else if (st === 'play') { drawPlay(c); if (Game.paused && !UI.set) drawPause(c, t); ov = P.L.overlay; }
+  else if (st === 'retry') { drawRetry(c, t); ov = P.L.overlay; }
   else if (st === 'levelEnd') { drawLevelEnd(c, t); ov = P.L.overlay; }
   else if (st === 'ending') { drawEnding(c, t); ov = UI.endOv; }
   if (UI.set && (st === 'title' || st === 'play')) { UI.hits.length = 0; drawSettings(c, t); }
@@ -126,5 +142,5 @@ function frame(ts) {
 Save.load(); Save.apply(); setLanguage(Opt.lang);
 resize();
 initScreens();
-window.__game = { Game, Input, UI, Save, CONFIG, Opt, STR, T, Snd, Voice, Perf, get P() { return P; }, get GAME() { return GAME; }, setGame, buildLevel, genLevel, startPlay, startDuel, duelHit, openNest, hitHero, getUp, tryRescue, hurtSmall, throwRing, recallBalls, startSpin, abil, hasAbil, makeEgg, collectEgg, chapters, chapterLabel, titleMenu, chapterLayout, HUD_TOP, HERO_BOX, camTarget, update, draw, openSettings, closeSettings, swapHeroes, settingsRows, KEY_FIELDS, startRun, stopRun, canRun };
+window.__game = { Game, Input, UI, Save, CONFIG, Opt, STR, T, Snd, Voice, Perf, get P() { return P; }, get GAME() { return GAME; }, setGame, buildLevel, genLevel, startPlay, startDuel, duelHit, openNest, hitHero, getUp, tryRescue, hurtSmall, throwRing, recallBalls, startSpin, abil, hasAbil, makeEgg, collectEgg, chapters, chapterLabel, titleMenu, chapterLayout, HUD_TOP, HERO_BOX, camTarget, update, draw, openSettings, closeSettings, swapHeroes, settingsRows, KEY_FIELDS, startRun, stopRun, canRun, rescueLimit, drawRetry };
 requestAnimationFrame(ts => { _last = ts; requestAnimationFrame(frame); });

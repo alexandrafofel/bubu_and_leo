@@ -41,6 +41,24 @@ function drawParts(c) {
   }
 }
 /* Boon's claws while they spin: rainbow slashes that run around him, on a soft shield. */
+/* The ten seconds of a hero who is down: ten beads around him, one going out every second, and the number
+   over his head. It pops at every second and grows coral in the last three. Nothing dark: it is a countdown, not a threat. */
+function drawDownRing(c, h, by) {
+  const RS = CONFIG.rescue, full = rescueLimit() || RS.limit, left = h.downLeft, t = P.time;
+  const col = CONFIG.heroes[1 - h.k].color, hurry = left <= 3, n = 10;
+  const lit = Math.ceil(left / full * n);                 // how many beads are still on
+  for (let i = 0; i < n; i++) {
+    const a = i / n * TAU - Math.PI / 2, bx = h.x + Math.cos(a) * 76, byy = h.y - 50 + Math.sin(a) * 40, on = i < lit;
+    const pu = on && i === lit - 1 ? 1 + 0.3 * Math.abs(Math.sin(t * 7)) : 1;
+    c.fillStyle = on ? col : 'rgba(255,246,224,0.45)';
+    c.beginPath(); c.arc(bx, byy, 8 * pu, 0, TAU); c.fill();
+    c.strokeStyle = on ? 'rgba(255,248,232,0.9)' : rgba(col, 0.4); c.lineWidth = on ? 2.5 : 2; c.stroke();
+  }
+  const secs = Math.ceil(left), frac = secs - left, pop = 1 + 0.25 * clamp(1 - frac / 0.15, 0, 1);      // the number pops at every second
+  c.save(); c.translate(h.x - 46, by + 6); c.scale(pop, pop);
+  text(c, String(secs), 0, 0, hurry ? 84 : 64, hurry ? '#E4583C' : col, { title: true, halo: 0.26, haloCol: 'rgba(255,248,232,0.95)' });
+  c.restore();
+}
 function drawClawRing(c, h) {
   const cfg = abil(h.k, 'spin'), R = cfg.radius, u = clamp(h.spinT / cfg.time, 0, 1), grow = Math.min(1, u * 5) * (u > 0.85 ? (1 - u) / 0.15 : 1), t = P.time;
   c.fillStyle = rgba(CONFIG.heroes[h.k].color, 0.12 * grow); c.beginPath(); c.ellipse(h.x, h.y - 6, R * grow, R * 0.52 * grow, 0, 0, TAU); c.fill();
@@ -122,8 +140,9 @@ function drawHeroFull(c, h) {
   if (h.dizzy > 0) drawDizzyStars(c, h.x + (h.k === 0 && !isLupta() ? 30 * h.face : 0), h.y - top, P.time);
   if (h.down) {                            // ○ and a dot in the friend's color: "friend, press ○ for me"
     const by = h.y - top - 52 + Math.sin(t * 5) * 5;
-    iconO(c, h.x, by, 28, Math.sin(t * 6));
-    c.fillStyle = fcfg.color; c.beginPath(); c.arc(h.x + 30, by - 24, 12, 0, TAU); c.fill(); c.strokeStyle = '#FFF8E8'; c.lineWidth = 3.5; c.stroke();
+    if (h.downLeft > 0) drawDownRing(c, h, by);        // the ten seconds: the beads and the number
+    iconO(c, h.x + (h.downLeft > 0 ? 44 : 0), by, 28, Math.sin(t * 6));
+    c.fillStyle = fcfg.color; c.beginPath(); c.arc(h.x + (h.downLeft > 0 ? 74 : 30), by - 24, 12, 0, TAU); c.fill(); c.strokeStyle = '#FFF8E8'; c.lineWidth = 3.5; c.stroke();
   } else if (fr.down && Input.slots[h.k].joined && h.dizzy <= 0) {    // the helper: close enough = a big ○ over the head
     const reach = h.k === 0 ? CONFIG.rescue.reachNear : CONFIG.rescue.reachFar;
     if (dist(h.x, h.y, fr.x, fr.y) <= reach) iconO(c, h.x, h.y - top - 44 + Math.sin(t * 7) * 6, 34, Math.sin(t * 9) * 1.5);
@@ -508,6 +527,11 @@ function drawBadge(c, k, x, y) {
   if (h.boost > 0) drawButterfly(c, x + w - 32, y + 44, P.time, 0.62);
 }
 /* "We wait for X in the nest": it used to be written in the world, over the nest. Now it is a banner in the band. */
+/* "Ajută-l pe Boon! ○" while a friend is down and the seconds are running. It comes before any other banner. */
+function downBanner() {
+  for (const h of P.heroes) if (h.down && h.downLeft > 0) return { kind: 'down', t: 2, name: CONFIG.heroes[h.k].name, k: h.k };
+  return null;
+}
 function waitBanner() {
   const L = P.L;
   if (!P.nestOpen || P.done || L.boss || !Input.slots[0].joined || !Input.slots[1].joined) return null;
@@ -525,6 +549,13 @@ function drawMidCard(c, ban) {
   if (ban) { c.save(); c.translate(W / 2, yc); c.scale(pop, pop); c.translate(-W / 2, -yc); c.globalAlpha = clamp(Math.min(ban.t, 1), 0, 1); }
   card(c, cx, y0, cw, hh, ban ? '#FFF6E2' : '#FFF3DC', ban ? 31 : 9);
   if (ban) {
+    if (ban.kind === 'down') {                      // a friend is down: the message and a big ○, in his color
+      const fk = 1 - ban.k, kb = Opt.ctrl[fk] === 'kb', key = kb ? keyName(Opt.keys[fk].b) : '';      // the friend plays on the keyboard: his own key, not ○
+      text(c, kb ? T('retry.helpKey', ban.name, key) : T('retry.help', ban.name), W / 2 - 30, yc, 44, CONFIG.heroes[ban.k].color, { title: true, halo: 0 });
+      iconO(c, W / 2 + cw / 2 - 54, yc, 26, Math.sin(t * 7));
+      c.globalAlpha = 1; c.restore();
+      return;
+    }
     const label = T('ban.' + ban.kind, ban.kind === 'wait' ? ban.name : isLupta() ? CONFIG.lupta.rainbowBonus : '');
     if (ban.kind === 'duel') {
       text(c, label, W / 2, y0 + 30, 40, '#C4573D', { title: true, halo: 0 });
@@ -569,13 +600,24 @@ function drawMidCard(c, ban) {
 }
 function drawHUD(c) {
   drawBadge(c, 0, 28, 16); drawBadge(c, 1, W - 28 - 300, 16);
-  drawMidCard(c, P.banner || waitBanner());
+  drawMidCard(c, downBanner() || P.banner || waitBanner());
   if (!P.L.boss) drawProgress(c);
 }
 function drawPlay(c) {
   const v = drawWorld(c);
   drawHints(c, v);
+  drawEdgePulse(c);
   drawHUD(c);
+}
+/* The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. */
+function drawEdgePulse(c) {
+  let worst = 0, col = null;
+  for (const h of P.heroes) if (h.down && h.downLeft > 0 && h.downLeft <= 3 && (!worst || h.downLeft < worst)) { worst = h.downLeft; col = CONFIG.heroes[h.k].color; }
+  if (!col) return;
+  const a = (0.1 + 0.15 * (1 - worst / 3)) * (0.55 + 0.45 * Math.sin(P.time * 7));
+  const g = c.createRadialGradient(W / 2, H / 2, H * 0.34, W / 2, H / 2, H * 0.78);
+  g.addColorStop(0, rgba(col, 0)); g.addColorStop(1, rgba(col, Math.max(0, a)));
+  c.fillStyle = g; c.fillRect(0, 0, W, H);
 }
 /* The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. */
 function drawNestShelter(c) {

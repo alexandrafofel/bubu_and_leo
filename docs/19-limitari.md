@@ -91,3 +91,12 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - **Cum se simt cele trei batai de vibratie** pe un controller adevarat, fata de vibratia continua a ghearelor.
 - **Daca manusile intinse acopera prea mult** din ce e in jurul lui Killer.
 - Cum suna `bone`, `tock` si `gloves` pe boxele familiei.
+
+## T4 (19 noiembrie 2026): ce nu s-a putut verifica
+
+- **Daca 10 secunde sunt destule** pentru cei doi copii pe hartile de acum (3200 x 1800). Cu fuga (L3) drumul e de trei ori mai scurt, dar nu stim daca cel mic o foloseste cand e graba. Daca nu ajung, se creste `CONFIG.rescue.limit`.
+- **Daca pierderea progresului supara.** La reincepere se pierd cristalele si stelele nivelului. Rezultatele nivelurilor dinainte raman.
+- **Daca reincepe prea des in luptele mari**, unde eroii sunt loviti mai usor.
+- **Daca ecranul "Încă o dată!" e inteles** ca "mai incercam", nu ca o pedeapsa.
+- Cum se simt vibratiile de fiecare secunda pe un controller adevarat, mai ales cele dese din ultimele 3 secunde: pot deveni suparatoare.
+- Daca lumina de pe margini se vede destul pe televizorul familiei, peste jungla de noapte.
