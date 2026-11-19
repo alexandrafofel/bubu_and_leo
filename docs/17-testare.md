@@ -228,3 +228,25 @@ Nivelurile de acum nu au pereti mai subtiri de doua celule, deci fara pasii mici
 ### Testele vechi schimbate
 
 `controller-simulat.js` (acum apasa ○, si verifica si ca □ nu mai ridica eroul), `joc-complet-bot.js`, `mini-lupte-bot.js`, `salvare-prieten.js`, `capturi-ecran.js` si `common.js` (`inp[k].hP`, `cP`, `runP`; `bP` a ramas ca alt nume pentru `hP`).
+
+## Update 19 noiembrie 2026: a doua putere (sarcina T3)
+
+### `puteri-doi.js`
+
+| Nr | Ce verifica | Rezultat |
+|---|---|---|
+| 1 | Boon, □ scurt: 8 oase cu `owner: 0` si `look: 'bone'`, la unghiuri egale; □ tinut o secunda: 12. | OK |
+| 2 | A doua apasare cat zboara: oasele lui Boon se intorc, mingile lui Killer raman in aer. | OK |
+| 3 | O aruncare de oase ia robotului o singura inima (toate cele 8 impreuna). | OK |
+| 4 | Un os culege un cristal, iar culesul e trecut pe Boon. | OK |
+| 5 | Killer, □: `shield` 0.85 s, robotul de langa pierde o inima, cristalele din jur vin spre el, un atac nu il loveste, dupa 0.85 s scutul se termina. | OK |
+| 6 | Manusile: exact trei vibratii pe controllerul lui Killer, la cel putin 0.2 s una de alta. | OK (0.266 si 0.284 s) |
+| 7 | Cat Killer se invarte, ✕ nu porneste un sut; cat Boon incarca oasele, ✕ nu porneste ghearele. | OK |
+| 8 | Un erou cu `power2: null`: □ nu face nimic. | OK |
+| 9 | Captura cu amandoua puterile pornite (`p_doua-puteri.png`), privita cu ochiul. | OK |
+
+Verificat ca poate sa pice: cu oasele desenate ca mingi testul scrie `NEREUSIT` la 1b; cu o singura bataie de vibratie in loc de trei, la 6.
+
+### Testele vechi schimbate (doar numele, nu si ce verifica)
+
+`mingi-leo.js` (`G.throwRing`, `h.homeState`, `h.throwCd`, `recallBalls(1)`), `mini-lupte-bot.js` si `salvare-prieten.js`. Numerele si verificarile au ramas aceleasi: asta e dovada ca refactorizarea nu a schimbat jocul.

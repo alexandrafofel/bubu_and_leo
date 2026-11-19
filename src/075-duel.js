@@ -88,19 +88,19 @@ function duelHit(k) {
 }
 function duelBall(b) {
   const d = P.duel; if (d.over || d.state === 'enter' || d.state === 'flee' || d.state === 'hurt') return;
-  if (d.z > 90 && rank(1) > 0) return;                       // too high: the ball flies under it
+  if (d.z > 90 && rank(b.owner) > 0) return;                 // too high: the thrown thing flies under it
   if (dist(b.x, b.y, d.x, d.y - 20) > d.R + b.r + 12) return;
-  if (duelCanHurt(1, 'ball')) { duelHit(1); b.state = 'return'; return; }
+  if (duelCanHurt(b.owner, 'ball')) { duelHit(b.owner); b.state = 'return'; return; }
   const dx = b.x - d.x, dy = b.y - (d.y - 20), m = Math.hypot(dx, dy) || 1, v = Math.max(360, Math.hypot(b.vx, b.vy) * 0.8);
   b.vx = dx / m * v; b.vy = dy / m * v; b.x = d.x + dx / m * (d.R + b.r + 14); b.y = d.y - 20 + dy / m * (d.R + b.r + 14);
   if (d.tonkT <= 0) { Snd.play('tonk'); d.tonkT = 0.15; burst(b.x, b.y - 10, 5, { speed: 120, life: 0.35, cols: ['#FFF3C0', '#C9D6E8'] }); }
   d.flash = Math.max(d.flash, 0.2); d.hintT = 1.6;
 }
 function duelStomp(h) {
-  const d = P.duel, cfg = CONFIG.heroes[0];
+  const d = P.duel, cfg = abil(h.k, 'spin');       // the claws or the gloves: whoever is spinning, with his own circle
   if (d.over || d.z > 60 || d.state === 'enter' || d.state === 'flee' || d.state === 'hurt') return false;
-  if (dist(h.x, h.y, d.x, d.y) > cfg.stompRadius + d.R) return false;
-  if (duelCanHurt(0, 'stomp')) duelHit(0);
+  if (dist(h.x, h.y, d.x, d.y) > cfg.radius + d.R) return false;
+  if (duelCanHurt(h.k, 'stomp')) duelHit(h.k);
   else if (d.stagCd <= 0 && (d.state === 'move' || d.state === 'aim')) { d.state = 'stag'; d.t = 0; d.stagCd = 4.5; Snd.play('stun'); d.hintT = 0; }   // a stomp makes it wobble: Leo's ball counts now
   else { d.hintT = 1.6; Snd.talk(h.k, 'notYet'); }
   return true;                                               // it was close enough: this stomp (or this spin of the claws) is used up

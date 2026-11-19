@@ -83,6 +83,11 @@ const Snd = (() => {
     let node = os;
     if (o && o.lp) { const fl = a.createBiquadFilter(); fl.type = 'lowpass'; fl.frequency.value = o.lp; os.connect(fl); node = fl; }
     node.connect(gn); gn.connect(bus);
+    if (o && o.trem) {                     // a trembling note ("fup-fup"): a slow wave on top of the loudness
+      const lo = a.createOscillator(), lg = a.createGain();
+      lo.type = 'sine'; lo.frequency.value = o.trem; lg.gain.value = g * 0.4;
+      lo.connect(lg); lg.connect(gn.gain); lo.start(t); lo.stop(t + att + dec + 0.05);
+    }
     os.start(t); os.stop(t + att + dec + 0.05);
   }
   function noise(bus, t, g, att, dec, type, f, f2, q) {
@@ -295,7 +300,8 @@ const Snd = (() => {
         levelWin: [['a', 2, 0.16, 2], ['a', 5, 0.16, 2], ['a', 9, 0.16, 2], ['o', 12, 0.52, 2]],
         bossDown: [['a', 0, 0.16, -3], ['a', 0, 0.16, -3], ['o', -3, 0.44, -7]],
         help: [['i', 10, 0.22, -3], ['i', 8, 0.3, -4]], rescue: [['o', 2, 0.12, 4], ['a', 7, 0.14, 3], ['o', 11, 0.3, -2]], thanks: [['a', 6, 0.14, 4], ['o', 11, 0.3, 0]],
-        run: [['a', 7, 0.08, 7], ['o', 13, 0.15, 9]] },
+        run: [['a', 7, 0.08, 7], ['o', 13, 0.15, 9]],
+        power2: [['o', 4, 0.1, 6], ['a', 10, 0.16, 5]], power2Big: [['o', 3, 0.12, 8], ['a', 9, 0.1, 7], ['u', 15, 0.26, 4]] },
       // Killer
       { hello: [['a', 0, 0.09, 5], ['i', 7, 0.09, 0], ['a', 3, 0.2, 4]], ready: [['e', 4, 0.07, 0], ['e', 4, 0.07, 0], ['a', 9, 0.18, 5]],
         egg: [[['a', 2, 0.07, 4]], [['i', 6, 0.07, 3]], [['e', 9, 0.07, 2]]], eggs5: [['a', 0, 0.06, 0], ['e', 3, 0.06, 0], ['a', 7, 0.06, 0], ['i', 12, 0.18, 3]],
@@ -314,7 +320,8 @@ const Snd = (() => {
         levelWin: [['a', 0, 0.09, 4], ['e', 4, 0.09, 4], ['a', 7, 0.09, 4], ['e', 11, 0.09, 4], ['i', 14, 0.32, 2]],
         bossDown: [['e', 7, 0.09, -3], ['e', 7, 0.09, -3], ['a', 3, 0.3, -6]],
         help: [['a', 10, 0.14, -5], ['a', 10, 0.14, -5], ['e', 6, 0.26, -5]], rescue: [['e', 2, 0.07, 5], ['a', 7, 0.07, 4], ['e', 12, 0.2, 3]], thanks: [['a', 5, 0.08, 3], ['i', 12, 0.2, 2]],
-        run: [['i', 9, 0.05, 8], ['a', 16, 0.13, 7]] }
+        run: [['i', 9, 0.05, 8], ['a', 16, 0.13, 7]],
+        power2: [['e', 4, 0.06, 6], ['i', 10, 0.14, 5]], power2Big: [['e', 3, 0.07, 7], ['a', 8, 0.06, 6], ['i', 14, 0.22, 8]] }
     ]
   };
   // How loud a voice is: a quiet one never cuts in on a louder one that is still talking.
@@ -440,11 +447,16 @@ const Snd = (() => {
     duel(b, t) { [0, 0, 3].forEach((d, i) => marimba(b, mtof(50 + d), t + i * 0.14, 0.32)); growl(b, t + 0.35, 150, 90, 0.7, 0.4, 21); },
     flee(b, t) { for (let i = 0; i < 5; i++) voc(b, t + i * 0.11, 520 - i * 50, 380 - i * 40, 0.08, 0.09, 1200, 800); },
     goal(b, t) { [0, 7, 12, 17].forEach((d, i) => marimba(b, mtof(64 + d), t + i * 0.08, 0.34)); chime(b, mtof(88), t + 0.3, 0.12); },
-    dash(b, t) { noise(b, t, 0.16, 0.015, 0.17, 'bandpass', 500, 2100, 1.1); osc(b, 'sine', 330, t, 0.1, 0.01, 0.16, { f2: 760, gt: 0.14 }); }      // starting to run: a short soft "whoosh" going up
+    dash(b, t) { noise(b, t, 0.16, 0.015, 0.17, 'bandpass', 500, 2100, 1.1); osc(b, 'sine', 330, t, 0.1, 0.01, 0.16, { f2: 760, gt: 0.14 }); },      // starting to run: a short soft "whoosh" going up
+    // Boon throws the bones: three low "fup-fup-fup" with a tremble, and the bones knocking on a wall: a warm wooden "tock"
+    bone(b, t, v) { for (let i = 0; i < 3; i++) osc(b, 'triangle', 180 - i * 20, t + i * 0.055, 0.12 + (v || 0) * 0.05, 0.008, 0.09, { f2: 140 - i * 14, gt: 0.08, trem: 14 }); noise(b, t, 0.1, 0.01, 0.12, 'bandpass', 700, 420, 1.4); },
+    tock(b, t) { osc(b, 'sine', 520, t, 0.16, 0.004, 0.06, { f2: 430, gt: 0.05 }); noise(b, t, 0.07, 0.002, 0.03, 'bandpass', 1500, 900, 2.2); },
+    // Killer's whirl gloves: two "fuip" going up and a soft rubbery squeak
+    gloves(b, t) { for (let i = 0; i < 2; i++) noise(b, t + i * 0.12, 0.14, 0.012, 0.13, 'bandpass', 500, 1400, 1.2); osc(b, 'sine', 900, t + 0.1, 0.09, 0.01, 0.08, { f2: 700, gt: 0.07 }); }
   };
   /* Running (L3) in the first game too: the same short soft whoosh. */
   fx.dash = fx2.dash;
-  const CHR = { egg: 1, star: 1, giant: 1, stomp: 1, kick: 1, bounce: 1, bonk: 1, drop: 1, squelch: 1, step: 1, swish: 1, heal: 1, grab: 1, dash: 1 };
+  const CHR = { egg: 1, star: 1, giant: 1, stomp: 1, kick: 1, bounce: 1, bonk: 1, drop: 1, squelch: 1, step: 1, swish: 1, heal: 1, grab: 1, dash: 1, bone: 1, tock: 1, gloves: 1 };
   /* play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. */
   function play(name, arg, k, vol) {
     const f = (GAME === 'lupta' && fx2[name]) || fx[name];

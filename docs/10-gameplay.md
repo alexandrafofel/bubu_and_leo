@@ -301,3 +301,53 @@ Cat timp macar un erou fuge, camera merge mai repede spre tinta: x 9 pe secunda 
 ### Tutorialul
 
 Prima data cand eroii se despart la mai mult de 900 de unitati pe un nivel, deasupra fiecarui erou care nu a fugit inca apare `iconL3` timp de 4 secunde (`P.runHint`, `P.runHintDone`, `P.tut[k].ran`).
+
+## Update 19 noiembrie 2026 (T3): doua puteri pentru fiecare erou
+
+Cererea: "Killer sa isi alungeasca si el mainile si sa aiba puterea lui Boon (alta culoare, alte detalii...) iar Boon sa primeasca puterea lui Killer, dar sa arunce cu altceva - ceva specific dinozaurilor".
+
+### Puterile sunt acum doua abilitati
+
+Codul nu mai stie "eroul 0 se roteste, eroul 1 arunca". Stie doua abilitati, iar fiecare erou spune in `CONFIG` ce are pe fiecare buton:
+
+| | `power` (✕) | `power2` (□) |
+|---|---|---|
+| Boon | `spin`: ghearele | `throw`: oasele-bumerang |
+| Killer | `throw`: mingile | `spin`: manusile-vartej |
+| Bubu (jocul scos) | `spin`: tropaitul (`time: 0`) | - |
+| Leo (jocul scos) | `throw`: mingile | - |
+
+`abil(k, kind)` da numerele unei abilitati pentru un erou: blocul lui (`spin` sau `throw` in `CONFIG`), sau numele vechi de pe erou (`stompRadius`, `kickSpeed`...) daca nu are bloc. `hasAbil(k, kind)` spune daca o are, `abilSlot(k, kind)` pe ce buton (1 sau 2: hotaraste cuvantul si indiciul din tutorial).
+
+| Inainte | Acum |
+|---|---|
+| `startPower(h)` | `startSpin(h)` |
+| `kickBall(h, ...)` | `throwRing(h, ...)` |
+| `ballReady()` | `throwReady(h)` |
+| `recallBalls()` | `recallBalls(k)`: doar lucrurile eroului `k` |
+| `stepFlyBall(b, dt, h)` | `stepFlyBall(b, dt)`: eroul vine din `b.owner` |
+| blocul `if (h.k === 0) ... else ...` | `updateSpin(h, dt, apasat)` si `updateThrow(h, dt, apasat, eliberat, tinut)`, chemate pe butonul pe care eroul are abilitatea |
+| `P.ball`, `P.ballCool` | `h.home`, `h.homeState`, `h.throwCd` (pe fiecare erou) |
+| `P.tut[k].used` | `P.tut[k].used` (prima putere), `P.tut[k].used2` (a doua) |
+
+`P.flock` ramane o singura lista. Fiecare lucru aruncat are `owner` (0 sau 1) si `look` (`'ball'` sau `'bone'`).
+
+### Oasele-bumerang ale lui Boon (□)
+
+Aceleasi reguli ca mingile, cu numerele lui (`CONFIG.lupta.heroes[0].throw`): 8 oase la apasare scurta, 12 la aruncare incarcata, viteza 700 - 1250 (mingile: 760 - 1400), pauza 1.2 s, viata 2.3 - 3.8 s. A doua apasare cheama inapoi doar oasele lui.
+
+Ce e altfel fata de mingi: osul nu sare, pluteste la 14 unitati si se roteste repede; lasa un arc turcoaz (`b.trail`, ultimele 6 pozitii) si urme mici de laba; se intoarce pe o curba (`b.ret`, deviere laterala `sin(u * PI) * 90`); suna `bone` ("fup-fup-fup") la aruncare si `tock` (lemn) la perete; inelul de incarcare e turcoaz; cand e acasa, osul sta pe umarul lui Boon, nu la picioare.
+
+### Manusile-vartej ale lui Killer (□)
+
+Aceleasi reguli ca ghearele, cu numerele lui (`CONFIG.lupta.heroes[1].spin`): raza 220, trage cristalele din 300, tin 0.85 s, pauza 1.6 s (ghearele: 1.25), ameteala 2.8 s. Cat se invart, `h.shield` e adevarat: nimic nu il loveste.
+
+Ce e altfel fata de gheare: amandoua bratele se intind de 2.4 ori, cu manusi rosii de portar (palma alba, stea albastra); inelul are doua manusi care se urmaresc, fiecare cu o panglica (albastra si alba) si un cerc punctat alb pe pamant; se invarte invers; scanteile sunt stelute albe si albastre si, din cand in cand, un hexagon; sunetul e `gloves`; **vibratia e in trei batai** (la 0, 0.28 si 0.56 s), nu continua, cum a cerut proprietara.
+
+### Reguli comune
+
+1. Fiecare putere are pauza ei. Cele doua ale aceluiasi erou nu pornesc deodata: cat se roteste nu poate incepe o aruncare, cat incarca o aruncare nu poate porni rotirea.
+2. Lucrurile plecate raman in aer cand eroul incepe sa se roteasca.
+3. Un erou jos, ametit sau dus de o pasare nu are nicio putere (`updateHero` se opreste inainte).
+4. In mini-lupte si la boss, lovitura conteaza dupa **fel** (rotire sau lucru aruncat), nu dupa cine a dat-o. Acum fiecare erou le poate face pe amandoua, deci lupta lui George e putin mai usoara. E acceptat (`16-decizii.md`).
+5. Tutorial: pe nivelul 1 si pe nivelul 7, dupa ce eroul foloseste ✕, deasupra lui apare □ pana cand foloseste a doua putere (cel mult 90 de secunde).

@@ -9,6 +9,8 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `villainName` | `"George cel Rău"` |  |
 | `language` | `"ro"` | starting language: 'ro' or 'en'. Changeable in Setări. |
 | `heroes.0.name` | `"Boon"` |  |
+| `heroes.0.power` | `"spin"` | ✕: the stomp (a spin with time 0). □: nothing |
+| `heroes.0.power2` | `"throw"` | ✕: the stomp (a spin with time 0). □: nothing |
 | `heroes.0.color` | `"#2FBFA8"` | player color on screen (rings, badges) |
 | `heroes.0.color2` | `"#B7D645"` | spots |
 | `heroes.0.speed` | `330` | walking speed, pixels per second |
@@ -17,7 +19,18 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `heroes.0.stompCooldown` | `1.25` | seconds between stomps |
 | `heroes.0.stunTime` | `2.8` | how long stomped enemies stay stunned |
 | `heroes.0.spinTime` | `0.85` | how long the claws spin |
+| `heroes.0.throw.look` | `"bone"` |  |
+| `heroes.0.throw.speed` | `700` | a little slower than the balls (760, 1400): easier for the younger player to follow |
+| `heroes.0.throw.speedMax` | `1250` | a little slower than the balls (760, 1400): easier for the younger player to follow |
+| `heroes.0.throw.charge` | `0.9` |  |
+| `heroes.0.throw.n` | `8` |  |
+| `heroes.0.throw.nMax` | `12` |  |
+| `heroes.0.throw.cooldown` | `1.2` |  |
+| `heroes.0.throw.life` | `2.3` |  |
+| `heroes.0.throw.lifeMax` | `3.8` |  |
 | `heroes.1.name` | `"Killer"` |  |
+| `heroes.1.power` | `"throw"` | ✕: the balls. □: the whirl gloves |
+| `heroes.1.power2` | `"spin"` | ✕: the balls. □: the whirl gloves |
 | `heroes.1.color` | `"#3B6FE0"` | shirt (blue) |
 | `heroes.1.color2` | `"#E4583C"` | boots (red) |
 | `heroes.1.speed` | `350` |  |
@@ -29,6 +42,12 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `heroes.1.kickCooldown` | `1.2` | the same as Leo |
 | `heroes.1.ballLife` | `2.3` | the same as Leo |
 | `heroes.1.ballLifeMax` | `3.8` | the same as Leo |
+| `heroes.1.spin.look` | `"gloves"` |  |
+| `heroes.1.spin.radius` | `220` |  |
+| `heroes.1.spin.pull` | `300` |  |
+| `heroes.1.spin.time` | `0.85` |  |
+| `heroes.1.spin.cooldown` | `1.6` | Boon: 1.25. A little longer: the older player is shielded a little less often |
+| `heroes.1.spin.stun` | `2.8` |  |
 | `levels` | `6` | levels of the second game that exist. Part Two (levels 7 - 12) raises it as each new level is made |
 | `decorPerLevel` | `1700` |  |
 | `levelDuration` | `360` |  |
@@ -144,6 +163,8 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `saveKey` | `"bubu-leo-oua-de-aur-v1"` |  |
 | `lupta.villainName` | `"George cel Rău"` |  |
 | `lupta.heroes.0.name` | `"Boon"` |  |
+| `lupta.heroes.0.power` | `"spin"` |  |
+| `lupta.heroes.0.power2` | `"throw"` |  |
 | `lupta.heroes.0.color` | `"#2FBFA8"` |  |
 | `lupta.heroes.0.color2` | `"#B7D645"` |  |
 | `lupta.heroes.0.speed` | `330` |  |
@@ -152,7 +173,18 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `lupta.heroes.0.stompCooldown` | `1.25` |  |
 | `lupta.heroes.0.stunTime` | `2.8` |  |
 | `lupta.heroes.0.spinTime` | `0.85` |  |
+| `lupta.heroes.0.throw.look` | `"bone"` |  |
+| `lupta.heroes.0.throw.speed` | `700` |  |
+| `lupta.heroes.0.throw.speedMax` | `1250` |  |
+| `lupta.heroes.0.throw.charge` | `0.9` |  |
+| `lupta.heroes.0.throw.n` | `8` |  |
+| `lupta.heroes.0.throw.nMax` | `12` |  |
+| `lupta.heroes.0.throw.cooldown` | `1.2` |  |
+| `lupta.heroes.0.throw.life` | `2.3` |  |
+| `lupta.heroes.0.throw.lifeMax` | `3.8` |  |
 | `lupta.heroes.1.name` | `"Killer"` |  |
+| `lupta.heroes.1.power` | `"throw"` |  |
+| `lupta.heroes.1.power2` | `"spin"` |  |
 | `lupta.heroes.1.color` | `"#3B6FE0"` |  |
 | `lupta.heroes.1.color2` | `"#E4583C"` |  |
 | `lupta.heroes.1.speed` | `350` |  |
@@ -164,6 +196,12 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `lupta.heroes.1.kickCooldown` | `1.2` |  |
 | `lupta.heroes.1.ballLife` | `2.3` |  |
 | `lupta.heroes.1.ballLifeMax` | `3.8` |  |
+| `lupta.heroes.1.spin.look` | `"gloves"` |  |
+| `lupta.heroes.1.spin.radius` | `220` |  |
+| `lupta.heroes.1.spin.pull` | `300` |  |
+| `lupta.heroes.1.spin.time` | `0.85` |  |
+| `lupta.heroes.1.spin.cooldown` | `1.6` |  |
+| `lupta.heroes.1.spin.stun` | `2.8` |  |
 | `lupta.boss.hits` | `6` |  |
 | `lupta.boss.shakes` | `[2,2,3,3,3,4]` |  |
 | `lupta.boss.downTime` | `5` |  |

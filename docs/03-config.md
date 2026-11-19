@@ -245,3 +245,20 @@ Butoanele de controller nu se regleaza. O salvare veche, fara `c` si `r`, primes
 | `rest` | 2 | Odihna, cand `max` nu e 0. |
 | `step` | 12 | Cat de mult se misca eroul intr-un pas de coliziune. Vezi `10-gameplay.md`, "Fuga". |
 | `wordGap` | 6 | Cel mult un cuvant "fug!" la atatea secunde. |
+
+## Update 19 noiembrie 2026 (T3): puterile in `CONFIG`
+
+Fiecare erou spune ce abilitate are pe fiecare buton:
+
+```js
+// CONFIG.heroes[0] (Bubu):        power: 'spin',  power2: null
+// CONFIG.heroes[1] (Leo):         power: 'throw', power2: null
+// CONFIG.lupta.heroes[0] (Boon):  power: 'spin',  power2: 'throw', throw: { ... }
+// CONFIG.lupta.heroes[1] (Killer):power: 'throw', power2: 'spin',  spin:  { ... }
+```
+
+`throw` al lui Boon (oasele): `look: 'bone'`, `speed: 700`, `speedMax: 1250`, `charge: 0.9`, `n: 8`, `nMax: 12`, `cooldown: 1.2`, `life: 2.3`, `lifeMax: 3.8`.
+
+`spin` al lui Killer (manusile): `look: 'gloves'`, `radius: 220`, `pull: 300`, `time: 0.85`, `cooldown: 1.6`, `stun: 2.8`.
+
+Un erou fara bloc propriu foloseste numele vechi de pe el (`stompRadius`, `kickSpeed`...), prin `abil(k, kind)`. `power2: null` inseamna ca □ nu face nimic.

@@ -50,7 +50,7 @@ const boot = require('./common.js');
     b.inv = 0; G.hitHero(b, b.x + 60, b.y); step(5);
     const seen = {}; for (let i = 0; i < 60 * 8; i++) { step(1); seen[d.state] = 1; }
     out['lupta: paznicul asteapta cat un erou e lovit'] = Object.keys(seen).join() === 'move';
-    const hp0 = d.hp; G.kickBall(b, 0, 1, 0); d.state = 'move'; out['lupta: paznicul nu poate fi lovit in acest timp'] = duelCanHurt(0, 'stomp') === false && d.hp === hp0;
+    const hp0 = d.hp; G.throwRing(b, 0, 1, 0); d.state = 'move'; out['lupta: paznicul nu poate fi lovit in acest timp'] = duelCanHurt(0, 'stomp') === false && d.hp === hp0;
     a.x = b.x - 100; a.y = b.y; step(2); inp[0].bP = true; step(3);
     for (let i = 0; i < 60 * 6; i++) { step(1); seen[d.state] = 1; }
     out['lupta: dupa ajutor paznicul ataca din nou'] = Object.keys(seen).length > 1;

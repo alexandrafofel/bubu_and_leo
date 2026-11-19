@@ -82,3 +82,12 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - **Daca urma si liniile de viteza se vad destul** pe jungla de noapte, care e deja plina de culori. Pe capturi se vad, dar nu e acelasi lucru cu un televizor.
 - **Daca un copil intelege din iconita L3** ca trebuie sa apese stick-ul, nu sa-l impinga.
 - **Daca ○ in loc de □ ii incurca** pe copiii care au jucat deja cu □ pentru ajutor.
+
+## T3 (19 noiembrie 2026): ce nu s-a putut verifica
+
+- **Daca jocul devine prea usor** acum, cand fiecare erou are si scut, si aruncare. Mai ales mini-luptele si lupta cu George. Se regleaza din pauzele celor doua puteri (`cooldown`).
+- **Daca cei doi copii isi dau seama singuri** ce face □, dupa indiciul de pe nivelul 1.
+- **Daca oasele se vad destul** peste jungla de noapte (arcul turcoaz ajuta, dar ecranul e plin de culori).
+- **Cum se simt cele trei batai de vibratie** pe un controller adevarat, fata de vibratia continua a ghearelor.
+- **Daca manusile intinse acopera prea mult** din ce e in jurul lui Killer.
+- Cum suna `bone`, `tock` si `gloves` pe boxele familiei.

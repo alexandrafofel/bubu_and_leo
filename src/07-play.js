@@ -6,6 +6,18 @@ const Game = { state: 'boot', t: 0, levelIdx: 0, team: { eggs: 0, stars: 0 }, re
 let P = null;                                   // everything about the level being played
 const D = k => CONFIG.difficulty[Game.diff[k]] || CONFIG.difficulty.normal;
 const rank = k => Game.diff[k] === 'easy' ? 0 : Game.diff[k] === 'hard' ? 2 : 1;      // 0 Ușor, 1 Normal, 2 Greu
+/* The two abilities of this game. Any hero can have any of them, on either button (CONFIG: power = ✕, power2 = □).
+   - 'spin'  turns around the hero: Boon's claws, Killer's gloves. Bubu's stomp is the same ability with time 0.
+   - 'throw' sends things out in a circle: Leo's and Killer's balls, Boon's bones.
+   abil gives the numbers of one ability for one hero: his own block if he has one, else the old names on the hero. */
+function abil(k, kind) {
+  const c = CONFIG.heroes[k];
+  if (kind === 'spin') return c.spin || { radius: c.stompRadius, pull: c.pullRadius, cooldown: c.stompCooldown, stun: c.stunTime, time: c.spinTime || 0, look: c.spinTime ? 'claws' : 'stomp' };
+  return c.throw || { speed: c.kickSpeed, speedMax: c.kickSpeedMax, charge: c.chargeTime, n: c.ballsPerKick, nMax: c.ballsPerKickMax, cooldown: c.kickCooldown, life: c.ballLife, lifeMax: c.ballLifeMax, look: 'ball' };
+}
+const hasAbil = (k, kind) => CONFIG.heroes[k].power === kind || CONFIG.heroes[k].power2 === kind;
+/* Which button an ability sits on for this hero: 1 = ✕ (the first power), 2 = □ (the second). Decides the word and the hint. */
+const abilSlot = (k, kind) => CONFIG.heroes[k].power2 === kind ? 2 : 1;
 const _col = { nx: 0, ny: 0, hit: null };
 
 /* Builds chapter idx: a level (its number inside the game is ch.n) or a big fight. L.ch remembers the chapter. */
@@ -20,7 +32,9 @@ function makeHero(k, x, y) {
   return { k, x, y, px: x, py: y, vx: 0, vy: 0, face: 1, ax: 1, ay: 0, walk: 0, moving: false, dizzy: 0, inv: 0, boost: 0, squash: 0, z: 0, cd: 0,
     stompT: -1, charge: 0, charging: false, kickT: 0, inMud: false, mudT: 0, tagT: 5, t: Math.random() * 5,
     down: false, downT: 0, callT: 0, small: 1, spinT: -1, spinNo: 0, shield: false, carried: null, hugT: 0, reachHint: 0,
-    run: false, runIdle: 0, runT: 0, runRest: 0, runWord: -99, ghosts: [], ghostT: 0 };       // run (L3): ghosts = the trail left behind
+    run: false, runIdle: 0, runT: 0, runRest: 0, runWord: -99, ghosts: [], ghostT: 0,         // run (L3): ghosts = the trail left behind
+    throwCd: 0, homeState: 'held', home: { x, y, z: 0, spin: 0 }, chargeHold: 0,               // the thrown things (balls or bones): cooldown, whether they are all home, and the one kept at hand
+    spinBeat: 0, spinLook: null, duelSweep: 0, bossSweep: 0 };                                 // the spin (claws or gloves)
 }
 function makeEgg(x, y, o) {
   return Object.assign({ x, y, r: 17, seed: Math.random() * 10, req: true, value: 1, state: 'idle', t: 0, delay: 0, z: 0, pull: null, pullT: 0, big: false, hue: Math.random() * 7 | 0 }, o || {});   // hue: the color of a rainbow crystal (second game)
@@ -30,10 +44,9 @@ function startPlay(L) {
   P = { L, eggs: [], stars: L.stars, parts: [], rings: [], wave: -1, time: 0, sinceEgg: 0, levelEggs: 0, levelStars: 0, combo: 0, comboT: 0,
     cam: { x: L.spawn.x, y: L.spawn.y, zoom: 1 }, shake: 0, wind: { t: CONFIG.windEvery * 0.7, state: 'calm', dir: 1, power: 0 },
     bfly: null, bflyT: 20 + Math.random() * 12, bflyCount: 0, crow: null, nestOpen: false, nestT: 0, done: false, doneT: 0, banner: null,
-    tut: [{ moved: 0, used: false, ran: false }, { moved: 0, used: false, ran: false }], runHint: 0, runHintDone: false, nextWaveT: -1, waveNeed: 1, waveGot: 0, duel: null, hits: 0, hintCharge: 0, rumbleT: 0, bounceT: 0, glint: 0,
+    tut: [{ moved: 0, used: false, used2: false, ran: false }, { moved: 0, used: false, used2: false, ran: false }], runHint: 0, runHintDone: false, nextWaveT: -1, waveNeed: 1, waveGot: 0, duel: null, hits: 0, hintCharge: 0, rumbleT: 0, bounceT: 0, glint: 0,
     heroes: [makeHero(0, bs ? 700 : L.spawn.x - 55, bs ? 830 : L.spawn.y), makeHero(1, bs ? 1220 : L.spawn.x + 55, bs ? 830 : L.spawn.y + 10)],
-    ball: { state: 'held', x: 0, y: 0, vx: 0, vy: 0, life: 0, spin: 0, power: 0, r: 15, px: 0, py: 0 },   // Leo's home ball (drawn when held)
-    flock: [], ballCool: 0, kickNo: 0, midFought: false, nestFought: false, rustleT: 0, boss: null,                                                         // the balls in the air (one kick = many balls)
+    flock: [], kickNo: 0, midFought: false, nestFought: false, rustleT: 0, boss: null,                                                         // the balls in the air (one kick = many balls)
     heal: [], rescues: 0, rainbow: [], rainbows: 0 };                                                                                                         // magic balls on their way to a friend; the colors of crystals collected so far
   for (const s of P.stars) { s.got = false; s.z = 0; s.pop = 0; }
   for (const e of L.beetles) e.hp = CONFIG.smallEnemy.hits;
@@ -230,8 +243,8 @@ function hurtSmall(e) {
 /* What the first hero's power does to everything around him. id = this stomp (or this spin of the claws):
    every enemy, tree and guardian feels it once per id. */
 function powerSweep(h, id) {
-  const L = P.L, cfg = CONFIG.heroes[0], R = cfg.stompRadius;
-  const stun = cfg.stunTime * (Game.diff[0] === 'easy' ? 1.3 : 1);
+  const L = P.L, cfg = abil(h.k, 'spin'), R = cfg.radius;
+  const stun = cfg.stun * (rank(h.k) === 0 ? 1.3 : 1);
   let stunned = 0;
   for (const b of L.beetles) if (b.state !== 'dead' && b.sweep !== id && dist(b.x, b.y, h.x, h.y) < R + b.r) {
     b.sweep = id; stunned++;
@@ -243,28 +256,34 @@ function powerSweep(h, id) {
     if (hurtSmall(c)) { c.state = 'gone'; c.t = CONFIG.smallEnemy.respawn; } else { c.state = 'stun'; c.t = stun; }
   }
   if (L.birds) for (const bd of L.birds) if (bd.state === 'fly' && bd.sweep !== id && dist(bd.x, bd.y, h.x, h.y) < R + 40) { bd.sweep = id; hitBird(bd); }
-  for (const e of P.eggs) if (e.state === 'idle' && e.delay <= 0 && !e.big && dist(e.x, e.y, h.x, h.y) < cfg.pullRadius) { e.pull = h; e.pullT = 1.5; }
+  for (const e of P.eggs) if (e.state === 'idle' && e.delay <= 0 && !e.big && dist(e.x, e.y, h.x, h.y) < cfg.pull) { e.pull = h; e.pullT = 1.5; }
   for (const t of L.dynTrees) if (t.sweep !== id && dist(t.cx, t.cy, h.x, h.y) < R + t.cr) { t.sweep = id; shakeTree(t, 0.5, true); }
   if (P.duel && h.duelSweep !== id && duelStomp(h)) h.duelSweep = id;
   if (P.boss && h.bossSweep !== id && bossShake(h)) h.bossSweep = id;
 }
 function doStomp(h) {
-  const cfg = CONFIG.heroes[0];
-  Snd.play('stomp', 0, 0); Input.rumble(0, 0.85, 0.4, 170); P.shake = Math.max(P.shake, 0.22); h.squash = 0.22;
-  P.rings.push({ x: h.x, y: h.y, t: 0, max: cfg.stompRadius });
+  const cfg = abil(h.k, 'spin');
+  Snd.play('stomp', 0, h.k); Input.rumble(h.k, 0.85, 0.4, 170); P.shake = Math.max(P.shake, 0.22); h.squash = 0.22;
+  P.rings.push({ x: h.x, y: h.y, t: 0, max: cfg.radius });
   for (let i = 0; i < 18; i++) { const a = i / 18 * TAU; part(h.x + Math.cos(a) * 30, h.y + Math.sin(a) * 14, { vx: Math.cos(a) * 230, vy: Math.sin(a) * 110, life: 0.6, max: 0.6, size: 16, col: '#F3E2C0', kind: 'dust', drag: 3 }); }
   burst(h.x, h.y - 10, 8, { kind: 'petal', cols: PETALS, speed: 200, life: 1.1, g: 120, up: 80 });
   powerSweep(h, ++P.kickNo);
 }
-/* The first hero starts his power: Bubu jumps and stomps; Boon's claws grow and spin around him (a shield that also gathers crystals). */
-function startPower(h) {
-  const cfg = CONFIG.heroes[0];
-  if (h.cd > 0 || h.dizzy > 0 || h.stompT >= 0 || h.spinT >= 0 || h.carried) return false;
-  h.cd = cfg.stompCooldown; P.tut[0].used = true; Snd.talk(0, 'power');
-  if (cfg.spinTime) { h.spinT = 0; h.spinNo = ++P.kickNo; Snd.play('stomp', 0, 0); Input.rumble(0, 0.5, 0.6, cfg.spinTime * 900); }
-  else h.stompT = 0;
+/* A hero starts his spin: Bubu jumps and stomps; Boon's claws and Killer's gloves grow and spin around him
+   (a shield that also gathers crystals). Nothing starts while the other power of the same hero is running. */
+function startSpin(h) {
+  const cfg = abil(h.k, 'spin'), slot = abilSlot(h.k, 'spin');
+  if (h.cd > 0 || h.dizzy > 0 || h.stompT >= 0 || h.spinT >= 0 || h.carried || h.charging) return false;
+  h.cd = cfg.cooldown; P.tut[h.k][slot === 2 ? 'used2' : 'used'] = true; Snd.talk(h.k, slot === 2 ? 'power2' : 'power');
+  if (cfg.time) {
+    h.spinT = 0; h.spinNo = ++P.kickNo; h.spinLook = cfg.look; h.spinBeat = 0;
+    if (cfg.look === 'gloves') { Snd.play('gloves', 0, h.k); spinBeat(h); }      // the gloves: three short shakes, and their own sound
+    else { Snd.play('stomp', 0, h.k); Input.rumble(h.k, 0.5, 0.6, cfg.time * 900); }
+  } else h.stompT = 0;
   return true;
 }
+/* The gloves shake the controller in three short beats (0, 0.28 and 0.56 s), so they feel different in the hand. */
+function spinBeat(h) { h.spinBeat++; Input.rumble(h.k, 0.7, 0.9, 110); }
 /* A stomp (or the claws) next to the big tree, or next to George's throne, shakes it. */
 function bossShake(h) {
   const L = P.L, b = P.boss, tb = L.treeBase;
@@ -278,30 +297,36 @@ function bossShake(h) {
   }
   return true;
 }
-function newBall(x, y, vx, vy, power, life, kick, size, hop) {
-  return { state: 'fly', x, y, px: x, py: y, vx, vy, power, life, kick, r: 15 * size, z: 0, spin: 0, hop: hop || 0 };   // hop: Killer's balls bounce up and down as they fly
+function newBall(x, y, vx, vy, power, life, kick, size, hop, owner, look) {
+  return { state: 'fly', x, y, px: x, py: y, vx, vy, power, life, kick, r: 15 * size, z: 0, spin: 0, hop: hop || 0, owner, look, trail: [] };   // hop: the balls bounce up and down as they fly. trail: the bones' arc
 }
-const ballReady = () => P.ball.state === 'held' || P.ballCool <= 0;     // all balls home, or the cooldown is over
-/* One kick sends n balls out in a circle, so Leo's power goes in every direction. Stick direction = the first ball. */
-function kickBall(h, power, ax, ay) {
-  const cfg = CONFIG.heroes[1], dd = D(1);
-  const n = Math.round(lerp(cfg.ballsPerKick, cfg.ballsPerKickMax, power));
-  const sp = lerp(cfg.kickSpeed, cfg.kickSpeedMax, power) * dd.ballSpeed, life = lerp(cfg.ballLife, cfg.ballLifeMax, power);
+/* This hero can throw again: everything of his is home, or his cooldown is over. */
+const throwReady = h => h.homeState === 'held' || h.throwCd <= 0;
+/* One throw sends n things out in a circle, so the power goes in every direction. Stick direction = the first one.
+   Killer and Leo throw balls, Boon throws boomerang bones: the same rules, their own numbers and their own look. */
+function throwRing(h, power, ax, ay) {
+  const cfg = abil(h.k, 'throw'), dd = D(h.k), slot = abilSlot(h.k, 'throw'), bone = cfg.look === 'bone';
+  const n = Math.round(lerp(cfg.n, cfg.nMax, power));
+  const sp = lerp(cfg.speed, cfg.speedMax, power) * dd.ballSpeed, life = lerp(cfg.life, cfg.lifeMax, power);
   const base = Math.atan2(ay, ax), kick = ++P.kickNo;
   for (let i = 0; i < n; i++) {
     const a = base + i / n * TAU, cx = Math.cos(a), cy = Math.sin(a);
-    P.flock.push(newBall(h.x + cx * 34, h.y + cy * 26, cx * sp, cy * sp, power, life, kick, dd.ballSize, i * 0.7));
+    P.flock.push(newBall(h.x + cx * 34, h.y + cy * 26, cx * sp, cy * sp, power, life, kick, dd.ballSize, i * 0.7, h.k, cfg.look));
   }
-  P.ball.state = 'away'; P.ball.power = power; P.ballCool = cfg.kickCooldown;
+  h.homeState = 'away'; h.throwCd = cfg.cooldown;
   if (Math.abs(ax) > 0.2) h.face = Math.sign(ax);
-  h.kickT = 0.28; Snd.play('kick', power, 1); Snd.play('swish', power, 1); if (power > 0.5) Snd.talk(1, power > 0.8 ? 'powerBig' : 'power'); Input.rumble(1, 0.3 + power * 0.5, 0.5, 70 + power * 90);
-  burst(h.x + ax * 34, h.y + ay * 26 - 10, 5 + power * 8, { speed: 120 + power * 120, life: 0.4, cols: ['#FFF3C0', '#F6C63C'] });
-  P.tut[1].used = true;
+  h.kickT = 0.28;
+  if (bone) Snd.play('bone', power, h.k); else Snd.play('kick', power, h.k);
+  Snd.play('swish', power, h.k);
+  if (power > 0.5) Snd.talk(h.k, slot === 2 ? (power > 0.8 ? 'power2Big' : 'power2') : (power > 0.8 ? 'powerBig' : 'power'));
+  Input.rumble(h.k, 0.3 + power * 0.5, 0.5, 70 + power * 90);
+  burst(h.x + ax * 34, h.y + ay * 26 - 10, 5 + power * 8, { speed: 120 + power * 120, life: 0.4, cols: bone ? ['#F3E2B8', '#2FBFA8'] : ['#FFF3C0', '#F6C63C'] });
+  P.tut[h.k][slot === 2 ? 'used2' : 'used'] = true;
 }
-/* A second press while the balls are still out (inside the cooldown) calls every ball back to Leo. */
-function recallBalls() {
-  for (const f of P.flock) if (f.state === 'fly') f.state = 'return';
-  Snd.play('swish', 0.2, 1);
+/* A second press while his things are still out (inside the cooldown) calls back everything of HIS. The friend's stay out. */
+function recallBalls(k) {
+  for (const f of P.flock) if (f.state === 'fly' && f.owner === k) f.state = 'return';
+  Snd.play('swish', 0.2, k);
 }
 
 /* Running (L3). One press with the stick tilted starts it; it lasts until the stick is let go.
@@ -360,8 +385,8 @@ function updateHero(h, dt) {
     const o = P.heroes[1 - h.k]; let tx = o.x - o.face * 85, ty = o.y + 26; aP = aR = aH = false;
     if (P.boss && P.boss.state !== 'won') {
       const b = P.boss, tb = L.treeBase;
-      if (h.k === 0) { tx = tb.x - 190; ty = tb.y + 140; if (b.state === 'up' && dist(h.x, h.y, tx, ty) < 80 && startPower(h)) h.cd = 1.6; }
-      else { tx = tb.x + 150; ty = tb.y + 300; if (b.state === 'down' && P.ball.state === 'held' && h.dizzy <= 0 && dist(h.x, h.y, tx, ty) < 120) { const g = bossGoal(), dx = g.x - h.x, dy = g.y - h.y, m = Math.hypot(dx, dy) || 1; kickBall(h, 0.5, dx / m, dy / m); } }
+      if (h.k === 0) { tx = tb.x - 190; ty = tb.y + 140; if (b.state === 'up' && dist(h.x, h.y, tx, ty) < 80 && startSpin(h)) h.cd = 1.6; }
+      else { tx = tb.x + 150; ty = tb.y + 300; if (b.state === 'down' && h.homeState === 'held' && h.dizzy <= 0 && dist(h.x, h.y, tx, ty) < 120) { const g = bossGoal(), dx = g.x - h.x, dy = g.y - h.y, m = Math.hypot(dx, dy) || 1; kickBall(h, 0.5, dx / m, dy / m); } }
     }
     const dx = tx - h.x, dy = ty - h.y, m = Math.hypot(dx, dy);
     if (m > 60) { const f = Math.min(1, (m - 40) / 120); ix = dx / m * f; iy = dy / m * f; } else { ix = iy = 0; }
@@ -422,55 +447,71 @@ function updateHero(h, dt) {
   }
   if (h.inMud && h.moving) { h.mudT -= dt; if (h.mudT <= 0) { h.mudT = 0.3; Snd.play('squelch', 0, h.k); burst(h.x, h.y, 4, { kind: 'dot', cols: ['#A9764F', '#8E5E48'], speed: 90, life: 0.5, up: 70, g: 400, size: 6 }); } }
   if (h.boost > 0 && Math.random() < dt * 14) part(h.x + (Math.random() - 0.5) * 40, h.y - 30 - Math.random() * 40, { vy: -20, life: 0.7, max: 0.7, size: 6, col: '#FFD48A', kind: 'spark' });
-  // powers
-  if (h.k === 0) {
-    if (aP) startPower(h);
-    if (h.stompT >= 0) {
-      const pt = h.stompT; h.stompT += dt;
-      h.z = h.stompT < 0.2 ? Math.sin(h.stompT / 0.2 * Math.PI) * 30 : 0;
-      if (pt < 0.2 && h.stompT >= 0.2) doStomp(h);
-      if (h.stompT > 0.42) h.stompT = -1;
+  // the two powers: each ability runs on the button this hero has it on (✕ = power, □ = power2)
+  if (cfg.power === 'spin') updateSpin(h, dt, aP); else if (cfg.power === 'throw') updateThrow(h, dt, aP, aR, aH);
+  if (cfg.power2 === 'spin') updateSpin(h, dt, s.cP); else if (cfg.power2 === 'throw') updateThrow(h, dt, s.cP, s.cR, s.c);
+  if (!hasAbil(h.k, 'spin')) h.shield = false;
+}
+/* The spin (claws, gloves, or Bubu's stomp) of one hero, on its own button. */
+function updateSpin(h, dt, pressed) {
+  const cfg = abil(h.k, 'spin');
+  if (pressed) startSpin(h);
+  if (h.stompT >= 0) {
+    const pt = h.stompT; h.stompT += dt;
+    h.z = h.stompT < 0.2 ? Math.sin(h.stompT / 0.2 * Math.PI) * 30 : 0;
+    if (pt < 0.2 && h.stompT >= 0.2) doStomp(h);
+    if (h.stompT > 0.42) h.stompT = -1;
+  }
+  if (h.spinT >= 0) {                   // while it spins nothing can hit the hero, and everything in the circle feels it
+    h.spinT += dt; h.shield = true; powerSweep(h, h.spinNo);
+    if (h.spinLook === 'gloves' && h.spinBeat < 3 && h.spinT >= h.spinBeat * 0.28) spinBeat(h);      // the three beats of the gloves
+    if (Math.random() < dt * 60) {
+      const a = Math.random() * TAU, gl = h.spinLook === 'gloves';
+      part(h.x + Math.cos(a) * cfg.radius * 0.92, h.y - 16 + Math.sin(a) * cfg.radius * 0.5,
+        { vy: -30, life: 0.5, max: 0.5, size: gl ? 8 : 7, col: gl ? (Math.random() < 0.25 ? '#3B6FE0' : '#FFFFFF') : RAINBOW[Math.random() * 7 | 0], kind: gl && Math.random() < 0.18 ? 'hex' : 'spark' });
     }
-    if (h.spinT >= 0) {                   // Boon: while the claws spin nothing can hit him, and everything in the circle feels them
-      h.spinT += dt; h.shield = true; powerSweep(h, h.spinNo);
-      if (Math.random() < dt * 60) { const a = Math.random() * TAU; part(h.x + Math.cos(a) * cfg.stompRadius * 0.92, h.y - 16 + Math.sin(a) * cfg.stompRadius * 0.5, { vy: -30, life: 0.5, max: 0.5, size: 7, col: RAINBOW[Math.random() * 7 | 0], kind: 'spark' }); }
-      if (h.spinT >= cfg.spinTime) { h.spinT = -1; h.shield = false; }
-    } else h.shield = false;
-  } else {
-    const b = P.ball;
-    if (h.dizzy > 0) { h.charging = false; h.charge = 0; }
-    else {
-      if (aP && !h.charging) {
-        if (ballReady()) { h.charging = true; h.charge = 0; h.chargeHold = 0; }   // all home, or cooldown over: a new kick
-        else recallBalls();                                                         // balls still out and cooldown running: call them back
-      }
-      if (h.charging) {
-        h.charge = Math.min(1, h.charge + dt / cfg.chargeTime); if (h.charge >= 1) h.chargeHold += dt;
-        if (aR || !aH || h.chargeHold > 1.2) { h.charging = false; kickBall(h, h.charge < 0.22 ? 0 : h.charge, h.ax, h.ay); h.charge = 0; }
-      }
-    }
+    if (h.spinT >= cfg.time) { h.spinT = -1; h.shield = false; h.spinLook = null; }
+  } else h.shield = false;
+}
+/* The throw (balls or bones) of one hero, on its own button. */
+function updateThrow(h, dt, pressed, released, held) {
+  const cfg = abil(h.k, 'throw');
+  if (h.dizzy > 0 || h.carried) { h.charging = false; h.charge = 0; return; }
+  if (pressed && !h.charging) {
+    if (h.spinT >= 0 || h.stompT >= 0) return;                 // his other power is running: not now
+    if (throwReady(h)) { h.charging = true; h.charge = 0; h.chargeHold = 0; }   // all home, or cooldown over: a new throw
+    else recallBalls(h.k);                                     // still out and the cooldown running: call them back
+  }
+  if (h.charging) {
+    h.charge = Math.min(1, h.charge + dt / cfg.charge); if (h.charge >= 1) h.chargeHold += dt;
+    if (released || !held || h.chargeHold > 1.2) { h.charging = false; throwRing(h, h.charge < 0.22 ? 0 : h.charge, h.ax, h.ay); h.charge = 0; }
   }
 }
 
 function updateBall(dt) {
-  const h = P.heroes[1], b = P.ball;
-  P.ballCool = Math.max(0, P.ballCool - dt);
-  for (let i = P.flock.length - 1; i >= 0; i--) if (!stepFlyBall(P.flock[i], dt, h)) P.flock.splice(i, 1);
-  if (!P.flock.length) b.state = 'held';
-  if (b.state === 'held') {                       // the home ball rides at Leo's feet
-    const bob = h.moving ? Math.abs(Math.sin(h.walk * 2)) * 4 : 0;
-    b.x = h.x + h.face * 27; b.y = h.y + 5; b.z = bob; b.spin += h.vx * dt * 0.05;
+  const out = [false, false];
+  for (const h of P.heroes) h.throwCd = Math.max(0, h.throwCd - dt);
+  for (let i = P.flock.length - 1; i >= 0; i--) { const f = P.flock[i]; if (stepFlyBall(f, dt)) out[f.owner] = true; else P.flock.splice(i, 1); }
+  for (const h of P.heroes) {
+    if (!hasAbil(h.k, 'throw')) continue;
+    h.homeState = out[h.k] ? 'away' : 'held';
+    if (h.homeState !== 'held') continue;
+    const b = h.home, bone = abil(h.k, 'throw').look === 'bone', bob = h.moving ? Math.abs(Math.sin(h.walk * 2)) * 4 : 0;
+    if (bone) { b.x = h.x - h.face * 20; b.y = h.y - 92 - bob * 0.5; b.z = 0; b.spin = -0.5 * h.face; }      // Boon keeps the bone on his shoulder
+    else { b.x = h.x + h.face * 27; b.y = h.y + 5; b.z = bob; b.spin += h.vx * dt * 0.05; }                  // the ball rides at the feet
   }
 }
 
 /* One ball in the air. Returns false when the ball has come home to Leo and can go. */
-function stepFlyBall(b, dt, h) {
-  const L = P.L;
-  b.z = isLupta() && b.state === 'fly' ? Math.abs(Math.sin(b.hop += dt * 9)) * 38 : 0;      // second game: the balls hop as they fly (only how it looks)
+function stepFlyBall(b, dt) {
+  const L = P.L, h = P.heroes[b.owner], bone = b.look === 'bone';
+  b.z = bone ? 14 : (isLupta() && b.state === 'fly' ? Math.abs(Math.sin(b.hop += dt * 9)) * 38 : 0);   // the balls hop as they fly; a bone floats and spins instead (only how it looks)
+  if (bone) { b.trail.push(b.x, b.y); if (b.trail.length > 12) b.trail.splice(0, b.trail.length - 12); }
   if (b.state === 'return') {
     const dx = h.x - b.x, dy = h.y - b.y, m = Math.hypot(dx, dy);
     if (m < 40) return false;
-    const sp = 1050 * dt; b.x += dx / m * Math.min(m, sp); b.y += dy / m * Math.min(m, sp); b.spin += dt * 14;
+    const sp = 1050 * dt; b.x += dx / m * Math.min(m, sp); b.y += dy / m * Math.min(m, sp); b.spin += dt * (bone ? 26 : 14);
+    if (bone) { b.ret = (b.ret || 0) + dt * 1.6; const u = clamp(b.ret, 0, 1); b.x += -dy / m * Math.sin(u * Math.PI) * 90 * dt * 1.6; b.y += dx / m * Math.sin(u * Math.PI) * 90 * dt * 1.6; }   // a bone comes back on a curve
     return true;
   }
   const sp0 = Math.hypot(b.vx, b.vy), steps = Math.max(1, Math.ceil(sp0 * dt / 11)), sdt = dt / steps;
@@ -482,7 +523,7 @@ function stepFlyBall(b, dt, h) {
     if (c) {
       if (c.nx === 0 && c.ny === 0) { b.vx = -b.vx; b.vy = -b.vy; }
       else { const dot = b.vx * c.nx + b.vy * c.ny; if (dot < 0) { b.vx = (b.vx - 2 * dot * c.nx) * 0.9; b.vy = (b.vy - 2 * dot * c.ny) * 0.9; } }
-      if (P.bounceT <= 0) { Snd.play('bounce', 0, 1); P.bounceT = 0.33; burst(b.x, b.y - 8, 3, { speed: 80, life: 0.3, cols: ['#FFF3C0'] }); }   // at most about 3 bounce sounds a second, for all balls together
+      if (P.bounceT <= 0) { Snd.play(bone ? 'tock' : 'bounce', 0, b.owner); P.bounceT = 0.33; burst(b.x, b.y - 8, 3, { speed: 80, life: 0.3, cols: [bone ? '#F3E2B8' : '#FFF3C0'] }); }   // at most about 3 bounce sounds a second, for everything together
       if (c.hit && c.hit.tree && c.hit.tree.dyn) shakeTree(c.hit.tree, b.power, false);
     }
     // small enemies: one kick (all its balls together) counts as one hit; the second hit makes them disappear
@@ -490,7 +531,7 @@ function stepFlyBall(b, dt, h) {
       const m = Math.hypot(b.vx, b.vy) || 1; bt.kickHit = b.kick;
       if (hurtSmall(bt)) { bt.state = 'dead'; bt.t = CONFIG.smallEnemy.respawn; }
       else { bt.state = 'knock'; bt.t = 0.55; bt.vx = b.vx / m * 430; bt.vy = b.vy / m * 430; Snd.play('stun'); burst(bt.x, bt.y - 20, 8, { speed: 150, life: 0.5 }); }
-      b.vx *= 0.6; b.vy *= 0.6; Snd.talk(1, 'beetleStun');
+      b.vx *= 0.6; b.vy *= 0.6; Snd.talk(b.owner, 'beetleStun');
     }
     for (const cn of L.cones) if ((cn.state === 'roll' || cn.state === 'stun') && cn.kickHit !== b.kick && dist(cn.x, cn.y, b.x, b.y) < cn.r + b.r + 8) {
       cn.kickHit = b.kick;
@@ -498,8 +539,8 @@ function stepFlyBall(b, dt, h) {
       else { cn.state = 'stun'; cn.t = CONFIG.heroes[0].stunTime; Snd.play('thud'); burst(cn.x, cn.y - 20, 8, { kind: 'dot', cols: ['#9C6A46', '#D6AA78'], speed: 200, life: 0.6, g: 300, size: 7 }); }
     }
     if (L.birds) for (const bd of L.birds) if (bd.state === 'fly' && bd.kickHit !== b.kick && dist(bd.x, bd.y, b.x, b.y) < 62 + b.r) { bd.kickHit = b.kick; hitBird(bd); }
-    for (let j = P.eggs.length - 1; j >= 0; j--) { const e = P.eggs[j]; if (e.state === 'idle' && e.delay <= 0 && !(e.wait > 0) && dist(e.x, e.y, b.x, b.y) < e.r + b.r + 20) collectEgg(e, 1); }
-    for (const s of P.stars) if (!s.got && !s.hidden && !s.pop && dist(s.x, s.y, b.x, b.y) < 26 + b.r + 16) collectStar(s, 1);
+    for (let j = P.eggs.length - 1; j >= 0; j--) { const e = P.eggs[j]; if (e.state === 'idle' && e.delay <= 0 && !(e.wait > 0) && dist(e.x, e.y, b.x, b.y) < e.r + b.r + 20) collectEgg(e, b.owner); }
+    for (const s of P.stars) if (!s.got && !s.hidden && !s.pop && dist(s.x, s.y, b.x, b.y) < 26 + b.r + 16) collectStar(s, b.owner);
     if (P.boss) bossBall(b);
     if (P.duel) duelBall(b);
     if (b.state !== 'fly') return true;
@@ -507,7 +548,8 @@ function stepFlyBall(b, dt, h) {
   const fr = Math.max(0, 1 - 0.28 * dt); b.vx *= fr; b.vy *= fr; b.spin += sp0 * dt * 0.03;
   b.life -= dt;
   if (b.life <= 0 || Math.hypot(b.vx, b.vy) < 110) b.state = 'return';
-  if (Math.random() < dt * 30) part(b.x, b.y - 10 - b.z, { life: 0.35, max: 0.35, size: 5 + b.power * 5, col: isLupta() ? RAINBOW[(P.time * 9 | 0) % 7] : '#FFF3C0', kind: isLupta() ? 'spark' : 'dot' });
+  if (bone) { if (Math.random() < dt * 8) part(b.x, b.y + 6, { life: 0.5, max: 0.5, size: 7, col: '#2FBFA8', kind: 'paw' }); }      // bones leave little paw prints
+  else if (Math.random() < dt * 30) part(b.x, b.y - 10 - b.z, { life: 0.35, max: 0.35, size: 5 + b.power * 5, col: isLupta() ? RAINBOW[(P.time * 9 | 0) % 7] : '#FFF3C0', kind: isLupta() ? 'spark' : 'dot' });
   return true;
 }
 
@@ -714,17 +756,17 @@ function stepProj(list, dt, spare) {
    petals or seeds and rustle when a hero walks past (a stomp makes the dandelions and leaves jump).
    Snails pull in and a ladybug flies off and comes back. Only what is near a hero or a ball reacts. */
 function updateDecor(dt) {
-  const L = P.L, cfg = CONFIG.heroes[0];
+  const L = P.L;
   if (!L.decor) return;
   const who = [];
-  for (const h of P.heroes) who.push({ x: h.x, y: h.y, stomp: (h.stompT >= 0 && h.stompT < 0.25) || h.spinT >= 0 });
+  for (const h of P.heroes) who.push({ x: h.x, y: h.y, stomp: (h.stompT >= 0 && h.stompT < 0.25) || h.spinT >= 0, r: abil(h.k, 'spin').radius });
   for (const f of P.flock) who.push({ x: f.x, y: f.y, stomp: false });
   P.rustleT = Math.max(0, P.rustleT - dt);
   for (const d of L.decor) {
     if (!d.react) continue;
     d.cool = Math.max(0, d.cool - dt);
     let near = 1e9, jump = false;
-    for (const w of who) { const dd = dist(w.x, w.y, d.x, d.y); if (dd < near) near = dd; if (w.stomp && dd < cfg.stompRadius) jump = true; }
+    for (const w of who) { const dd = dist(w.x, w.y, d.x, d.y); if (dd < near) near = dd; if (w.stomp && dd < (w.r || 0)) jump = true; }
     if (d.rk === 'hide') { const want = near < 90 ? 1 : 0; d.hide += (want - d.hide) * Math.min(1, dt * 5); }
     else if (d.rk === 'fly') {
       if (d.flyT > 0) d.flyT = Math.max(0, d.flyT - dt);

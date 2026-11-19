@@ -174,3 +174,13 @@ Masurat cu `tests/hud-acoperire.js` (procent din asezari in care un erou e acope
 ### Eroul care fuge: `drawRunTrail(c, h)`
 
 Trei copii ale eroului in spate (0.28, 0.18, 0.09), apoi sase linii subtiri de viteza in culoarea eroului amestecata cu crem. Corpul e aplecat cu 0.14 radiani in jurul picioarelor. Nimic nu se deseneaza cand eroul nu fuge, deci jocul de acum arata exact la fel.
+
+## Update 19 noiembrie 2026 (T3): desenul celei de-a doua puteri
+
+- `drawThrown(c, x, y, r, spin, look)` alege intre minge si os. `drawBone` si `drawGlove` sunt in `055-lupta.js`.
+- Un os in zbor are un arc turcoaz in spate (ultimele 6 pozitii, o linie groasa de 13 cu un miez palid de 5) si lasa urme mici de laba (`kind: 'paw'`).
+- `drawGloveRing(c, h)`: inelul manusilor lui Killer. Doua manusi pe cerc, fiecare cu panglica (albastra si alba), si un cerc punctat alb pe pamant. Se invarte invers fata de gheare (`-t * 11`).
+- `heroOpts` are acum si `glove` (0 - 1), pe langa `claw`. `drawKiller` intinde amandoua bratele si pune manusile la capete cand `glove > 0`.
+- Doua feluri noi de particule: `hex` (hexagon mic, de la manusi) si `paw` (urma de laba, de la oase).
+- Sageata de tintire si inelul de incarcare se arata pentru orice erou cu abilitatea `throw`, pe butonul lui. Inelul lui Boon e turcoaz, al lui Killer rosu.
+- Tutorial: `iconSq` deasupra eroului care nu si-a folosit inca a doua putere (nivelul 1 si nivelul 7, dupa ce a folosit ✕, cel mult 90 de secunde).
