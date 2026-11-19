@@ -6,7 +6,8 @@ const _sorted = [];
 function heroOpts(h) {
   return { face: h.face, walk: h.walk, moving: h.moving, t: h.t, z: h.z, squash: h.squash, dizzy: h.dizzy > 0, kick: h.kickT > 0 ? h.kickT / 0.28 : 0,
     happy: P.done || (P.boss && P.boss.state === 'won'), scale: h.small, hug: h.hugT > 0 ? h.hugT / 0.7 : 0,
-    claw: h.spinT >= 0 ? clamp(h.spinT / (CONFIG.heroes[0].spinTime || 1), 0, 1) : -1 };
+    claw: h.spinT >= 0 && h.spinLook !== 'gloves' ? clamp(h.spinT / (abil(h.k, 'spin').time || 1), 0, 1) : -1,
+    glove: h.spinT >= 0 && h.spinLook === 'gloves' ? clamp(h.spinT / (abil(h.k, 'spin').time || 1), 0, 1) : -1 };
 }
 const heroTop = k => (isLupta() ? [148, 128] : [100, 122])[k];        // how tall each hero is: where the stars, the name and the ○ go
 /* The band at the top. Everything written over the world (badges, the middle card, the progress bar, the banners)
@@ -26,13 +27,23 @@ function drawParts(c) {
     else if (p.kind === 'dust') { c.fillStyle = rgba(p.col, a * 0.5); c.beginPath(); c.arc(p.x, p.y, p.size * (1.6 - a * 0.8), 0, TAU); c.fill(); }
     else if (p.kind === 'petal' || p.kind === 'leaf') { c.save(); c.translate(p.x, p.y); c.rotate(p.rot); c.fillStyle = rgba(p.col, Math.min(1, a * 1.6)); c.beginPath(); c.ellipse(0, 0, p.size, p.size * (p.kind === 'leaf' ? 0.42 : 0.6), 0, 0, TAU); c.fill(); c.restore(); }
     else if (p.kind === 'heart') { heartPath(c, p.x, p.y, p.size * 0.7); c.fillStyle = rgba(p.col, Math.min(1, a * 1.6)); c.fill(); }
+    else if (p.kind === 'hex') {           // the gloves: a small hexagon, like the ones on the ball
+      c.save(); c.translate(p.x, p.y); c.rotate(p.rot || 0); c.fillStyle = rgba(p.col, a * 0.9); c.beginPath();
+      for (let i = 0; i < 6; i++) { const q = i / 6 * TAU, px = Math.cos(q) * p.size * 0.6, py = Math.sin(q) * p.size * 0.6; i ? c.lineTo(px, py) : c.moveTo(px, py); }
+      c.closePath(); c.fill(); c.restore();
+    }
+    else if (p.kind === 'paw') {           // a bone in flight leaves little paw prints
+      c.fillStyle = rgba(p.col, a * 0.55);
+      c.beginPath(); c.ellipse(p.x, p.y, p.size * 0.5, p.size * 0.38, 0, 0, TAU); c.fill();
+      for (let i = 0; i < 3; i++) { const q = -0.9 + i * 0.9; c.beginPath(); c.arc(p.x + Math.cos(q) * p.size * 0.55, p.y + Math.sin(q) * p.size * 0.5 - p.size * 0.3, p.size * 0.19, 0, TAU); c.fill(); }
+    }
     else { c.fillStyle = rgba(p.col, a); c.beginPath(); c.arc(p.x, p.y, p.size * 0.6, 0, TAU); c.fill(); }
   }
 }
 /* Boon's claws while they spin: rainbow slashes that run around him, on a soft shield. */
 function drawClawRing(c, h) {
-  const cfg = CONFIG.heroes[0], R = cfg.stompRadius, u = clamp(h.spinT / cfg.spinTime, 0, 1), grow = Math.min(1, u * 5) * (u > 0.85 ? (1 - u) / 0.15 : 1), t = P.time;
-  c.fillStyle = rgba(cfg.color, 0.12 * grow); c.beginPath(); c.ellipse(h.x, h.y - 6, R * grow, R * 0.52 * grow, 0, 0, TAU); c.fill();
+  const cfg = abil(h.k, 'spin'), R = cfg.radius, u = clamp(h.spinT / cfg.time, 0, 1), grow = Math.min(1, u * 5) * (u > 0.85 ? (1 - u) / 0.15 : 1), t = P.time;
+  c.fillStyle = rgba(CONFIG.heroes[h.k].color, 0.12 * grow); c.beginPath(); c.ellipse(h.x, h.y - 6, R * grow, R * 0.52 * grow, 0, 0, TAU); c.fill();
   c.lineCap = 'round';
   for (let i = 0; i < 6; i++) {
     const a0 = t * 13 + i * TAU / 6;
@@ -41,6 +52,23 @@ function drawClawRing(c, h) {
       c.strokeStyle = rgba(k === 1 ? '#FFFBEA' : RAINBOW[i], 0.85 * grow); c.lineWidth = k === 1 ? 5 : 8;
       c.beginPath(); c.ellipse(h.x, h.y - 6, rr, rr * 0.52, 0, a0 + k * 0.05, a0 + 0.62 - k * 0.05); c.stroke();
     }
+  }
+}
+/* The ring of Killer's whirl gloves: two gloves chasing each other, each with a ribbon behind (one blue, one white),
+   and a dotted white circle on the ground, like the line in the middle of a pitch. It turns the other way than the claws. */
+function drawGloveRing(c, h) {
+  const cfg = abil(h.k, 'spin'), R = cfg.radius, u = clamp(h.spinT / cfg.time, 0, 1), grow = Math.min(1, u * 5) * (u > 0.85 ? (1 - u) / 0.15 : 1), t = P.time;
+  c.fillStyle = rgba(CONFIG.heroes[h.k].color, 0.12 * grow); c.beginPath(); c.ellipse(h.x, h.y - 6, R * grow, R * 0.52 * grow, 0, 0, TAU); c.fill();
+  c.save();                                 // the dotted circle on the ground
+  c.strokeStyle = rgba('#FFF6E2', 0.65 * grow); c.lineWidth = 5; c.setLineDash([16, 14]); c.lineDashOffset = -t * 60;
+  c.beginPath(); c.ellipse(h.x, h.y + 4, R * grow * 0.96, R * 0.5 * grow, 0, 0, TAU); c.stroke();
+  c.restore();
+  c.lineCap = 'round';
+  for (let i = 0; i < 2; i++) {
+    const a0 = -t * 11 + i * Math.PI, rr = R * grow * 0.9;            // minus: the other way round
+    c.strokeStyle = rgba(i === 0 ? '#3B6FE0' : '#FFFDF4', 0.85 * grow); c.lineWidth = 11;
+    c.beginPath(); c.ellipse(h.x, h.y - 6, rr, rr * 0.52, 0, a0 - 0.8, a0); c.stroke();         // the ribbon behind each glove
+    drawGlove(c, h.x + Math.cos(a0) * rr, h.y - 6 + Math.sin(a0) * rr * 0.52, 20 * grow, Math.cos(a0) >= 0 ? 1 : -1, t);
   }
 }
 /* The trail of a running hero: three fading copies of him, and six speed lines behind. */
@@ -83,7 +111,7 @@ function drawHeroFull(c, h) {
   }
   if (h.boost > 0) { const g = c.createRadialGradient(h.x, h.y - 40, 10, h.x, h.y - 40, 110); g.addColorStop(0, 'rgba(255,214,140,0.5)'); g.addColorStop(1, 'rgba(255,214,140,0)'); c.fillStyle = g; c.beginPath(); c.arc(h.x, h.y - 40, 110, 0, TAU); c.fill(); }
   if (h.safe) { c.strokeStyle = rgba('#7FB06A', 0.9); c.lineWidth = 5; c.setLineDash([12, 9]); c.beginPath(); c.ellipse(h.x, h.y + 2, 58, 24, 0, 0, TAU); c.stroke(); c.setLineDash([]); }
-  if (h.spinT >= 0) drawClawRing(c, h);
+  if (h.spinT >= 0) { if (h.spinLook === 'gloves') drawGloveRing(c, h); else drawClawRing(c, h); }
   if (h.run) drawRunTrail(c, h);           // running: three ghosts behind, then the speed lines
   if (h.inv > 0 && h.dizzy <= 0) c.globalAlpha = 0.55 + Math.sin(P.time * 22) * 0.25;
   if (h.run) { c.save(); c.translate(h.x, h.y); c.rotate(0.14 * h.face); c.translate(-h.x, -h.y); }      // leaning into the run
@@ -100,10 +128,10 @@ function drawHeroFull(c, h) {
     const reach = h.k === 0 ? CONFIG.rescue.reachNear : CONFIG.rescue.reachFar;
     if (dist(h.x, h.y, fr.x, fr.y) <= reach) iconO(c, h.x, h.y - top - 44 + Math.sin(t * 7) * 6, 34, Math.sin(t * 9) * 1.5);
   }
-  if (h.k === 1 && ballReady() && h.dizzy <= 0) {       // aim arrow, grows while charging
+  if (hasAbil(h.k, 'throw') && throwReady(h) && h.dizzy <= 0) {       // aim arrow, grows while charging
     const pw = h.charging ? h.charge : 0, len = 62 + pw * 70;
     iconArrow(c, h.x + h.ax * len, h.y - 14 + h.ay * len * 0.8, Math.atan2(h.ay, h.ax), 13 + pw * 13, pw > 0.95 ? '#E9703C' : mix('#F6C63C', '#E9703C', pw));
-    if (h.charging) { c.strokeStyle = rgba(isLupta() ? '#E4583C' : '#3F78C8', 0.8); c.lineWidth = 6; c.lineCap = 'round'; c.beginPath(); c.arc(h.x, h.y - top - 8, 17, -Math.PI / 2, -Math.PI / 2 + TAU * pw); c.stroke(); }
+    if (h.charging) { c.strokeStyle = rgba(abil(h.k, 'throw').look === 'bone' ? '#2FBFA8' : isLupta() ? '#E4583C' : '#3F78C8', 0.8); c.lineWidth = 6; c.lineCap = 'round'; c.beginPath(); c.arc(h.x, h.y - top - 8, 17, -Math.PI / 2, -Math.PI / 2 + TAU * pw); c.stroke(); }
   }
   if (h.tagT > 0) {                        // the name of the hero: never written over the friend, and the two names never over each other
     let nx = h.x, ny = h.y - top - 18;
@@ -206,7 +234,14 @@ function drawWorld(c) {
   _sorted.sort((a, b) => a.y - b.y);
   for (const it of _sorted) {
     const o = it.o;
-    if (it.k === 0) { drawHeroFull(c, o); if (o.k === 1 && P.ball.state === 'held') { c.fillStyle = rgba(SHADOW, 0.2); c.beginPath(); c.ellipse(P.ball.x, P.ball.y + 3, 13, 5, 0, 0, TAU); c.fill(); drawBall(c, P.ball.x, P.ball.y - 13 - (P.ball.z || 0), 14, P.ball.spin); } }
+    if (it.k === 0) {
+      drawHeroFull(c, o);
+      if (hasAbil(o.k, 'throw') && o.homeState === 'held' && !o.down) {       // what he keeps at hand: Leo's and Killer's ball at the feet, Boon's bone on his shoulder
+        const b = o.home, look = abil(o.k, 'throw').look;
+        if (look === 'bone') drawThrown(c, b.x, b.y, 15, b.spin, 'bone');
+        else { c.fillStyle = rgba(SHADOW, 0.2); c.beginPath(); c.ellipse(b.x, b.y + 3, 13, 5, 0, 0, TAU); c.fill(); drawThrown(c, b.x, b.y - 13 - (b.z || 0), 14, b.spin, look); }
+      }
+    }
     else if (it.k === 1) {                 // beetles (robots in the second game): they blink when hit and pop up when a new one arrives
       if (o.flash > 0 && Math.sin(t * 45) > 0) c.globalAlpha = 0.45;
       if (o.born > 0) { const k = 1 - o.born / 0.5; c.save(); c.translate(o.x, o.y); c.scale(k, k); c.translate(-o.x, -o.y); drawSleeper(c, o, t); c.restore(); } else drawSleeper(c, o, t);
@@ -230,7 +265,20 @@ function drawWorld(c) {
       } else { c.drawImage(r.sprite, r.x - 80, r.y - 280); if (L.night) drawPinwheel(c, r.x, r.y - 206, r.ang); else drawMillBlades(c, r.x, r.y - 202, r.ang); }      // second game: a totem with a rainbow pinwheel
       c.globalAlpha = 1;
     }
-    else if (it.k === 4) { const zk = 1 - Math.min(0.5, (o.z || 0) / 90); c.fillStyle = rgba(SHADOW, 0.22 * zk); c.beginPath(); c.ellipse(o.x - 3, o.y + 4, 14 * zk, 6 * zk, 0, 0, TAU); c.fill(); drawBall(c, o.x, o.y - 16 - (o.z || 0), o.r, o.spin); }
+    else if (it.k === 4) {
+      const zk = 1 - Math.min(0.5, (o.z || 0) / 90);
+      if (o.look === 'bone' && o.trail && o.trail.length > 3) {       // the turquoise arc a bone leaves behind, like a boomerang
+        c.lineCap = 'round'; c.lineJoin = 'round';
+        for (const w of [[13, 'rgba(47,191,168,0.55)'], [5, 'rgba(214,247,240,0.55)']]) {      // a turquoise arc with a pale core, like a boomerang
+          c.strokeStyle = w[1]; c.lineWidth = w[0];
+          c.beginPath(); c.moveTo(o.trail[0], o.trail[1] - 16);
+          for (let i = 2; i < o.trail.length; i += 2) c.lineTo(o.trail[i], o.trail[i + 1] - 16);
+          c.stroke();
+        }
+      }
+      c.fillStyle = rgba(SHADOW, 0.22 * zk); c.beginPath(); c.ellipse(o.x - 3, o.y + 4, 14 * zk, 6 * zk, 0, 0, TAU); c.fill();
+      drawThrown(c, o.x, o.y - 16 - (o.z || 0), o.r, o.spin, o.look);
+    }
     else if (it.k === 6) drawDuelBoss(c);
     else if (it.k === 5 && L.arena) drawGeorgeBoss(c, o, t);
     else if (it.k === 5) {
@@ -383,6 +431,13 @@ function drawHints(c, v) {
     if (!Input.slots[h.k].joined || P.tut[h.k].ran || h.down) continue;
     const sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 44, (h.y - v.tp) * v.z - (h.tagT > 0 ? 260 : 220) * v.z) + Math.sin(t * 5) * 5;      // above the name and above the ✕ of the first steps
     c.globalAlpha = Math.min(1, P.runHint); iconL3(c, sx, sy, 26, t); c.globalAlpha = 1;
+  }
+  // the second power (□): over a hero who has one and has not used it yet, after he used ✕. Only on the first level
+  // and on level 7 (where the story tells about the new powers), and for at most 90 seconds.
+  if (P.time < 90 && (L.idx === 0 || L.idx === 6) && !L.boss) for (const h of P.heroes) {
+    if (!Input.slots[h.k].joined || !CONFIG.heroes[h.k].power2 || P.tut[h.k].used2 || !P.tut[h.k].used || h.down) continue;
+    const sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 30, (h.y - v.tp) * v.z - (h.tagT > 0 ? 200 : 160) * v.z) + Math.sin(t * 5) * 5;
+    iconSq(c, sx, sy, 24, Math.sin(t * 6));
   }
   if (P.hintCharge > 0) { const h = P.heroes[1], sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 30, (h.y - v.tp) * v.z - 200 * v.z - 20), u = (t * 0.9) % 1; iconX(c, sx - 24, sy, 28, 0); c.strokeStyle = '#3F78C8'; c.lineWidth = 8; c.lineCap = 'round'; c.beginPath(); c.arc(sx + 34, sy, 20, -Math.PI / 2, -Math.PI / 2 + TAU * u); c.stroke(); }
   if (P.boss) {

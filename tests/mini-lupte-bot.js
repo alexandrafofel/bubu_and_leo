@@ -34,7 +34,7 @@ const boot = require('./common.js');
           if (mode === 'lazy') { inp[1] = { x: 0, y: 0 }; if (kickCd <= 0) { l.ax = dx / m; l.ay = dy / m; inp[1].aP = true; inp[1].aR = true; kickCd = 50; } }
           else if (l.safe && d.target < 0) inp[1] = { x: dx / m, y: dy / m };       // everyone is hidden in the nest: step out
           else if ((d.state === 'tired' || d.state === 'stag') && m > 260) inp[1] = { x: dx / m, y: dy / m };
-          else if (can && d.z < 80 && P.ball.state === 'held' && kickCd <= 0) { inp[1] = { x: dx / m, y: dy / m, aP: true }; tick(); f++; inp[1] = { x: dx / m, y: dy / m, aR: true }; kickCd = 20; }
+          else if (can && d.z < 80 && P.heroes[1].homeState === 'held' && kickCd <= 0) { inp[1] = { x: dx / m, y: dy / m, aP: true }; tick(); f++; inp[1] = { x: dx / m, y: dy / m, aR: true }; kickCd = 20; }
           else if (d.pat === 'hop' && (d.state === 'aim' || d.state === 'jump')) { let ox = l.x - d.tx, oy = l.y - d.ty, om = Math.hypot(ox, oy); if (om < 20) { ox = l.x - d.sx; oy = l.y - d.sy; om = Math.hypot(ox, oy) || 1; } ox = ox / om + (L.W / 2 - l.x) / L.W; oy = oy / om + ((L.top + L.H) / 2 - l.y) / L.H; const o2 = Math.hypot(ox, oy) || 1; inp[1] = om < d.def.shock + 90 ? { x: ox / o2, y: oy / o2 } : { x: 0, y: 0 }; }      // away from the landing spot, and a little toward the open middle (not into a corner)      // out of the red circle
           else if (d.state === 'aim' || d.state === 'dash' || d.state === 'jump') { const sx = -d.dy || 1, sy = d.dx || 0; inp[1] = { x: sx, y: sy }; }
           else if (m < 300) inp[1] = { x: -dx / m, y: -dy / m }; else if (m > 420) inp[1] = { x: dx / m, y: dy / m }; else inp[1] = { x: 0, y: 0 };

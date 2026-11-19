@@ -54,7 +54,8 @@ const boot = require('./common.js');
 
   // 4. the keyboard: KeyE helps, KeyQ gives cP, ShiftLeft gives runP
   await page.evaluate(() => { const G = __game; G.Input.setCtrl(0, 'kb'); G.Input.slots[0].pad = null; G.Input.slots[1].joined = true; });
-  await page.evaluate(() => { const G = __game, P = G.P, a = P.heroes[1], b = P.heroes[0]; b.x = a.x - 90; b.y = a.y; a.inv = 0; a.dizzy = 0; G.hitHero(a, a.x + 60, a.y); }); await fr(500);
+  // Killer tocmai a primit manusile de la □, iar cat se invart nimic nu il loveste: le oprim intai
+  await page.evaluate(() => { const G = __game, P = G.P, a = P.heroes[1], b = P.heroes[0]; a.spinT = -1; a.shield = false; a.cd = 0; b.x = a.x - 90; b.y = a.y; a.inv = 0; a.dizzy = 0; G.hitHero(a, a.x + 60, a.y); }); await fr(500);
   await check('7. al doilea erou e lovit', s => s.down[1] === true);
   const b3 = await page.evaluate(() => seen.cP), b4 = await page.evaluate(() => seen.runP);
   await key('KeyE'); await fr(700);

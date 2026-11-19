@@ -13,6 +13,7 @@ const CONFIG = {
   heroes: [
     {
       name: 'Bubu',
+      power: 'spin', power2: null,      // ✕: the stomp (a spin with time 0). □: nothing
       color: '#F08A3C',        // player color on screen (rings, badges)
       color2: '#6FA35E',       // spots
       scarf: '#D9463C',
@@ -24,6 +25,7 @@ const CONFIG = {
     },
     {
       name: 'Leo',
+      power: 'throw', power2: null,     // ✕: the balls. □: nothing
       color: '#F6C63C',        // shirt (yellow)
       color2: '#3F78C8',       // shorts (blue)
       headband: '#D9463C',
@@ -166,6 +168,7 @@ const CONFIG = {
     heroes: [
       {
         name: 'Boon',
+        power: 'spin', power2: 'throw',   // ✕: the claws. □: the boomerang bones
         color: '#2FBFA8',      // player color on screen (rings, badges)
         color2: '#B7D645',
         speed: 330,
@@ -173,14 +176,30 @@ const CONFIG = {
         pullRadius: 300,       // rainbow crystals inside this circle fly to Boon
         stompCooldown: 1.25,   // seconds from the start of one spin to the next
         stunTime: 2.8,
-        spinTime: 0.85         // how long the claws spin
+        spinTime: 0.85,        // how long the claws spin
+        throw: {               // □: the boomerang bones. The same rules as Killer's balls, his own numbers
+          look: 'bone',
+          speed: 700, speedMax: 1250,   // a little slower than the balls (760, 1400): easier for the younger player to follow
+          charge: 0.9,
+          n: 8, nMax: 12,
+          cooldown: 1.2,
+          life: 2.3, lifeMax: 3.8
+        }
       },
       {
         name: 'Killer',
+        power: 'throw', power2: 'spin',   // ✕: the balls. □: the whirl gloves
         color: '#3B6FE0',      // shirt (blue)
         color2: '#E4583C',     // boots (red)
         speed: 350,
-        kickSpeed: 760, kickSpeedMax: 1400, chargeTime: 0.9, ballsPerKick: 8, ballsPerKickMax: 12, kickCooldown: 1.2, ballLife: 2.3, ballLifeMax: 3.8      // the same as Leo
+        kickSpeed: 760, kickSpeedMax: 1400, chargeTime: 0.9, ballsPerKick: 8, ballsPerKickMax: 12, kickCooldown: 1.2, ballLife: 2.3, ballLifeMax: 3.8,     // the same as Leo
+        spin: {                // □: the whirl gloves. The same rules as Boon's claws, his own numbers
+          look: 'gloves',
+          radius: 220, pull: 300,
+          time: 0.85,
+          cooldown: 1.6,       // Boon: 1.25. A little longer: the older player is shielded a little less often
+          stun: 2.8
+        }
       }
     ],
     boss: {

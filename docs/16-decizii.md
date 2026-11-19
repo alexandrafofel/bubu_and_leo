@@ -241,3 +241,18 @@ Cererea proprietarei: "scoate jocul Bubu si Leo, lasa doar Cea mai grea lupta. M
 | Fuga nu porneste cand eroul e lovit, ametit, dus de o pasare sau incarca o aruncare. | Sunt momentele in care jocul deja ii ia controlul; o fuga pornita atunci ar fi o surpriza neplacuta. |
 | Un erou pe care nu-l joaca nimeni fuge dupa prietenul care fuge, daca e la peste 300 de unitati. | Altfel un copil care joaca singur ar lasa in urma eroul celalalt la fiecare fuga. |
 | Tutorialul arata L3 doar o data pe nivel, cand eroii se despart mult, si numai pentru cine n-a fugit inca. | Asa invata singuri, fara un ecran de instructiuni. |
+
+## A doua putere (T3, 19 noiembrie 2026)
+
+| Hotarare | Motivul |
+|---|---|
+| Puterile devin doua abilitati (`spin` si `throw`), iar fiecare erou spune in `CONFIG` ce are pe fiecare buton. | Altfel "eroul 0 se roteste, eroul 1 arunca" ar fi trebuit scris inca o data pentru fiecare putere noua. Asa, o putere noua e un bloc in `CONFIG`. |
+| Boon arunca **oase**, nu mingi. | Cererea: "sa arunce cu altceva - ceva specific dinozaurilor". |
+| Oasele sunt putin mai incete decat mingile (700 - 1250 fata de 760 - 1400). | Boon e eroul celui mic. Un lucru mai lent e mai usor de urmarit cu ochii. |
+| Manusile lui Killer au pauza mai lunga decat ghearele (1.6 fata de 1.25 s). | Scutul e cea mai puternica unealta din joc. Cel mare se descurca cu mai putin. |
+| Vibratia manusilor e in trei batai scurte, nu continua ca la gheare. | Cererea: "sa vibreze controllerul cand o foloseste". Trei batai se simt altfel in mana decat vibratia ghearelor, deci copiii simt ca sunt puteri diferite. |
+| Cele doua puteri ale unui erou nu pot porni deodata. | Altfel scutul plus aruncarea ar face eroul de neatins cat timp arunca. |
+| Lucrurile deja plecate raman in aer cand eroul porneste cealalta putere. | Nu se pierde nimic din ce a aruncat, deci nu e o pedeapsa pentru ca a apasat. |
+| Lupta cu George devine putin mai usoara: acum fiecare erou poate si sa il dea jos de pe tron, si sa il loveasca. | Lupta noua din Sala Tronului (T6) cere cu adevarat amandoi eroii. Pana atunci, mai usor nu strica. |
+| `P.ball` si `P.ballCool` se mut pe erou (`h.home`, `h.homeState`, `h.throwCd`). | Doi eroi pot arunca in acelasi timp, deci starea nu mai poate fi una singura, a jocului. |
+| Indiciul □ apare si pe nivelul 1, nu doar pe nivelul 7 cum spunea specificatia. | Nivelurile 7 - 12 nu exista inca (T6). Fara asta, copiii n-ar afla de a doua putere. |

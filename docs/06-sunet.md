@@ -301,3 +301,17 @@ Efect nou in `fx`: `no`, doua note moi de kalimba care coboara o terta mica (sol
 - Sunetul nou `dash`: un "fiu" scurt si moale (zgomot trece-banda care urca de la 500 la 2100 Hz in 0.17 s, plus o sinusoida 330 - 760 Hz). E sunetul unui personaj (`CHR`), deci merge in difuzorul controllerului lui.
 - Cuvantul nou `run` pentru Boon si pentru Killer, ca orice alt cuvant al lor. Se aude cel mult o data la `CONFIG.sprint.wordGap` (6) secunde.
 - `Snd.play(nume, valoare, erou, volum)` are un al patrulea argument: un volum intre 0 si 1 pentru o copie mai inceata a aceluiasi sunet. Folosit de pasii din fuga (0.8), ca sa nu acopere restul.
+
+## Update 19 noiembrie 2026 (T3): sunetele celei de-a doua puteri
+
+| Sunet | Cand | Cum e facut |
+|---|---|---|
+| `bone` | Boon arunca oasele | Trei note de triunghi care coboara (180, 160, 140 Hz), fiecare cu un tremur de 14 Hz, plus un zgomot scurt trece-banda. |
+| `tock` | un os atinge un perete | Sinus 520 -> 430 Hz, coada scurta, cu un clic filtrat. Cel mult 3 pe secunda, ca la mingi. |
+| `gloves` | Killer porneste manusile | Doua "fuip" care urca (zgomot trece-banda 500 -> 1400 Hz) si un scartait moale de cauciuc (sinus 900 -> 700 Hz). |
+
+Toate trei sunt sunete de personaj (`CHR`), deci merg in difuzorul controllerului eroului.
+
+`osc(...)` are acum optiunea `trem`: o unda lenta peste volum, pentru note care tremura (folosita de `bone`).
+
+Cuvinte noi pentru Boon si pentru Killer: `power2` si `power2Big` (a doua putere, si varianta incarcata).

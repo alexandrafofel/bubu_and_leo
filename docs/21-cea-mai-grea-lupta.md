@@ -249,3 +249,16 @@ Numele eroilor, culorile si vitezele lor sunt tot aici. Marimile si tiparele lui
 - Nimeni nu a jucat inca jocul cu un controller in mana. Botii termina toate nivelurile si castiga toate luptele (vezi `17-testare.md`), dar asta nu spune daca e prea usor sau prea greu pentru copii.
 - Vocile lui Boon si Killer nu au fost ascultate de un om. Testul masoara doar ca se aud si ca sunt diferite.
 - Scena de noapte e foarte bogata. Eroii au un inel colorat si o lumina moale in jur ca sa se vada. Daca tot se pierd pe televizor, scade `decorPerLevel`.
+
+## Update 19 noiembrie 2026 (T3): a doua putere
+
+Fiecare erou are acum doua puteri. Detaliile si regulile: `10-gameplay.md`, "Update 19 noiembrie 2026 (T3)".
+
+| | ✕ | □ |
+|---|---|---|
+| Boon | ghearele care se rotesc | **oase-bumerang**: 8 oase (12 incarcat) pleaca in cerc, se intorc pe o curba |
+| Killer | mingile | **manusi-vartej**: bratele se intind, manusi rosii de portar se rotesc in jurul lui |
+
+Desene noi in `055-lupta.js`: `drawBone` (os crem-chihlimbar cu doua capete rotunde si o crapatura), `drawGlove` (manusa rosie cu palma alba si stea albastra), `drawThrown` (alege mingea sau osul). In `08-draw.js`: `drawGloveRing` (inelul manusilor, cu panglici si cercul punctat de pe pamant).
+
+Sunete noi (`fx2`): `bone` (trei note joase cu tremur, la aruncare), `tock` (lemn, la perete), `gloves` (doua "fuip" si un scartait de cauciuc). Cuvinte noi pentru amandoi eroii: `power2` si `power2Big`.

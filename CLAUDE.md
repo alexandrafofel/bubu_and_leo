@@ -11,7 +11,7 @@ Un joc HTML, pentru doi copii (6 si 8 ani), cooperative, cu doua controllere Dua
 
 `GAME` este mereu `'lupta'`. Ultimul update, pe puncte: `docs/22-update-14-noiembrie.md`.
 
-Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece secunde, capitole) este specificat, nu implementat, in `docs/23-update-partea-a-doua.md`, `docs/24-sisteme-noi.md` si `docs/25-niveluri-7-12.md`, iar limba personajelor (cam 1000 de cuvinte pe erou) in `docs/26-limba-personajelor.md`, iar cota de oua / cristale pe erou (L1 da un ou prietenului) in `docs/27-cota-de-oua.md`. Regulile de mai jos descriu jocul de acum. Cele care se schimba cu acel update sunt aratate in `docs/23-update-partea-a-doua.md`, sectiunea 6, si se rescriu aici abia cand sarcina lor e gata. Update-ul e impartit in 14 sarcini (se implementeaza doar in "Cea mai grea luptă"; ce spun specificatiile despre "ambele jocuri" sau despre primul joc nu se mai aplica), cu cate un prompt pentru fiecare, in `prompts/06-prompt-partea-a-doua.md`. Facute, toate pe 18 noiembrie 2026: T5 (capitole), T1 (banda de sus) si T2 (butoanele noi si fuga).
+Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece secunde, capitole) este specificat, nu implementat, in `docs/23-update-partea-a-doua.md`, `docs/24-sisteme-noi.md` si `docs/25-niveluri-7-12.md`, iar limba personajelor (cam 1000 de cuvinte pe erou) in `docs/26-limba-personajelor.md`, iar cota de oua / cristale pe erou (L1 da un ou prietenului) in `docs/27-cota-de-oua.md`. Regulile de mai jos descriu jocul de acum. Cele care se schimba cu acel update sunt aratate in `docs/23-update-partea-a-doua.md`, sectiunea 6, si se rescriu aici abia cand sarcina lor e gata. Update-ul e impartit in 14 sarcini (se implementeaza doar in "Cea mai grea luptă"; ce spun specificatiile despre "ambele jocuri" sau despre primul joc nu se mai aplica), cu cate un prompt pentru fiecare, in `prompts/06-prompt-partea-a-doua.md`. Facute: T5 (capitole), T1 (banda de sus) si T2 (butoanele noi si fuga) pe 18 noiembrie 2026, T3 (a doua putere) pe 19 noiembrie 2026.
 
 ## Regulile care nu se schimba fara acordul proprietarei
 
@@ -52,6 +52,7 @@ Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece sec
 | Capitolele, meniul de start, salvarea (`chapters`, `Save.finish`) | `src/06-level.js`, `src/09-screens.js`, `src/10-main.js` | `docs/13-ecrane-si-meniuri.md` |
 | Nivelurile si generarea lor | `src/06-level.js` | `docs/09-niveluri.md` |
 | Regulile jocului, puterile, inamicii, boss-ul | `src/07-play.js` | `docs/10-gameplay.md` |
+| Ce putere are fiecare erou pe fiecare buton (`power`, `power2`, `abil`) | `src/01-config.js`, `src/07-play.js` | `docs/03-config.md`, `docs/10-gameplay.md` |
 | Mini-luptele cu paznicii | `src/075-duel.js` | `docs/11-mini-lupte.md` |
 | Desenarea lumii, sageata, bara de progres, HUD | `src/08-draw.js` | `docs/12-desen-si-hud.md` |
 | Banda de sus (`HUD_TOP`), bannerele, camera (`camTarget`) | `src/08-draw.js`, `src/07-play.js` | `docs/12-desen-si-hud.md`, `docs/10-gameplay.md` |
@@ -66,6 +67,7 @@ Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece sec
 - Tot scrisul de sus sta in banda de 132 de unitati (`HUD_TOP`, `08-draw.js`). Nimic nu coboara sub ea peste lume, niciun banner. Camera (`camTarget`, `07-play.js`) tine eroii sub banda. Daca schimbi inaltimea unui cartonas de sus, ruleaza `tests/hud-acoperire.js` cu `STRICT=1`.
 - `Game.levelIdx` este indicele unui **capitol** (nivel sau lupta mare), nu numarul nivelului. Numarul nivelului e `P.L.idx`. Lista capitolelor o da `chapters()`.
 - Tastatura baga un jucator in joc doar pe ecranul de start (`Input.kbJoin`). Nu il porni pe alte ecrane: Enter si Spatiu sunt si tastele de putere.
+- Puterile sunt doua abilitati, `spin` si `throw`. Nu scrie `h.k === 0` ca sa afli ce poate un erou: foloseste `abil(k, kind)` si `hasAbil(k, kind)`. Fiecare lucru aruncat are `owner` si `look`.
 - Eroul se misca in pasi de cel mult `CONFIG.sprint.step` unitati (ca mingile). Daca adaugi ceva care muta eroul, pune-l in acelasi pas, nu dupa el.
 - Lumea are coordonate logice. Ecranul are mereu 1920 x 1080 unitati, scalate la fereastra. Nivelurile au 3200 x 1800.
 - Grila nivelului are celule de 40 (`CS`). Codurile celulelor sunt in `docs/09-niveluri.md`.

@@ -96,8 +96,13 @@ function drawKiller(c, x, y, o) {
   leg(10, Math.max(0, -step) * 6 + kick * 8, -step * 7 + kick * 16, 44);
   c.translate(0, -hop); c.scale(1 + br + sq, 1 - br - sq);
   // long arms, like in the drawing (up in the air when happy)
+  const gl = o.glove > 0 ? o.glove : 0;                                // the whirl gloves: both arms stretch out, 2.4 times longer
   const arm = (sd, sw) => {
-    if (up) tube(c, sd * 17, -62, sd * 30, -74, sd * 34, -92 + Math.sin(t * 9 + sd) * 4, 6.5, 6, skin);
+    if (gl > 0) {
+      const ext = 1 + 1.4 * Math.min(1, gl * 4) * (gl > 0.85 ? (1 - gl) / 0.15 : 1), wob = Math.sin(t * 24 + sd * 2) * 5;
+      tube(c, sd * 17, -62, sd * (26 * ext), -58 + wob * 0.4, sd * (34 * ext), -52 + wob, 6.5, 5.5, skin);
+      drawGlove(c, sd * (36 * ext), -50 + wob, 13, sd, t);
+    } else if (up) tube(c, sd * 17, -62, sd * 30, -74, sd * 34, -92 + Math.sin(t * 9 + sd) * 4, 6.5, 6, skin);
     else tube(c, sd * 17, -62, sd * 32, -56 + sw * 3, sd * 36, -38 + sw * 5, 6.5, 6.5, skin);
     soft(c, sd * 17, -62, 8, 6, kit, 1, 50 + sd);                      // sleeve
   };
@@ -367,4 +372,34 @@ function drawSoldier(c, so, t) {
   tube(c, 12, -32, 18, -30, 22, cheer ? -52 : -30, 4, 3.5, body);
   c.restore();
   if (cheer) { c.save(); c.translate(so.x + f * 34, so.y + 2); drawSpear(c, 0, 0, 0.1 * f, 0.9); c.restore(); }
+}
+
+/* One goalkeeper glove: red, white palm, a blue star in the palm. sd = which side it points to. */
+function drawGlove(c, x, y, r, sd, t) {
+  c.save(); c.translate(x, y); c.rotate(sd * 0.25 + Math.sin((t || 0) * 18) * 0.12); c.scale(sd, 1);
+  soft(c, 1, r * 0.2, r, r * 0.95, SHADOW, 0.22, 7);
+  puff(c, 0, 0, r, r * 0.95, '#E4583C', 8, 'rgba(150,50,40,0.45)');          // the glove
+  puff(c, r * 0.18, r * 0.05, r * 0.6, r * 0.62, '#FFF6E2', 9, 'rgba(200,150,120,0.35)');   // the white palm
+  c.save(); c.translate(r * 0.18, r * 0.05); c.fillStyle = '#3B6FE0'; starPath(c, 0, 0, r * 0.4, 0.3); c.fill(); c.restore();
+  puff(c, -r * 0.62, -r * 0.42, r * 0.34, r * 0.46, '#E4583C', 10, 'rgba(150,50,40,0.4)');  // the thumb
+  soft(c, -r * 0.1, -r * 0.72, r * 0.7, r * 0.2, shade('#E4583C', 0.35), 0.5, 11);          // the cuff
+  c.restore();
+}
+
+/* Boon's boomerang bone: two round ends and a shaft, cream amber, with a small crack. */
+function drawBone(c, x, y, r, spin) {
+  c.save(); c.translate(x, y); c.rotate(spin || 0);
+  const L = r * 1.25, w = r * 0.42, col = '#F3E2B8', sh = '#C99A52';
+  soft(c, 0, w * 0.5, L, w * 0.8, SHADOW, 0.2, 3);
+  c.fillStyle = col; c.strokeStyle = rgba(sh, 0.75); c.lineWidth = Math.max(1.5, r * 0.1); c.lineJoin = 'round';
+  c.beginPath(); c.moveTo(-L * 0.55, -w * 0.5); c.lineTo(L * 0.55, -w * 0.5); c.lineTo(L * 0.55, w * 0.5); c.lineTo(-L * 0.55, w * 0.5); c.closePath(); c.fill();
+  for (const sx of [-1, 1]) for (const sy of [-1, 1]) { c.beginPath(); c.arc(sx * L * 0.62, sy * w * 0.62, w * 0.72, 0, TAU); c.fill(); }
+  c.beginPath(); c.moveTo(-L * 0.3, -w * 0.18); c.lineTo(L * 0.1, -w * 0.05); c.stroke();        // the crack
+  c.fillStyle = rgba('#FFFDF4', 0.6); c.beginPath(); c.ellipse(-L * 0.1, -w * 0.3, L * 0.3, w * 0.16, 0, 0, TAU); c.fill();
+  c.restore();
+}
+
+/* What a thrown thing looks like: Killer's and Leo's ball, or Boon's bone. */
+function drawThrown(c, x, y, r, spin, look) {
+  if (look === 'bone') drawBone(c, x, y, r, spin); else drawBall(c, x, y, r, spin);
 }

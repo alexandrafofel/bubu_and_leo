@@ -117,7 +117,7 @@ Inainte de orice sarcina si dupa fiecare: `./build.sh`, `node tools/gen-docs.js`
 |---|---|---|---|
 | T1 | Scrisul de sus nu mai acopera eroii. **Facuta pe 18 noiembrie 2026.** | 24, S6 | `tests/hud-acoperire.js` cu `STRICT=1` scrie 0% pentru toate coloanele, in ambele jocuri, si intra in `tests/toate.sh`. |
 | T2 | Butoanele (○ ajuta, □ citit pentru a doua putere, L3) si fuga. **Facuta pe 18 noiembrie 2026.** | 24, S1 si S2 | `tests/control-nou.js` si `tests/fuga.js` trec. Niciun erou nu trece printr-un perete la viteza x 3. |
-| T3 | Puterile devin abilitati (rotire, aruncare) pe care le poate avea orice erou. Apoi oasele lui Boon si manusile lui Killer. | 24, S3 | `tests/puteri-doi.js` trece. Testele vechi trec neschimbate in primul joc. |
+| T3 | Puterile devin abilitati (rotire, aruncare) pe care le poate avea orice erou. Apoi oasele lui Boon si manusile lui Killer. **Facuta pe 19 noiembrie 2026.** | 24, S3 | `tests/puteri-doi.js` trece. Testele vechi trec neschimbate in primul joc. |
 | T4 | Cele 10 secunde si reinceperea nivelului. | 24, S4 | `tests/zece-secunde.js` trece. |
 | T5 | Capitole, meniul de start, salvarea versiunea 4. **Facuta pe 18 noiembrie 2026**, inaintea T1 - T4 (nu depinde de ele). | 24, S5 | `tests/capitole.js` trece. O salvare veche isi pastreaza progresul. |
 | T6 | Stilul grafic: lumina, materiale, umbre, planul din fata, eroii repictati. | 24, S7 | Lista de verificare S7.8 bifata pe capturi. `tests/stil-grafic.js` trece. `performanta.js` cel mult 20% peste valoarea de dinainte. |
