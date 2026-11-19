@@ -3648,7 +3648,7 @@ function updateHero(h, dt) {
     if (P.boss && P.boss.state !== 'won') {
       const b = P.boss, tb = L.treeBase;
       if (h.k === 0) { tx = tb.x - 190; ty = tb.y + 140; if (b.state === 'up' && dist(h.x, h.y, tx, ty) < 80 && startSpin(h)) h.cd = 1.6; }
-      else { tx = tb.x + 150; ty = tb.y + 300; if (b.state === 'down' && h.homeState === 'held' && h.dizzy <= 0 && dist(h.x, h.y, tx, ty) < 120) { const g = bossGoal(), dx = g.x - h.x, dy = g.y - h.y, m = Math.hypot(dx, dy) || 1; kickBall(h, 0.5, dx / m, dy / m); } }
+      else { tx = tb.x + 150; ty = tb.y + 300; if (b.state === 'down' && h.homeState === 'held' && h.dizzy <= 0 && dist(h.x, h.y, tx, ty) < 120) { const g = bossGoal(), dx = g.x - h.x, dy = g.y - h.y, m = Math.hypot(dx, dy) || 1; throwRing(h, 0.5, dx / m, dy / m); } }
     }
     const dx = tx - h.x, dy = ty - h.y, m = Math.hypot(dx, dy);
     if (m > 60) { const f = Math.min(1, (m - 40) / 120); ix = dx / m * f; iy = dy / m * f; } else { ix = iy = 0; }

@@ -5,7 +5,7 @@ const boot = require('./common.js');
   const { page, done, game } = await boot();
   const res = await page.evaluate(() => {
     const G = __game, C = G.CONFIG, SE = C.smallEnemy, lup = G.GAME === 'lupta', out = {}, sec = s => step(Math.round(s * 60));
-    const power = (k) => { const P = G.P, h = P.heroes[k]; h.cd = 0; h.dizzy = 0; h.inv = 9; if (k === 0) { inp[0].aP = true; sec(1.4); } else { P.ballCool = 0; P.flock.length = 0; P.ball.state = 'held'; G.kickBall(h, 0, 1, 0); sec(0.5); G.recallBalls(); sec(1.2); } };
+    const power = (k) => { const P = G.P, h = P.heroes[k]; h.cd = 0; h.dizzy = 0; h.inv = 9; if (k === 0) { inp[0].aP = true; sec(1.4); } else { h.throwCd = 0; P.flock.length = 0; h.homeState = 'held'; G.throwRing(h, 0, 1, 0); sec(0.5); G.recallBalls(1); sec(1.2); } };
     out.hits = SE.hits; out.respawn = SE.respawn;
     // ---- sleepers (beetles / robots), with the first hero's power
     go(1); let P = G.P, L = P.L, a = P.heroes[0], b = P.heroes[1];

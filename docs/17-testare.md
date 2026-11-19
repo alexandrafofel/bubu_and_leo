@@ -249,4 +249,10 @@ Verificat ca poate sa pice: cu oasele desenate ca mingi testul scrie `NEREUSIT` 
 
 ### Testele vechi schimbate (doar numele, nu si ce verifica)
 
-`mingi-leo.js` (`G.throwRing`, `h.homeState`, `h.throwCd`, `recallBalls(1)`), `mini-lupte-bot.js` si `salvare-prieten.js`. Numerele si verificarile au ramas aceleasi: asta e dovada ca refactorizarea nu a schimbat jocul.
+`mingi-leo.js` (`G.throwRing`, `h.homeState`, `h.throwCd`, `recallBalls(1)`), `inamici-mici.js`, `mini-lupte-bot.js` si `salvare-prieten.js`. Numerele si verificarile au ramas aceleasi: asta e dovada ca refactorizarea nu a schimbat jocul.
+
+In `control-nou.js` (testul butoanelor, de la T2) a fost nevoie de o linie in plus: □ porneste acum manusile lui Killer, iar cat se invart nimic nu il loveste, deci testul le opreste inainte sa verifice ca eroul poate fi lovit.
+
+### Ce a prins rularea completa
+
+`joc-complet-bot.js` a cazut cu "kickBall is not defined": la lupta cu boss-ul, eroul pe care nu-l joaca nimeni chema functia veche, singurul loc ramas nerenumit. Testele mici nu ajung acolo. De aceea `tests/toate.sh` se ruleaza intreg inainte de orice livrare.
