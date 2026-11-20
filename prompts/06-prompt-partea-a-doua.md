@@ -2,7 +2,7 @@
 
 > **Un singur joc (18 noiembrie 2026).** "Bubu și Leo" a fost scos. Tot ce e specificat aici se implementeaza **doar in "Cea mai grea luptă"**. Unde scrie "ambele jocuri", "primul joc", variante `L:` sau teste pentru `bubu`, se citeste: un singur joc, textele lui (varianta `L:`), un singur rand de teste. Nu se mai scrie cod pentru primul joc.
 
-Update-ul e impartit in **14 sarcini**. Fiecare se poate termina, testa si trimite separat.
+Update-ul e impartit in **23 de sarcini** (T14 in zece subsarcini, T14.1 - T14.10). Fiecare se poate termina, testa si trimite separat.
 
 Cum folosesti fisierul:
 
@@ -28,7 +28,16 @@ Sarcinile merg in ordine: fiecare se sprijina pe cea dinainte. Dupa sarcina 5 jo
 | [T11](#t11) | Sala Tronului si finalurile | 25, 6 si 7 |
 | [T12](#t12) | Sunete, decor, documentatie, totul testat | 25, 8 - 11 |
 | [T13](#t13) | Limba personajelor: cam 1000 de cuvinte pe erou, Dictionar | 26 |
-| [T14](#t14) | Cota de oua / cristale pe erou, dat cu L1, insigna verde / rosie | 27 |
+| [T14.1](#t14-1) | Cota (partea 1): cifrele si semintele | 27, C3, C6 - C8 |
+| [T14.2](#t14-2) | Luarea ouului cu cota, ouale peste limita | 27, C2, C3, C8, C9 |
+| [T14.3](#t14-3) | Butonul L1 si pagina de taste | 27, C6 |
+| [T14.4](#t14-4) | Dat cu L1, ouale in zbor, sageata | 27, C4, C5 |
+| [T14.5](#t14-5) | Sfarsitul nivelului cu cota | 27, C2 |
+| [T14.6](#t14-6) | Ajutor automat si cazuri speciale | 27, C9, C12 - C14 |
+| [T14.7](#t14-7) | Insigna verde / rosie si sfarsitul de nivel | 27, C5, C10 |
+| [T14.8](#t14-8) | Mesajele "Ai gasit toate", "mai are nevoie", ghidul | 27, C5, C11 |
+| [T14.9](#t14-9) | tests/cota.js: cele 16 verificari | 27, C10 |
+| [T14.10](#t14-10) | Boti, teste complete, documentatie | 27, C8, C10 |
 
 ---
 
@@ -45,7 +54,7 @@ De citit, in ordinea aceasta, inainte de orice sarcina:
 
 1. `CLAUDE.md`: regulile care nu se schimba si pasii de lucru.
 2. `docs/00-cuprins.md`, apoi `docs/02-arhitectura.md` si `docs/21-cea-mai-grea-lupta.md`.
-3. `docs/23-update-partea-a-doua.md`: cererea, hotararile, intrebarile deschise, principiile luate din "It Takes Two", planul in 14 sarcini.
+3. `docs/23-update-partea-a-doua.md`: cererea, hotararile, intrebarile deschise, principiile luate din "It Takes Two", planul in 23 de sarcini.
 4. Capitolul de specificatie al sarcinii tale: `docs/24-sisteme-noi.md`, `docs/25-niveluri-7-12.md`, `docs/26-limba-personajelor.md` sau `docs/27-cota-de-oua.md`.
 5. `prompts/05-cerere-16-noiembrie.md`: cererea proprietarei, cuvant cu cuvant. **Daca specificatia si cererea spun lucruri diferite, cererea are dreptate: spune-i, nu alege singur.**
 
@@ -525,33 +534,215 @@ La final scrie proprietarei raportul obisnuit si, pentru toate sarcinile facute 
 ---
 
 <a id="t14"></a>
-## T14. Cota de oua si cristale
+## T14. Cota de oua si cristale (impartit in 10 subsarcini)
+
+T14 e impartit in zece sarcini, cu acelasi format ca restul. Ordinea: T14.1 -> T14.2 -> T14.3 -> T14.4 -> T14.5; apoi T14.6 si T14.7; T14.8 dupa T14.4 si T14.7; T14.9 dupa tot codul; T14.10 ultima. Fiecare se verifica inainte de urmatoarea.
+
+Inainte de T14.1: T1 si T2 sunt facute (in `main`). Daca T1 nu e facuta, opreste-te.
+
+### T14.1 - Cota (partea 1): cifrele si semintele
 
 ````
 Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
 Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia cotei: docs/27-cota-de-oua.md, sectiunile C1 - C16. Cererea proprietarei e la inceputul ei; daca specificatia si cererea difera, cererea are dreptate: spune-i proprietarei.
 
-Sarcina T14: fiecare erou trebuie sa gaseasca un numar de oua (primul joc) sau cristale (al doilea) pe nivel. Un erou poate tine cel mult 150% din cota si ii poate da prietenului un ou apasand L1. Daca limita e 10 si un erou are 20, iar celalalt 0, nivelul nu se termina. Cererea proprietarei, cuvant cu cuvant, e la inceputul docs/27-cota-de-oua.md. Daca specificatia si cererea difera, cererea are dreptate: spune-i proprietarei.
+Sarcina T14.1: fiecare nivel are o cota (10, 15, 20... 65), iar numarul de oua de pe harta se calculeaza din ea.
 
-Specificatia: docs/27-cota-de-oua.md, toate sectiunile (C1 - C11). Citeste si docs/24-sisteme-noi.md, S1 (butoane) si S6 (banda de sus: insigna mai inalta trebuie sa incapa in 132 de unitati).
+Ce faci:
+1. `CONFIG.quota` in `src/01-config.js`, cu comentarii (C7).
+2. `genLevel` in `src/06-level.js`: `E = ceil(extra * cota)` in locul `levelDuration / 60 * eggsPerMinute`. Valurile se impart ca acum. Dupa generare, daca `2q <= E <= 2 * cap` nu e adevarat, `buildLevel` incearca urmatoarea samanta.
+3. `levelDurationOf(L)` = `max(CONFIG.levelDuration, E / eggsPerMinute * 60)`. Soarele din HUD, medalia si ajutorul din `updatePlay` folosesc durata nivelului, nu `CONFIG.levelDuration`.
+4. Daca `CONFIG.quota` e gresit (extra in afara lui `[2, 2 * cap]` sau lipseste o cota), `console.error` la pornire, iar jocul foloseste 60 de oua ca inainte.
 
-Inainte sa incepi, verifica ca T1 si T2 sunt facute (in main sau in ramura de la care pornesti). Daca T2 nu e facuta, adauga doar butonul L1 (indice 4, campul `g` / `gP`) cum scrie in C6 si spune asta in raport. Daca T1 nu e facuta, opreste-te.
+Gata cand: pentru nivelurile 1 - 12, `2q <= L.totalEggs <= 2 * cap` in 10 seminte diferite (testul e in T14.9, aici verifici cu un script scurt). `build.sh`, `gen-docs.js` si `tests/toate.sh` nu au regresii fata de main.
 
-Ce ai de facut:
-1. CONFIG.quota (C7) si generatorul: genLevel foloseste ceil(extra * cota) in locul eggsPerMinute. Daca 2q <= E <= 2 * cap nu e adevarat pentru un nivel, buildLevel incearca urmatoarea samanta. Durata nivelului: max(levelDuration, E / eggsPerMinute * 60).
-2. Starea si regulile din C4: P.found, P.cap, canTake, giveEgg, updateGifts, quotaState. Campul `goal` pe ou. Un ou peste limita ramane pe jos, cu balonul "Plin!". Tropaitul si mingea ocolesc eroul plin. Un erou lovit scapa un ou al lui. Nivelul se termina doar daca fiecare si-a gasit cota. Cu un singur jucator nu exista limita. Ajutorul automat dupa autoGive secunde.
-3. L1: Input (campul `g`, `gP`, tastele KeyR si Period dupa ce verifici RESERVED), pagina "Alege tastele", sunetul `give`, vibratia.
-4. HUD (C5): insigna de 300 x 108 cu portret, ou / cristal mic si "gasite / cota", verde / rosu cu bifa, mesajul "Ai găsit toate" in cardul din mijloc cu `iconL1`, sagetile, ecranul de sfarsit de nivel. Textele in STR, romana si engleza, cu varianta `L:` pentru al doilea joc.
-5. tests/cota.js cu cele 16 verificari din C10, ambele jocuri, in tests/toate.sh. Verifica o data ca fiecare poate sa pice. Adapteaza botii (tests/common.js: `balanseaza()`) sa dea cu L1 cand e nevoie, si tests/hud-acoperire.js (STRICT=1 trebuie sa ramana 0%).
-6. Documentatia: 03, 07, 09, 10, 12, 13, 16 (C1 - C16 cu motivul), 17, 19, 00-cuprins.md, README.md si regulile 8 si 10 din CLAUDE.md, cum scrie in docs/23, sectiunea 6. Capitolul 27 devine istoric, cu o nota in cap ca a fost implementat.
-
-Gata cand:
-- tests/cota.js trece pentru amandoua jocurile, cu errors 0 si fara NEREUSIT.
-- Exemplul din cerere (cota 10, un erou 15, celalalt 7, ambii in cuib) nu termina nivelul; dupa ce primeste ouale cu L1, il termina.
-- tests/toate.sh trece intreg pentru ambele jocuri. hud-acoperire.js: 0%.
-- Ai capturi (ro si en, ambele jocuri) cu insigna rosie, insigna verde si mesajul "Ai găsit toate", privite cu ochiul.
-
-Nu face in aceasta sarcina: nivelurile noi, limba, grafica noua. Nu schimba medaliile.
-
-La final scrie proprietarei raportul obisnuit si ce nu s-a putut verifica (C11).
+Nu face: nu schimba jocul pentru erou (luarea ouului e in T14.2). Nu schimba medaliile.
 ````
+
+### T14.2 - Luarea ouului cu cota
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia cotei: docs/27-cota-de-oua.md, sectiunile C1 - C16. Cererea proprietarei e la inceputul ei; daca specificatia si cererea difera, cererea are dreptate: spune-i proprietarei.
+
+Sarcina T14.2: un ou luat intr-un nivel cu cota trece la eroul care il ia, dar eroul nu poate avea mai mult de 150% din cota.
+
+Ce faci (C2 parte, C3, C8, C9):
+1. Oul are campul `goal`: `true` pentru oul din val sau copac (`makeEgg`) si pentru oul scapat de un erou lovit (`dropped`, cu `req: false`). Oul urias, ouale din paznic si bonusul curcubeului: `goal: false`.
+2. `P.q`, `P.cap = ceil(1.5 * P.q)`, `P.found[k]`, `canTake(e, k)` (`!bothJoined() || P.found[k] < P.cap`), `quotaOk(k)`, `quotaState(k)`.
+3. `collectEgg(e, k)`: daca `e.goal` si `!canTake`, oul ramane pe jos, `capHint(k, e)` (balonul "Plin!" o data la 1.2 s, `Snd.play('no')`, un salt mic). Altfel `P.found[k]++` doar pentru `goal`.
+4. Tropaiul (`e.pull`) si mingea lui Leo / Killer ocolesc eroul plin.
+5. `hitHero`: eroul lovit scapa un ou al lui (`P.found[h.k]--`). Daca nu are niciunul, nu scapa nimic. Oul scapat se numara pentru cine il ia.
+
+Gata cand: un erou plin nu mai ia oua `goal` si balonul apare; prietenul le ia. Un erou lovit fara oua nu pierde oua ale prietenului. `tests/cota.js` (T14.9) cu verificarile 3 si 10 trece; le poti verifica si ca script scurt pana atunci.
+
+Nu face: nu schimba L1 (T14.3) si nu da oua cu L1 (T14.4). Nu schimba fasonul insignei.
+````
+
+### T14.3 - Butonul L1 si pagina de taste
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia cotei: docs/27-cota-de-oua.md, sectiunile C1 - C16. Cererea proprietarei e la inceputul ei; daca specificatia si cererea difera, cererea are dreptate: spune-i proprietarei.
+
+Sarcina T14.3: L1 da un ou prietenului. Aici se adauga doar butonul; actiunea e in T14.4.
+
+Ce faci (C6):
+1. `src/04-input.js`: campul `g` si `gP` in `Input.slots[k]` (frontul apasarii), `kb.g`. Indicele butonului: 4.
+2. Tastele: jucatorul 1 `KeyR`, jucatorul 2 `Period`. Verifica `RESERVED`.
+3. `src/01-config.js`: `keys[k].g`. `src/09-screens.js`: `KEY_FIELDS` si randul "Dă un ou prietenului (butonul L1)" in pagina "Alege tastele".
+4. O salvare veche fara `g` ramane cu valoarea din `CONFIG`. Testerul din Setari arata deja orice buton; verifica doar ca L1 are loc desenat.
+
+Gata cand: in Setari apare randul L1, poate fi schimbat, iar `Input.slots[k].gP` se aprinde la apasare (testat cu controller simulat si cu tastatura). `tests/setari-ui.js` si `tests/tastatura-reala.js` trec.
+
+Nu face: nu scrie `giveEgg` (T14.4).
+````
+
+### T14.4 - Dat cu L1: ouale in zbor si sageata
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia cotei: docs/27-cota-de-oua.md, sectiunile C1 - C16. Cererea proprietarei e la inceputul ei; daca specificatia si cererea difera, cererea are dreptate: spune-i proprietarei.
+
+Sarcina T14.4: un erou ii poate da prietenului un ou apasand L1 (sau tinut apasat, la 0.3 s).
+
+Ce faci (C4, C5):
+1. `giveEgg(k)` din `updateHero` cand `gP` e apasat (sau tinut, la `CONFIG.quota.giveEvery`). Verificari in ordine: prietenul joaca; eroul nu e `down` / ametit; `P.found[k] >= 1`; prietenul are loc sub `cap` (incl. ouale in zbor); distanta <= `giveRange` (420).
+2. Daca da: `P.found[k]--`, oul intra in `P.gifts` (`{ from, to, t, x0, y0 }`) si zboara in arc 0.45 s. La sosire `P.found[to]++`.
+3. `updateGifts(dt)`, desenarea oului in zbor (acelasi desen ca oul din joc). `Snd.play('give', 0, k)` la plecare (doua note de marimba, urcand), `Snd.play('egg', 0, 1 - k)` la sosire. `Input.rumble(k, 0.1, 0.3, 60)` si `Input.rumble(1 - k, 0, 0.4, 80)`. Cel care da spune `together`, cel care primeste `thanks`.
+4. Prea departe sau fara oua: nu da nimic; `reachHint` si sageata spre prieten (`drawGuides`) cat tii apasat; numarul clatina.
+5. Texte: `quota.far` ("Apropie-te de {0}!") in `STR`, ambele limbi, cu varianta `L:` nu e nevoie.
+
+Gata cand: `tests/cota.js` verificarile 4 si 5 trec (cu L1 simulat si cu tasta). Un ou dat ajunge chiar daca eroul care a dat e lovit pe drum.
+
+Nu face: nu schimba bannerele (T14.8). Nu termina nivelul (T14.5).
+````
+
+### T14.5 - Sfarsitul nivelului cu cota
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia cotei: docs/27-cota-de-oua.md, sectiunile C1 - C16. Cererea proprietarei e la inceputul ei; daca specificatia si cererea difera, cererea are dreptate: spune-i proprietarei.
+
+Sarcina T14.5: nivelul se termina doar cand amandoi sunt in cuib si fiecare si-a gasit cota (C2).
+
+Ce faci:
+1. In `updatePlay`: `const quotaMet = !quotaOn() || (quotaOk(0) && quotaOk(1));` si conditia de final: `ready && quotaMet && (...)`.
+2. Cat timp amandoi sunt in cuib si `quotaMet` e fals: bannerul `quota.need` ("{0} mai are nevoie de {1}!", cu "un ou" / "{n} ouă" sau varianta `L:`), `P.needT` creste (pentru C12, implementat in T14.6). Cuibul ramane deschis.
+3. Ouale ramase pe jos pot fi luate in continuare. `P.nestOpenT > 14` ramane, dar nu mai e de ajuns singur.
+4. Cu un singur jucator (C13): cota celuilalt e indeplinita, nu se arata numaratoarea, nivelul se termina cand cel care joaca are `q`.
+
+Gata cand: exemplul din cerere (cota 10, un erou 15, celalalt 7, ambii in cuib) nu termina nivelul; dupa ce primeste ouale cu L1, il termina. Verificarea 6 din `cota.js` trece.
+
+Nu face: nu schimba insigna (T14.7).
+````
+
+### T14.6 - Ajutor automat si cazuri speciale
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia cotei: docs/27-cota-de-oua.md, sectiunile C1 - C16. Cererea proprietarei e la inceputul ei; daca specificatia si cererea difera, cererea are dreptate: spune-i proprietarei.
+
+Sarcina T14.6: nimeni nu ramane blocat in cuib, si cazurile de margine din C9 merg.
+
+Ce faci:
+1. Ajutorul automat (C12): dupa `CONFIG.quota.autoGive` (120) secunde in cuib cu o cota care lipseste, jocul transfera singur, din `autoEvery` (2) in 2 secunde, cate un ou de la cel care are peste cota la cel care lipseste. 0 opreste ajutorul. Apare `quota.auto` ("{0} îți trimite un ou.").
+2. Prietenul deconectat: cota lui se socoteste indeplinita pana revine, fara a pierde oua (C9).
+3. Al doilea jucator intra in mijlocul nivelului (C14): ouale peste limita primului trec la el, pana la limita lui, cu zborul de la T14.4.
+4. Reincepere dupa cele 10 secunde (T4): `P` se reface, `P.found` revine la 0.
+5. Nivelurile 5 (oul urias), luptele mari (fara cota) si curcubeul (bonus, nu intra in cota) raman cum sunt.
+
+Gata cand: `tests/cota.js` verificarile 9, 11 si 13 trec. Cu `autoGive` 0 nu se transfera nimic.
+
+Nu face: nu schimba mesajele din cardul din mijloc (T14.8).
+````
+
+### T14.7 - Insigna verde / rosie si sfarsitul de nivel
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia cotei: docs/27-cota-de-oua.md, sectiunile C1 - C16. Cererea proprietarei e la inceputul ei; daca specificatia si cererea difera, cererea are dreptate: spune-i proprietarei.
+
+Sarcina T14.7: insigna din colt arata portretul, ce a gasit fiecare erou si cata cota are.
+
+Ce faci (C5 tabel, C10):
+1. `drawBadge` in `src/08-draw.js`: 300 x 108 (y 16 - 124, in banda de 132). Portretul pictat de acum, 80 x 80, numele, dificultatea sus dreapta, ou / cristal mic si "gasite / cota" (marimea 46).
+2. Verde `#3E9A5A` cand `gasite >= cota`, rosu `#D6503F` cand nu; contrast cel putin 3 : 1 pe `#FFF3DC`; contur `shade(col, -0.35)`.
+3. Bifa pictata (un ✓ rotund, verde) doar cand e gata. Cand lipsesc oua, numarul se clatina 1 grad o data la 3 s. Cand a dat sau a primit un ou, numarul creste la 1.25 si revine in 0.2 s.
+4. `iconL1` in `src/02-core.js`, langa `iconSq`: disc crem cu margine lila, litera "L1".
+5. Ecranul de sfarsit (`drawLevelEnd`): cei doi eroi cu portret, `gasite / cota` si bifa. Numai citit.
+6. La luptele mari insigna nu arata numaratoarea.
+
+Gata cand: `tests/cota.js` verificarile 7 si 14 trec; `hud-acoperire.js` cu `STRICT=1` ramane la 0%. Capturi ro si en, cu insigna rosie si verde, privite cu ochiul.
+
+Nu face: nu schimba bannerele si textele (T14.8).
+````
+
+### T14.8 - Mesajele "Ai găsit toate", "mai are nevoie" si ghidul
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia cotei: docs/27-cota-de-oua.md, sectiunile C1 - C16. Cererea proprietarei e la inceputul ei; daca specificatia si cererea difera, cererea are dreptate: spune-i proprietarei.
+
+Sarcina T14.8: cand un erou isi gaseste cota, prietenul vede un mesaj cu cum sa-i dea un ou.
+
+Ce faci (C5 texte, C11):
+1. Bannerul `quotaDone`, o data pe nivel pentru fiecare erou (`P.quotaMsg[k]`), cand prietenul nu are cota: portretul eroului, o sageata animata de la insigna lui spre insigna prietenului, cu `iconL1` care pulseaza. Text: `quota.done` / `L:quota.done` (vezi C5). Se scurteaza cu `wrapLines` daca e prea lat.
+2. Daca ambii isi gasesc cota in acelasi timp, `quotaBoth` ("Amândoi ați găsit toate! La cuib!") si sageata spre cuib.
+3. `quota.full` ("Plin!"), `quota.far` si `quota.auto` in `STR`, romana si engleza, cu varianta `L:` pentru al doilea joc.
+4. `guideTarget`: un erou plin e indrumat spre prieten, cu `iconL1` in balonul de la capat (`kind: 'give'`).
+5. Textele cu `{1}` = `L1` pe controller sau numele tastei pe tastatura (ca `pressLabel`).
+
+Gata cand: verificarea 8 din `cota.js` trece in ambele limbi. Mesajul apare o singura data, numai cand prietenul nu are cota, cu numele corect (Boon / Killer si Leo / Bubu). Nu apare cand amandoi termina deodata.
+
+Nu face: nu schimba ce numara jocul (T14.5).
+````
+
+### T14.9 - tests/cota.js: cele 16 verificari
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia cotei: docs/27-cota-de-oua.md, sectiunile C1 - C16. Cererea proprietarei e la inceputul ei; daca specificatia si cererea difera, cererea are dreptate: spune-i proprietarei.
+
+Sarcina T14.9: scrie `tests/cota.js` cu cele 16 verificari din C10, pentru cele doua jocuri (ca in `tests/toate.sh`, cu `errors 0`).
+
+Ce faci:
+1. Verificarile 1 - 16 din C10, fiecare cu rezultat `ok` sau `GRESIT`.
+2. Fiecare verificare trebuie sa poata sa pice: strica regula (de exemplu lasa `canTake` mereu adevarat), ruleaza testul, vezi `NEREUSIT`, pune la loc.
+3. Adauga `cota.js` in `tests/toate.sh`.
+
+Gata cand: toate cele 16 trec si fiecare pica atunci cand regula e stricata. Descrierea fiecarei verificari e in `docs/17-testare.md`.
+
+Nu face: nu scrie boti noi (T14.10).
+````
+
+### T14.10 - Boti, teste complete, documentatie
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia cotei: docs/27-cota-de-oua.md, sectiunile C1 - C16. Cererea proprietarei e la inceputul ei; daca specificatia si cererea difera, cererea are dreptate: spune-i proprietarei.
+
+Sarcina T14.10: jocul se termina cu botii, toate testele trec, iar documentatia e la zi.
+
+Ce faci:
+1. `tests/common.js`: `balanseaza()` ca botii sa dea cu `__game.giveEgg` cand e nevoie.
+2. `joc-complet-bot.js` si `nivele-bot-mers.js` termina tot jocul. Notezi timpul pe nivel in `17-testare.md`.
+3. `tests/toate.sh` intreg, cu `errors 0`. `hud-acoperire.js` cu `STRICT=1` ramane la 0%.
+4. Documentatia: `03-config.md`, `07-control.md` (L1), `09-niveluri.md`, `10-gameplay.md`, `12-desen-si-hud.md`, `13-ecrane-si-meniuri.md`, `16-decizii.md` (C1 - C16 cu motivul), `17-testare.md`, `19-limitari.md`, `00-cuprins.md`, `README.md`, regulile 8 si 10 din `CLAUDE.md`, sectiunea 6 din `23`. `27-cota-de-oua.md` devine istoric, cu o nota in cap ca a fost implementat.
+5. `node tools/gen-docs.js` si `./build.sh`.
+
+Gata cand: `tests/toate.sh` trece intreg, cu `errors 0` si fara `NEREUSIT`. Capturile (ro si en) sunt privite cu ochiul. Raportul catre proprietara include ce nu s-a putut verifica (C11).
+
+Nu face: nu schimba nivelurile noi (T6 - T12) sau limba (T13).
+````
+
