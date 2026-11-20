@@ -107,9 +107,9 @@ Despre grafica, cinstit: "It Takes Two" este un joc 3D facut cu un motor mare. J
 
 ---
 
-## 5. Planul: 14 sarcini
+## 5. Planul: 23 de sarcini (T14 impartit in T14.1 - T14.10)
 
-Fiecare sarcina se poate termina, testa si trimite separat. Ordinea conteaza: fiecare se sprijina pe cea dinainte. Promptul gata de lipit pentru fiecare este in `../prompts/06-prompt-partea-a-doua.md`.
+Fiecare sarcina se poate termina, testa si trimite separat. T14 e impartit in zece subsarcini (T14.1 - T14.10), in ordinea de mai jos: T14.1 -> T14.2 -> T14.3 -> T14.4 -> T14.5; apoi T14.6 si T14.7 (independente intre ele); T14.8 dupa T14.4 si T14.7; T14.9 dupa tot codul; T14.10 ultima. Ordinea conteaza: fiecare se sprijina pe cea dinainte. Promptul gata de lipit pentru fiecare este in `../prompts/06-prompt-partea-a-doua.md`.
 
 Inainte de orice sarcina si dupa fiecare: `./build.sh`, `node tools/gen-docs.js`, `tests/toate.sh`, capturi privite cu ochiul, documentatia mutata in capitolul potrivit.
 
@@ -128,7 +128,16 @@ Inainte de orice sarcina si dupa fiecare: `./build.sh`, `node tools/gen-docs.js`
 | T11 | Sala Tronului, scena "Va urma", finalul nou. | 25, 6 si 7 | `tests/sala-tronului.js` trece. `joc-complet-bot.js` ajunge de la capitolul 1 la finalul nou. |
 | T12 | Sunete, muzica, cuvinte noi, decor, capturi, toata documentatia. | 25, 8 - 11 | `tests/toate.sh tot` trece. `numara-elemente.js` da peste 22.000 in al doilea joc. |
 | T13 | Limba personajelor: fiecare erou are propria limba, cu cam 1000 de cuvinte generate, fraze, balon cu traducerea si Dictionar. Se face **dupa T12** (cele 13 cuvinte noi din T12 devin exclamatiile limbii) si dupa T1 (regulile pentru scrisul de sus se aplica si balonului). | 26 | `tests/limba.js` trece pentru ambele jocuri. 950 - 1100 de cuvinte pe limba, niciunul la fel cu altul. |
-| T14 | Cota de oua / cristale: fiecare erou are de gasit un numar pe nivel (10, 15, 20...), tine cel mult 150%, ii da prietenului cu L1. Insigna verde / rosie cu portret si "gasite / cota", mesajul "Ai găsit toate". Se face **dupa T1** (banda de sus, facuta) si **dupa T2** (butonul L1 si tabelul de butoane). Nu depinde de T13. | 27 | `tests/cota.js` trece pentru ambele jocuri. Exemplul din cerere (cota 10, un erou 15, celalalt 7) nu termina nivelul. `hud-acoperire.js` ramane la 0%. |
+| T14.1 | Cota de oua / cristale, partea 1: cifrele. `CONFIG.quota`, `genLevel` cu `E = ceil(2.2 * cota)`, `levelDurationOf`, verificarea semintelor (`2q <= E <= 2 * cap`). | 27, C3, C6, C7, C8 (1 - 2) | Pentru nivelurile 1 - 12, `E` e in intervalul corect, iar durata urmeaza formula din C3. Nimic din joc nu se schimba inca pentru erou. |
+| T14.2 | Luarea ouului cu cota: campul `goal`, `canTake`, `collectEgg` si `hitHero` numara doar ouale `goal`. Ouale peste limita raman pe jos, cu balonul "Plin!"; tropaiul si mingea ocolesc eroul plin. Un erou lovit scapa un ou al lui. | 27, C2 (parte), C3, C8, C9 | Verificarile 3 si 10 din `cota.js` trec (adunate in acelasi test pana la T14.9). |
+| T14.3 | Butonul L1: campul `g` / `gP` in `Input`, `KEY_FIELDS`, `RESERVED`, randul nou in pagina de taste, salvarile vechi. | 27, C6 | Testerul din Setari arata L1; o salvare veche ramane cu tastele din `CONFIG`. |
+| T14.4 | Dat cu L1: `giveEgg`, ouale in zbor (`P.gifts`, 0.45 s), sunetul `give`, vibratiile, distanta 420, sageata spre prieten cand e departe. | 27, C4, C5 | Verificarile 4 si 5 din `cota.js` trec, cu tastatura si cu controllerul. |
+| T14.5 | Sfarsitul nivelului: se termina doar cand fiecare si-a gasit cota, bannerul "mai are nevoie" (`need`), `P.needT`, ouale de pe jos se pot lua in continuare. | 27, C2 (complet) | Verificarea 6 din `cota.js` trece. Exemplul din cerere nu termina nivelul. |
+| T14.6 | Ajutorul automat si cazurile speciale: transferul dupa `autoGive`, un singur jucator fara limita, prietenul deconectat, al doilea jucator care intra in mijlocul nivelului. | 27, C9, C12, C13, C14 | Verificarile 9, 11 si 13 din `cota.js` trec. |
+| T14.7 | Insigna si sfarsitul de nivel: insigna 300 x 108 cu portret, ou / cristal mic si "gasite / cota", verde / rosu cu contrast verificat, bifa, clatinarea, `iconL1`; ecranul de sfarsit cu cei doi eroi. | 27, C5 (insigna, sfarsitul), C10 | Verificarile 7 si 14 din `cota.js` trec. `hud-acoperire.js` cu `STRICT=1` ramane la 0%. Capturi privite cu ochiul. |
+| T14.8 | Mesajele si ghidul: bannerele `quotaDone` si `quotaBoth`, `quota.full`, `quota.far`, `quota.auto`; textele in `STR`, romana si engleza, cu varianta `L:`; sageata `kind: 'give'`; sunetul `give` ramane pe T14.4. | 27, C5 (texte si sageata), C11 | Verificarea 8 din `cota.js` trece, in ambele limbi. |
+| T14.9 | `tests/cota.js` cu cele 16 verificari din C10, fiecare verificat ca poate sa pice (strica regula, vezi `NEREUSIT`, apoi pune la loc). | 27, C10 | Toate cele 16 verificari trec si fiecare pica atunci cand regula e stricata. |
+| T14.10 | Boti, teste complete, documentatie: `balanseaza()` in `tests/common.js`, `joc-complet-bot.js` si `nivele-bot-mers.js` termina jocul, `tests/toate.sh` intreg, timpul pe nivel in `17-testare.md`, toate capitolele, `27` devine istoric. | 27, C8 (9), C10 (15 - 16) | `tests/toate.sh` trece intreg, cu `errors 0`. Planul marcheaza T14.1 - T14.10 facute. |
 
 Dupa **T5** jocul are deja toate regulile cerute, pe nivelurile de acum: butoane, fuga, a doua putere, cele 10 secunde, capitole, scrisul reparat. Este cel mai bun moment sa il incerce copiii si sa primim raspunsurile la intrebarile I1 - I9 de mai sus, inainte de nivelurile noi. T1 - T5 sunt un update intreg si folositor chiar fara nimic dupa el.
 
