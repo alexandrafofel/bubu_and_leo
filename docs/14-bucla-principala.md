@@ -68,3 +68,15 @@ La incarcarea paginii, in ordine:
 Folosit doar de teste. Contine `Game`, `Input`, `UI`, `Save`, `CONFIG`, `Opt`, `STR`, `T`, `Snd`, `Voice`, `Perf` (timpii de cadru), `P` (nivelul curent), `GAME` (jocul ales) si functiile `setGame`, `buildLevel`, `genLevel`, `startPlay`, `startDuel`, `duelHit`, `openNest`, `hitHero`, `getUp`, `tryRescue`, `hurtSmall`, `kickBall`, `recallBalls`, `update`, `draw`, `openSettings`, `closeSettings`, `swapHeroes`, `settingsRows`.
 
 Daca adaugi o functie pe care vrei sa o folosesti intr-un test, o adaugi aici.
+
+## Update 19 noiembrie 2026 (T4): starea `retry`
+
+| Stare | Ce face |
+|---|---|
+| `retry` | `UI.retryT` creste; particulele merg mai departe. Dupa `CONFIG.rescue.retryScreen` secunde: `UI.skipIntro = true` si `Game.goLevel(Game.levelIdx)`. Deseneaza `drawRetry`. |
+
+`Game.failLevel()` (in `10-main.js`) intra in starea asta: numara incercarea in `Game.tries[levelIdx]`, porneste sunetul `retry`, scade muzica si vibreaza lung si moale pe amandoua controllerele. Se cheama o singura data: daca jocul nu mai e in `play`, nu face nimic.
+
+`loading` are acum o ramura: cu `UI.skipIntro` trece direct in `play`, fara povestea nivelului.
+
+`Game.levelEnd()` goleste `Game.tries` pentru capitolul terminat.

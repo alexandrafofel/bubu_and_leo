@@ -87,8 +87,15 @@ const CONFIG = {
     ballSpeed: 900,            // how fast the magic ball flies to the friend
     safeAfter: 2.6,            // seconds nothing can hit a hero who was just helped up
     bothDown: 3,               // both heroes down at the same time: they get up alone after this many seconds
-    autoAfter: 0,              // a hero gets up alone after this many seconds (0 = never: only the friend can help)
-    callEvery: 5               // seconds between two calls for help
+    autoAfter: 0,              // a hero gets up alone after this many seconds (0 = never: only the friend can help). Not used while limit > 0
+    callEvery: 5,              // seconds between two calls for help
+    // ---- The ten seconds: a hit hero waits for his friend, and if nobody comes the level starts again ----
+    limit: 10,                 // seconds the friend has to help. 0 = no limit (the rule before this update)
+    limitMercy: 15,            // the limit after retryMercy restarts of the same chapter
+    retryMercy: 3,             // how many restarts before the limit grows. 0 = it never grows
+    bothDownRestart: true,     // both heroes down: the level starts again after bothDown seconds. false = both get up alone, as before
+    restart: 'level',          // 'level' = from the beginning of the chapter ('wave' is kept for later, not built)
+    retryScreen: 2.2           // seconds the "Încă o dată!" card stays on screen
   },
 
   // ---- Small enemies: beetles and pinecones (robots, snails and birds in the second game) ----
@@ -281,6 +288,8 @@ const STR = {
     't.player': 'Jucătorul {0}', 't.settings': 'Setări', 't.setKey': 'OPTIONS sau tasta P',
     't.kbPress': 'Tastatură: apasă {0}', 't.orKey': 'sau tasta {0}', 't.pressKey': 'Apasă {0}', 't.keyReady': '{0} = Gata',
     loading: 'Se pictează...',
+    'retry.title': 'Încă o dată!', 'retry.sub': 'Ajutați-vă repede: aveți {0} secunde.', 'retry.mercy': 'Acum aveți {0} secunde.',
+    'retry.help': 'Ajută-l pe {0}!', 'retry.helpKey': 'Ajută-l pe {0}! ({1})',
     'end.bravo': 'Bravo!', 'end.team': 'Echipa:', egg1: 'ou', eggN: 'ouă', star1: 'stea', starN: 'stele',
     'med.stars': 'Toate stelele', 'med.nohit': 'Fără nicio lovitură', 'med.sun': 'Înainte de apus',
     'pause.title': 'Pauză', 'pause.cont': 'Continuă', 'pause.set': 'Setări', 'pause.quit': 'Ieșire la meniu',
@@ -371,6 +380,8 @@ const STR = {
     't.player': 'Player {0}', 't.settings': 'Settings', 't.setKey': 'OPTIONS or the P key',
     't.kbPress': 'Keyboard: press {0}', 't.orKey': 'or the {0} key', 't.pressKey': 'Press {0}', 't.keyReady': '{0} = Ready',
     loading: 'Painting...',
+    'retry.title': 'Once more!', 'retry.sub': 'Help each other quickly: you have {0} seconds.', 'retry.mercy': 'Now you have {0} seconds.',
+    'retry.help': 'Help {0}!', 'retry.helpKey': 'Help {0}! ({1})',
     'end.bravo': 'Well done!', 'end.team': 'Team:', egg1: 'egg', eggN: 'eggs', star1: 'star', starN: 'stars',
     'med.stars': 'All the stars', 'med.nohit': 'Never hit', 'med.sun': 'Before sunset',
     'pause.title': 'Pause', 'pause.cont': 'Continue', 'pause.set': 'Settings', 'pause.quit': 'Quit to menu',
@@ -1151,7 +1162,8 @@ const Snd = (() => {
         bossDown: [['a', 0, 0.16, -3], ['a', 0, 0.16, -3], ['o', -3, 0.44, -7]],
         help: [['i', 10, 0.22, -3], ['i', 8, 0.3, -4]], rescue: [['o', 2, 0.12, 4], ['a', 7, 0.14, 3], ['o', 11, 0.3, -2]], thanks: [['a', 6, 0.14, 4], ['o', 11, 0.3, 0]],
         run: [['a', 7, 0.08, 7], ['o', 13, 0.15, 9]],
-        power2: [['o', 4, 0.1, 6], ['a', 10, 0.16, 5]], power2Big: [['o', 3, 0.12, 8], ['a', 9, 0.1, 7], ['u', 15, 0.26, 4]] },
+        power2: [['o', 4, 0.1, 6], ['a', 10, 0.16, 5]], power2Big: [['o', 3, 0.12, 8], ['a', 9, 0.1, 7], ['u', 15, 0.26, 4]],
+        hurry: [['a', 6, 0.07, 9], ['a', 11, 0.07, 10], ['o', 17, 0.18, 8]] },
       // Killer
       { hello: [['a', 0, 0.09, 5], ['i', 7, 0.09, 0], ['a', 3, 0.2, 4]], ready: [['e', 4, 0.07, 0], ['e', 4, 0.07, 0], ['a', 9, 0.18, 5]],
         egg: [[['a', 2, 0.07, 4]], [['i', 6, 0.07, 3]], [['e', 9, 0.07, 2]]], eggs5: [['a', 0, 0.06, 0], ['e', 3, 0.06, 0], ['a', 7, 0.06, 0], ['i', 12, 0.18, 3]],
@@ -1171,7 +1183,8 @@ const Snd = (() => {
         bossDown: [['e', 7, 0.09, -3], ['e', 7, 0.09, -3], ['a', 3, 0.3, -6]],
         help: [['a', 10, 0.14, -5], ['a', 10, 0.14, -5], ['e', 6, 0.26, -5]], rescue: [['e', 2, 0.07, 5], ['a', 7, 0.07, 4], ['e', 12, 0.2, 3]], thanks: [['a', 5, 0.08, 3], ['i', 12, 0.2, 2]],
         run: [['i', 9, 0.05, 8], ['a', 16, 0.13, 7]],
-        power2: [['e', 4, 0.06, 6], ['i', 10, 0.14, 5]], power2Big: [['e', 3, 0.07, 7], ['a', 8, 0.06, 6], ['i', 14, 0.22, 8]] }
+        power2: [['e', 4, 0.06, 6], ['i', 10, 0.14, 5]], power2Big: [['e', 3, 0.07, 7], ['a', 8, 0.06, 6], ['i', 14, 0.22, 8]],
+        hurry: [['i', 6, 0.05, 10], ['i', 10, 0.05, 11], ['e', 15, 0.16, 9]] }
     ]
   };
   // How loud a voice is: a quiet one never cuts in on a louder one that is still talking.
@@ -1302,10 +1315,13 @@ const Snd = (() => {
     bone(b, t, v) { for (let i = 0; i < 3; i++) osc(b, 'triangle', 180 - i * 20, t + i * 0.055, 0.12 + (v || 0) * 0.05, 0.008, 0.09, { f2: 140 - i * 14, gt: 0.08, trem: 14 }); noise(b, t, 0.1, 0.01, 0.12, 'bandpass', 700, 420, 1.4); },
     tock(b, t) { osc(b, 'sine', 520, t, 0.16, 0.004, 0.06, { f2: 430, gt: 0.05 }); noise(b, t, 0.07, 0.002, 0.03, 'bandpass', 1500, 900, 2.2); },
     // Killer's whirl gloves: two "fuip" going up and a soft rubbery squeak
-    gloves(b, t) { for (let i = 0; i < 2; i++) noise(b, t + i * 0.12, 0.14, 0.012, 0.13, 'bandpass', 500, 1400, 1.2); osc(b, 'sine', 900, t + 0.1, 0.09, 0.01, 0.08, { f2: 700, gt: 0.07 }); }
+    gloves(b, t) { for (let i = 0; i < 2; i++) noise(b, t + i * 0.12, 0.14, 0.012, 0.13, 'bandpass', 500, 1400, 1.2); osc(b, 'sine', 900, t + 0.1, 0.09, 0.01, 0.08, { f2: 700, gt: 0.07 }); },
+    // The ten seconds: a soft wooden knock every second (higher in the last three), and the three kind notes of "Încă o dată!"
+    tick(b, t, v) { osc(b, 'sine', v > 0.5 ? 880 : 660, t, 0.14, 0.004, 0.05, { f2: v > 0.5 ? 760 : 580, gt: 0.04 }); },
+    retry(b, t) { [72, 67, 64].forEach((n, i) => marimba(b, mtof(n), t + i * 0.16, 0.3)); chime(b, mtof(79), t + 0.42, 0.1); }
   };
   /* Running (L3) in the first game too: the same short soft whoosh. */
-  fx.dash = fx2.dash;
+  fx.dash = fx2.dash; fx.tick = fx2.tick; fx.retry = fx2.retry;
   const CHR = { egg: 1, star: 1, giant: 1, stomp: 1, kick: 1, bounce: 1, bonk: 1, drop: 1, squelch: 1, step: 1, swish: 1, heal: 1, grab: 1, dash: 1, bone: 1, tock: 1, gloves: 1 };
   /* play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. */
   function play(name, arg, k, vol) {
@@ -3264,7 +3280,7 @@ function genArena() {
 /* ==========================================================================
    GAMEPLAY: heroes, powers, eggs, stars, enemies, wind, butterfly, boss
    ========================================================================== */
-const Game = { state: 'boot', t: 0, levelIdx: 0, team: { eggs: 0, stars: 0 }, results: [], diff: CONFIG.defaultDifficulty.slice(), paused: false };
+const Game = { state: 'boot', t: 0, levelIdx: 0, team: { eggs: 0, stars: 0 }, results: [], diff: CONFIG.defaultDifficulty.slice(), paused: false, tries: [] };      // tries: how many times each chapter was started again
 let P = null;                                   // everything about the level being played
 const D = k => CONFIG.difficulty[Game.diff[k]] || CONFIG.difficulty.normal;
 const rank = k => Game.diff[k] === 'easy' ? 0 : Game.diff[k] === 'hard' ? 2 : 1;      // 0 Ușor, 1 Normal, 2 Greu
@@ -3293,7 +3309,7 @@ function buildLevel(idx) {
 function makeHero(k, x, y) {
   return { k, x, y, px: x, py: y, vx: 0, vy: 0, face: 1, ax: 1, ay: 0, walk: 0, moving: false, dizzy: 0, inv: 0, boost: 0, squash: 0, z: 0, cd: 0,
     stompT: -1, charge: 0, charging: false, kickT: 0, inMud: false, mudT: 0, tagT: 5, t: Math.random() * 5,
-    down: false, downT: 0, callT: 0, small: 1, spinT: -1, spinNo: 0, shield: false, carried: null, hugT: 0, reachHint: 0,
+    down: false, downT: 0, downLeft: 0, downTick: null, hurried: false, callT: 0, small: 1, spinT: -1, spinNo: 0, shield: false, carried: null, hugT: 0, reachHint: 0,
     run: false, runIdle: 0, runT: 0, runRest: 0, runWord: -99, ghosts: [], ghostT: 0,         // run (L3): ghosts = the trail left behind
     throwCd: 0, homeState: 'held', home: { x, y, z: 0, spin: 0 }, chargeHold: 0,               // the thrown things (balls or bones): cooldown, whether they are all home, and the one kept at hand
     spinBeat: 0, spinLook: null, duelSweep: 0, bossSweep: 0 };                                 // the spin (claws or gloves)
@@ -3442,6 +3458,29 @@ function shakeTree(t, power, byStomp) {
     } else { Snd.play('rustle'); P.hintCharge = 3.5; burst(t.x, t.y, 5, { kind: 'leaf', cols: L.pal.canopy, speed: 120, life: 1, g: 120, size: 9 }); }
   }
 }
+/* How many seconds the friend has. After a few restarts of the same chapter the children get more time (the safety net). */
+function rescueLimit() {
+  const RS = CONFIG.rescue;
+  if (!(RS.limit > 0)) return 0;
+  const tries = (Game.tries && Game.tries[Game.levelIdx]) || 0;
+  return RS.retryMercy > 0 && tries >= RS.retryMercy ? RS.limitMercy : RS.limit;
+}
+/* The ten seconds of a hero who is down: a wooden tick and a short shake on BOTH controllers every second,
+   twice a second and stronger in the last three. At zero the chapter starts again. */
+function countDown(h, dt) {
+  h.downLeft = Math.max(0, h.downLeft - dt);
+  const hurry = h.downLeft <= 3, beat = hurry ? 2 : 1, now = Math.ceil(h.downLeft * beat);    // the last three seconds tick twice as often
+  if (h.downTick == null) h.downTick = now;
+  else if (now < h.downTick) {
+    h.downTick = now;
+    if (h.downLeft > 0) {
+      Snd.play('tick', hurry ? 1 : 0);
+      for (let k = 0; k < 2; k++) if (Input.slots[k].joined) Input.rumble(k, hurry ? 0.4 : 0, hurry ? 0.6 : 0.35, hurry ? 90 : 60);
+    }
+    if (hurry && !h.hurried) { h.hurried = true; Snd.talk(1 - h.k, 'hurry'); }
+  }
+  if (h.downLeft <= 0) Game.failLevel();
+}
 function hitHero(h, sx, sy) {
   if (h.down || h.dizzy > 0 || h.inv > 0 || P.done || h.safe || h.shield || h.carried) return;
   if (!Input.slots[h.k].joined) return;          // a hero nobody controls cannot lose eggs
@@ -3450,9 +3489,13 @@ function hitHero(h, sx, sy) {
   const d = D(h.k), L = P.L;
   h.dizzy = d.dizzyTime; h.inv = d.dizzyTime + 1.6; h.charging = false; h.charge = 0; h.squash = 0.25; h.stompT = -1; h.spinT = -1; h.z = 0;
   // with a friend in the game the hero stays down until the friend comes and helps (□)
-  if (CONFIG.rescue.enabled && Input.slots[1 - h.k].joined) { h.down = true; h.downT = 0; h.callT = 1.3; }
+  if (CONFIG.rescue.enabled && Input.slots[1 - h.k].joined) {
+    h.down = true; h.downT = 0; h.callT = 1.3;
+    h.downLeft = rescueLimit(); h.downTick = null; h.hurried = false;      // the ten seconds start now (0 = no limit)
+    if (h.downLeft > 0) Input.rumble(1 - h.k, 0.6, 0.5, 300);              // the friend feels it too: come, quickly
+  }
   const dx = h.x - sx, dy = h.y - sy, m = Math.hypot(dx, dy) || 1; h.vx = dx / m * 260; h.vy = dy / m * 260;
-  Snd.play('bonk', 0, h.k); Snd.talk(h.k, 'hurt'); h.dizzyVoice = P.time + 0.9; Input.rumble(h.k, 0.9, 0.6, 280); P.shake = Math.max(P.shake, 0.12);
+  Snd.play('bonk', 0, h.k); Snd.talk(h.k, 'hurt'); h.dizzyVoice = P.time + 0.9; Input.rumble(h.k, 0.9, 0.6, 300); P.shake = Math.max(P.shake, 0.12);
   burst(h.x, h.y - 50, 8, { speed: 120, life: 0.6, cols: ['#FFE08A', '#FFF3C0'] });
   if (P.levelEggs > 0) {      // only what was gathered in this chapter can be dropped
     Game.team.eggs--; P.levelEggs--;
@@ -3465,8 +3508,14 @@ function hitHero(h, sx, sy) {
 /* ---------- rescue: the friend helps a hero who was hit ---------- */
 const HEALS = ['#FFD0DC', '#FFF3C0', '#BFE8D0', '#FFE08A'];
 function getUp(h, by) {
+  const ring = h.downLeft > 0;
   h.down = false; h.dizzy = 0; h.inv = CONFIG.rescue.safeAfter; h.squash = -0.18; h.wasDizzy = false; h.dizzyVoice = 0;
+  h.downLeft = 0; h.downTick = null; h.hurried = false;                 // the ten seconds stop here
   Snd.play('heal', 0, h.k);
+  if (ring) for (let i = 0; i < 10; i++) {                              // the ring of beads breaks into sparks
+    const a2 = i / 10 * TAU - Math.PI / 2;
+    part(h.x + Math.cos(a2) * 76, h.y - 50 + Math.sin(a2) * 40, { vx: Math.cos(a2) * 150, vy: Math.sin(a2) * 90, life: 0.6, max: 0.6, size: 10, col: CONFIG.heroes[1 - h.k].color, kind: 'spark' });
+  }
   burst(h.x, h.y - 46, 20, { cols: HEALS, speed: 200, life: 1, up: 70, size: 9 });
   for (let i = 0; i < 5; i++) part(h.x + (Math.random() - 0.5) * 50, h.y - 40 - Math.random() * 40, { vy: -60 - Math.random() * 40, life: 1.1, max: 1.1, size: 12, col: '#F29C9C', kind: 'heart', g: -20 });
   if (by) { P.rescues++; Snd.talk(h.k, 'thanks'); Input.rumble(h.k, 0.2, 0.7, 200); Input.rumble(by.k, 0.2, 0.6, 140); }
@@ -3484,7 +3533,10 @@ function tryRescue(h) {
 }
 function updateRescue(dt) {
   const a = P.heroes[0], b = P.heroes[1], R = CONFIG.rescue;
-  if (a.down && b.down && Math.min(a.downT, b.downT) > R.bothDown) { getUp(a, null); getUp(b, null); }      // nobody left to help: both get up
+  if (a.down && b.down) {
+    if (R.bothDownRestart && R.limit > 0) { for (const h of [a, b]) if (h.downLeft > R.bothDown) { h.downLeft = R.bothDown; h.downTick = null; } }   // nobody left to help: the level starts again soon
+    else if (Math.min(a.downT, b.downT) > R.bothDown) { getUp(a, null); getUp(b, null); }                                                            // the old rule: both get up alone
+  }
   for (let i = P.heal.length - 1; i >= 0; i--) {
     const q = P.heal[i], dx = q.to.x - q.x, dy = q.to.y - 40 - q.y, m = Math.hypot(dx, dy) || 1, v = R.ballSpeed * dt;
     q.spin += dt * 12;
@@ -3638,6 +3690,7 @@ function updateHero(h, dt) {
     const RS = CONFIG.rescue;
     h.downT += dt; h.dizzy = Math.max(h.dizzy, 0.4); h.inv = Math.max(h.inv, 0.4);
     h.callT -= dt; if (h.callT <= 0) { h.callT = RS.callEvery; Snd.talk(h.k, 'help'); }
+    if (h.downLeft > 0) countDown(h, dt);
     if (!Input.slots[1 - h.k].joined || (RS.autoAfter > 0 && h.downT > RS.autoAfter)) getUp(h, null);
   }
   if (h.carried) { h.moving = false; return; }   // a bird is carrying this hero
@@ -4586,6 +4639,24 @@ function drawParts(c) {
   }
 }
 /* Boon's claws while they spin: rainbow slashes that run around him, on a soft shield. */
+/* The ten seconds of a hero who is down: ten beads around him, one going out every second, and the number
+   over his head. It pops at every second and grows coral in the last three. Nothing dark: it is a countdown, not a threat. */
+function drawDownRing(c, h, by) {
+  const RS = CONFIG.rescue, full = rescueLimit() || RS.limit, left = h.downLeft, t = P.time;
+  const col = CONFIG.heroes[1 - h.k].color, hurry = left <= 3, n = 10;
+  const lit = Math.ceil(left / full * n);                 // how many beads are still on
+  for (let i = 0; i < n; i++) {
+    const a = i / n * TAU - Math.PI / 2, bx = h.x + Math.cos(a) * 76, byy = h.y - 50 + Math.sin(a) * 40, on = i < lit;
+    const pu = on && i === lit - 1 ? 1 + 0.3 * Math.abs(Math.sin(t * 7)) : 1;
+    c.fillStyle = on ? col : 'rgba(255,246,224,0.45)';
+    c.beginPath(); c.arc(bx, byy, 8 * pu, 0, TAU); c.fill();
+    c.strokeStyle = on ? 'rgba(255,248,232,0.9)' : rgba(col, 0.4); c.lineWidth = on ? 2.5 : 2; c.stroke();
+  }
+  const secs = Math.ceil(left), frac = secs - left, pop = 1 + 0.25 * clamp(1 - frac / 0.15, 0, 1);      // the number pops at every second
+  c.save(); c.translate(h.x - 46, by + 6); c.scale(pop, pop);
+  text(c, String(secs), 0, 0, hurry ? 84 : 64, hurry ? '#E4583C' : col, { title: true, halo: 0.26, haloCol: 'rgba(255,248,232,0.95)' });
+  c.restore();
+}
 function drawClawRing(c, h) {
   const cfg = abil(h.k, 'spin'), R = cfg.radius, u = clamp(h.spinT / cfg.time, 0, 1), grow = Math.min(1, u * 5) * (u > 0.85 ? (1 - u) / 0.15 : 1), t = P.time;
   c.fillStyle = rgba(CONFIG.heroes[h.k].color, 0.12 * grow); c.beginPath(); c.ellipse(h.x, h.y - 6, R * grow, R * 0.52 * grow, 0, 0, TAU); c.fill();
@@ -4667,8 +4738,9 @@ function drawHeroFull(c, h) {
   if (h.dizzy > 0) drawDizzyStars(c, h.x + (h.k === 0 && !isLupta() ? 30 * h.face : 0), h.y - top, P.time);
   if (h.down) {                            // ○ and a dot in the friend's color: "friend, press ○ for me"
     const by = h.y - top - 52 + Math.sin(t * 5) * 5;
-    iconO(c, h.x, by, 28, Math.sin(t * 6));
-    c.fillStyle = fcfg.color; c.beginPath(); c.arc(h.x + 30, by - 24, 12, 0, TAU); c.fill(); c.strokeStyle = '#FFF8E8'; c.lineWidth = 3.5; c.stroke();
+    if (h.downLeft > 0) drawDownRing(c, h, by);        // the ten seconds: the beads and the number
+    iconO(c, h.x + (h.downLeft > 0 ? 44 : 0), by, 28, Math.sin(t * 6));
+    c.fillStyle = fcfg.color; c.beginPath(); c.arc(h.x + (h.downLeft > 0 ? 74 : 30), by - 24, 12, 0, TAU); c.fill(); c.strokeStyle = '#FFF8E8'; c.lineWidth = 3.5; c.stroke();
   } else if (fr.down && Input.slots[h.k].joined && h.dizzy <= 0) {    // the helper: close enough = a big ○ over the head
     const reach = h.k === 0 ? CONFIG.rescue.reachNear : CONFIG.rescue.reachFar;
     if (dist(h.x, h.y, fr.x, fr.y) <= reach) iconO(c, h.x, h.y - top - 44 + Math.sin(t * 7) * 6, 34, Math.sin(t * 9) * 1.5);
@@ -5053,6 +5125,11 @@ function drawBadge(c, k, x, y) {
   if (h.boost > 0) drawButterfly(c, x + w - 32, y + 44, P.time, 0.62);
 }
 /* "We wait for X in the nest": it used to be written in the world, over the nest. Now it is a banner in the band. */
+/* "Ajută-l pe Boon! ○" while a friend is down and the seconds are running. It comes before any other banner. */
+function downBanner() {
+  for (const h of P.heroes) if (h.down && h.downLeft > 0) return { kind: 'down', t: 2, name: CONFIG.heroes[h.k].name, k: h.k };
+  return null;
+}
 function waitBanner() {
   const L = P.L;
   if (!P.nestOpen || P.done || L.boss || !Input.slots[0].joined || !Input.slots[1].joined) return null;
@@ -5070,6 +5147,13 @@ function drawMidCard(c, ban) {
   if (ban) { c.save(); c.translate(W / 2, yc); c.scale(pop, pop); c.translate(-W / 2, -yc); c.globalAlpha = clamp(Math.min(ban.t, 1), 0, 1); }
   card(c, cx, y0, cw, hh, ban ? '#FFF6E2' : '#FFF3DC', ban ? 31 : 9);
   if (ban) {
+    if (ban.kind === 'down') {                      // a friend is down: the message and a big ○, in his color
+      const fk = 1 - ban.k, kb = Opt.ctrl[fk] === 'kb', key = kb ? keyName(Opt.keys[fk].b) : '';      // the friend plays on the keyboard: his own key, not ○
+      text(c, kb ? T('retry.helpKey', ban.name, key) : T('retry.help', ban.name), W / 2 - 30, yc, 44, CONFIG.heroes[ban.k].color, { title: true, halo: 0 });
+      iconO(c, W / 2 + cw / 2 - 54, yc, 26, Math.sin(t * 7));
+      c.globalAlpha = 1; c.restore();
+      return;
+    }
     const label = T('ban.' + ban.kind, ban.kind === 'wait' ? ban.name : isLupta() ? CONFIG.lupta.rainbowBonus : '');
     if (ban.kind === 'duel') {
       text(c, label, W / 2, y0 + 30, 40, '#C4573D', { title: true, halo: 0 });
@@ -5114,13 +5198,24 @@ function drawMidCard(c, ban) {
 }
 function drawHUD(c) {
   drawBadge(c, 0, 28, 16); drawBadge(c, 1, W - 28 - 300, 16);
-  drawMidCard(c, P.banner || waitBanner());
+  drawMidCard(c, downBanner() || P.banner || waitBanner());
   if (!P.L.boss) drawProgress(c);
 }
 function drawPlay(c) {
   const v = drawWorld(c);
   drawHints(c, v);
+  drawEdgePulse(c);
   drawHUD(c);
+}
+/* The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. */
+function drawEdgePulse(c) {
+  let worst = 0, col = null;
+  for (const h of P.heroes) if (h.down && h.downLeft > 0 && h.downLeft <= 3 && (!worst || h.downLeft < worst)) { worst = h.downLeft; col = CONFIG.heroes[h.k].color; }
+  if (!col) return;
+  const a = (0.1 + 0.15 * (1 - worst / 3)) * (0.55 + 0.45 * Math.sin(P.time * 7));
+  const g = c.createRadialGradient(W / 2, H / 2, H * 0.34, W / 2, H / 2, H * 0.78);
+  g.addColorStop(0, rgba(col, 0)); g.addColorStop(1, rgba(col, Math.max(0, a)));
+  c.fillStyle = g; c.fillRect(0, 0, W, H);
 }
 /* The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. */
 function drawNestShelter(c) {
@@ -5177,7 +5272,8 @@ function drawGeorgeBoss(c, o, t) {
 const UI = { titleBg: null, titleOv: null, endBg: null, endOv: null, seen: [false, false], ready: [false, false], menuSel: 0, startT: -1,
   pauseSel: 0, introT: 0, endT: 0, lvlT: 0, loadStep: 0, lostK: -1, hatch: false, said2: false, fwT: 0,
   bgs: {}, ends: {}, spkLost: -1, spkLostT: 0,          // gameSel: the game picked on the "choose the game" screen
-  set: null, hits: [], click: null, hover: null, clicked: false };
+  set: null, hits: [], click: null, hover: null, clicked: false,
+  retryT: 0, retryMercy: false, skipIntro: false };      // "Încă o dată!": how long it has been on screen, whether the children now get more seconds
 const DIFFS = ['easy', 'normal', 'hard'];
 const heroOf = p => Opt.swap ? 1 - p : p;        // which hero (0 Bubu, 1 Leo) player p plays
 
@@ -5216,7 +5312,7 @@ const Save = {
      pointed at, and the chapters up to the next one open. */
   finish(i, r) {
     const sl = this.own(), res = sl.results = Array.isArray(sl.results) ? sl.results : [], o = res[i];
-    res[i] = o ? Object.assign({}, o, { eggs: Math.max(o.eggs | 0, r.eggs | 0), stars: Math.max(o.stars | 0, r.stars | 0), med: [0, 1, 2].map(j => !!(o.med && o.med[j]) || !!(r.med && r.med[j])) })
+    res[i] = o ? Object.assign({}, o, { eggs: Math.max(o.eggs | 0, r.eggs | 0), stars: Math.max(o.stars | 0, r.stars | 0), med: [0, 1, 2].map(j => !!(o.med && o.med[j]) || !!(r.med && r.med[j])), tries: Math.min(o.tries != null ? o.tries : 99, r.tries | 0) })
                : { eggs: r.eggs | 0, stars: r.stars | 0, med: (r.med || []).slice(0, 3).map(Boolean) };
     for (let j = 0; j < i; j++) if (!res[j]) res[j] = emptyResult();
     const last = chapters().length - 1;
@@ -5653,6 +5749,29 @@ function drawMedal(c, i, x, y, got, t) {
     for (let k = 0; k < 8; k++) { const a = k / 8 * TAU; c.beginPath(); c.moveTo(Math.cos(a) * 17, Math.sin(a) * 17); c.lineTo(Math.cos(a) * 24, Math.sin(a) * 24); c.stroke(); }
   }
   c.restore();
+}
+/* "Încă o dată!": the only screen the children see when nobody came in time. No "Game Over", no red, no dark:
+   the two heroes hold hands, the level starts again right after. */
+function drawRetry(c, t) {
+  drawWorld(c); drawDim(c, 0.7);
+  const cw = 900, ch = 470, x = (W - cw) / 2, y = (H - ch) / 2 - 20, u = clamp(UI.retryT / 0.3, 0, 1);
+  c.save(); c.translate(W / 2, y + ch / 2); c.scale(0.92 + 0.08 * u, 0.92 + 0.08 * u); c.globalAlpha = u; c.translate(-W / 2, -(y + ch / 2));
+  card(c, x, y, cw, ch, '#FFF6E2', 53);
+  text(c, T('retry.title'), W / 2, y + 104, 92, '#C4573D', { title: true, halo: 0 });
+  const secs = UI.retryMercy ? CONFIG.rescue.limitMercy : CONFIG.rescue.limit;
+  text(c, T(UI.retryMercy ? 'retry.mercy' : 'retry.sub', secs), W / 2, y + 176, 36, '#7A4A52', { halo: 0, shadow: 0, weight: 'bold' });
+  // the two heroes, holding hands, bobbing together, under the writing
+  const hy = y + ch - 34, bob = Math.sin(t * 3) * 5, sc = isLupta() ? 1.3 : 1.35, gap = 104;
+  for (let i = 0; i < 3; i++) {                        // three little hearts floating up between them
+    const ht = (t * 0.6 + i / 3) % 1;
+    c.globalAlpha = u * (1 - ht) * 0.8; heartPath(c, W / 2 + Math.sin(t * 2 + i * 2) * 26, hy - 150 - ht * 60, 11);
+    c.fillStyle = '#F29C9C'; c.fill(); c.globalAlpha = u;
+  }
+  drawHero(c, 0, W / 2 - gap, hy + bob, { scale: sc, t, face: 1, happy: false, moving: false });
+  drawHero(c, 1, W / 2 + gap, hy - bob, { scale: sc, t: t + 1, face: -1, happy: false, moving: false });
+  c.strokeStyle = '#E8A87C'; c.lineWidth = 9; c.lineCap = 'round';                               // the hands they hold, drawn over both arms
+  c.beginPath(); c.moveTo(W / 2 - gap + 44 * sc, hy - 44 * sc + bob); c.lineTo(W / 2 + gap - 40 * sc, hy - 44 * sc - bob); c.stroke();
+  c.globalAlpha = 1; c.restore();
 }
 function drawLevelEnd(c, t) {
   drawWorld(c); drawDim(c, 0.5);
@@ -6147,13 +6266,22 @@ Game.startChapter = function (i) {
 /* A player joins with the keyboard only on the start screen. In a level, Enter or Space in the pause menu must not make
    the second hero join (a child playing alone would suddenly have a friend nobody plays). Controllers can still join any time. */
 Game.goLevel = function (idx) { Game.levelIdx = idx; Game.state = 'loading'; UI.loadStep = 0; Input.kbJoin = false; Voice.stop(); };
+/* Nobody came in time: the chapter starts again from its beginning. Never "Game Over": "Încă o dată!".
+   Game.tries counts the restarts of each chapter, so after a few of them the children get more seconds (CONFIG.rescue). */
+Game.failLevel = function () {
+  if (Game.state !== 'play') return;
+  Game.tries[Game.levelIdx] = (Game.tries[Game.levelIdx] || 0) + 1;
+  Game.state = 'retry'; UI.retryT = 0; UI.retryMercy = CONFIG.rescue.retryMercy > 0 && Game.tries[Game.levelIdx] >= CONFIG.rescue.retryMercy;
+  Snd.play('retry'); Snd.setDuck(0.5); Voice.stop();
+  for (let k = 0; k < 2; k++) if (Input.slots[k].joined) Input.rumble(k, 0.3, 0.3, 400);
+};
 /* The chapter that is being played is over: its best result is kept and the team total becomes the sum of all results. */
 function finishChapter() {
-  Game.lastRun = { eggs: P.levelEggs, stars: P.levelStars, med: levelMedals() };
+  Game.lastRun = { eggs: P.levelEggs, stars: P.levelStars, med: levelMedals(), tries: Game.tries[Game.levelIdx] || 0 };      // tries: how many times this chapter started again before it was finished
   Save.finish(Game.levelIdx, Game.lastRun);
   const tt = sumResults(Game.results); Game.team = { eggs: tt.eggs, stars: tt.stars };
 }
-Game.levelEnd = function () { finishChapter(); Game.state = 'levelEnd'; UI.lvlT = 0; };
+Game.levelEnd = function () { Game.tries[Game.levelIdx] = 0; finishChapter(); Game.state = 'levelEnd'; UI.lvlT = 0; };
 Game.toEnding = function () { finishChapter(); Game.state = 'ending'; startEnding(); };
 
 function update(dt) {
@@ -6171,9 +6299,15 @@ function update(dt) {
     UI.loadStep++;
     if (UI.loadStep >= 3) {
       startPlay(buildLevel(Game.levelIdx));
-      Game.state = 'intro'; UI.introT = 0; Snd.setDuck(0.45);
-      Voice.say(lvlName(P.L.def) + '. ' + lvlIntro(P.L.def));
+      if (UI.skipIntro) { UI.skipIntro = false; Game.state = 'play'; Snd.setDuck(1); }      // after a restart the heroes start right away
+      else {
+        Game.state = 'intro'; UI.introT = 0; Snd.setDuck(0.45);
+        Voice.say(lvlName(P.L.def) + '. ' + lvlIntro(P.L.def));
+      }
     }
+  } else if (st === 'retry') {
+    UI.retryT += dt; stepParts(dt);
+    if (UI.retryT > CONFIG.rescue.retryScreen) { UI.skipIntro = true; Snd.setDuck(1); Game.goLevel(Game.levelIdx); }      // the same chapter, without its story again
   } else if (st === 'intro') {
     UI.introT += dt;
     if (UI.introT > 0.8 && pressedGo()) { Voice.stop(); Snd.setDuck(1); Snd.play('ok'); Game.state = 'play'; Snd.talk(0, 'hello'); Snd.talk(1, 'hello'); }
@@ -6206,6 +6340,7 @@ function draw() {
   else if (st === 'loading') drawLoading(c, t);
   else if (st === 'intro') { drawIntro(c, t); ov = P.L.overlay; }
   else if (st === 'play') { drawPlay(c); if (Game.paused && !UI.set) drawPause(c, t); ov = P.L.overlay; }
+  else if (st === 'retry') { drawRetry(c, t); ov = P.L.overlay; }
   else if (st === 'levelEnd') { drawLevelEnd(c, t); ov = P.L.overlay; }
   else if (st === 'ending') { drawEnding(c, t); ov = UI.endOv; }
   if (UI.set && (st === 'title' || st === 'play')) { UI.hits.length = 0; drawSettings(c, t); }
@@ -6226,7 +6361,7 @@ function frame(ts) {
 Save.load(); Save.apply(); setLanguage(Opt.lang);
 resize();
 initScreens();
-window.__game = { Game, Input, UI, Save, CONFIG, Opt, STR, T, Snd, Voice, Perf, get P() { return P; }, get GAME() { return GAME; }, setGame, buildLevel, genLevel, startPlay, startDuel, duelHit, openNest, hitHero, getUp, tryRescue, hurtSmall, throwRing, recallBalls, startSpin, abil, hasAbil, makeEgg, collectEgg, chapters, chapterLabel, titleMenu, chapterLayout, HUD_TOP, HERO_BOX, camTarget, update, draw, openSettings, closeSettings, swapHeroes, settingsRows, KEY_FIELDS, startRun, stopRun, canRun };
+window.__game = { Game, Input, UI, Save, CONFIG, Opt, STR, T, Snd, Voice, Perf, get P() { return P; }, get GAME() { return GAME; }, setGame, buildLevel, genLevel, startPlay, startDuel, duelHit, openNest, hitHero, getUp, tryRescue, hurtSmall, throwRing, recallBalls, startSpin, abil, hasAbil, makeEgg, collectEgg, chapters, chapterLabel, titleMenu, chapterLayout, HUD_TOP, HERO_BOX, camTarget, update, draw, openSettings, closeSettings, swapHeroes, settingsRows, KEY_FIELDS, startRun, stopRun, canRun, rescueLimit, drawRetry };
 requestAnimationFrame(ts => { _last = ts; requestAnimationFrame(frame); });
 
 </script>

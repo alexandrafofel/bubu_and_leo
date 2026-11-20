@@ -2,7 +2,7 @@
 /* ==========================================================================
    GAMEPLAY: heroes, powers, eggs, stars, enemies, wind, butterfly, boss
    ========================================================================== */
-const Game = { state: 'boot', t: 0, levelIdx: 0, team: { eggs: 0, stars: 0 }, results: [], diff: CONFIG.defaultDifficulty.slice(), paused: false };
+const Game = { state: 'boot', t: 0, levelIdx: 0, team: { eggs: 0, stars: 0 }, results: [], diff: CONFIG.defaultDifficulty.slice(), paused: false, tries: [] };      // tries: how many times each chapter was started again
 let P = null;                                   // everything about the level being played
 const D = k => CONFIG.difficulty[Game.diff[k]] || CONFIG.difficulty.normal;
 const rank = k => Game.diff[k] === 'easy' ? 0 : Game.diff[k] === 'hard' ? 2 : 1;      // 0 Ușor, 1 Normal, 2 Greu
@@ -31,7 +31,7 @@ function buildLevel(idx) {
 function makeHero(k, x, y) {
   return { k, x, y, px: x, py: y, vx: 0, vy: 0, face: 1, ax: 1, ay: 0, walk: 0, moving: false, dizzy: 0, inv: 0, boost: 0, squash: 0, z: 0, cd: 0,
     stompT: -1, charge: 0, charging: false, kickT: 0, inMud: false, mudT: 0, tagT: 5, t: Math.random() * 5,
-    down: false, downT: 0, callT: 0, small: 1, spinT: -1, spinNo: 0, shield: false, carried: null, hugT: 0, reachHint: 0,
+    down: false, downT: 0, downLeft: 0, downTick: null, hurried: false, callT: 0, small: 1, spinT: -1, spinNo: 0, shield: false, carried: null, hugT: 0, reachHint: 0,
     run: false, runIdle: 0, runT: 0, runRest: 0, runWord: -99, ghosts: [], ghostT: 0,         // run (L3): ghosts = the trail left behind
     throwCd: 0, homeState: 'held', home: { x, y, z: 0, spin: 0 }, chargeHold: 0,               // the thrown things (balls or bones): cooldown, whether they are all home, and the one kept at hand
     spinBeat: 0, spinLook: null, duelSweep: 0, bossSweep: 0 };                                 // the spin (claws or gloves)
@@ -180,6 +180,29 @@ function shakeTree(t, power, byStomp) {
     } else { Snd.play('rustle'); P.hintCharge = 3.5; burst(t.x, t.y, 5, { kind: 'leaf', cols: L.pal.canopy, speed: 120, life: 1, g: 120, size: 9 }); }
   }
 }
+/* How many seconds the friend has. After a few restarts of the same chapter the children get more time (the safety net). */
+function rescueLimit() {
+  const RS = CONFIG.rescue;
+  if (!(RS.limit > 0)) return 0;
+  const tries = (Game.tries && Game.tries[Game.levelIdx]) || 0;
+  return RS.retryMercy > 0 && tries >= RS.retryMercy ? RS.limitMercy : RS.limit;
+}
+/* The ten seconds of a hero who is down: a wooden tick and a short shake on BOTH controllers every second,
+   twice a second and stronger in the last three. At zero the chapter starts again. */
+function countDown(h, dt) {
+  h.downLeft = Math.max(0, h.downLeft - dt);
+  const hurry = h.downLeft <= 3, beat = hurry ? 2 : 1, now = Math.ceil(h.downLeft * beat);    // the last three seconds tick twice as often
+  if (h.downTick == null) h.downTick = now;
+  else if (now < h.downTick) {
+    h.downTick = now;
+    if (h.downLeft > 0) {
+      Snd.play('tick', hurry ? 1 : 0);
+      for (let k = 0; k < 2; k++) if (Input.slots[k].joined) Input.rumble(k, hurry ? 0.4 : 0, hurry ? 0.6 : 0.35, hurry ? 90 : 60);
+    }
+    if (hurry && !h.hurried) { h.hurried = true; Snd.talk(1 - h.k, 'hurry'); }
+  }
+  if (h.downLeft <= 0) Game.failLevel();
+}
 function hitHero(h, sx, sy) {
   if (h.down || h.dizzy > 0 || h.inv > 0 || P.done || h.safe || h.shield || h.carried) return;
   if (!Input.slots[h.k].joined) return;          // a hero nobody controls cannot lose eggs
@@ -188,9 +211,13 @@ function hitHero(h, sx, sy) {
   const d = D(h.k), L = P.L;
   h.dizzy = d.dizzyTime; h.inv = d.dizzyTime + 1.6; h.charging = false; h.charge = 0; h.squash = 0.25; h.stompT = -1; h.spinT = -1; h.z = 0;
   // with a friend in the game the hero stays down until the friend comes and helps (□)
-  if (CONFIG.rescue.enabled && Input.slots[1 - h.k].joined) { h.down = true; h.downT = 0; h.callT = 1.3; }
+  if (CONFIG.rescue.enabled && Input.slots[1 - h.k].joined) {
+    h.down = true; h.downT = 0; h.callT = 1.3;
+    h.downLeft = rescueLimit(); h.downTick = null; h.hurried = false;      // the ten seconds start now (0 = no limit)
+    if (h.downLeft > 0) Input.rumble(1 - h.k, 0.6, 0.5, 300);              // the friend feels it too: come, quickly
+  }
   const dx = h.x - sx, dy = h.y - sy, m = Math.hypot(dx, dy) || 1; h.vx = dx / m * 260; h.vy = dy / m * 260;
-  Snd.play('bonk', 0, h.k); Snd.talk(h.k, 'hurt'); h.dizzyVoice = P.time + 0.9; Input.rumble(h.k, 0.9, 0.6, 280); P.shake = Math.max(P.shake, 0.12);
+  Snd.play('bonk', 0, h.k); Snd.talk(h.k, 'hurt'); h.dizzyVoice = P.time + 0.9; Input.rumble(h.k, 0.9, 0.6, 300); P.shake = Math.max(P.shake, 0.12);
   burst(h.x, h.y - 50, 8, { speed: 120, life: 0.6, cols: ['#FFE08A', '#FFF3C0'] });
   if (P.levelEggs > 0) {      // only what was gathered in this chapter can be dropped
     Game.team.eggs--; P.levelEggs--;
@@ -203,8 +230,14 @@ function hitHero(h, sx, sy) {
 /* ---------- rescue: the friend helps a hero who was hit ---------- */
 const HEALS = ['#FFD0DC', '#FFF3C0', '#BFE8D0', '#FFE08A'];
 function getUp(h, by) {
+  const ring = h.downLeft > 0;
   h.down = false; h.dizzy = 0; h.inv = CONFIG.rescue.safeAfter; h.squash = -0.18; h.wasDizzy = false; h.dizzyVoice = 0;
+  h.downLeft = 0; h.downTick = null; h.hurried = false;                 // the ten seconds stop here
   Snd.play('heal', 0, h.k);
+  if (ring) for (let i = 0; i < 10; i++) {                              // the ring of beads breaks into sparks
+    const a2 = i / 10 * TAU - Math.PI / 2;
+    part(h.x + Math.cos(a2) * 76, h.y - 50 + Math.sin(a2) * 40, { vx: Math.cos(a2) * 150, vy: Math.sin(a2) * 90, life: 0.6, max: 0.6, size: 10, col: CONFIG.heroes[1 - h.k].color, kind: 'spark' });
+  }
   burst(h.x, h.y - 46, 20, { cols: HEALS, speed: 200, life: 1, up: 70, size: 9 });
   for (let i = 0; i < 5; i++) part(h.x + (Math.random() - 0.5) * 50, h.y - 40 - Math.random() * 40, { vy: -60 - Math.random() * 40, life: 1.1, max: 1.1, size: 12, col: '#F29C9C', kind: 'heart', g: -20 });
   if (by) { P.rescues++; Snd.talk(h.k, 'thanks'); Input.rumble(h.k, 0.2, 0.7, 200); Input.rumble(by.k, 0.2, 0.6, 140); }
@@ -222,7 +255,10 @@ function tryRescue(h) {
 }
 function updateRescue(dt) {
   const a = P.heroes[0], b = P.heroes[1], R = CONFIG.rescue;
-  if (a.down && b.down && Math.min(a.downT, b.downT) > R.bothDown) { getUp(a, null); getUp(b, null); }      // nobody left to help: both get up
+  if (a.down && b.down) {
+    if (R.bothDownRestart && R.limit > 0) { for (const h of [a, b]) if (h.downLeft > R.bothDown) { h.downLeft = R.bothDown; h.downTick = null; } }   // nobody left to help: the level starts again soon
+    else if (Math.min(a.downT, b.downT) > R.bothDown) { getUp(a, null); getUp(b, null); }                                                            // the old rule: both get up alone
+  }
   for (let i = P.heal.length - 1; i >= 0; i--) {
     const q = P.heal[i], dx = q.to.x - q.x, dy = q.to.y - 40 - q.y, m = Math.hypot(dx, dy) || 1, v = R.ballSpeed * dt;
     q.spin += dt * 12;
@@ -376,6 +412,7 @@ function updateHero(h, dt) {
     const RS = CONFIG.rescue;
     h.downT += dt; h.dizzy = Math.max(h.dizzy, 0.4); h.inv = Math.max(h.inv, 0.4);
     h.callT -= dt; if (h.callT <= 0) { h.callT = RS.callEvery; Snd.talk(h.k, 'help'); }
+    if (h.downLeft > 0) countDown(h, dt);
     if (!Input.slots[1 - h.k].joined || (RS.autoAfter > 0 && h.downT > RS.autoAfter)) getUp(h, null);
   }
   if (h.carried) { h.moving = false; return; }   // a bird is carrying this hero

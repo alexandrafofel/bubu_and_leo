@@ -256,3 +256,19 @@ Cererea proprietarei: "scoate jocul Bubu si Leo, lasa doar Cea mai grea lupta. M
 | Lupta cu George devine putin mai usoara: acum fiecare erou poate si sa il dea jos de pe tron, si sa il loveasca. | Lupta noua din Sala Tronului (T6) cere cu adevarat amandoi eroii. Pana atunci, mai usor nu strica. |
 | `P.ball` si `P.ballCool` se mut pe erou (`h.home`, `h.homeState`, `h.throwCd`). | Doi eroi pot arunca in acelasi timp, deci starea nu mai poate fi una singura, a jocului. |
 | Indiciul □ apare si pe nivelul 1, nu doar pe nivelul 7 cum spunea specificatia. | Nivelurile 7 - 12 nu exista inca (T6). Fara asta, copiii n-ar afla de a doua putere. |
+
+## Cele 10 secunde (T4, 19 noiembrie 2026)
+
+| Hotarare | Motivul |
+|---|---|
+| Un erou lovit are 10 secunde, apoi nivelul reincepe. | Cererea proprietarei. Pana acum un erou putea astepta la nesfarsit, iar celalalt juca mai departe singur. |
+| Ecranul se cheama "Încă o dată!" si arata cei doi eroi tinandu-se de mana. | Regula 6: jocul nu se termina niciodata cu "Game Over". Un copil de 6 ani trebuie sa inteleaga "mai incercam", nu "ai pierdut". |
+| Trei note calde care coboara, nu o alarma. | Acelasi motiv. Sunetul nu are voie sa sperie. |
+| In ultimele 3 secunde marginea ecranului pulseaza in culoarea eroului cazut. | Copilul trebuie sa stie **pe cine** sa ajute, nu doar ca graba e mare. Rosul si negrul sunt scoase din joc (regula 4). |
+| Numaratoarea vibreaza pe amandoua controllerele. | Cererea. Cel lovit nu poate face nimic, deci semnalul e pentru prieten. |
+| Cifra, inelul de margele si bannerul, toate trei. | La 6 ani cifrele se citesc greu. Inelul arata cat a mai ramas fara sa stii sa numeri, iar bannerul spune pe cine. |
+| Dupa trei reinceperi ale aceluiasi nivel, limita creste la 15 secunde. | Daca un nivel nu iese, jocul trebuie sa se indoaie, nu copilul. Fara asta s-ar putea bloca acolo. |
+| Amandoi loviti: nivelul reincepe dupa 3 secunde. | Nu mai e nimeni care sa ajute. 3 secunde sunt cat sa vada ce s-a intamplat. |
+| Un singur jucator nu are numaratoare. | Regula 6: nimeni nu ramane blocat. Un copil care joaca singur n-are cine sa-l ajute. |
+| Povestea nivelului nu se mai spune la reincepere. | A treia oara, povestea de 15 secunde devine o pedeapsa. |
+| Reincepe tot capitolul, nu valul. | Cel mai usor de inteles pentru copii, si singurul care nu lasa jocul intr-o stare pe jumatate. `CONFIG.rescue.restart` pastreaza locul pentru alta alegere. |

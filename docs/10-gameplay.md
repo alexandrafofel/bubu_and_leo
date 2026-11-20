@@ -351,3 +351,53 @@ Ce e altfel fata de gheare: amandoua bratele se intind de 2.4 ori, cu manusi ros
 3. Un erou jos, ametit sau dus de o pasare nu are nicio putere (`updateHero` se opreste inainte).
 4. In mini-lupte si la boss, lovitura conteaza dupa **fel** (rotire sau lucru aruncat), nu dupa cine a dat-o. Acum fiecare erou le poate face pe amandoua, deci lupta lui George e putin mai usoara. E acceptat (`16-decizii.md`).
 5. Tutorial: pe nivelul 1 si pe nivelul 7, dupa ce eroul foloseste ✕, deasupra lui apare □ pana cand foloseste a doua putere (cel mult 90 de secunde).
+
+## Update 19 noiembrie 2026 (T4): cele 10 secunde
+
+Cererea: "cand un personaj este lovit - la ambii jucatori le vibreaza controllerul si au 10 secunde sa se ajute, daca nu se ajuta reincep level-ul de la inceput".
+
+### Numaratoarea
+
+Cand un erou ramane jos (prietenul joaca), `hitHero` porneste numaratoarea: `h.downLeft = rescueLimit()`, adica 10 secunde. **Amandoua** controllerele vibreaza in acelasi cadru: cel lovit tare (`0.9, 0.6, 300`), prietenul mai moale (`0.6, 0.5, 300`).
+
+`countDown(h, dt)` scade timpul si, la fiecare secunda intreaga:
+
+- Sunetul `tick` (un toc moale de lemn).
+- O vibratie scurta pe **amandoua** controllerele: `(0, 0.35, 60)`.
+- In ultimele 3 secunde totul se indeseste: tocul e mai inalt si se aude de doua ori pe secunda, vibratia e mai apasata (`0.4, 0.6, 90`), iar prietenul spune o data `hurry`.
+
+La zero: `Game.failLevel()`. Daca prietenul ajunge la timp (○), `getUp` sterge numaratoarea si inelul se sparge in scantei.
+
+### Ce se vede
+
+| Element | Unde | Cum |
+|---|---|---|
+| Inelul de 10 margele | in jurul eroului cazut | `drawDownRing`. O margea se stinge la fiecare zecime din timp. Cele aprinse sunt in culoarea prietenului, cele stinse raman desenate in crem, ca sa se vada cate au fost. |
+| Cifra | deasupra eroului | 64, sau 84 si corai in ultimele 3 secunde. "Pocneste" (1.25 -> 1 in 0.15 s) la fiecare secunda. |
+| `iconO` si bulina prietenului | langa cifra | Ca inainte, mutate la dreapta ca sa faca loc cifrei. |
+| Mesajul "Ajută-l pe Boon!" | in banda de sus | Banner nou, `kind: 'down'`, cu `iconO` la dreapta. Trece inaintea oricarui alt banner. Daca prietenul joaca pe tastatura, scrie tasta lui in loc de ○. |
+| Marginea ecranului | ultimele 3 secunde | `drawEdgePulse`: o lumina moale dinspre margini, in culoarea eroului cazut, pana la alpha 0.25. Fara rosu inchis, fara negru. |
+
+### Reincepere: starea `retry`
+
+`Game.failLevel()` numara incercarea (`Game.tries[levelIdx]`), trece jocul in starea `retry`, porneste sunetul `retry` (trei note calde care coboara) si o vibratie lunga si moale pe amandoua controllerele.
+
+Ecranul `drawRetry` tine `CONFIG.rescue.retryScreen` (2.2) secunde: nivelul ramane in spate sub un strat crem, iar in mijloc un cartonas de 900 x 470 cu titlul "Încă o dată!", textul "Ajutați-vă repede: aveți 10 secunde." si cei doi eroi tinandu-se de mana, cu inimioare intre ei. Dupa aceea `Game.goLevel(Game.levelIdx)`, cu `UI.skipIntro`: povestea nivelului nu se mai spune a doua oara.
+
+Cuvintele "Game Over", "Ai pierdut" sau "Greșit" nu apar nicaieri.
+
+### Plasa de siguranta
+
+Dupa `CONFIG.rescue.retryMercy` (3) reinceperi ale aceluiasi capitol, limita devine `limitMercy` (15) secunde, iar cartonasul scrie "Acum aveți 15 secunde.". Numarul se reseteaza cand capitolul e terminat.
+
+### Cazurile speciale
+
+| Situatie | Ce se intampla |
+|---|---|
+| Amandoi jos | Numaratoarea amandurora sare la `bothDown` (3) secunde si nivelul reincepe. Cu `bothDownRestart: false` se ridica singuri, ca inainte. |
+| Un singur jucator | Fara numaratoare: eroul se ridica singur, ca inainte. |
+| Pauza | `updatePlay` nu mai ruleaza, deci numaratoarea sta pe loc. |
+| Prietenul pierde controllerul | Jocul intra in pauza (regula de acum). La deconectare de tot, eroul se ridica singur si numaratoarea se sterge. |
+| La boss | La fel: lupta reincepe de la inceput. |
+| Ce se pierde | Cristalele si stelele adunate in nivelul acesta. Totalul echipei revine la suma rezultatelor salvate (`startPlay` il reface). Rezultatele nivelurilor dinainte raman. |
+| Medalia "Fără nicio lovitură" | Ramane legata de `P.hits`, care porneste de la 0 la fiecare reincepere. |

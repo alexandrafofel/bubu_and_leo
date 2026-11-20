@@ -72,8 +72,15 @@ const CONFIG = {
     ballSpeed: 900,            // how fast the magic ball flies to the friend
     safeAfter: 2.6,            // seconds nothing can hit a hero who was just helped up
     bothDown: 3,               // both heroes down at the same time: they get up alone after this many seconds
-    autoAfter: 0,              // a hero gets up alone after this many seconds (0 = never: only the friend can help)
-    callEvery: 5               // seconds between two calls for help
+    autoAfter: 0,              // a hero gets up alone after this many seconds (0 = never: only the friend can help). Not used while limit > 0
+    callEvery: 5,              // seconds between two calls for help
+    // ---- The ten seconds: a hit hero waits for his friend, and if nobody comes the level starts again ----
+    limit: 10,                 // seconds the friend has to help. 0 = no limit (the rule before this update)
+    limitMercy: 15,            // the limit after retryMercy restarts of the same chapter
+    retryMercy: 3,             // how many restarts before the limit grows. 0 = it never grows
+    bothDownRestart: true,     // both heroes down: the level starts again after bothDown seconds. false = both get up alone, as before
+    restart: 'level',          // 'level' = from the beginning of the chapter ('wave' is kept for later, not built)
+    retryScreen: 2.2           // seconds the "Încă o dată!" card stays on screen
   },
 
   // ---- Small enemies: beetles and pinecones (robots, snails and birds in the second game) ----

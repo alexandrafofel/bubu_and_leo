@@ -184,3 +184,12 @@ Trei copii ale eroului in spate (0.28, 0.18, 0.09), apoi sase linii subtiri de v
 - Doua feluri noi de particule: `hex` (hexagon mic, de la manusi) si `paw` (urma de laba, de la oase).
 - Sageata de tintire si inelul de incarcare se arata pentru orice erou cu abilitatea `throw`, pe butonul lui. Inelul lui Boon e turcoaz, al lui Killer rosu.
 - Tutorial: `iconSq` deasupra eroului care nu si-a folosit inca a doua putere (nivelul 1 si nivelul 7, dupa ce a folosit ✕, cel mult 90 de secunde).
+
+## Update 19 noiembrie 2026 (T4): numaratoarea de 10 secunde
+
+- `drawDownRing(c, h, by)`: inelul de 10 margele in jurul eroului cazut (raza 76 pe orizontala, 40 pe verticala) si cifra deasupra lui. Margelele aprinse sunt in culoarea prietenului, cele stinse raman desenate in crem cu un contur subtire, ca sa se vada cate au fost. Ultima aprinsa pulseaza. Cifra "pocneste" la fiecare secunda si devine mai mare si corai in ultimele trei.
+- `drawEdgePulse(c)`: in ultimele 3 secunde, o lumina moale dinspre marginile ecranului, in culoarea eroului cazut. Un gradient radial de la mijloc (transparent) spre margini, alpha pana la 0.25. Nimic inchis la culoare.
+- `downBanner()`: bannerul "Ajută-l pe Boon!" din banda de sus, cu `iconO` la dreapta. Trece inaintea celorlalte bannere. Daca prietenul joaca pe tastatura, in loc de ○ scrie numele tastei lui.
+- `iconO` si bulina prietenului de deasupra eroului cazut se mut la dreapta cand numaratoarea merge, ca sa faca loc cifrei.
+
+Atentie la `text(...)`: `halo` este **grosimea conturului ca parte din marimea fontului** (0.2 implicit), nu un numar de pixeli. `halo: 5` deseneaza un cerc crem imens peste jumatate de ecran.

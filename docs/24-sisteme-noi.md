@@ -51,91 +51,17 @@ Ce s-a facut altfel decat scria in specificatie:
 
 ---
 
-## S4. Cele 10 secunde
+## S4. Cele 10 secunde - **facuta (T4, 19 noiembrie 2026)**
 
-**Cerinta:** "cand un personaj este lovit - la ambii jucatori le vibreaza controllerul si au 10 secunde sa se ajute, daca nu se ajuta reincep level-ul de la inceput."
+Regula e acum in joc. Descrierea ei, la timpul prezent: `10-gameplay.md`, "Update 19 noiembrie 2026 (T4)" (numaratoarea, ce se vede, reincepere, plasa de siguranta, cazurile speciale), `03-config.md` (`CONFIG.rescue`), `13-ecrane-si-meniuri.md` (ecranul "Încă o dată!"), `14-bucla-principala.md` (starea `retry`, `Game.failLevel`), `12-desen-si-hud.md` (inelul, cifra, lumina de pe margini), `06-sunet.md` (`tick`, `retry`, cuvantul `hurry`). Hotararile: `16-decizii.md`. Ce n-a putut fi verificat: `19-limitari.md`. Testul: `tests/zece-secunde.js`.
 
-### Acum
+Ce s-a facut altfel decat scria in specificatie:
 
-`hitHero` pune `h.down = true` daca prietenul e jucat. Vibreaza doar controllerul celui lovit (`Input.rumble(h.k, 0.9, 0.6, 280)`). Nu exista limita de timp (`rescue.autoAfter: 0`). Daca amandoi sunt jos, se ridica singuri dupa `bothDown` (3) secunde.
-
-### Reguli
-
-1. Cand un erou e lovit si ramane jos: **ambele** controllere vibreaza. Cel lovit: `rumble(k, 0.9, 0.6, 300)`. Prietenul: `rumble(1 - k, 0.6, 0.5, 300)`.
-2. Porneste numaratoarea: `h.downLeft = limit` (10 secunde).
-3. Daca prietenul il ajuta (○) inainte de zero: totul ca acum (`getUp`).
-4. Daca ajunge la zero: `Game.failLevel()`. Nivelul reincepe de la inceput.
-5. Daca amandoi sunt jos: numaratoarea amandurora sare la cel mult `bothDown` (3) secunde. La zero, nivelul reincepe. (H8. Cu `bothDownRestart: false` se ridica singuri, ca acum.)
-6. Un singur jucator: fara numaratoare. Se ridica singur dupa ameteala, ca acum.
-7. Numaratoarea sta pe loc in pauza (pauza opreste deja `updatePlay`).
-8. In mini-lupta, paznicul se odihneste cat un erou e jos (regula de acum, `duelWaiting()`). Numaratoarea merge.
-9. La reincepere: cristalele si stelele adunate in nivelul acesta se pierd. Cele din nivelurile dinainte raman (vezi S5, totalul e suma rezultatelor).
-10. Dupa `retryMercy` (3) reinceperi ale aceluiasi nivel fara sa fie terminat, limita devine `limitMercy` (15) secunde pentru nivelul acela (H9).
-
-### Ce vede si ce simte copilul, secunda cu secunda
-
-| Moment | Pe ecran | Sunet | Vibratie (ambele controllere) |
-|---|---|---|---|
-| Lovitura | Ca acum. In plus: un inel de 10 margele in jurul eroului cazut, toate aprinse, in culoarea prietenului. Deasupra lui, cifra "10" (marime 64, font de titlu) si `iconO`. In banda de sus (S6), mesajul "Ajută-l pe Boon! ○". | `bonk`, `hurt` ca acum. Apoi cuvantul `help`. | tare, 300 ms |
-| Fiecare secunda | Se stinge o margea. Cifra scade si "pocneste" (scara 1.25 -> 1 in 0.15 s). | `tick`: un toc moale de lemn (sinus 660 Hz, 0.05 s). | slab: `rumble(k, 0, 0.35, 60)` |
-| Ultimele 3 secunde | Cifra e mai mare (84) si corai. Marginea ecranului pulseaza in culoarea eroului cazut, alpha pana la 0.25. Nu rosu inchis, nu negru. | `tick` mai sus (880 Hz), de doua ori pe secunda. Cuvantul `hurry` al prietenului, o data. | mai tare: `rumble(k, 0.4, 0.6, 90)`, de doua ori pe secunda |
-| Ajutat la timp | Ca acum: inimioare, `heal`, `thanks`. Inelul se sparge in scantei. | ca acum | ca acum |
-| Zero | Ecranul se stinge spre culoarea hartiei in 0.5 s. | `retry`: trei note care coboara bland (kalimba), nu o alarma. | una lunga si moale: `rumble(k, 0.3, 0.3, 400)` |
-
-### Ecranul "Încă o dată!"
-
-Stare noua a jocului: `Game.state = 'retry'`, 2.2 secunde, fara butoane.
-
-- Fundalul: nivelul, cum era, sub un strat crem (`drawDim`, alpha 0.7).
-- Un cartonas in mijloc (900 x 360): cei doi eroi desenati tinandu-se de mana, titlul "Încă o dată!" (`retry.title`), sub el "Ajutați-vă repede: aveți 10 secunde." (`retry.sub`, cu numarul din `CONFIG`).
-- De la a treia reincepere pe acelasi nivel: "Acum aveți 15 secunde." (`retry.mercy`).
-- Dupa 2.2 s: `Game.goLevel(Game.levelIdx)`. Povestea nivelului **nu** se mai arata la reincepere (`UI.skipIntro = true`): eroii pornesc direct.
-- Cuvintele "Game Over", "Ai pierdut", "Greșit" nu apar nicaieri.
-
-### De facut in cod
-
-1. `CONFIG.rescue` primeste:
-
-```js
-limit: 10,               // seconds the friend has to help. 0 = no limit (the rule before this update)
-limitMercy: 15,          // the limit after retryMercy restarts of the same level
-retryMercy: 3,           // 0 = the limit never grows
-bothDownRestart: true,   // both heroes down: the level restarts after bothDown seconds. false = both get up alone
-restart: 'level',        // 'level' = from the beginning of the level. ('wave' is reserved, not built.)
-limitGames: ['bubu', 'lupta'],
-```
-
-   `autoAfter` ramane, dar nu se mai foloseste cand `limit > 0`.
-2. `makeHero`: `downLeft: 0`.
-3. `hitHero`: dupa `h.down = true`, `h.downLeft = rescueLimit()`. Vibratia prietenului. `rescueLimit()` da `limitMercy` daca `Game.tries[Game.levelIdx] >= retryMercy`, altfel `limit`.
-4. `updateHero`, in blocul `if (h.down)`: scade `h.downLeft`. La fiecare secunda intreaga trecuta: `tick` si vibratia. La zero: `Game.failLevel()`.
-5. `updateRescue`: regula "amandoi jos" devine `downLeft = Math.min(downLeft, bothDown)` cand `bothDownRestart`.
-6. `src/10-main.js`: `Game.failLevel = function () { Game.tries[Game.levelIdx] = (Game.tries[Game.levelIdx] || 0) + 1; Game.state = 'retry'; UI.retryT = 0; Snd.play('retry'); Snd.setDuck(0.5); }`. In `update`: starea `retry` numara si cheama `Game.goLevel`. In `draw`: `drawRetry`. `Game.tries` se goleste pentru un nivel cand e terminat.
-7. `Game.levelEnd` salveaza numarul de incercari in rezultat (`tries`), pentru ecranul de capitole.
-8. Medalia "Fără nicio lovitură" (`levelMedals`) ramane legata de `P.hits`.
-9. Portile din nivelurile noi se deschid cat un erou e jos (capitolul 25, 3.6), ca prietenul sa poata ajunge.
-
-### Cazuri de margine
-
-- Erou jos in cuib: nu se poate, in cuib nu e lovit.
-- Erou dus de pasare: nu e jos, nu are numaratoare.
-- Prietenul isi pierde controllerul in timpul numaratorii: jocul intra in pauza (regula de acum), numaratoarea sta.
-- Prietenul iese de tot din joc (`joined` fals): eroul se ridica singur (regula de acum).
-- La boss (Arena, Sala Tronului): la fel. Reincepe lupta de la inceput.
-- Reincepere in timpul unei rejucari din "Capitole": la fel.
-
-### Test: `tests/zece-secunde.js`
-
-1. Erou lovit: vibratii inregistrate pe ambele controllere in acelasi cadru.
-2. Dupa 9.5 s inca asteapta. `Game.state === 'play'`.
-3. Ajutat la 9.5 s: se ridica, nu reincepe nimic.
-4. Neajutat: la 10 s `Game.state === 'retry'`. Dupa inca 2.5 s: `play`, acelasi `levelIdx`, `P.time` aproape de 0, cristalele nivelului 0, totalul echipei egal cu cel de la inceputul nivelului.
-5. Amandoi loviti: reincepe dupa 3 s. Cu `bothDownRestart: false`: se ridica singuri.
-6. Un singur jucator: nu reincepe niciodata.
-7. Trei reinceperi la rand: a patra oara limita e 15.
-8. Pauza la secunda 5, 20 de secunde de asteptare, apoi continuare: mai sunt 5 secunde.
-9. Captura cu numaratoarea la 3 si captura cu "Încă o dată!". Niciun pixel negru sau gri in cartonas.
-10. In ambele jocuri.
+- Cartonasul are 900 x 470, nu 900 x 360: la 360 eroii acopereau scrisul.
+- Margelele stinse raman desenate in crem, cu un contur subtire. Daca dispar de tot, copiii nu mai vad cate au fost.
+- Bannerul din banda scrie tasta prietenului cand el joaca pe tastatura, in loc de ○.
+- Rezultatul salvat al unui capitol are si `tries` (cate reinceperi), cum cerea punctul 7 din specificatie. Ecranul de capitole nu il arata inca.
+- Portile care se deschid cat un erou e jos (punctul 9) sunt pentru nivelurile 7 - 12 si vin cu T6.
 
 ---
 

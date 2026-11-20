@@ -256,3 +256,23 @@ In `control-nou.js` (testul butoanelor, de la T2) a fost nevoie de o linie in pl
 ### Ce a prins rularea completa
 
 `joc-complet-bot.js` a cazut cu "kickBall is not defined": la lupta cu boss-ul, eroul pe care nu-l joaca nimeni chema functia veche, singurul loc ramas nerenumit. Testele mici nu ajung acolo. De aceea `tests/toate.sh` se ruleaza intreg inainte de orice livrare.
+
+## Update 19 noiembrie 2026: cele 10 secunde (sarcina T4)
+
+### `zece-secunde.js`
+
+| Nr | Ce verifica | Rezultat |
+|---|---|---|
+| 1 | La lovitura, amandoua controllerele vibreaza in acelasi cadru; numaratoarea porneste de la 10. | OK |
+| 2 | Dupa 9.5 secunde eroul inca asteapta si jocul merge. Au fost cel putin 18 vibratii scurte (cate doua pe secunda). | OK |
+| 3 | Ajutat la 9.5 secunde: se ridica, nu reincepe nimic. | OK |
+| 4 | Neajutat: la 10 s starea e `retry`; dupa inca 2.6 s jocul e iar `play`, acelasi capitol, de la inceput, fara poveste; cristalele nivelului sunt 0 si totalul echipei e cel de la inceputul nivelului. | OK |
+| 5 | Amandoi jos: numaratoarea sare la 3 secunde si nivelul reincepe. Cu `bothDownRestart: false` se ridica singuri. | OK |
+| 6 | Un singur jucator: fara numaratoare, nu reincepe niciodata. | OK |
+| 7 | Patru lovituri la rand fara ajutor: limitele sunt 10, 10, 10, **15**. | OK |
+| 8 | Pauza la secunda 5, 20 de secunde de asteptare: numaratoarea nu scade deloc; dupa continuare scade iar. | OK |
+| 9 | Capturi: numaratoarea la 3 (`z_numaratoare.png`) si ecranul "Încă o dată!" (`z_inca-o-data.png`). In cartonas: niciun pixel negru, niciun gri desenat (pana la 5 pixeli de margine moale sunt acceptati). | OK (0 si 0) |
+
+Verificat ca poate sa pice: cu vibratia prietenului scoasa si cu `Game.failLevel()` inlocuit de "se ridica singur", testul scrie `NEREUSIT` la 8 din 9 puncte.
+
+`tests/toate.sh` il ruleaza la fiecare rulare completa.

@@ -17,7 +17,7 @@ Totul este intr-un singur fisier HTML. Nu are imagini, sunete sau biblioteci ext
 5. Fiecare jucator apasa ✕ pe controllerul lui. Fara controller: primul erou cu W A S D si Spatiu, al doilea cu sagetile si Enter.
 6. Stanga si dreapta aleg dificultatea. ✕ inseamna "Gata!".
 
-In joc: ✕ este prima putere a eroului. ○ ajuta prietenul lovit (tastatura: E, respectiv Shift dreapta): el ramane pe loc pana vine celalalt. Primul erou trebuie sa vina aproape, al doilea poate ajuta de departe, cu o minge magica. L3 (apasarea stick-ului stang; tastatura: Shift stanga, respectiv Alt dreapta) porneste fuga: de trei ori mai repede, pana lasi stick-ul. □ este a doua putere: Boon arunca oase-bumerang, Killer isi lungeste bratele si invarte manusi de portar in jurul lui. Nivelul se termina cand amandoi sunt in cuib.
+In joc: ✕ este prima putere a eroului. ○ ajuta prietenul lovit (tastatura: E, respectiv Shift dreapta): el ramane pe loc pana vine celalalt. Primul erou trebuie sa vina aproape, al doilea poate ajuta de departe, cu o minge magica. L3 (apasarea stick-ului stang; tastatura: Shift stanga, respectiv Alt dreapta) porneste fuga: de trei ori mai repede, pana lasi stick-ul. □ este a doua putere: Boon arunca oase-bumerang, Killer isi lungeste bratele si invarte manusi de portar in jurul lui. Daca nimeni nu-l ajuta in 10 secunde, nivelul reincepe de la inceput, cu mesajul "Încă o dată!". Nivelul se termina cand amandoi sunt in cuib.
 
 Sunetele personajelor se pot auzi in difuzorul controllerului doar daca acesta e legat cu cablu USB: Setari, "Conectează controllerul", "Caută difuzorul controllerului".
 

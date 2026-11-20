@@ -6,7 +6,8 @@
 const UI = { titleBg: null, titleOv: null, endBg: null, endOv: null, seen: [false, false], ready: [false, false], menuSel: 0, startT: -1,
   pauseSel: 0, introT: 0, endT: 0, lvlT: 0, loadStep: 0, lostK: -1, hatch: false, said2: false, fwT: 0,
   bgs: {}, ends: {}, spkLost: -1, spkLostT: 0,          // gameSel: the game picked on the "choose the game" screen
-  set: null, hits: [], click: null, hover: null, clicked: false };
+  set: null, hits: [], click: null, hover: null, clicked: false,
+  retryT: 0, retryMercy: false, skipIntro: false };      // "Încă o dată!": how long it has been on screen, whether the children now get more seconds
 const DIFFS = ['easy', 'normal', 'hard'];
 const heroOf = p => Opt.swap ? 1 - p : p;        // which hero (0 Bubu, 1 Leo) player p plays
 
@@ -45,7 +46,7 @@ const Save = {
      pointed at, and the chapters up to the next one open. */
   finish(i, r) {
     const sl = this.own(), res = sl.results = Array.isArray(sl.results) ? sl.results : [], o = res[i];
-    res[i] = o ? Object.assign({}, o, { eggs: Math.max(o.eggs | 0, r.eggs | 0), stars: Math.max(o.stars | 0, r.stars | 0), med: [0, 1, 2].map(j => !!(o.med && o.med[j]) || !!(r.med && r.med[j])) })
+    res[i] = o ? Object.assign({}, o, { eggs: Math.max(o.eggs | 0, r.eggs | 0), stars: Math.max(o.stars | 0, r.stars | 0), med: [0, 1, 2].map(j => !!(o.med && o.med[j]) || !!(r.med && r.med[j])), tries: Math.min(o.tries != null ? o.tries : 99, r.tries | 0) })
                : { eggs: r.eggs | 0, stars: r.stars | 0, med: (r.med || []).slice(0, 3).map(Boolean) };
     for (let j = 0; j < i; j++) if (!res[j]) res[j] = emptyResult();
     const last = chapters().length - 1;
@@ -482,6 +483,29 @@ function drawMedal(c, i, x, y, got, t) {
     for (let k = 0; k < 8; k++) { const a = k / 8 * TAU; c.beginPath(); c.moveTo(Math.cos(a) * 17, Math.sin(a) * 17); c.lineTo(Math.cos(a) * 24, Math.sin(a) * 24); c.stroke(); }
   }
   c.restore();
+}
+/* "Încă o dată!": the only screen the children see when nobody came in time. No "Game Over", no red, no dark:
+   the two heroes hold hands, the level starts again right after. */
+function drawRetry(c, t) {
+  drawWorld(c); drawDim(c, 0.7);
+  const cw = 900, ch = 470, x = (W - cw) / 2, y = (H - ch) / 2 - 20, u = clamp(UI.retryT / 0.3, 0, 1);
+  c.save(); c.translate(W / 2, y + ch / 2); c.scale(0.92 + 0.08 * u, 0.92 + 0.08 * u); c.globalAlpha = u; c.translate(-W / 2, -(y + ch / 2));
+  card(c, x, y, cw, ch, '#FFF6E2', 53);
+  text(c, T('retry.title'), W / 2, y + 104, 92, '#C4573D', { title: true, halo: 0 });
+  const secs = UI.retryMercy ? CONFIG.rescue.limitMercy : CONFIG.rescue.limit;
+  text(c, T(UI.retryMercy ? 'retry.mercy' : 'retry.sub', secs), W / 2, y + 176, 36, '#7A4A52', { halo: 0, shadow: 0, weight: 'bold' });
+  // the two heroes, holding hands, bobbing together, under the writing
+  const hy = y + ch - 34, bob = Math.sin(t * 3) * 5, sc = isLupta() ? 1.3 : 1.35, gap = 104;
+  for (let i = 0; i < 3; i++) {                        // three little hearts floating up between them
+    const ht = (t * 0.6 + i / 3) % 1;
+    c.globalAlpha = u * (1 - ht) * 0.8; heartPath(c, W / 2 + Math.sin(t * 2 + i * 2) * 26, hy - 150 - ht * 60, 11);
+    c.fillStyle = '#F29C9C'; c.fill(); c.globalAlpha = u;
+  }
+  drawHero(c, 0, W / 2 - gap, hy + bob, { scale: sc, t, face: 1, happy: false, moving: false });
+  drawHero(c, 1, W / 2 + gap, hy - bob, { scale: sc, t: t + 1, face: -1, happy: false, moving: false });
+  c.strokeStyle = '#E8A87C'; c.lineWidth = 9; c.lineCap = 'round';                               // the hands they hold, drawn over both arms
+  c.beginPath(); c.moveTo(W / 2 - gap + 44 * sc, hy - 44 * sc + bob); c.lineTo(W / 2 + gap - 40 * sc, hy - 44 * sc - bob); c.stroke();
+  c.globalAlpha = 1; c.restore();
 }
 function drawLevelEnd(c, t) {
   drawWorld(c); drawDim(c, 0.5);
