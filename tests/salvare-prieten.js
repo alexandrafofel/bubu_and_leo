@@ -8,6 +8,7 @@ const boot = require('./common.js');
     const G = __game, C = G.CONFIG, R = C.rescue, lup = G.GAME === 'lupta', out = {};
     const calm = () => { const L = G.P.L; for (const b of L.beetles) { b.state = 'sleep'; b.cool = 999; } L.cones.length = 0; if (L.birds) L.birds.length = 0; };
     const place = (far) => { const P = G.P, a = P.heroes[0], b = P.heroes[1]; a.x = P.L.spawn.x + 200; a.y = P.L.spawn.y; b.x = a.x + far; b.y = a.y; for (const h of P.heroes) { h.vx = h.vy = 0; h.inv = 0; h.dizzy = 0; h.down = false; } inp[0] = { x: 0, y: 0 }; inp[1] = { x: 0, y: 0 }; step(2); };
+    R.limit = 0;   // T4: cele 10 secunde au testul lor (zece-secunde.js). Aici se verifica doar ajutorul, cu numaratoarea oprita
     go(0); calm(); let P = G.P, a = P.heroes[0], b = P.heroes[1];
     // 1. hit: the hero is down, loses one egg, cannot walk
     // a hit drops only what was gathered in this chapter, so the test gives the chapter 5 crystals first

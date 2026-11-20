@@ -276,3 +276,7 @@ In `control-nou.js` (testul butoanelor, de la T2) a fost nevoie de o linie in pl
 Verificat ca poate sa pice: cu vibratia prietenului scoasa si cu `Game.failLevel()` inlocuit de "se ridica singur", testul scrie `NEREUSIT` la 8 din 9 puncte.
 
 `tests/toate.sh` il ruleaza la fiecare rulare completa.
+
+### `salvare-prieten.js` cu cele 10 secunde
+
+Prima rulare completa dupa T4 a picat la acest test (9 verificari dupa prima lovitura). Cauza: testul era scris pentru regula veche, in care eroul lovit astepta oricat. Dupa 12 secunde nivelul reincepea, iar testul continua pe un obiect vechi, deci unele verificari treceau din intamplare. Testul seteaza acum `CONFIG.rescue.limit = 0` (fara numaratoare) si verifica doar ajutorul. Numaratoarea e verificata in `zece-secunde.js`. Rezultat dupa schimbare: 23 de verificari OK, `errors 0`.
