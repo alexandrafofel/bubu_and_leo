@@ -6,11 +6,11 @@ Status: **specificatie, neimplementata.** Nimic din acest capitol nu exista inca
 
 Cererea proprietarei, cuvant cu cuvant, este in `../prompts/05-cerere-16-noiembrie.md`. Promptul gata de lipit pentru cel care implementeaza este in `../prompts/06-prompt-partea-a-doua.md`.
 
-Specificatia are cinci capitole. Citeste-le in ordine. Promptul gata de lipit pentru fiecare dintre cele 14 sarcini este in `../prompts/06-prompt-partea-a-doua.md`.
+Specificatia are cinci capitole. Citeste-le in ordine. Promptul gata de lipit pentru fiecare dintre cele 23 de sarcini este in `../prompts/06-prompt-partea-a-doua.md`.
 
 | Capitol | Ce contine |
 |---|---|
-| 23 (acesta) | Ce se cere, ce s-a hotarat, ce a ramas de intrebat, principiile luate din "It Takes Two", planul in 14 sarcini, regulile din `CLAUDE.md` care se schimba. |
+| 23 (acesta) | Ce se cere, ce s-a hotarat, ce a ramas de intrebat, principiile luate din "It Takes Two", planul in 23 de sarcini, regulile din `CLAUDE.md` care se schimba. |
 | [24](24-sisteme-noi.md) | Sistemele noi, comune tuturor nivelurilor: butoane, fuga, a doua putere, cele 10 secunde, capitole si salvare, scrisul de sus, stilul grafic. |
 | [25](25-niveluri-7-12.md) | Povestea, mecanismele de colaborare, cele 6 niveluri noi, luptele cu George, lupta finala, texte, sunete, decor. |
 | [26](26-limba-personajelor.md) | Limba personajelor (T13): patru limbi de cam 1000 de cuvinte, generate, cu fraze, balon cu traducerea si Dictionar. |
