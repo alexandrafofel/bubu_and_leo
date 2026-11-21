@@ -272,3 +272,14 @@ Cererea proprietarei: "scoate jocul Bubu si Leo, lasa doar Cea mai grea lupta. M
 | Un singur jucator nu are numaratoare. | Regula 6: nimeni nu ramane blocat. Un copil care joaca singur n-are cine sa-l ajute. |
 | Povestea nivelului nu se mai spune la reincepere. | A treia oara, povestea de 15 secunde devine o pedeapsa. |
 | Reincepe tot capitolul, nu valul. | Cel mai usor de inteles pentru copii, si singurul care nu lasa jocul intr-o stare pe jumatate. `CONFIG.rescue.restart` pastreaza locul pentru alta alegere. |
+
+## Stilul grafic nou, partea 1 (sarcina T6.1, 21 noiembrie 2026)
+
+| Hotarare | De ce |
+|---|---|
+| Lumina e un singur nume de sus (`KEY`, `FILL`) si o singura functie (`lit()`), prin care trec toti pictorii noi. | Daca fiecare pictor isi alege singur lumina, dupa zece pictori lumina vine din zece directii. Cerinta S7.8 e ca un copil sa vada dintr-o privire de unde vine lumina. |
+| `lit()` primeste conturul ca functie, nu ca lista de puncte. | Fiecare pictor isi stie forma lui. Asa `lit()` nu trebuie sa inteleaga forme, doar sa le traseze de cateva ori. |
+| Lumina de margine se face taind la forma si trasand conturul mutat putin. | `shadowBlur` e interzis in desenul de la fiecare cadru (S7.7). Mutarea conturului da aceeasi banda subtire, aproape gratis. |
+| `shadow: false` scoate **amandoua** umbrele, si cea aruncata, si cea de contact. | Umbra de contact exista ca obiectul sa nu para ca pluteste. Pentru un lucru care chiar pluteste (un os aruncat) ar fi o greseala. Prima varianta scotea doar umbra aruncata; s-a vazut pe captura. |
+| Pata de stralucire creste cu `gloss`, nu doar se aprinde. | Materialele merg de la 0.05 (panza) la 1 (cristal). Daca pata ar avea aceeasi marime, panza ar luci ca sticla. |
+| Trei nume locale `lit` din cod au fost redenumite (`onN`, `onN`, `glow`). | Numele de sus sunt globale si unice (regula din `CLAUDE.md`). Un `lit` local ar fi ascuns functia exact in fisierele care vor avea nevoie de ea. Nicio schimbare de comportament. |

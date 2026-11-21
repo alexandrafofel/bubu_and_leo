@@ -120,7 +120,7 @@ Inainte de orice sarcina si dupa fiecare: `./build.sh`, `node tools/gen-docs.js`
 | T3 | Puterile devin abilitati (rotire, aruncare) pe care le poate avea orice erou. Apoi oasele lui Boon si manusile lui Killer. **Facuta pe 19 noiembrie 2026.** | 24, S3 | `tests/puteri-doi.js` trece. Testele vechi trec neschimbate in primul joc. |
 | T4 | Cele 10 secunde si reinceperea nivelului. **Facuta pe 19 noiembrie 2026.** | 24, S4 | `tests/zece-secunde.js` trece. |
 | T5 | Capitole, meniul de start, salvarea versiunea 4. **Facuta pe 18 noiembrie 2026**, inaintea T1 - T4 (nu depinde de ele). | 24, S5 | `tests/capitole.js` trece. O salvare veche isi pastreaza progresul. |
-| T6.1 | Stilul grafic, partea 1: `lit(c, path, col, o)` cu cele cinci straturi (umbra aruncata, umbra de contact, forma cu gradient, lumina de margine, stralucire) si `CONFIG.look`. | 24, S7.1 si S7.7 | Un obiect de proba desenat cu `lit()` are lumina din stanga-sus si umbra in aceeasi directie. Nimic din joc nu se schimba inca. |
+| T6.1 | Stilul grafic, partea 1 (**facuta pe 21 noiembrie 2026**): `lit(c, path, col, o)` cu cele cinci straturi (umbra aruncata, umbra de contact, forma cu gradient, lumina de margine, stralucire) si `CONFIG.look`. | 24, S7.1 si S7.7 | Un obiect de proba desenat cu `lit()` are lumina din stanga-sus si umbra in aceeasi directie. Nimic din joc nu se schimba inca. |
 | T6.2 | Materialele eroilor: `scale`, `fabric`, `rubber`, `bone`, ca texturi mici puse in `sprite()` si repetate cu `createPattern`. | 24, S7.2 | Cele patru texturi se vad pe o captura de proba. Niciun `createPattern` in desenul de la fiecare cadru. |
 | T6.3 | Materialele lumii: `wood`, `metal`, `stone`, `crystal`, `leaf`, `lava`. | 24, S7.2 | La fel, pentru cele sase. `lava` pulseaza fara sa iasa din paleta (fara negru, fara gri). |
 | T6.4 | Boon, Killer si George repictati cu `lit()` si materiale: ochi cu doua luciri, cusaturi la tricou, numarul 10 "cusut". Formele si culorile din desenele copiilor nu se schimba. | 24, S7.3 (prima parte) | Foaia de personaje (`docs/capturi/24-personaje.jpg`) refacuta si pusa langa cea veche. Un copil isi recunoaste desenul. |
@@ -161,7 +161,7 @@ Starea e cea din `main` la 21 noiembrie 2026 (PR-urile #5 - #12 mergeate). **Mod
 | T3 | Facuta | T2 | - | - |
 | T4 | Facuta | T2, T5 | - | - |
 | T5 | Facuta | - | - | - |
-| T6.1 | De facut | T1 | Opus | 1 - 2 h |
+| T6.1 | Facuta | T1 | Opus | 1 - 2 h |
 | T6.2 | De facut | T6.1 | Sonnet | 1 - 1,5 h |
 | T6.3 | De facut | T6.1 | Sonnet | 1 - 2 h |
 | T6.4 | De facut | T6.1, T6.2 | Opus | 1,5 - 3 h |

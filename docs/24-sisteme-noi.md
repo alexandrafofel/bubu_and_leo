@@ -180,7 +180,11 @@ Unde se aplica: nivelurile 7 - 12, Sala Tronului, eroii si George in tot al doil
 
 Regulile care raman din `CLAUDE.md`, regula 4: **fara contururi negre, fara gri, fara negru.** Intunericul e indigo, violet sau maro cald. Cea mai inchisa culoare permisa: `#241A3A`.
 
-### S7.1 O singura lumina
+### S7.1 O singura lumina - **facuta (T6.1, 21 noiembrie 2026)**
+
+E in joc. Descrierea ei, la timpul prezent: `05-pictura.md`, "Update 21 noiembrie 2026 (T6.1)". `CONFIG.look`: `03-config.md`. Hotararile: `16-decizii.md`. Ce n-a putut fi verificat: `19-limitari.md`.
+
+Ce s-a facut altfel decat scria mai jos: `shadow: false` scoate amandoua umbrele, nu doar cea aruncata; pata de stralucire creste cu `gloss`, nu doar se aprinde.
 
 Tot ce e pictat in stilul nou e luminat din **stanga-sus**, cu o lumina calda (`KEY = '#FFE2B0'`). Din dreapta-jos vine o lumina de umplere rece (`FILL = '#8FA8FF'`). Fiecare obiect cu volum are cinci straturi, in ordinea aceasta:
 

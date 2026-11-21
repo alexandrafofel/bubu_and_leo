@@ -100,3 +100,11 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - **Daca ecranul "Încă o dată!" e inteles** ca "mai incercam", nu ca o pedeapsa.
 - Cum se simt vibratiile de fiecare secunda pe un controller adevarat, mai ales cele dese din ultimele 3 secunde: pot deveni suparatoare.
 - Daca lumina de pe margini se vede destul pe televizorul familiei, peste jungla de noapte.
+
+## T6.1 (21 noiembrie 2026): ce nu s-a putut verifica
+
+- **Cum arata `lit()` pe personaje adevarate.** A fost verificat pe trei forme rotunde de proba. Boon, Killer si George au forme compuse din multe bucati; abia la T6.4 se vede daca lumina sta bine pe ele.
+- **Daca gradientul liniar e destul de ieftin** cand sunt zeci de obiecte pe ecran. `lit()` face un `createLinearGradient` la fiecare chemare. Masurat abia cand sunt pictori adevarati care il folosesc (T6.4 incolo); daca nu e, gradientele pot fi tinute intr-un sprite.
+- **Daca umbra aruncata (mutata cu `0.35 x inaltime`) e prea lunga** pentru obiectele inalte si subtiri. Pe cele rotunde de proba arata bine.
+- **Daca banda de lumina de margine (5 pixeli, taiata la jumatate)** se vede pe obiectele mici. Pe cele de proba, de 200 - 300 de unitati, da.
+- Cum se vad toate astea pe televizorul familiei, peste jungla de noapte.

@@ -276,3 +276,26 @@ In `control-nou.js` (testul butoanelor, de la T2) a fost nevoie de o linie in pl
 Verificat ca poate sa pice: cu vibratia prietenului scoasa si cu `Game.failLevel()` inlocuit de "se ridica singur", testul scrie `NEREUSIT` la 8 din 9 puncte.
 
 `tests/toate.sh` il ruleaza la fiecare rulare completa.
+
+## Update 21 noiembrie 2026: `lit()` (sarcina T6.1)
+
+Testul permanent al stilului grafic (`tests/stil-grafic.js`) se scrie la T6.10. Pana atunci, `lit()` a fost verificat cu un script de o singura data, `tests/tmp/lit-proba.js` (dosarul `tests/tmp/` nu intra in depozit). Deseneaza trei obiecte de proba pe un canvas al lui, nu pe cel al jocului: bucla jocului ar desena peste.
+
+| Nr | Ce verifica | Rezultat |
+|---|---|---|
+| 1 | Lumina vine din stanga-sus (masurat pe obiectul mat, fara pata de stralucire). | OK |
+| 2 | Pata de stralucire apare pe materialul lucios... | OK |
+| 3 | ...si nu apare pe cel mat (`gloss: 0`). | OK |
+| 4 | Umbra aruncata e in dreapta-jos si e mai inchisa decat fundalul. | OK |
+| 5 | In stanga-jos nu e umbra. | OK |
+| 6 | Cel care sta pe pamant are umbra de contact. | OK |
+| 7 | Cu `shadow: false` nu lasa umbra aruncata... | OK |
+| 8 | ...si nici umbra de contact. | OK |
+| 9 | Niciun pixel gri (R, G, B egale si sub 200). | OK (0) |
+| 10 | Nimic mai inchis decat `#241A3A`. | OK (0) |
+
+### Ce a prins verificarea ca poate sa pice
+
+Prima varianta a scriptului masura lumina **in locul petei de stralucire**. Cu gradientul inversat anume, verificarea tot trecea: masura pata alba, nu gradientul. Acum gradientul se masoara pe obiectul mat, care nu are pata. Tot atunci s-a vazut si ca `shadow: false` lasa umbra de contact desenata; verificarea de atunci masura in alt loc si n-o prindea. Ambele reparate.
+
+**Limita cunoscuta:** regula "niciun pixel gri" din S7.8 cere `R`, `G` si `B` **egale**. Un gri desenat peste un fundal colorat iese cu canalele aproape egale, nu egale, si nu e prins. Verificat: un `rgba(80,80,80,0.9)` peste crem da `(97, 96, 94)` si trece. `tests/stil-grafic.js` (T6.10) ar trebui sa accepte si o mica abatere intre canale.

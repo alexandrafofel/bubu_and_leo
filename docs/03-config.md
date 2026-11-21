@@ -275,3 +275,17 @@ Un erou fara bloc propriu foloseste numele vechi de pe el (`stompRadius`, `kickS
 | `retryScreen` | 2.2 | Cat sta pe ecran cartonasul "Încă o dată!". |
 
 `autoAfter` ramane in `CONFIG`, dar nu se mai foloseste cat timp `limit` e mai mare ca 0.
+
+## Update 21 noiembrie 2026 (T6.1): `CONFIG.look`
+
+Stilul grafic nou (`docs/24-sisteme-noi.md`, S7) are reglajele lui. Fiecare se poate stinge singur, ca un Mac mai vechi sa poata juca.
+
+| Cheie | Acum | Ce face |
+|---|---|---|
+| `look.lights` | `true` | Harta de lumina care se misca (S7.5). `false` lasa vinieta de noapte de acum. Se foloseste de la T6.7. |
+| `look.front` | `true` | Planul din fata, cu lucruri mari si sterse la marginile ecranului (S7.4). Se foloseste de la T6.6. |
+| `look.motes` | `40` | Cate fire de praf plutesc in lumina. `0` = niciunul. De la T6.8. |
+| `look.freeze` | `0.06` | Cate secunde sta jocul la o lovitura mare (S7.6). `0` = nu sta deloc. De la T6.9. |
+| `look.maxLights` | `24` | Cate lumini se deseneaza intr-un cadru. Daca sunt mai multe, raman cele mai apropiate de mijlocul ecranului. De la T6.7. |
+
+La T6.1 valorile sunt doar scrise, nu si citite: `lit()` nu are nevoie de ele. Sarcinile T6.6 - T6.9 le folosesc pe rand.

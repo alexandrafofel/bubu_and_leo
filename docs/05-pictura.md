@@ -133,3 +133,44 @@ De ce: o pictura in acuarela are multe straturi. Desenata de la zero de 60 de or
 ### `card(c, x, y, w, h, col, seed)` si `paintCard(...)`
 
 Panourile din meniuri si HUD. Forma este o "superelipsa" (un dreptunghi cu colturi foarte rotunjite) cu marginea putin tremurata. Patru straturi: umbra violet mutata in jos-dreapta, marginea inchisa, culoarea, o lumina deschisa sus. Fiecare combinatie de marime, culoare si samanta se picteaza o singura data si se pastreaza (`_cards`).
+
+## Update 21 noiembrie 2026 (T6.1): o singura lumina, `lit()`
+
+Nivelurile 7 - 12, eroii si George se picteaza in stilul nou: "diorama cu lumina" (`docs/24-sisteme-noi.md`, S7). Nivelurile 1 - 6 raman in acuarela, cum sunt.
+
+### Cele doua lumini
+
+Toata lumea e luminata la fel: o lumina calda din **stanga-sus** si o lumina rece de umplere din **dreapta-jos**. Sunt doua nume de sus, langa `SHADOW`:
+
+| Nume | Culoarea | De unde vine |
+|---|---|---|
+| `KEY` | `#FFE2B0` | stanga-sus, calda |
+| `FILL` | `#8FA8FF` | dreapta-jos, rece |
+| `SHADOW` | `#6A4270` | umbrele, ca pana acum: violet cald, niciodata gri |
+
+### `lit(c, path, col, o)`
+
+Orice pictor al stilului nou trece prin ea, ca lumina sa cada la fel peste tot. Deseneaza cinci straturi, mereu in ordinea asta:
+
+1. **Umbra aruncata** lipeste obiectul de pamant: o pata violet, alpha 0.28, mutata cu `(+0.35 x inaltime, +0.12 x inaltime)` si turtita la 0.4, desenata cu `multiply`.
+2. **Umbra de contact**, o pata mai mica si mai inchisa (alpha 0.4), exact sub baza, ca obiectul sa nu pluteasca.
+3. **Forma**, cu un gradient liniar: din stanga-sus culoarea deschisa cu 22%, spre dreapta-jos inchisa cu 28% si impinsa spre violet cu 10%. Aici se adauga si materialul, daca are (`o.mat`, de la T6.2).
+4. **Lumina de margine**, pe dinauntru: calda (`KEY`, alpha 0.7) pe marginea de sus-stanga, rece (`FILL`, alpha 0.55) pe cea de jos-dreapta.
+5. **Stralucirea**, doar pe materialele lucioase: o pata alba in treimea de sus-stanga. Cu cat `gloss` e mai mare, cu atat pata e mai mare si mai tare (alpha 0.6 la 0.9).
+
+Ce primeste in `o`:
+
+| Camp | Ce este |
+|---|---|
+| `x`, `y` | Punctul in care obiectul sta pe pamant: mijlocul bazei lui. |
+| `w`, `h` | Cat e de lat si de inalt. Din ele se fac umbra si gradientul. |
+| `gloss` | 0 la 1, cat de lucios e materialul. `0` = fara pata de stralucire. |
+| `mat` | Pictorul materialului `(c, o)`, chemat inauntrul formei, peste gradient. Vine cu T6.2 si T6.3. |
+| `seed` | Pentru tremurul pictat de mana al petelor. |
+| `shadow` | `false` = fara umbre, nici aruncata, nici de contact. Pentru ce nu sta pe pamant: un os aruncat, un nor. |
+
+`path` e o functie `(c)` care construieste conturul, un singur drum inchis. E chemata de cateva ori: o data pentru forma si inca de doua ori pentru lumina de margine.
+
+**Lumina de margine, cum e facuta:** se taie la forma (`clip`) si se traseaza acelasi contur mutat putin. Mutat in jos-dreapta, din el se vede banda de pe marginea de sus-stanga; mutat in sus-stanga, banda de pe cea de jos-dreapta. Asa nu e nevoie de `shadowBlur`.
+
+**Bugetul (S7.7):** `lit()` ruleaza la fiecare cadru, deci nu foloseste `createRadialGradient`, `createPattern` sau `shadowBlur`. Gradientul liniar e singurul permis acolo.
