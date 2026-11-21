@@ -198,7 +198,11 @@ Tot ce e pictat in stilul nou e luminat din **stanga-sus**, cu o lumina calda (`
 
 Functie noua in `02-core.js`: `lit(c, path, col, o)`. `path` e o functie care construieste conturul. `o` are `h` (inaltimea, pentru umbra), `gloss` (0 - 1), `mat` (materialul, mai jos). Toti pictorii noi o folosesc, ca lumina sa fie aceeasi peste tot.
 
-### S7.2 Materiale
+### S7.2 Materiale - **patru din zece facute (`scale`, `fabric`, `rubber`, `bone`: T6.2, 21 noiembrie 2026)**
+
+Cadrul (`MATERIALS`, `matPattern`, `matFill`) si cele patru materiale ale eroilor sunt in joc. Descrierea lor, la timpul prezent: `05-pictura.md`, "Update 21 noiembrie 2026 (T6.2)". Hotararile: `16-decizii.md`. Ce n-a putut fi verificat: `19-limitari.md`. Celelalte sase (`wood`, `metal`, `stone`, `crystal`, `leaf`, `lava`) vin cu T6.3, `water` cu T6.8.
+
+Ce s-a facut altfel decat scrie mai jos: placa de pori are 64 x 64, nu e o placa mica; solzii "mai desi spre spate" sunt un al doilea strat pe jumatatea stanga; cusaturile sunt conturul micsorat in jurul mijlocului, nu o linie la distanta fixa.
 
 Fiecare material e o functie care adauga textura peste forma (stratul 3), taiata la contur (`clip`). Texturile sunt mici canvasuri pictate o data (`sprite('mat-...')`) si repetate cu `createPattern`.
 

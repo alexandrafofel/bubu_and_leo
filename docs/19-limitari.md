@@ -108,3 +108,12 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - **Daca umbra aruncata (mutata cu `0.35 x inaltime`) e prea lunga** pentru obiectele inalte si subtiri. Pe cele rotunde de proba arata bine.
 - **Daca banda de lumina de margine (5 pixeli, taiata la jumatate)** se vede pe obiectele mici. Pe cele de proba, de 200 - 300 de unitati, da.
 - Cum se vad toate astea pe televizorul familiei, peste jungla de noapte.
+
+## T6.2 (21 noiembrie 2026): ce nu s-a putut verifica
+
+- **Cum arata materialele pe eroi adevarati.** S-au vazut pe forme rotunde de 200 de unitati. Un os de Boon are 30 - 60, iar la acea marime porii (0.8 - 1.9 unitati) si cusaturile (1.5) pot iesi sub un pixel.
+- **Cusaturile pe forme alungite.** Sunt conturul micsorat in jurul mijlocului, deci la o forma foarte lunga si subtire (o coada, o curea) nu sunt la 4 unitati de margine peste tot. Pe forme rotunde da.
+- **Daca modelul ramane drept cand eroul se roteste.** Un pictor care roteste (`c.rotate`) roteste si textura. Nu e un defect, dar nu s-a vazut pe un erou.
+- **Cat costa `fillRect` cu model** cand sunt zeci de obiecte pe ecran. Masurat abia cand pictori adevarati folosesc materialele (T6.4 incolo).
+- **Tesatura de la `fabric`** (alpha 0.08, cum cere S7.2) se vede foarte slab: din ea se vad mai ales cusaturile. Daca nu e destul, se creste alpha-ul.
+- Cum se vad toate pe televizorul familiei, peste jungla de noapte.

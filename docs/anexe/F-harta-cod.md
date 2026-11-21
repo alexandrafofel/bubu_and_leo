@@ -44,30 +44,31 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 99-224 | the second game, "Cea mai grea luptă". A key that starts with L: takes the place of the same key without it. |
 | 225-233 | Readable name of a keyboard key, for the "choose the keys" screen. |
 
-## 02-core.js (445 linii)
+## 02-core.js (561 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 2-45 | CORE: math, colors, watercolor painting helpers, paper texture, text |
 | 46-62 | A closed blob with slightly irregular, hand-painted edges. |
 | 63-81 | Watercolor wash: a few translucent layers plus a soft darker rim where pigment pools. |
-| 82-147 | Opaque painted shape for characters: solid fill with a soft colored rim. |
-| 148-170 | A wobbly brush line through points. |
-| 171-203 | Paper: noise-generated grain, soft blotches and a few fibers. Multiplied over the whole screen. |
-| 204-215 | Per-scene overlay = paper + warm light tint + soft violet-brown vignette. |
-| 216-253 | Sky colors drift from afternoon (t=0) to sunset (t=1) to dusk (t=1.3). |
-| 254-278 | The sky of the second game: night, a big moon, stars and northern lights in the seven rainbow colors. |
-| 279-294 | Two rows of pointed mountains with pale snow on top, for George's arena. |
-| 295-313 | Layered distant hills along a horizon line. night = the colors are used as they are (no afternoon haze). |
-| 314-341 | Text. No black outlines: a soft cream halo and a warm shadow instead. |
-| 342-351 | The ✕ button as a painted icon (blue cross on a cream disc). |
-| 352-361 | The □ button as a painted icon (pink square on a cream disc): help the friend. |
-| 362-362 | Text that may contain ✕ or □, drawn with the painted icons. Returns nothing. |
-| 363-372 | ○: help the friend. Same shape as ✕ and □, in the warm coral of the ○ button. |
-| 373-385 | L3: the cap of the left stick with the letter L and a little arrow pressing it down. |
-| 386-409 | The four button signs that can stand inside a text: ✕ □ ○ and ◉ (= L3, pressing the left stick). |
-| 410-411 | A painted card (panel) used by menus and story screens. |
-| 412-445 | Things that never change are painted once and then stamped: much faster per frame. |
+| 82-167 | Opaque painted shape for characters: solid fill with a soft colored rim. |
+| 168-263 | The pattern of a tile of w x h units. sprite() paints at double size, so the pattern is shrunk by half to be w x h again. |
+| 264-286 | A wobbly brush line through points. |
+| 287-319 | Paper: noise-generated grain, soft blotches and a few fibers. Multiplied over the whole screen. |
+| 320-331 | Per-scene overlay = paper + warm light tint + soft violet-brown vignette. |
+| 332-369 | Sky colors drift from afternoon (t=0) to sunset (t=1) to dusk (t=1.3). |
+| 370-394 | The sky of the second game: night, a big moon, stars and northern lights in the seven rainbow colors. |
+| 395-410 | Two rows of pointed mountains with pale snow on top, for George's arena. |
+| 411-429 | Layered distant hills along a horizon line. night = the colors are used as they are (no afternoon haze). |
+| 430-457 | Text. No black outlines: a soft cream halo and a warm shadow instead. |
+| 458-467 | The ✕ button as a painted icon (blue cross on a cream disc). |
+| 468-477 | The □ button as a painted icon (pink square on a cream disc): help the friend. |
+| 478-478 | Text that may contain ✕ or □, drawn with the painted icons. Returns nothing. |
+| 479-488 | ○: help the friend. Same shape as ✕ and □, in the warm coral of the ○ button. |
+| 489-501 | L3: the cap of the left stick with the letter L and a little arrow pressing it down. |
+| 502-525 | The four button signs that can stand inside a text: ✕ □ ○ and ◉ (= L3, pressing the left stick). |
+| 526-527 | A painted card (panel) used by menus and story screens. |
+| 528-561 | Things that never change are painted once and then stamped: much faster per frame. |
 
 ## 03-audio.js (550 linii)
 
