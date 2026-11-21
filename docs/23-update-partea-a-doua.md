@@ -141,6 +141,44 @@ Inainte de orice sarcina si dupa fiecare: `./build.sh`, `node tools/gen-docs.js`
 
 Dupa **T5** jocul are deja toate regulile cerute, pe nivelurile de acum: butoane, fuga, a doua putere, cele 10 secunde, capitole, scrisul reparat. Este cel mai bun moment sa il incerce copiii si sa primim raspunsurile la intrebarile I1 - I9 de mai sus, inainte de nivelurile noi. T1 - T5 sunt un update intreg si folositor chiar fara nimic dupa el.
 
+### Stare, dependente, model si timp (21 noiembrie 2026)
+
+Starea e cea din `main` la 21 noiembrie 2026 (PR-urile #5 - #12 mergeate). **Modelul si timpul sunt estimari, nu reguli si nu masuratori.** Singurul timp masurat este rularea completa a `tests/toate.sh`, cam 25 de minute (`toate.sh tot`: inca 30). Timpul e pe ceasul de perete si include build, teste, capturi, documentatie si PR. Nu include asteptarea proprietarei pentru merge si nici testarea cu copiii.
+
+| Nr | Stare | Depinde de | Model | Timp estimat |
+|---|---|---|---|---|
+| T1 | Facuta | - | - | - |
+| T2 | Facuta | - | - | - |
+| T3 | Facuta | T2 | - | - |
+| T4 | Facuta | T2, T5 | - | - |
+| T5 | Facuta | - | - | - |
+| T6 | De facut | T1 | Opus | 4 - 8 h |
+| T7 | De facut | T6 | Opus | 4 - 7 h |
+| T8 | De facut | T7 | Sonnet | 2 - 4 h |
+| T9 | De facut | T7 (si T8, ca ordine) | Sonnet | 2 - 4 h |
+| T10 | De facut | T9 | Sonnet | 2 - 4 h |
+| T11 | De facut | T10 | Sonnet | 2 - 3 h |
+| T12 | De facut | T11 | Sonnet | 3 - 5 h |
+| T13 | De facut | T12, T1 | Sonnet | 2 - 4 h |
+| T14.1 | De facut | T1, T2 | Sonnet | 45 - 90 min |
+| T14.2 | De facut | T14.1 | Opus | 1 - 2 h |
+| T14.3 | De facut | T2 | Haiku | 30 - 60 min |
+| T14.4 | De facut | T14.2, T14.3 | Sonnet | 1 - 2 h |
+| T14.5 | De facut | T14.2 (ideal si T14.4) | Sonnet | 45 - 90 min |
+| T14.6 | De facut | T14.4, T14.5 | Opus | 1,5 - 3 h |
+| T14.7 | De facut | T14.2 | Sonnet | 1,5 - 2,5 h |
+| T14.8 | De facut | T14.4, T14.7 | Sonnet | 1 - 2 h |
+| T14.9 | De facut | T14.1 - T14.8 | Sonnet | 1,5 - 2,5 h |
+| T14.10 | De facut | T14.9 | Sonnet | 1,5 - 3 h |
+
+Totaluri: T6 - T13 cam 21 - 39 h, T14.1 - T14.10 cam 11 - 21 h, in total cam 32 - 60 h.
+
+Ce spune planul explicit despre dependente: T13 vine dupa T12 si T1; T14 vine dupa T1 si T2 si nu depinde de T13; ordinea T14.1 - T14.10 e in tabelul de mai sus. T7 - T12 sunt marcate "ordinea conteaza"; dependentele exacte dintre ele nu sunt scrise una cate una, deci coloana "Depinde de" le deduce din ordine. T14 poate merge in paralel cu T6 - T13, dar nu doua sarcini pe acelasi fisier in acelasi timp.
+
+De ce acest model: **Opus** pentru ce creeaza cadrul pe care stau altele (T7), cere judecata vizuala si risc de performanta (T6) sau atinge toate caile unei reguli si cazuri care pot bloca nivelul (T14.2, T14.6); la T3 un nume ramas nerenumit a scapat testelor mici si l-a prins abia rularea completa. **Sonnet** pentru ce se aseaza pe un cadru sau un tipar gata facut. **Haiku** doar pentru T14.3 (campuri de input dupa un tipar existent); daca rateaza un nume sau un caz, se adauga o runda de reparat.
+
+---
+
 ## 6. Regulile din `CLAUDE.md` care se schimba
 
 Se rescriu in `CLAUDE.md` in sarcina in care devin adevarate, nu inainte.
