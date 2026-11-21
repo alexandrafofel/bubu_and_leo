@@ -295,3 +295,14 @@ Cererea proprietarei: "scoate jocul Bubu si Leo, lasa doar Cea mai grea lupta. M
 | Cusaturile sunt conturul micsorat in jurul mijlocului, nu o linie la distanta fixa de margine. | Un contur interior real ar cere un algoritm de decupare a drumului. Aceasta aproximare da ~4 unitati la forme rotunde. Eroii au forme rotunde. Limita e scrisa in `19-limitari.md`. |
 | Placa de pori are 64 x 64, nu 36 x 36. | Prima varianta repeta aceleasi grupuri de pori intr-o grila vizibila. Gasit pe captura. |
 | `lit()` da materialului si conturul (`paint(c, o, path)`). | Cusaturile au nevoie de contur. Un material care nu-l foloseste il ignora. |
+
+## Materialele lumii (sarcina T6.3, 21 noiembrie 2026)
+
+| Hotarare | De ce |
+|---|---|
+| Lava pulseaza dupa `o.t`, nu dupa un ceas global. Fara `o.t` sta pe loc. | Niciun ceas global nu exista in cod (pictorii isi iau timpul din `P.time` sau din parametri). Cine deseneaza vulcanul da timpul, ca in testul care il fixeaza. |
+| Crapaturile de lava sunt defazate cu 0.45 rad, nu cu 1.3. | Cu 1.3 se anulau intre ele: vulcanul parea fix si un test pe media culorii nu vedea nicio schimbare. |
+| Crusta de lava e aproape opaca (0.92 - 0.95), nu 1. | Sa se vada gradientul de lumina de dedesubt: o crusta plata ar rupe stilul. |
+| Lava nu lumineaza in jur. | `lit()` taie totul la contur. Strălucirea din spec ar cere un strat desenat in afara formei, de facut la T6.4 odata cu pictorul vulcanului. |
+| Fiecare pata de piatra se deseneaza si la o placa distanta (9 copii). | Cu o singura copie, petele taiate la marginea placii lasau margini drepte vizibile (gasit pe captura). |
+| Muschiul e verde (`122,174,94`), nu un ton al pietrei. | Paleta cere culoare, nu gri; muschiul e singurul lucru viu pe piatra. |
