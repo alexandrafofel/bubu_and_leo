@@ -37,6 +37,11 @@ function mix(h1, h2, t) {
 const shade = (h, t) => t < 0 ? mix(h, '#5A3550', -t) : mix(h, '#FFF6E0', t);
 const SHADOW = '#6A4270';
 const RAINBOW = ['#F0556A', '#F58A3C', '#F6CE46', '#6FC96A', '#46B8D8', '#5A78E0', '#A66AD8'];      // the seven colors of the rainbow crystals (second game)
+/* ---- The one light of the new look (levels 7 - 12, the heroes and George). docs/24-sisteme-noi.md, S7.1 ----
+   Everything painted in the new style is lit from the upper left by a warm key light, and filled from the
+   lower right by a cool light. Two names, used by every new painter, so the light is the same everywhere. */
+const KEY = '#FFE2B0';       // warm light, upper left
+const FILL = '#8FA8FF';      // cool fill light, lower right
 
 /* A closed blob with slightly irregular, hand-painted edges. */
 const _bx = new Float32Array(40), _by = new Float32Array(40);
@@ -83,6 +88,61 @@ function puff(c, x, y, rx, ry, fill, seed, edge, wob) {
 function soft(c, x, y, rx, ry, col, alpha, seed) {
   blobPath(c, x, y, rx, ry, seed || 1, 0.06, 9);
   c.fillStyle = rgba(col, alpha == null ? 1 : alpha); c.fill();
+}
+
+/* ---- One object with volume, in the new look (docs/24-sisteme-noi.md, S7.1) ----
+   Five layers, always in this order: the cast shadow that glues the object to the ground, the dark
+   contact line under it, the shape itself with a gradient, the rim light that lifts it off the
+   background, and a gloss spot on shiny materials. Every painter of the new look goes through here,
+   so the one light (KEY from the upper left, FILL from the lower right) falls the same way on everything.
+
+   c     the context
+   path  a function (c) that builds the contour: one closed path. It is called a few times
+   col   the color of the object
+   o     x, y    where the object stands on the ground: the middle of its base
+         w, h    how wide and how tall it is. The shadow and the gradient are built from these
+         gloss   0 to 1, how shiny the material is. 0 = no gloss spot at all
+         mat     a material painter (c, o), called inside the shape, over the gradient (T6.2, T6.3)
+         seed    for the hand-painted wobble of the gloss spot
+         shadow  false = no cast shadow (things that do not stand on the ground: a thrown bone, a cloud)
+   The rim light is painted by stroking the same path a little moved, inside the clip of the shape:
+   moved down-right it shows along the upper-left edge (KEY), moved up-left along the lower-right one (FILL).
+   No createRadialGradient, no createPattern, no shadowBlur: this runs on every frame (S7.7). */
+function lit(c, path, col, o) {
+  o = o || {};
+  const x = o.x || 0, y = o.y || 0, w = o.w || 60, h = o.h || 60, gloss = o.gloss || 0;
+  if (o.shadow !== false) {                                  // a thing that does not stand on the ground has neither shadow
+    // 1. cast shadow: pushed to the lower right because the light comes from the upper left, and flattened
+    c.save();
+    c.globalCompositeOperation = 'multiply';
+    c.fillStyle = rgba(SHADOW, 0.28);
+    blobPath(c, x + h * 0.35, y + h * 0.12, w * 0.55, w * 0.55 * 0.4, o.seed || 1, 0.05, 9);
+    c.fill();
+    c.restore();
+    // 2. contact shadow: the short dark line right under the base, so the object does not float
+    c.fillStyle = rgba(SHADOW, 0.4);
+    blobPath(c, x, y, w * 0.3, w * 0.3 * 0.26, (o.seed || 1) + 7, 0.05, 9);
+    c.fill();
+  }
+  // 3. the shape, with volume: light from the upper left, darker and a little violet to the lower right
+  c.save();
+  const g = c.createLinearGradient(x - w / 2, y - h, x + w / 2, y);
+  g.addColorStop(0, shade(col, 0.22));
+  g.addColorStop(1, mix(shade(col, -0.28), '#5A3550', 0.1));
+  path(c); c.fillStyle = g; c.fill(); c.clip();
+  if (typeof o.mat === 'function') o.mat(c, o);               // the material lies over the shape, cut to the contour
+  // 4. rim light, inside the shape: warm along the upper-left edge, cool along the lower-right one
+  c.lineWidth = 5;
+  c.save(); c.translate(2.4, 2.4); path(c); c.strokeStyle = rgba(KEY, 0.7); c.stroke(); c.restore();
+  c.save(); c.translate(-2.4, -2.4); path(c); c.strokeStyle = rgba(FILL, 0.55); c.stroke(); c.restore();
+  // 5. gloss: only on shiny materials. The shinier, the bigger and the stronger the spot
+  if (gloss > 0) {
+    const grx = w * (0.06 + 0.12 * gloss);
+    blobPath(c, x - w * 0.22, y - h * 0.72, grx, grx * 0.62, (o.seed || 1) + 13, 0.08, 9);
+    c.fillStyle = 'rgba(255,255,255,' + (0.6 + 0.3 * gloss) + ')';
+    c.fill();
+  }
+  c.restore();
 }
 
 /* A wobbly brush line through points. */

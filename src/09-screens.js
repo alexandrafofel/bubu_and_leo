@@ -575,8 +575,8 @@ function drawMenu(c, t, title, rows, sel, o) {
     }
     fitText(c, r.label, x + 96, yy, 36, cw - 660, col, { align: 'left', halo: 0, shadow: 0, weight: 'bold' });
     if (r.kind === 'slide') {
-      const x0 = x + cw - 500, lit = Math.round(r.v * 10);
-      for (let k = 0; k < 10; k++) { c.fillStyle = k < lit ? '#C4573D' : 'rgba(150,110,100,0.25)'; c.beginPath(); c.ellipse(x0 + k * 40, yy, 14, 20 - (9 - k) * 0.8, 0, 0, TAU); c.fill(); hitAdd(x0 + k * 40 - 20, yy - rh / 2, 40, rh, 'row', i, 'set', (k + 1) / 10); }
+      const x0 = x + cw - 500, onN = Math.round(r.v * 10);      // onN: how many beads are full ("lit" is the painter in 02-core.js)
+      for (let k = 0; k < 10; k++) { c.fillStyle = k < onN ? '#C4573D' : 'rgba(150,110,100,0.25)'; c.beginPath(); c.ellipse(x0 + k * 40, yy, 14, 20 - (9 - k) * 0.8, 0, 0, TAU); c.fill(); hitAdd(x0 + k * 40 - 20, yy - rh / 2, 40, rh, 'row', i, 'set', (k + 1) / 10); }
       hitAdd(x0 - 70, yy - rh / 2, 50, rh, 'row', i, 'set', 0);
     } else {
       const vx = x + cw - 320;
