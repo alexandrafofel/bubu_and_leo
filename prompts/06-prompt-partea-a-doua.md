@@ -2,7 +2,7 @@
 
 > **Un singur joc (18 noiembrie 2026).** "Bubu și Leo" a fost scos. Tot ce e specificat aici se implementeaza **doar in "Cea mai grea luptă"**. Unde scrie "ambele jocuri", "primul joc", variante `L:` sau teste pentru `bubu`, se citeste: un singur joc, textele lui (varianta `L:`), un singur rand de teste. Nu se mai scrie cod pentru primul joc.
 
-Update-ul e impartit in **23 de sarcini** (T14 in zece subsarcini, T14.1 - T14.10). Fiecare se poate termina, testa si trimite separat.
+Update-ul e impartit in **32 de sarcini** (T6 si T14 au cate zece subsarcini: T6.1 - T6.10 si T14.1 - T14.10). Fiecare se poate termina, testa si trimite separat.
 
 Cum folosesti fisierul:
 
@@ -20,7 +20,16 @@ Sarcinile merg in ordine: fiecare se sprijina pe cea dinainte. Dupa sarcina 5 jo
 | [T3](#t3) | A doua putere: oasele lui Boon, manusile lui Killer | 24, S3 |
 | [T4](#t4) | Cele 10 secunde si "Încă o dată!" | 24, S4 |
 | [T5](#t5) | Capitole, meniul de start, salvarea noua | 24, S5 |
-| [T6](#t6) | Grafica noua: lumina, materiale, adancime | 24, S7 |
+| [T6.1](#t6-1) | `lit()`: cele cinci straturi, si `CONFIG.look` | 24, S7.1, S7.7 |
+| [T6.2](#t6-2) | Materialele eroilor: solzi, panza, cauciuc, os | 24, S7.2 |
+| [T6.3](#t6-3) | Materialele lumii: lemn, metal, piatra, cristal, frunza, lava | 24, S7.2 |
+| [T6.4](#t6-4) | Boon, Killer si George repictati | 24, S7.3 |
+| [T6.5](#t6-5) | Miscarea eroilor: coada, clipit, respiratie, turtire | 24, S7.3 |
+| [T6.6](#t6-6) | Planul din fata (nu acopera niciodata un erou) | 24, S7.4 |
+| [T6.7](#t6-7) | Harta de lumina | 24, S7.5, S7.7 |
+| [T6.8](#t6-8) | Stralucire, apa, praf in lumina | 24, S7.5 |
+| [T6.9](#t6-9) | Greutatea miscarii: oprire, apropiere, anticipare | 24, S7.6 |
+| [T6.10](#t6-10) | Teste, buget de timp, capturi, documentatie | 24, S7.7, S7.8 |
 | [T7](#t7) | Mecanismele de colaborare si nivelul 7 | 25, 3 si 4 |
 | [T8](#t8) | Nivelurile 8 si 9 | 25, 4 |
 | [T9](#t9) | Nivelurile 10 si 11 | 25, 4 |
@@ -54,7 +63,7 @@ De citit, in ordinea aceasta, inainte de orice sarcina:
 
 1. `CLAUDE.md`: regulile care nu se schimba si pasii de lucru.
 2. `docs/00-cuprins.md`, apoi `docs/02-arhitectura.md` si `docs/21-cea-mai-grea-lupta.md`.
-3. `docs/23-update-partea-a-doua.md`: cererea, hotararile, intrebarile deschise, principiile luate din "It Takes Two", planul in 23 de sarcini.
+3. `docs/23-update-partea-a-doua.md`: cererea, hotararile, intrebarile deschise, principiile luate din "It Takes Two", planul in 32 de sarcini.
 4. Capitolul de specificatie al sarcinii tale: `docs/24-sisteme-noi.md`, `docs/25-niveluri-7-12.md`, `docs/26-limba-personajelor.md` sau `docs/27-cota-de-oua.md`.
 5. `prompts/05-cerere-16-noiembrie.md`: cererea proprietarei, cuvant cu cuvant. **Daca specificatia si cererea spun lucruri diferite, cererea are dreptate: spune-i, nu alege singur.**
 
@@ -249,40 +258,263 @@ Dupa aceasta sarcina jocul are toate regulile cerute de proprietara. Spune-i ca 
 ---
 
 <a id="t6"></a>
-## T6. Grafica noua: lumina, materiale, adancime
+## T6. Stilul grafic (impartit in 10 subsarcini)
+
+T6 e impartit in zece sarcini. Ordinea: T6.1 intai (toate celelalte o folosesc); apoi T6.2, T6.3, T6.7 si T6.9, care nu depind una de alta; T6.4 dupa T6.2; T6.5 dupa T6.4; T6.6 dupa T6.3; T6.8 dupa T6.7; T6.10 ultima. Fiecare se verifica inainte de urmatoarea.
+
+Inainte de T6.1: T1 e facuta (in `main`). Daca nu e, opreste-te: regulile pentru scrisul de sus se aplica si planului din fata.
+
+<a id="t6-1"></a>
+
+### T6.1 - `lit()` si `CONFIG.look`
 
 ````
 Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
 Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia stilului grafic: docs/24-sisteme-noi.md, S7. Cererea proprietarei: "grafica sa fie asemanatoare (un singur screen cum e acum - sa fie vizibile ambele personaje cum e acum, dar detaliile grafice asemanatoare cu it takes two)". Citeste si docs/23-update-partea-a-doua.md, sectiunea 4, ultimul paragraf: ce se poate si ce nu intr-un joc 2D pictat pe canvas.
+Regula 4 din CLAUDE.md ramane peste tot: fara contururi negre, fara gri, fara negru. Cea mai inchisa culoare permisa e #241A3A.
+Nivelurile 1 - 6 raman pictate in acuarela, cum sunt. Stilul nou e pentru eroi, George si cadrul nivelurilor 7 - 12.
 
-Sarcina T6: stilul grafic nou.
+Sarcina T6.1: o singura functie prin care trec toti pictorii noi, ca lumina sa fie la fel peste tot.
 
-Cererea: "grafica sa fie asemanatoare (un singur screen cum e acum - sa fie vizibile ambele personaje cum e acum, dar detaliile grafice asemanatoare cu it takes two)".
+Ce faci (S7.1, S7.7):
+1. `lit(c, path, col, o)` in `src/02-core.js`. `path` construieste conturul, `o` are `h` (inaltimea, pentru umbra), `gloss` (0 - 1) si `mat` (materialul, gol deocamdata).
+2. Cele cinci straturi, in ordine: umbra aruncata (elipsa `SHADOW`, alpha 0.28, mutata cu `(+0.35 * h, +0.12 * h)`, turtita la 0.4, cu `multiply`); umbra de contact (elipsa mica, alpha 0.4, sub baza); forma cu gradient liniar (stanga-sus culoarea deschisa cu 22%, dreapta-jos inchisa cu 28% si impinsa spre violet cu 10%); lumina de margine (dreapta-jos 2 - 3 px in `FILL = '#8FA8FF'` alpha 0.55, stanga-sus in `KEY = '#FFE2B0'` alpha 0.7); stralucirea (pata alba mica, alpha 0.6 - 0.9, in treimea stanga-sus, doar cand `gloss > 0`).
+3. `KEY` si `FILL` ca nume de sus, langa `SHADOW`.
+4. `CONFIG.look` cu blocul din S7.7 (`lights`, `front`, `motes`, `freeze`, `maxLights`), cu comentarii.
+5. Verifica cu `grep` ca `lit`, `KEY` si `FILL` nu exista deja (regulile din CLAUDE.md, "Capcane cunoscute").
 
-Specificatia: docs/24-sisteme-noi.md, sectiunea S7, toata. Citeste si docs/23-update-partea-a-doua.md, sectiunea 4, ultimul paragraf: ce se poate si ce nu se poate face intr-un joc 2D pictat pe canvas.
+Gata cand: un obiect de proba desenat cu `lit()` (intr-un script scurt, nu in joc) are lumina din stanga-sus si umbra in aceeasi directie, fara pixeli negri sau gri. `./build.sh`, `node tools/gen-docs.js` si `tests/toate.sh` nu au regresii fata de main.
 
-Unde se aplica: eroii si George din "Cea mai grea lupta", si cadrul pentru nivelurile 7 - 12, care vin in sarcinile urmatoare. Nivelurile 1 - 6 raman pictate in acuarela, asa cum sunt.
-
-Ce ai de facut:
-1. Functia lit(c, path, col, o): cele cinci straturi (umbra aruncata, umbra de contact, forma cu gradient, lumina de margine, stralucire), cu o singura lumina din stanga-sus. Toti pictorii noi trec prin ea.
-2. Materialele din tabelul S7.2, ca texturi mici puse in sprite si repetate: lemn, metal, panza, cauciuc, solzi, os, piatra, cristal, frunza, lava, apa.
-3. Boon, Killer si George repictati cu lumina si materiale. Formele si culorile din desenele copiilor NU se schimba. Se adauga ochi cu doua luciri, cusaturi la tricoul lui Killer, coada care intarzie fata de corp, clipit, respiratie, turtire si intindere.
-4. Trei planuri: fundal, mijloc, si un plan din fata cu lucruri mari si usor sterse la marginile ecranului. REGULA care nu se incalca: planul din fata nu acopera niciodata un erou (devine transparent cand se apropie).
-5. Harta de lumina: un canvas mic desenat peste lume, cu cel mult 24 de lumini. Stralucire pe lucrurile care lumineaza, apa cu oglindire si valuri, praf care pluteste in lumina.
-6. Greutate: oprire scurta de 0.06 s la lovituri mari, apropierea camerei, anticipare si urmare la mecanisme.
-7. Bugetul de timp din S7.6: niciun createRadialGradient, createPattern sau shadowBlur in desenul de la fiecare cadru. Reglajele in CONFIG.look, cu care se pot opri lumina si planul din fata.
-
-Gata cand:
-- tests/stil-grafic.js trece: pe fiecare captura, sub 0.1% pixeli negri sau gri (R, G, B egale si sub 200).
-- performanta.js: cel mult 20% peste valoarea masurata inainte, in aceeasi rulare.
-- Ai refacut foaia de personaje (docs/capturi/24-personaje.jpg) si ai pus-o langa cea veche. Un copil trebuie sa isi recunoasca desenul.
-- Ai raspuns "da" la toate cele 8 intrebari din lista de verificare S7.8, pentru fiecare captura.
-- tests/toate.sh trece pentru ambele jocuri.
-
-Nu face in aceasta sarcina: niveluri noi, mecanisme.
+Nu face: nu schimba niciun pictor din joc (vin de la T6.2 incolo). Nu desena materiale.
 ````
 
----
+<a id="t6-2"></a>
+
+### T6.2 - Materialele eroilor
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia stilului grafic: docs/24-sisteme-noi.md, S7. Cererea proprietarei: "grafica sa fie asemanatoare (un singur screen cum e acum - sa fie vizibile ambele personaje cum e acum, dar detaliile grafice asemanatoare cu it takes two)". Citeste si docs/23-update-partea-a-doua.md, sectiunea 4, ultimul paragraf: ce se poate si ce nu intr-un joc 2D pictat pe canvas.
+Regula 4 din CLAUDE.md ramane peste tot: fara contururi negre, fara gri, fara negru. Cea mai inchisa culoare permisa e #241A3A.
+Nivelurile 1 - 6 raman pictate in acuarela, cum sunt. Stilul nou e pentru eroi, George si cadrul nivelurilor 7 - 12.
+
+Sarcina T6.2: primele patru materiale, cele de care au nevoie eroii si George.
+
+Ce faci (S7.2):
+1. Cadrul materialelor: fiecare material e o functie care adauga textura peste stratul 3 al lui `lit()`, taiata la contur cu `clip`. Textura e un canvas mic pictat o data cu `sprite('mat-...')` si repetat cu `createPattern`.
+2. `scale` (Boon, George): semicercuri mici pe randuri decalate, alpha 0.12, mai desi spre spate; gloss 0.3.
+3. `fabric` (tricoul si sortul lui Killer, steaguri, panglici, plasa): linii foarte fine in cruce, alpha 0.08; cusaturi punctate deschise la 4 px de margine; gloss 0.05.
+4. `rubber` (manusile lui Killer, mingea, rotile): neted, cu o banda lata de lumina moale; gloss 0.4.
+5. `bone` (oasele lui Boon, coltii): aproape neted, pori mici si o crapatura; gloss 0.25.
+
+Gata cand: cele patru texturi se vad pe o captura de proba si se deosebesc intre ele. Niciun `createPattern` in desenul de la fiecare cadru (doar in pictorii pusi in `sprite()`).
+
+Nu face: materialele lumii (T6.3). Nu repicta inca eroii (T6.4).
+````
+
+<a id="t6-3"></a>
+
+### T6.3 - Materialele lumii
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia stilului grafic: docs/24-sisteme-noi.md, S7. Cererea proprietarei: "grafica sa fie asemanatoare (un singur screen cum e acum - sa fie vizibile ambele personaje cum e acum, dar detaliile grafice asemanatoare cu it takes two)". Citeste si docs/23-update-partea-a-doua.md, sectiunea 4, ultimul paragraf: ce se poate si ce nu intr-un joc 2D pictat pe canvas.
+Regula 4 din CLAUDE.md ramane peste tot: fara contururi negre, fara gri, fara negru. Cea mai inchisa culoare permisa e #241A3A.
+Nivelurile 1 - 6 raman pictate in acuarela, cum sunt. Stilul nou e pentru eroi, George si cadrul nivelurilor 7 - 12.
+
+Sarcina T6.3: celelalte sase materiale, pentru decor si obiecte.
+
+Ce faci (S7.2), cu acelasi cadru ca la T6.2:
+1. `wood` (poduri, pluta, usi, manivele, scuturi): fibre lungi usor ondulate, mai inchise cu 12%, doua-trei noduri, capete de scandura mai deschise; gloss 0.15.
+2. `metal` (roboti, portile atelierului, tinte, armura lui George): gradient in benzi, nituri mici cu umbra lor, zgarieturi fine deschise; gloss 0.8.
+3. `stone` (bolovani, piedestale, castel): pete mari neregulate in doua tonuri, crapaturi, muschi jos; gloss 0.1.
+4. `crystal` (cristalele, Cristalul-Soare): fatete in trei tonuri ale aceleiasi culori, miezul mai deschis; gloss 1.
+5. `leaf` (frunze uriase, nuferi): nervura centrala si nervuri laterale deschise, margine putin mai inchisa; gloss 0.35.
+6. `lava` (vulcanul): crusta `#5A2A3A` cu crapaturi luminoase care pulseaza (galben spre portocaliu); gloss 0, dar lumineaza.
+`water` nu intra aici: e la T6.8.
+
+Gata cand: cele sase se vad pe o captura de proba. `lava` pulseaza fara sa iasa din paleta. Niciun pixel negru sau gri curat.
+
+Nu face: apa (T6.8), harta de lumina (T6.7).
+````
+
+<a id="t6-4"></a>
+
+### T6.4 - Boon, Killer si George repictati
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia stilului grafic: docs/24-sisteme-noi.md, S7. Cererea proprietarei: "grafica sa fie asemanatoare (un singur screen cum e acum - sa fie vizibile ambele personaje cum e acum, dar detaliile grafice asemanatoare cu it takes two)". Citeste si docs/23-update-partea-a-doua.md, sectiunea 4, ultimul paragraf: ce se poate si ce nu intr-un joc 2D pictat pe canvas.
+Regula 4 din CLAUDE.md ramane peste tot: fara contururi negre, fara gri, fara negru. Cea mai inchisa culoare permisa e #241A3A.
+Nivelurile 1 - 6 raman pictate in acuarela, cum sunt. Stilul nou e pentru eroi, George si cadrul nivelurilor 7 - 12.
+
+Sarcina T6.4: cei trei trec prin `lit()` si prin materialele lor. Formele si culorile din desenele copiilor NU se schimba.
+
+Ce faci (S7.3, prima parte), in `src/055-lupta.js`, cu semnaturile neschimbate (`drawBoon`, `drawKiller`, `drawGeorge`):
+1. Fiecare parte a corpului prin `lit()`, cu materialul ei: `scale` pentru dinozauri, `fabric` pentru hainele lui Killer, `rubber` pentru ghete si manusi, `bone` pentru colti.
+2. Ochii: doua luciri (una mare stanga-sus, una mica dreapta-jos) si o umbra moale sub pleoapa.
+3. Killer: cusaturi vizibile la tricou si numarul 10 "cusut" (margine punctata in jurul cifrelor).
+4. Umbra de pe pamant devine umbra aruncata din S7.1 (acum e o elipsa chiar sub erou).
+5. Ce ramane neatins: corpul rotund turcoaz al lui Boon cu cupola si "muntii", gatul auriu, capul mic albastru; capul rotund al lui Killer, ochii mari, zambetul cu dinti, tricoul albastru cu 10, ghetele rosii; George roz, capul curcubeu, cornul-coroana.
+6. Portretele din HUD se refac singure (sunt sprite-uri din aceiasi pictori): verifica-le pe o captura.
+
+Gata cand: ai refacut foaia de personaje (`docs/capturi/24-personaje.jpg`) si ai pus-o langa cea veche. Un copil trebuie sa isi recunoasca desenul: daca nu esti sigur, intreaba proprietara inainte sa mergi mai departe. Insignele din HUD arata bine.
+
+Nu face: miscarile noi (T6.5). Nu schimba formele sau culorile.
+````
+
+<a id="t6-5"></a>
+
+### T6.5 - Miscarea eroilor
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia stilului grafic: docs/24-sisteme-noi.md, S7. Cererea proprietarei: "grafica sa fie asemanatoare (un singur screen cum e acum - sa fie vizibile ambele personaje cum e acum, dar detaliile grafice asemanatoare cu it takes two)". Citeste si docs/23-update-partea-a-doua.md, sectiunea 4, ultimul paragraf: ce se poate si ce nu intr-un joc 2D pictat pe canvas.
+Regula 4 din CLAUDE.md ramane peste tot: fara contururi negre, fara gri, fara negru. Cea mai inchisa culoare permisa e #241A3A.
+Nivelurile 1 - 6 raman pictate in acuarela, cum sunt. Stilul nou e pentru eroi, George si cadrul nivelurilor 7 - 12.
+
+Sarcina T6.5: eroii capata greutate si viata, fara sa isi schimbe desenul.
+
+Ce faci (S7.3, a doua parte):
+1. Coada lui Boon si a lui George intarzie fata de corp: un arc cu doua articulatii care urmeaza viteza.
+2. Bratele lui Killer se balanseaza la mers.
+3. Clipit la 3 - 6 secunde, la intamplare, pentru fiecare.
+4. Respiratie cand stau pe loc: scara de la 1 la 1.02.
+5. Turtire si intindere (`h.squash`, exista deja) la pornire, oprire, lovitura, aterizare, si in plus la pornirea fugii (L3).
+
+Gata cand: miscarile se vad pe capturi si pe un GIF scurt. Nimic nu tremura cand eroul sta nemiscat mai mult timp. `performanta.js` ramane in bugetul din S7.7.
+
+Nu face: planul din fata (T6.6), lumina (T6.7).
+````
+
+<a id="t6-6"></a>
+
+### T6.6 - Planul din fata
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia stilului grafic: docs/24-sisteme-noi.md, S7. Cererea proprietarei: "grafica sa fie asemanatoare (un singur screen cum e acum - sa fie vizibile ambele personaje cum e acum, dar detaliile grafice asemanatoare cu it takes two)". Citeste si docs/23-update-partea-a-doua.md, sectiunea 4, ultimul paragraf: ce se poate si ce nu intr-un joc 2D pictat pe canvas.
+Regula 4 din CLAUDE.md ramane peste tot: fara contururi negre, fara gri, fara negru. Cea mai inchisa culoare permisa e #241A3A.
+Nivelurile 1 - 6 raman pictate in acuarela, cum sunt. Stilul nou e pentru eroi, George si cadrul nivelurilor 7 - 12.
+
+Sarcina T6.6: lucruri mari si usor sterse la marginile ecranului, care dau adancime. Au o regula care nu se incalca.
+
+Ce faci (S7.4):
+1. Trei planuri: fundal (pictura nivelului, cu departarea mai stearsa si mai albastra: ceata de aer), mijloc (ca acum, sortat dupa y), fata.
+2. Planul din fata: un canvas pe nivel (`L.front`), pictat o data, desenat dupa lume, cu o miscare de 1.15 ori mai mare decat camera. Elementele sunt inchise la culoare si usor sterse (pictate la jumatate de rezolutie si marite): frunze uriase, liane, stalpi, lanturi, stalactite.
+3. Elementele se pun doar in afara unui dreptunghi central de 1500 x 760.
+4. **Regula care nu se incalca:** planul din fata nu acopera niciodata un erou. Fiecare element are un dreptunghi; daca un erou (pe ecran) intra in el, elementul devine transparent (alpha spre 0.15 in 0.2 s).
+5. `CONFIG.look.front: false` il opreste cu totul.
+6. Se elibereaza la schimbarea nivelului, ca pictura de acum.
+
+Gata cand: un test (inceputul lui `tests/stil-grafic.js`) pune eroii in 400 de asezari si arata ca niciunul nu e acoperit de planul din fata. Cel mult 12 `drawImage` pe cadru. `hud-acoperire.js` cu `STRICT=1` ramane la 0%.
+
+Nu face: harta de lumina (T6.7), apa si praful (T6.8).
+````
+
+<a id="t6-7"></a>
+
+### T6.7 - Harta de lumina
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia stilului grafic: docs/24-sisteme-noi.md, S7. Cererea proprietarei: "grafica sa fie asemanatoare (un singur screen cum e acum - sa fie vizibile ambele personaje cum e acum, dar detaliile grafice asemanatoare cu it takes two)". Citeste si docs/23-update-partea-a-doua.md, sectiunea 4, ultimul paragraf: ce se poate si ce nu intr-un joc 2D pictat pe canvas.
+Regula 4 din CLAUDE.md ramane peste tot: fara contururi negre, fara gri, fara negru. Cea mai inchisa culoare permisa e #241A3A.
+Nivelurile 1 - 6 raman pictate in acuarela, cum sunt. Stilul nou e pentru eroi, George si cadrul nivelurilor 7 - 12.
+
+Sarcina T6.7: lumina care se misca odata cu eroii si cu obiectele care lumineaza.
+
+Ce faci (S7.5, harta; S7.7, bugetul):
+1. Un canvas mic, `LM`, de 480 x 270 (un sfert din ecran). La fiecare cadru: se umple cu ambianta nivelului (`def.ambient`), apoi, cu `globalCompositeOperation = 'lighter'`, cate un gradient rotund pentru fiecare lumina: eroii (raza 150, culoarea lor, slab), cristalele de pe jos (50), obiectele aruncate (70), tortele si felinarele, lava, Cristalul-Soare (360), tintele aprinse. Se deseneaza peste lume, marit la tot ecranul, cu `multiply`.
+2. Cel mult `CONFIG.look.maxLights` (24) pe cadru. Daca sunt mai multe, raman cele mai apropiate de mijlocul ecranului.
+3. Gradientele rotunde sunt sprite-uri pictate o data pe culoare, desenate cu `drawImage`. **Niciun `createRadialGradient` in desenul de la fiecare cadru.**
+4. Pe nivelurile noi, harta ia locul vinietei de noapte din `makeOverlay`. Textura de hartie ramane.
+5. `CONFIG.look.lights: false` o opreste si lasa vinieta veche.
+
+Gata cand: 1 umplere + cel mult 24 `drawImage` + 1 `drawImage` marit pe cadru, numarate intr-un test. Cu `lights: false` jocul arata ca inainte. `performanta.js` ramane in bugetul din S7.7.
+
+Nu face: stralucirea, apa si praful (T6.8).
+````
+
+<a id="t6-8"></a>
+
+### T6.8 - Stralucire, apa si praf in lumina
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia stilului grafic: docs/24-sisteme-noi.md, S7. Cererea proprietarei: "grafica sa fie asemanatoare (un singur screen cum e acum - sa fie vizibile ambele personaje cum e acum, dar detaliile grafice asemanatoare cu it takes two)". Citeste si docs/23-update-partea-a-doua.md, sectiunea 4, ultimul paragraf: ce se poate si ce nu intr-un joc 2D pictat pe canvas.
+Regula 4 din CLAUDE.md ramane peste tot: fara contururi negre, fara gri, fara negru. Cea mai inchisa culoare permisa e #241A3A.
+Nivelurile 1 - 6 raman pictate in acuarela, cum sunt. Stilul nou e pentru eroi, George si cadrul nivelurilor 7 - 12.
+
+Sarcina T6.8: restul luminii. Se aseaza peste harta de la T6.7.
+
+Ce faci (S7.5, restul):
+1. Stralucire: lucrurile care lumineaza (cristale, lava, tinte aprinse, ochii robotilor, flacari) primesc deasupra un sprite de halou desenat cu `lighter`, alpha 0.35 - 0.6.
+2. Apa (lac, sant): culoarea de baza; o oglindire stearsa si rasturnata a lucrurilor de pe mal, pictata o data in fundal; doua randuri de valuri subtiri deschise care se misca in sens opus (un pattern desenat de doua ori cu deplasari diferite); sclipiri mici la intamplare. Materialul `water` din tabelul S7.2.
+3. Praf in lumina: `CONFIG.look.motes` (40) puncte foarte mici care plutesc incet prin tot ecranul (in spatiul ecranului, nu al lumii), alpha 0.15 - 0.4, mai vizibile langa lumini. Pe vulcan sunt scantei care urca; in pestera, spori care coboara.
+
+Gata cand: se vad pe capturi. Cu `motes: 0` nu se deseneaza niciunul. Apa se misca fara sa para zgomot. `performanta.js` ramane in buget.
+
+Nu face: greutatea miscarii (T6.9).
+````
+
+<a id="t6-9"></a>
+
+### T6.9 - Greutatea miscarii
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia stilului grafic: docs/24-sisteme-noi.md, S7. Cererea proprietarei: "grafica sa fie asemanatoare (un singur screen cum e acum - sa fie vizibile ambele personaje cum e acum, dar detaliile grafice asemanatoare cu it takes two)". Citeste si docs/23-update-partea-a-doua.md, sectiunea 4, ultimul paragraf: ce se poate si ce nu intr-un joc 2D pictat pe canvas.
+Regula 4 din CLAUDE.md ramane peste tot: fara contururi negre, fara gri, fara negru. Cea mai inchisa culoare permisa e #241A3A.
+Nivelurile 1 - 6 raman pictate in acuarela, cum sunt. Stilul nou e pentru eroi, George si cadrul nivelurilor 7 - 12.
+
+Sarcina T6.9: loviturile mari se simt. Se poate face oricand dupa T6.1.
+
+Ce faci (S7.6):
+1. Oprire scurta: la o lovitura mare (paznicul lovit, o poarta care se deschide, bolovanul care cade in lava) jocul sta `CONFIG.look.freeze` (0.06 s): `updatePlay` nu ruleaza, desenul da. Camp nou `P.freeze`.
+2. Apropiere: la aceleasi momente, camera se apropie cu 4% in 0.15 s si revine in 0.4 s.
+3. Zguduirea (`P.shake`) ramane neschimbata.
+4. Anticipare: inaintea oricarui atac al lui George si a oricarei miscari de mecanism, obiectul se trage inapoi 0.15 s, apoi porneste. Mecanismele scot un "clic" si o scanteie inainte sa se miste.
+5. Urmare: `easeBack` (langa `easeOut` in `src/02-core.js`), depasire 8% si revenire. O folosesc podurile, portile, pluta.
+
+Gata cand: cu `CONFIG.look.freeze: 0` nu se opreste nimic. Oprirea nu opreste desenul. `tests/toate.sh` trece: niciun test nu cade din cauza cadrelor in care `updatePlay` nu ruleaza.
+
+Nu face: mecanisme noi (T7). Aici doar cadrul pentru ele.
+````
+
+<a id="t6-10"></a>
+
+### T6.10 - Teste, buget de timp, capturi, documentatie
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia stilului grafic: docs/24-sisteme-noi.md, S7. Cererea proprietarei: "grafica sa fie asemanatoare (un singur screen cum e acum - sa fie vizibile ambele personaje cum e acum, dar detaliile grafice asemanatoare cu it takes two)". Citeste si docs/23-update-partea-a-doua.md, sectiunea 4, ultimul paragraf: ce se poate si ce nu intr-un joc 2D pictat pe canvas.
+Regula 4 din CLAUDE.md ramane peste tot: fara contururi negre, fara gri, fara negru. Cea mai inchisa culoare permisa e #241A3A.
+Nivelurile 1 - 6 raman pictate in acuarela, cum sunt. Stilul nou e pentru eroi, George si cadrul nivelurilor 7 - 12.
+
+Sarcina T6.10: stilul nou e masurat, verificat cu ochiul si scris in documentatie.
+
+Ce faci (S7.7, S7.8):
+1. `tests/stil-grafic.js` intreg: pe fiecare captura, sub 0.1% pixeli negri sau gri (niciun pixel cu R, G, B egale si sub 200); planul din fata nu acopera eroii (de la T6.6); numarul de `drawImage` pentru harta de lumina si planul din fata. Fiecare verificare trebuie sa poata sa pice: strica regula, vezi `NEREUSIT`, pune la loc. Adauga-l in `tests/toate.sh`.
+2. Bugetul din S7.7: `performanta.js` cel mult 20% peste nivelul 6 de acum, masurat in aceeasi rulare. Verifica prin `grep` ca `createRadialGradient`, `createPattern` si `shadowBlur` nu apar in desenul de la fiecare cadru.
+3. Capturi (ro si en) cu eroii, George si un nivel; lista de verificare S7.8, cele 8 intrebari, cu raspuns "da" la fiecare, scrise in raport.
+4. Documentatia: `05-pictura.md` (lumina si materialele), `08-personaje.md` si `21-cea-mai-grea-lupta.md` (eroii repictati), `12-desen-si-hud.md` (planurile, harta de lumina), `03-config.md` (`CONFIG.look`), `16-decizii.md` (de ce asa), `17-testare.md`, `19-limitari.md`, `00-cuprins.md`, `README.md`, `CLAUDE.md` (tabelul "Unde gasesti lucrurile" si capcanele noi). In `24-sisteme-noi.md`, S7 devine istoric, cu o nota in cap ca a fost implementat.
+5. `./build.sh` si `node tools/gen-docs.js`.
+
+Gata cand: `tests/toate.sh` trece intreg, cu `errors 0` si fara `NEREUSIT`. Toate cele 8 intrebari din S7.8 au raspuns "da". Raportul catre proprietara spune si ce nu s-a putut verifica (cum arata pe televizorul familiei, daca copiii isi recunosc desenele).
+
+Nu face: niveluri noi si mecanisme (T7 - T12).
+````
 
 <a id="t7"></a>
 ## T7. Mecanismele de colaborare si nivelul 7
@@ -540,6 +772,8 @@ T14 e impartit in zece sarcini, cu acelasi format ca restul. Ordinea: T14.1 -> T
 
 Inainte de T14.1: T1 si T2 sunt facute (in `main`). Daca T1 nu e facuta, opreste-te.
 
+<a id="t14-1"></a>
+
 ### T14.1 - Cota (partea 1): cifrele si semintele
 
 ````
@@ -559,6 +793,8 @@ Gata cand: pentru nivelurile 1 - 12, `2q <= L.totalEggs <= 2 * cap` in 10 semint
 
 Nu face: nu schimba jocul pentru erou (luarea ouului e in T14.2). Nu schimba medaliile.
 ````
+
+<a id="t14-2"></a>
 
 ### T14.2 - Luarea ouului cu cota
 
@@ -581,6 +817,8 @@ Gata cand: un erou plin nu mai ia oua `goal` si balonul apare; prietenul le ia. 
 Nu face: nu schimba L1 (T14.3) si nu da oua cu L1 (T14.4). Nu schimba fasonul insignei.
 ````
 
+<a id="t14-3"></a>
+
 ### T14.3 - Butonul L1 si pagina de taste
 
 ````
@@ -600,6 +838,8 @@ Gata cand: in Setari apare randul L1, poate fi schimbat, iar `Input.slots[k].gP`
 
 Nu face: nu scrie `giveEgg` (T14.4).
 ````
+
+<a id="t14-4"></a>
 
 ### T14.4 - Dat cu L1: ouale in zbor si sageata
 
@@ -622,6 +862,8 @@ Gata cand: `tests/cota.js` verificarile 4 si 5 trec (cu L1 simulat si cu tasta).
 Nu face: nu schimba bannerele (T14.8). Nu termina nivelul (T14.5).
 ````
 
+<a id="t14-5"></a>
+
 ### T14.5 - Sfarsitul nivelului cu cota
 
 ````
@@ -641,6 +883,8 @@ Gata cand: exemplul din cerere (cota 10, un erou 15, celalalt 7, ambii in cuib) 
 
 Nu face: nu schimba insigna (T14.7).
 ````
+
+<a id="t14-6"></a>
 
 ### T14.6 - Ajutor automat si cazuri speciale
 
@@ -662,6 +906,8 @@ Gata cand: `tests/cota.js` verificarile 9, 11 si 13 trec. Cu `autoGive` 0 nu se 
 
 Nu face: nu schimba mesajele din cardul din mijloc (T14.8).
 ````
+
+<a id="t14-7"></a>
 
 ### T14.7 - Insigna verde / rosie si sfarsitul de nivel
 
@@ -685,6 +931,8 @@ Gata cand: `tests/cota.js` verificarile 7 si 14 trec; `hud-acoperire.js` cu `STR
 Nu face: nu schimba bannerele si textele (T14.8).
 ````
 
+<a id="t14-8"></a>
+
 ### T14.8 - Mesajele "Ai găsit toate", "mai are nevoie" si ghidul
 
 ````
@@ -706,6 +954,8 @@ Gata cand: verificarea 8 din `cota.js` trece in ambele limbi. Mesajul apare o si
 Nu face: nu schimba ce numara jocul (T14.5).
 ````
 
+<a id="t14-9"></a>
+
 ### T14.9 - tests/cota.js: cele 16 verificari
 
 ````
@@ -724,6 +974,8 @@ Gata cand: toate cele 16 trec si fiecare pica atunci cand regula e stricata. Des
 
 Nu face: nu scrie boti noi (T14.10).
 ````
+
+<a id="t14-10"></a>
 
 ### T14.10 - Boti, teste complete, documentatie
 
