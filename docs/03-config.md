@@ -322,3 +322,26 @@ Stilul grafic nou (`docs/24-sisteme-noi.md`, S7) are reglajele lui. Fiecare se p
 | `look.squashRun` | `-0.16` | Intindere cand porneste fuga (L3). |
 
 La T6.1 valorile sunt doar scrise, nu si citite: `lit()` nu are nevoie de ele. Sarcinile T6.6 - T6.9 le folosesc pe rand.
+
+## Update 22 noiembrie 2026: T15, George si diamantele din inamici
+
+`CONFIG.quota`:
+
+- `perLevel`: 15 pe toate nivelurile (era 10, 15, 20 ...). Dificultatea vine din inamici, nu din cota.
+- `cap` s-a scos: nu mai exista o limita de sus. `extra` ramane doar pentru regula veche, fara cota.
+
+`CONFIG.lupta` (toate sunt puncte de pornire, de reglat la joaca):
+
+| Cheie | Valoare | Ce face |
+|---|---|---|
+| `fieldEnemies` | `[12, 14, 15, 15, 17, 18]` | Inamici mici pe nivel: roboti, melcii copacilor, conurile. Robotii completeaza ce lipseste. |
+| `treeSnails` | 2 | Melci care ies dintr-un copac care straluceste, cand e scuturat. |
+| `enemyDrop` | 1 | Diamante lasate de un inamic mic invins. |
+| `miniGeorge` | `{ hp: 3, perLevel: [1, 1, 1, 2, 2, 2], speed: 110, near: 640, drop: 1 }` | Micul George: inimi, cati pe nivel, viteza, de la ce distanta urmareste, diamante lasate. |
+| `george.minT` | 20 | Lupta din mijloc nu porneste in primele 20 de secunde. |
+| `george.midThrows` | `[2, 3, 3, 4, 4, 5]` | Oase si mingi in lupta din mijloc, pe nivel. |
+| `george.nestEnemies` | `[2, 4, 5, 6, 8, 10]` | Inamici aruncati in lupta de la cuib, in total. |
+| `george.enemyHp` | `[2, 2, 3, 3, 3, 3]` | Inimile unui inamic aruncat. |
+| `george.chaseSpeed` | 120 | Viteza inamicilor de la ultima inima (un erou merge cu cam 150). |
+| `george.boneEvery` | 2 | Oase si mingi la fiecare inima pierduta peste jumatate. |
+| `george.flight` | 0.9 | Secunde cat zboara un lucru aruncat. |

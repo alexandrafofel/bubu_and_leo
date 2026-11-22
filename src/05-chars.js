@@ -332,6 +332,10 @@ function drawHero(c, k, x, y, o) {
   else if (k === 0) drawBubu(c, x, y, o); else drawLeo(c, x, y, o);
 }
 /* The small enemy that sleeps and wakes up: a beetle, or one of George's robots. */
-function drawSleeper(c, b, t) { if (isLupta()) drawRobot(c, b, t); else drawBeetle(c, b, t); }
+function drawSleeper(c, b, t) {
+  if (b.look === 'snail') return drawSnail(c, b.x, b.y, t, b);          // T15: a snail that came out of a glowing tree
+  if (b.look === 'mini') return drawMiniGeorge(c, b, t);                // T15: Little George
+  if (isLupta()) drawRobot(c, b, t); else drawBeetle(c, b, t);
+}
 /* The small enemy that comes down a lane: a rolling pinecone, or a sticky snail. */
 function drawRoller(c, o, x, y, t) { if (isLupta()) drawSnail(c, x, y, t, o); else drawCone(c, x, y, o.rot, o.r, 0); }

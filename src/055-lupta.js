@@ -406,6 +406,22 @@ function drawRobot(c, b, t) {
   } else if (b.state === 'wake') text(c, '!', b.x, b.y - 96, 52, '#FF9A4A', { weight: 'bold' });
 }
 
+/* Little George (T15): George, small, in other colors (green and blue instead of pink and brown). He follows the nearest hero and never hits.
+   Painted once per walk frame into a sprite (the colors come from a hue filter, applied only then), so a frame costs one drawImage. */
+function drawMiniGeorge(c, b, t) {
+  const f = b.face || 1, moving = b.state === 'chase' || b.state === 'return', fr = moving ? ((t * 10 + (b.seed || 0)) | 0) % 8 : 0;
+  c.fillStyle = rgba(SHADOW, 0.24); c.beginPath(); c.ellipse(b.x, b.y + 2, 30, 10, 0, 0, TAU); c.fill();
+  const im = sprite('miniGeorge' + fr, 150, 170, cc => {
+    cc.filter = 'hue-rotate(140deg) saturate(1.15)';
+    drawGeorge(cc, 75, 150, { scale: 0.42, t: fr * 0.4, face: 1, mood: 'calm', moving: fr > 0, walk: fr / 8 * TAU });
+    cc.filter = 'none';
+  });
+  c.save(); c.translate(b.x, b.y); c.scale(f, 1);
+  if (b.state === 'knock') c.rotate(t * 9);
+  c.drawImage(im, -75, -150, 150, 170);
+  c.restore();
+}
+
 /* A sticky snail that crawls down its lane and leaves a shiny trail. o.state 'stun' = it hides in its shell. */
 function drawSnail(c, x, y, t, o) {
   const st = o && o.state === 'stun', r = (o && o.r) || 26, k = r / 26, cr = Math.sin(t * 5 + ((o && o.seed) || 0)) * 2;

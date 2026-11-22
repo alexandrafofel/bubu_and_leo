@@ -454,3 +454,18 @@ Hotararea de proces: `balanseaza()` sta in `tests/common.js` si cheama `giveEgg`
 | Inamicii aruncati care urmaresc ambii eroi la o inima | Cererea: "se tin dupa Killer si Boon". Ultimul atac cere colaborare. |
 | Mini-George: 3 inimioare, urmareste, nu loveste | Cererea (raspunsul 7). Copiii nu sunt atacati; e o tinta, nu un pericol. |
 | Inamici mici reapar (`respawn`), in loc de diamante reincarcate | Fara ei nivelul nu s-ar putea termina cu 30 de diamante doar din omoruri. |
+
+### T15 implementat (22 noiembrie 2026)
+
+| Decizie | De ce |
+|---|---|
+| Totalul echipei e o functie (`teamFound`) care numara si diamantele in zbor | Un diamant dat cu L1 sta in aer 0.45 s; fara el totalul ar cobori o clipa si George ar putea veni de doua ori la acelasi prag. |
+| `fieldEnemies` numara toti inamicii mici, iar robotii completeaza | Un singur numar de reglat pe nivel, oricati copaci si benzi ar avea nivelul. |
+| Orice inamic mic lasa un diamant, prin `hurtSmall` | Un singur loc pentru regula; si conurile, pasarile si inamicii aruncati dau diamante. |
+| Melcii din copaci sunt intrari in `L.beetles` cu `look: 'snail'` | Refolosesc trezirea, urmarirea, ameteala si reaparitia robotilor; difera doar desenul si viteza. |
+| Micul George e tot o intrare in `L.beetles` (`look: 'mini'`) cu miscarea lui | Loveste si moare ca un inamic mic, dar nu loveste pe nimeni. |
+| Micul George are culorile dintr-un filtru, pictat o data in 8 imagini | Fara un al doilea pictor de George; pe cadru costa o singura imagine. |
+| Lucrurile aruncate de George folosesc lista `d.proj`, iar inamicii au `onLand` | Acelasi cerc rosu de avertizare, acelasi drum, aceeasi regula de ferire (`duelSpares`). |
+| In lupta din mijloc George aterizeaza langa eroi | Lupta vine din diamante, nu dintr-un loc de pe harta: copiii pot fi oriunde. |
+| Ce culege eroul care nu joaca se numara la cel care joaca | Altfel, cu un singur copil, nivelul nu se mai putea termina (gasit de botul care merge singur). |
+| Botii vaneaza inamici | Diamantele vin doar de la ei; un bot care cauta diamante pe jos nu mai termina niciun nivel. |

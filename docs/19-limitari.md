@@ -205,3 +205,13 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - `nivele-bot-mers.js` joaca singur, deci drumul in care doi copii isi impart diamantele pe un nivel intreg nu e mers cu adevarat de nimeni; `joc-complet-bot.js` il face, dar mutand eroii direct.
 - Numarul de diamante pe nivel urmeaza valurile (21 pe nivelul 1, nu 22): intrebare deschisa pentru proprietara, vezi `28-t15-george-de-doua-ori.md`, G3.
 - Nimic din cota nu a fost incercat pe un Mac, cu controllere, cu copii. Lucrurile pe care nu le poate spune niciun test sunt in `27-cota-de-oua.md`, C11: daca cel de 6 ani intelege ca a primit un diamant, daca cel de 8 ani da din proprie initiativa, si daca cele doua minute pana la ajutorul automat sunt prea multe.
+
+## T15 (22 noiembrie 2026)
+
+- Toate cifrele din T15 (`fieldEnemies`, `midThrows`, `nestEnemies`, `enemyHp`, `chaseSpeed`, `minT`) sunt puncte de pornire. Nu au fost incercate cu copii.
+- Botii au nevoie de 40 - 90 de secunde pe nivel ca sa invinga 30 de inamici; doi copii vor avea nevoie de mai mult. Nu stim daca 30 de inamici pe nivel se simt ca un joc sau ca o corvoada.
+- In lupta de la cuib, George sta langa cuib si arunca inamicii langa eroi, oriunde ar fi ei. Daca eroii sunt departe, lucrurile zboara peste toata harta.
+- Melcii din copaci folosesc desenul melcilor de pe benzi, care merg mereu in jos; un melc care urmareste un erou spre stanga sau dreapta tot "in jos" pare ca merge.
+- Micul George e mic (0.42 din George). Pe un televizor mare poate fi greu de vazut; marimea se schimba in `drawMiniGeorge`.
+- Pe primele 20 de secunde (`minT`), daca echipa are deja jumatate, bara de sus arata `× 0` pana vine George.
+- Nimic nu a fost incercat pe un Mac, cu controllere, cu copii.

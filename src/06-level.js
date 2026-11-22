@@ -119,14 +119,14 @@ function spline(pts, stepLen) {          // Catmull-Rom through points, resample
 }
 
 /* The quota of level idx (0-based), or 0 when the quota is off or the numbers do not fit (then the old rule is used: 60 eggs, no quota).
-   The numbers fit when the map has between 2q and 2 x cap eggs to give: fewer and the level cannot be finished, more and both heroes could be full. */
+   The numbers fit when the map has at least 2q diamonds to give: fewer and the level cannot be finished. There is no upper limit (T15). */
 let _quotaBad = false;
 function quotaOf(idx) {
   const Qc = CONFIG.quota;
   if (!Qc || !Qc.on) return 0;
   const q = Qc.perLevel && Qc.perLevel[idx];
-  if (!(q > 0) || !(Qc.extra >= 2 && Qc.extra <= 2 * Qc.cap)) {
-    if (!_quotaBad) { _quotaBad = true; console.error('CONFIG.quota: extra must be between 2 and 2 * cap, and perLevel needs a value for every level'); }
+  if (!(q > 0) || !(Qc.extra >= 2)) {
+    if (!_quotaBad) { _quotaBad = true; console.error('CONFIG.quota: extra must be at least 2, and perLevel needs a value for every level'); }
     return 0;
   }
   return q;
@@ -397,6 +397,31 @@ function genLevel(idx, seed) {
       t.spark = { wave: k, n: cnt, targets: cells.slice(0, cnt), done: false }; t.dyn = true; n--;
     }
   }
+  // ---- T15: enough small enemies to give the diamonds (they are the only place diamonds come from) -------
+  // fieldEnemies counts robots, the snails of the glowing trees and the pinecones; robots fill up what is missing.
+  // Little George (miniGeorge) comes on top: he follows the nearest hero and never hits.
+  const Q15 = quotaOf(idx), LC = CONFIG.lupta;
+  if (Q15 && LC) {
+    const want = (LC.fieldEnemies || [])[idx] || 0, snails = L.trees.filter(t => t.spark).length * (LC.treeSnails || 0);
+    const place = (gap) => {
+      for (let t = 0; t < 600; t++) {
+        const k = t % NW, [x0, x1] = region(k), x = lerp(x0 + 60, x1 - 60, r()), y = lerp(top + 80, WH - 80, r()), i = ci(x, y);
+        if (!reach[i] || (F[i] & 22) || G[i] !== 0) continue;
+        if (dist(x, y, L.spawn.x, L.spawn.y) < 380 || dist(x, y, L.nest.x, L.nest.y) < 280 || !pathFar(x, y, 105)) continue;
+        if (L.beetles.some(b => dist(b.x, b.y, x, y) < gap)) continue;
+        return { x, y };
+      }
+      return null;
+    };
+    for (let guard = 0; L.beetles.length + snails + L.cones.length < want && guard < 60; guard++) {
+      const p = place(170) || place(110); if (!p) break; addBeetle(p.x, p.y);
+    }
+    const M = LC.miniGeorge, mn = M ? (M.perLevel || [])[idx] || 0 : 0;
+    for (let j = 0; j < mn; j++) {
+      const p = place(200) || place(120); if (!p) break;
+      addBeetle(p.x, p.y); Object.assign(L.beetles[L.beetles.length - 1], { look: 'mini', r: 30, hp: M.hp, maxHp: M.hp, drop: M.drop });
+    }
+  }
   for (const s of L.stars) if (s.kind === 'treetop') {
     const [x0, x1] = region(s.region);
     const cand = shuffle(L.trees.filter(t => t.x >= x0 && t.x < x1 && !t.spark && !t.starTree));
@@ -413,7 +438,8 @@ function genLevel(idx, seed) {
   // ---- golden eggs, in waves from left to right ------------------------------
   const Q = quotaOf(idx), total = Math.max(NW, Q ? Math.ceil(CONFIG.quota.extra * Q) : Math.round(CONFIG.levelDuration / 60 * CONFIG.eggsPerMinute)), quota = Math.round(total / NW);
   L.q = Q; L.totalEggs = 0;
-  for (let k = 0; k < NW; k++) {
+  if (Q) { for (let k = 0; k < NW; k++) L.waves.push([]); L.totalEggs = 2 * Q; }      // T15: no diamonds lie in the waves; they come from defeated enemies. The waves only light the trees
+  else for (let k = 0; k < NW; k++) {
     const [x0, x1] = region(k), pts = [];
     const sparkN = L.trees.reduce((a, t) => a + (t.spark && t.spark.wave === k ? t.spark.n : 0), 0);
     const ground = Math.max(2, quota - sparkN), trailN = Math.round(ground * 0.4);
@@ -431,7 +457,7 @@ function genLevel(idx, seed) {
     if (pts.length < Math.min(4, ground)) return null;
     L.waves.push(pts); L.totalEggs += pts.length + sparkN;
   }
-  if (Q && (L.totalEggs < 2 * Q || L.totalEggs > 2 * Math.ceil(CONFIG.quota.cap * Q))) return null;      // buildLevel tries the next seed: both heroes must be able to finish, and nobody may block the other
+  if (Q && L.totalEggs < 2 * Q) return null;      // buildLevel tries the next seed: both heroes must be able to finish
 
   // ---- lanterns along the path (sunset level) --------------------------------
   if (def.lanterns) {

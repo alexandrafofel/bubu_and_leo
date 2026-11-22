@@ -30,8 +30,10 @@ const { chromium } = require('./pw.js');
       else if (P.duel && !P.duel.over) { const d = P.duel; bot.duelT = (bot.duelT || 0) + dt; tx = d.x; ty = d.y; if (Math.hypot(d.x - h.x, d.y - h.y) < 260 && d.z < 60) { stomp = true; tx = null; } }
       else {
         let bd = 1e9;
-        for (const e of P.eggs) if (e.req && e.delay <= 0 && e.state === 'idle') { const d = Math.hypot(e.x - h.x, e.y - h.y); if (d < bd) { bd = d; tx = e.x; ty = e.y; } }
+        for (const e of P.eggs) if ((e.req || e.goal) && e.delay <= 0 && e.state === 'idle') { const d = Math.hypot(e.x - h.x, e.y - h.y); if (d < bd) { bd = d; tx = e.x; ty = e.y; } }
         if (tx == null) { const tr = L.dynTrees.find(t => t.spark && t.spark.active && !t.spark.done); if (tr) { tx = tr.spark.targets[0].x; ty = tr.spark.targets[0].y; if (Math.hypot(tr.cx - h.x, tr.cy - h.y) < 250 + tr.cr) stomp = true; } }
+        // T15: diamonds come only from defeated small enemies: walk to the nearest one and spin when close
+        if (tx == null && P.q) { let bb = null, bd3 = 1e9; for (const b of L.beetles) if (b.state !== 'dead') { const d3 = Math.hypot(b.x - h.x, b.y - h.y); if (d3 < bd3) { bd3 = d3; bb = b; } } if (bb) { tx = bb.x; ty = bb.y; if (bd3 < 190) stomp = true; } }
       }
       if (stomp && h.cd <= 0) S[0].aP = true;
       if (tx == null) return;

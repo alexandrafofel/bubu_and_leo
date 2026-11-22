@@ -177,3 +177,16 @@ Cu valorile de acum, dupa 10 eroi loviti: paznicul are 64% din viteza, avertizea
 **3. Inimile lui George** in al doilea joc vin din `CONFIG.lupta.duelHp` (lupta din mijloc) si `duelFinalHp` (lupta de la cuib), nu din `duel.hp`. Vezi `21-cea-mai-grea-lupta.md`.
 
 Rezultat (`mini-lupte-bot.js`, 72 de lupte pe joc): toate castigate in ambele jocuri. Primul joc: 9 pana la 124 s, jumatate din ele sub 31 s. Al doilea: 11 pana la 114 s, jumatate sub 30 s. Cele mai lungi sunt luptele de la cuib de pe nivelul 6.
+
+## Update 22 noiembrie 2026: ce arunca George (T15)
+
+Pe langa tiparele lui (`DUEL_DEFS_L`), care raman, George arunca:
+
+- **In lupta din mijloc** (`updateGeorgeMid`): `midThrows[nivel]` oase si mingi, cate doua la 4 secunde. Aterizeaza intr-un cerc rosu si lovesc ca un con (`hitHero`), prin aceeasi lista `d.proj`. Niciun inamic.
+- **In lupta de la cuib** (`georgeNestThrows`, chemata dupa fiecare inima pierduta):
+  - peste jumatate din inimi: `boneEvery` (2) oase si mingi;
+  - prima data la jumatate sau mai putin: prima parte din `nestEnemies` (`N <= 2 ? N : floor(N / 2)`), bannerul "Ai grijă!";
+  - la ultima inima: restul, care urmaresc eroii fara sa renunte (`follow`, viteza `chaseSpeed`), bannerul "Ultima inimă! Vin după voi!".
+- Inamicii aruncati (`georgeEnemies`) zboara `flight` secunde, aterizeaza (`onLand` in `stepProj`, fara sa loveasca la aterizare), au `enemyHp[nivel]` inimi, lasa cate un diamant, nu reapar si dispar cand George e invins (`georgeClearThrown`).
+- George nu e blindat: poate fi lovit cat timp inamicii aruncati traiesc.
+- In lupta din mijloc, George aterizeaza langa eroi (la 420 de unitati in dreapta lor), nu la mijlocul hartii.
