@@ -191,6 +191,11 @@ const CONFIG = {
     freeze: 0.06,          // seconds the game holds its breath at a big hit (S7.6). 0 = off
     maxLights: 24,         // lights drawn in one frame. The ones nearest the middle of the screen win
     lightGlow: 0.6,        // how strong the lights of the light map are over the ambient (the darker the ambient, the stronger)
+    halo: 0.5,             // glow over the things that give light (torches, crystals, lava): alpha 0.35 - 0.6 around this value (S7.5). 0 = none
+    haloMax: 12,           // at most this many halos in one frame
+    waves: true,           // the water of the new levels: two rows of waves, a reflection and sparkles. false = the old shimmer
+    waveSpeedA: 14,        // units per second: the first row of waves goes right at this speed, the second goes left (waveSpeedB)
+    waveSpeedB: 9,
     preview: false,        // true = the new frame (light map, front plane, haze) also on levels 1 - 6, to see it before 7 - 12 exist
     frontFade: 0.2,        // seconds a thing of the front plane takes to fade when a hero comes near it
     frontMin: 0.15,        // how much of it stays when it fades
@@ -928,6 +933,41 @@ MATERIALS.lava = {
       c.strokeStyle = rgba(col, 0.3); c.lineWidth = 7; c.stroke();         // the soft glow around it
       c.strokeStyle = rgba(col, 0.95); c.lineWidth = 2.4; c.stroke();     // the crack itself
     }
+  }
+};
+
+// water (T6.8): a deep blue base, then two rows of thin pale waves that go in opposite directions. o.t is the time in seconds.
+// The wave tile is one picture, painted once: the two rows are the same pattern, drawn twice with different shifts.
+const WAVE_W = 160, WAVE_H = 48, WAVE_COL = '#E6F6F8', WATER_DEEP = '#2E5FA8', WATER_SHALLOW = '#5FA8D8';
+function paintWaveTile(c) {              // two thin wavy lines; each makes whole turns across the tile, so it repeats without a seam
+  c.lineCap = 'round';
+  for (const [y0, k, ph, a] of [[13, 2, 0.4, 3.2], [37, 3, 2.1, 2.4]]) {
+    for (let x = 0; x < WAVE_W; x += 5) {
+      const u = x / WAVE_W, yy = y0 + Math.sin(u * TAU * k + ph) * a, y2 = y0 + Math.sin((u + 5 / WAVE_W) * TAU * k + ph) * a;
+      c.strokeStyle = rgba(WAVE_COL, 0.45 + 0.55 * (0.5 + 0.5 * Math.sin(u * TAU * 2 + ph * 2)));       // the line fades in and out along its length
+      c.lineWidth = 1.8; c.beginPath(); c.moveTo(x, yy); c.lineTo(x + 5.5, y2); c.stroke();
+    }
+  }
+}
+/* The two rows of waves over the shape `path` (a Path2D in the same coordinates). The pattern is made once (matPattern);
+   a frame only moves it (setTransform): no createPattern while drawing. */
+function fillWaves(c, path, t, sa, sb) {
+  const pat = matPattern('water-wave', WAVE_W, WAVE_H, paintWaveTile);
+  c.save();
+  pat.setTransform(new DOMMatrix([0.5, 0, 0, 0.5, (t * sa) % WAVE_W, 0])); c.globalAlpha = 0.5; c.fillStyle = pat; c.fill(path);
+  pat.setTransform(new DOMMatrix([0.5, 0, 0, 0.5, (WAVE_W * 9 - t * sb + 57) % WAVE_W, WAVE_H / 2])); c.globalAlpha = 0.38; c.fill(path);
+  pat.setTransform(new DOMMatrix([0.5, 0, 0, 0.5, 0, 0]));
+  c.restore();
+}
+MATERIALS.water = {
+  gloss: 0,
+  paint(c, o, path) {
+    const w = o.w || 60, h = o.h || 60, x0 = (o.x || 0) - w / 2, y0 = (o.y || 0) - h;
+    const g = c.createLinearGradient(0, y0, 0, y0 + h);
+    g.addColorStop(0, rgba(WATER_SHALLOW, 0.55)); g.addColorStop(1, rgba(WATER_DEEP, 0.6));
+    c.fillStyle = g; c.fillRect(x0 - 8, y0 - 8, w + 16, h + 16);
+    const box = new Path2D(); box.rect(x0 - 8, y0 - 8, w + 16, h + 16);
+    fillWaves(c, box, o.t || 0, 14, 9);
   }
 };
 
@@ -3717,6 +3757,7 @@ function finishLook(L) {
   const g = c.createLinearGradient(0, 0, 0, hz);                         // the haze: strongest at the top (the farthest), gone by the middle
   g.addColorStop(0, 'rgba(176,196,240,0.34)'); g.addColorStop(1, 'rgba(176,196,240,0)');
   c.fillStyle = g; c.fillRect(0, 0, L.W, hz);
+  if (CONFIG.look.waves && L.waterCells.length) L.water = paintWater(L, c);
   L.front = paintFront(L);
   if (CONFIG.look.lights) {        // the paper goes into the picture once: the light map then replaces the whole overlay (one full-screen pass, not two)
     if (!PAPER) PAPER = makePaper();
@@ -3726,6 +3767,45 @@ function finishLook(L) {
     L.paperBaked = true;
   }
   return L;
+}
+/* The water of the new levels (T6.8). Once, at loading:
+   - L.water.path: the water cells as one Path2D (a rectangle for every run of cells on a row, a little smaller than the cells,
+     so the waves stop before the bank); every frame fills it twice with the wave pattern (drawWater);
+   - the reflection: the bank above every column of water, upside down, faint and out of focus, painted into the picture.
+     It is made at a quarter of the size (that is what makes it soft), faded with depth, cut with a mask of soft discs
+     (the shore of the water is not square), then laid over the water with a low alpha;
+   - L.water.spark: the places where it sparkles. */
+function paintWater(L, c) {
+  const path = new Path2D(), G = L.grid, cols = L.cols, rows = L.rows, spark = [];
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols;) {
+      if (G[y * cols + x] !== 2) { x++; continue; }
+      let x1 = x; while (x1 < cols && G[y * cols + x1] === 2) x1++;
+      path.rect(x * CS + 6, y * CS + 6, (x1 - x) * CS - 12, CS - 12); x = x1;
+    }
+  }
+  const Q = 4, rf = makeCanvas(Math.ceil(L.W / Q), Math.ceil(L.H / Q)), rc = rf.getContext('2d'), mk = makeCanvas(rf.width, rf.height), mc = mk.getContext('2d');
+  rc.imageSmoothingEnabled = true;
+  const disc = makeCanvas(64, 64), dc = disc.getContext('2d'), gg = dc.createRadialGradient(32, 32, 10, 32, 32, 32);
+  gg.addColorStop(0, 'rgba(0,0,0,1)'); gg.addColorStop(1, 'rgba(0,0,0,0)'); dc.fillStyle = gg; dc.fillRect(0, 0, 64, 64);
+  for (let x = 0; x < cols; x++) {
+    let y = 0;
+    while (y < rows) {
+      if (G[y * cols + x] !== 2) { y++; continue; }
+      const y0 = y; while (y < rows && G[y * cols + x] === 2) y++;       // one column of water: from y0 to y
+      for (let d = 0; d < Math.min(y - y0, 4); d++) {
+        const sy = y0 * CS - (d + 1) * CS; if (sy < 0) break;                      // the bank above the water, mirrored about its top edge
+        rc.save(); rc.globalAlpha = 1 - d * 0.22; rc.translate(0, (y0 * CS + d * CS) / Q + CS / Q); rc.scale(1, -1);
+        rc.drawImage(L.bg, x * CS, sy, CS, CS, x * CS / Q, 0, CS / Q, CS / Q); rc.restore();
+      }
+      for (let k = y0; k < y; k++) mc.drawImage(disc, x * CS / Q - CS / Q * 0.45, k * CS / Q - CS / Q * 0.45, CS / Q * 1.9, CS / Q * 1.9);
+    }
+  }
+  rc.globalCompositeOperation = 'destination-in'; rc.drawImage(mk, 0, 0);
+  c.save(); c.globalAlpha = 0.3; c.imageSmoothingEnabled = true; c.drawImage(rf, 0, 0, L.W, L.H); c.restore();
+  const wc = L.waterCells, n = Math.min(24, wc.length);
+  for (let i = 0; i < n; i++) { const k = wc[(i * 53 + 7) % wc.length]; spark.push({ x: (k % cols + 0.5) * CS + (hash(81, i) - 0.5) * CS * 0.8, y: ((k / cols | 0) + 0.5) * CS + (hash(82, i) - 0.5) * CS * 0.8, ph: hash(83, i) * TAU, s: 9 + hash(84, i) * 9 }); }
+  return { path, spark };
 }
 /* The front plane: painted once at half resolution (960 x 540), blurred, then blown up once to a canvas the size of the screen.
    items: a rectangle on the screen for each thing (x, y, w, h in screen units), and its alpha.
@@ -5465,8 +5545,10 @@ function drawWorld(c) {
   if (tp < 0) { c.fillStyle = L.skyTop || '#CFE4F2'; c.fillRect(0, 0, W, Math.ceil(-tp * z) + 1); }      // that strip has no painting: it is sky
   c.drawImage(L.bg, l, tp, vw, vh, 0, 0, W, H);
   c.save(); c.scale(z, z); c.translate(-l, -tp);
-  // water shimmer
-  if (L.waterCells.length) {
+  // water: in the new levels two rows of waves and sparkles (drawWater), elsewhere the old shimmer
+  if (L.water && CONFIG.look.waves) drawWater(c, L, t, l, tp, vw, vh);
+  else if (L.waterCells.length) {
+    WaterCount.waves = WaterCount.spark = 0;
     c.strokeStyle = 'rgba(250,255,246,0.55)'; c.lineWidth = 2.5; c.lineCap = 'round';
     for (let i = 0; i < 46; i++) {
       const a = Math.sin(t * 1.4 + i * 1.7); if (a < 0.2) continue;
@@ -5874,7 +5956,7 @@ function drawHUD(c) {
    straight on the screen costs about 3 ms. The difference: a light here adds warm colour over the darkened world,
    instead of giving back the world's own colour; the darker the ambient, the stronger the lights (lightGlow). */
 const _lights = [], _lightPool = [];
-const LightCount = { fill: 0, draw: 0, big: 0 };              // for the test: what the last frame did
+const LightCount = { fill: 0, draw: 0, big: 0, halo: 0, haloLo: 1, haloHi: 0 };              // for the test: what the last frame did
 function lightSprite(col) {
   return sprite('light-' + col, 64, 64, c => {
     const g = c.createRadialGradient(32, 32, 0, 32, 32, 32);
@@ -5882,24 +5964,28 @@ function lightSprite(col) {
     c.fillStyle = g; c.fillRect(0, 0, 64, 64);
   });
 }
-function addLight(x, y, r, col, a) {
+function addLight(x, y, r, col, a, glow) {
   const o = _lightPool[_lights.length] || (_lightPool[_lights.length] = {});
-  o.x = x; o.y = y; o.r = r; o.col = col; o.a = a; _lights.push(o);
+  o.x = x; o.y = y; o.r = r; o.col = col; o.a = a; o.glow = !!glow; _lights.push(o);       // glow: it also gets a halo, it gives light by itself
 }
 function collectLights(L) {
   _lights.length = 0;
   for (const h of P.heroes) addLight(h.x, h.y - 70, 150, mix(CONFIG.heroes[h.k].color, '#FFF6E0', 0.5), 0.45);
   for (const e of P.eggs) if (e.delay <= 0 && e.state === 'idle' && !(e.big && L.cave && L.cave.reveal < 0.05)) addLight(e.x, e.y, 50, '#FFE6A8', 0.7);
-  for (const s of P.stars) if (!s.got && !s.hidden) addLight(s.x, s.y, 60, '#FFF0B8', 0.7);
+  for (const s of P.stars) if (!s.got && !s.hidden) addLight(s.x, s.y, 60, '#FFF0B8', 0.7, true);
   for (const f of P.flock) addLight(f.x, f.y - 16, 70, '#FFE8C0', 0.6);
   for (const q of P.heal) addLight(q.x, q.y, 90, '#FFF0C8', 0.8);
-  for (const ln of L.lanterns) if (ln.lit > 0) addLight(ln.x + 20, ln.y - 76, 230, '#FFD9A0', 0.85 * ln.lit);
-  if (L.torches) for (const tc of L.torches) addLight(tc.x, tc.y - 86, 210, '#FFBE80', 0.85);
-  if (L.lights) for (const lt of L.lights) addLight(lt.x, lt.y, lt.r, lt.col, lt.a == null ? 0.8 : lt.a);     // the lights a level puts by itself (lava, the Sun Crystal...)
-  if (P.nestOpen && !L.boss) addLight(L.nest.x, L.nest.y, 260, '#FFE28C', 0.6);
+  for (const ln of L.lanterns) if (ln.lit > 0) addLight(ln.x + 20, ln.y - 76, 230, '#FFD9A0', 0.85 * ln.lit, true);
+  if (L.torches) for (const tc of L.torches) addLight(tc.x, tc.y - 86, 210, '#FFBE80', 0.85, true);
+  if (L.lights) for (const lt of L.lights) addLight(lt.x, lt.y, lt.r, lt.col, lt.a == null ? 0.8 : lt.a, lt.glow !== false);     // the lights a level puts by itself (lava, the Sun Crystal...)
+  if (P.nestOpen && !L.boss) addLight(L.nest.x, L.nest.y, 260, '#FFE28C', 0.6, true);
+  if (L.arena && P.boss) {                                       // the crystals at the foot of George's throne give light too
+    const ne = Math.max(0, Math.round(12 * (1 - P.boss.phase / CONFIG.boss.hits)));
+    for (let i = 0; i < ne; i++) addLight(850 + (i % 6) * 44, 600 - (i / 6 | 0) * 44 - 14, 54, RAINBOW[i % 7], 0.7, true);
+  }
 }
 function drawLightMap(c, v) {
-  const L = P.L; LightCount.fill = LightCount.draw = LightCount.big = 0;
+  const L = P.L; LightCount.fill = LightCount.draw = LightCount.big = LightCount.halo = 0; LightCount.haloLo = 1; LightCount.haloHi = 0;
   if (!v || !isDiorama(L) || !CONFIG.look.lights) return;
   const vw = W / v.z, vh = H / v.z, mx = v.l + vw / 2, my = v.tp + vh / 2;
   collectLights(L);
@@ -5912,8 +5998,81 @@ function drawLightMap(c, v) {
   c.globalCompositeOperation = 'multiply'; c.fillStyle = amb; c.fillRect(0, 0, W, H);
   c.globalCompositeOperation = 'lighter';
   for (const o of _lights) { c.globalAlpha = Math.min(1, o.a * k); const s = o.r * v.z; c.drawImage(lightSprite(o.col), (o.x - v.l) * v.z - s, (o.y - v.tp) * v.z - s, s * 2, s * 2); }
+  const HA = CONFIG.look.halo;                               // the halos: a small bright core over what gives light, alpha 0.35 - 0.6 (it breathes a little)
+  if (HA > 0) for (const o of _lights) {
+    if (!o.glow || LightCount.halo >= CONFIG.look.haloMax) continue;
+    const s = Math.max(24, o.r * 0.34) * v.z, fl = 0.8 + 0.2 * Math.sin(P.time * 5 + o.x * 0.05 + o.y * 0.03);
+    c.globalAlpha = clamp(HA * fl * (0.55 + 0.45 * o.a), 0.7 * HA, 1.2 * HA); LightCount.haloLo = Math.min(LightCount.haloLo, c.globalAlpha); LightCount.haloHi = Math.max(LightCount.haloHi, c.globalAlpha);
+    c.drawImage(lightSprite(mix(o.col, '#FFFFFF', 0.45)), (o.x - v.l) * v.z - s, (o.y - v.tp) * v.z - s, s * 2, s * 2); LightCount.halo++;
+  }
   c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
   LightCount.fill = 1; LightCount.draw = _lights.length;
+}
+/* ---------- Water (T6.8) ----------
+   Two rows of thin pale waves that go in opposite directions (one pattern, drawn twice with other shifts, in fillWaves),
+   and small sparkles that come and go, each at its own time. The reflection is already in the picture (paintWater). */
+const WaterCount = { waves: 0, spark: 0 };
+function waterSpark() {
+  return sprite('water-spark', 24, 24, k => {
+    const g = k.createRadialGradient(12, 12, 0, 12, 12, 12); g.addColorStop(0, 'rgba(255,252,236,1)'); g.addColorStop(0.3, 'rgba(255,244,208,0.5)'); g.addColorStop(1, 'rgba(255,244,208,0)');
+    k.fillStyle = g; k.fillRect(0, 0, 24, 24); k.strokeStyle = 'rgba(255,252,236,0.9)'; k.lineWidth = 1.4; k.lineCap = 'round';
+    k.beginPath(); k.moveTo(2, 12); k.lineTo(22, 12); k.moveTo(12, 2); k.lineTo(12, 22); k.stroke();
+  });
+}
+function drawWater(c, L, t, l, tp, vw, vh) {
+  WaterCount.waves = WaterCount.spark = 0;
+  fillWaves(c, L.water.path, t, CONFIG.look.waveSpeedA, CONFIG.look.waveSpeedB); WaterCount.waves = 2;
+  const sp = waterSpark();
+  c.globalCompositeOperation = 'lighter';
+  for (const q of L.water.spark) {
+    if (q.x < l - 20 || q.x > l + vw + 20 || q.y < tp - 20 || q.y > tp + vh + 20) continue;
+    const a = Math.sin(t * 2.2 + q.ph); if (a < 0.45) continue;               // most of the time it is dark: a glint is short
+    const k = (a - 0.45) / 0.55; c.globalAlpha = k * 0.9; const s = q.s * (0.6 + 0.4 * k);
+    c.drawImage(sp, q.x - s, q.y - s, s * 2, s * 2); WaterCount.spark++;
+  }
+  c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+}
+/* ---------- Dust in the light (T6.8) ----------
+   CONFIG.look.motes tiny specks float through the whole screen (in screen space, not in the world), alpha 0.15 - 0.4,
+   stronger near a light. On the volcano they are sparks that rise, in the cave spores that fall, elsewhere dust that drifts. */
+const MoteCount = { draw: 0 }, _motes = [];
+let _moteFor = null, _moteT = -1;
+function moteKind(L) { return L.def.key === 'volcano' ? 'spark' : L.def.key === 'cave' ? 'spore' : 'dust'; }
+const MOTE_COLS = { spark: ['#FFB060', '#FFD27A', '#FF8A4C'], spore: ['#D8C8FF', '#B8E0FF', '#F0C8F0'], dust: ['#FFF0C8', '#FFE6A8', '#FFF6E0'] };
+function moteSprite(col) {
+  return sprite('mote-' + col, 16, 16, k => {
+    const g = k.createRadialGradient(8, 8, 0, 8, 8, 8); g.addColorStop(0, rgba(col, 1)); g.addColorStop(0.45, rgba(col, 0.5)); g.addColorStop(1, rgba(col, 0));
+    k.fillStyle = g; k.fillRect(0, 0, 16, 16);
+  });
+}
+function moteInit(L) {
+  const r = rng((L.seed || 5) + 1313), kind = moteKind(L); _motes.length = 0;
+  for (let i = 0; i < CONFIG.look.motes; i++) {
+    _motes.push({ x: r() * W, y: r() * H, ph: r() * TAU, s: 1.6 + r() * 2.2, col: MOTE_COLS[kind][i % 3],
+      vy: kind === 'spark' ? -(40 + r() * 50) : kind === 'spore' ? 10 + r() * 18 : -(5 + r() * 10), vx: (r() - 0.5) * 12 });
+  }
+  _moteFor = L; _moteT = -1;
+}
+function drawMotes(c, v) {
+  const L = P.L; MoteCount.draw = 0;
+  if (!v || !isDiorama(L) || CONFIG.look.motes <= 0) return;
+  if (_moteFor !== L || _motes.length !== CONFIG.look.motes) moteInit(L);
+  const dt = _moteT < 0 ? 0 : clamp(P.time - _moteT, 0, 0.1); _moteT = P.time;
+  const t = P.time, lights = CONFIG.look.lights;
+  c.globalCompositeOperation = 'lighter';
+  for (const m of _motes) {
+    m.x += (m.vx + Math.sin(t * 0.7 + m.ph) * 9) * dt; m.y += m.vy * dt;
+    if (m.y < -12) { m.y = H + 12; m.x = (m.x * 7.3 + 311) % W; } else if (m.y > H + 12) { m.y = -12; m.x = (m.x * 7.3 + 311) % W; }
+    if (m.x < -12) m.x += W + 24; else if (m.x > W + 12) m.x -= W + 24;
+    let near = 0;
+    if (lights) for (const o of _lights) {                                   // _lights holds what the light map drew in this frame
+      const dx = (o.x - v.l) * v.z - m.x, dy = (o.y - v.tp) * v.z - m.y, R = o.r * v.z * 0.9, d2 = dx * dx + dy * dy;
+      if (d2 < R * R) near = Math.max(near, (1 - Math.sqrt(d2) / R) * o.a);
+    }
+    c.globalAlpha = clamp(0.15 + 0.1 * (0.5 + 0.5 * Math.sin(t * 1.3 + m.ph)) + 0.15 * near, 0.15, 0.4);
+    const s = m.s * 2.4; c.drawImage(moteSprite(m.col), m.x - s, m.y - s, s * 2, s * 2); MoteCount.draw++;
+  }
+  c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
 }
 /* ---------- The front plane (S7.4) ----------
    The things painted once in L.front, each drawn with its own alpha (at most 12 drawImage). They move 1.15 times the
@@ -5959,6 +6118,7 @@ function drawFront(c, v) {
 function drawPlay(c) {
   const v = drawWorld(c);
   drawLightMap(c, v);
+  drawMotes(c, v);
   drawFront(c, v);
   drawHints(c, v);
   drawEdgePulse(c);

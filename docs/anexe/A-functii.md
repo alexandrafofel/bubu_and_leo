@@ -4,7 +4,7 @@
 
 Fiecare functie, functie sageata si metoda din cod, in ordinea din fisier. Coloana "Comentariul din cod" este textul scris chiar langa functie. Explicatiile pe larg sunt in capitolele din docs/.
 
-Total: 564 intrari.
+Total: 574 intrari.
 
 ## 01-config.js
 
@@ -65,30 +65,33 @@ Nicio functie.
 | 376 | `pt(i)` | functie sageata |  |
 | 392 | `paint(c, o, path)` | metoda |  |
 | 410 | `paint(c, o)` | metoda |  |
-| 429 | `brushLine(c, pts, width, col, alpha, seed)` | functie | A wobbly brush line through points. |
-| 443 | `makeCanvas(w, h)` | functie |  |
-| 446 | `topColor(cv)` | functie | The colour of the very first pixel of a painting: the sky at the top. Used to fill the strip above the world when the camera looks a little higher than the painting goes (docs/24-sisteme-noi.md, S6). |
-| 453 | `makePaper()` | functie |  |
-| 460 | `samp(arr, w, u, v)` | functie sageata |  |
-| 485 | `makeOverlay(tint, tintA, vig, night)` | functie | Per-scene overlay = paper + warm light tint + soft violet-brown vignette. |
-| 501 | `skyCols(t)` | functie |  |
-| 509 | `paintSky(c, x, y, w, h, t, seed, o)` | functie |  |
-| 535 | `paintNightSky(c, x, y, w, h, seed, o)` | functie | The sky of the second game: night, a big moon, stars and northern lights in the seven rainbow colors. |
-| 560 | `paintMountains(c, x, yBase, w, hgt, seed)` | functie | Two rows of pointed mountains with pale snow on top, for George's arena. |
-| 576 | `paintHills(c, x, yBase, w, hgt, t, seed, cols, night)` | functie | Layered distant hills along a horizon line. night = the colors are used as they are (no afternoon haze). |
-| 595 | `setFont(c, size, title, weight)` | functie | Text. No black outlines: a soft cream halo and a warm shadow instead. |
-| 598 | `text(c, str, x, y, size, col, o)` | functie |  |
-| 611 | `wrapLines(c, str, maxW, size, title)` | functie |  |
-| 623 | `iconX(c, x, y, r, pulse)` | functie | The ✕ button as a painted icon (blue cross on a cream disc). |
-| 633 | `iconSq(c, x, y, r, pulse)` | functie | The □ button as a painted icon (pink square on a cream disc): help the friend. |
-| 644 | `iconO(c, x, y, r, pulse)` | functie | ○: help the friend. Same shape as ✕ and □, in the warm coral of the ○ button. |
-| 654 | `iconL3(c, x, y, r, t)` | functie | L3: the cap of the left stick with the letter L and a little arrow pressing it down. |
-| 668 | `richText(c, str, x, y, size, col, o)` | functie |  |
-| 682 | `starPath(c, x, y, r, rot)` | functie |  |
-| 693 | `sprite(key, w, h, paint)` | functie | Things that never change are painted once and then stamped: much faster per frame. |
-| 698 | `card(c, x, y, w, h, col, seed)` | functie |  |
-| 703 | `paintCard(c, x, y, w, h, col, seed)` | functie |  |
-| 706 | `p(dx, dy, sc, fill, a)` | functie sageata |  |
+| 431 | `paintWaveTile(c)` | functie | two thin wavy lines; each makes whole turns across the tile, so it repeats without a seam |
+| 443 | `fillWaves(c, path, t, sa, sb)` | functie | The two rows of waves over the shape `path` (a Path2D in the same coordinates). The pattern is made once (matPattern); a frame only moves it (setTransform): no createPattern while drawing. |
+| 453 | `paint(c, o, path)` | metoda |  |
+| 464 | `brushLine(c, pts, width, col, alpha, seed)` | functie | A wobbly brush line through points. |
+| 478 | `makeCanvas(w, h)` | functie |  |
+| 481 | `topColor(cv)` | functie | The colour of the very first pixel of a painting: the sky at the top. Used to fill the strip above the world when the camera looks a little higher than the painting goes (docs/24-sisteme-noi.md, S6). |
+| 488 | `makePaper()` | functie |  |
+| 495 | `samp(arr, w, u, v)` | functie sageata |  |
+| 520 | `makeOverlay(tint, tintA, vig, night)` | functie | Per-scene overlay = paper + warm light tint + soft violet-brown vignette. |
+| 536 | `skyCols(t)` | functie |  |
+| 544 | `paintSky(c, x, y, w, h, t, seed, o)` | functie |  |
+| 570 | `paintNightSky(c, x, y, w, h, seed, o)` | functie | The sky of the second game: night, a big moon, stars and northern lights in the seven rainbow colors. |
+| 595 | `paintMountains(c, x, yBase, w, hgt, seed)` | functie | Two rows of pointed mountains with pale snow on top, for George's arena. |
+| 611 | `paintHills(c, x, yBase, w, hgt, t, seed, cols, night)` | functie | Layered distant hills along a horizon line. night = the colors are used as they are (no afternoon haze). |
+| 630 | `setFont(c, size, title, weight)` | functie | Text. No black outlines: a soft cream halo and a warm shadow instead. |
+| 633 | `text(c, str, x, y, size, col, o)` | functie |  |
+| 646 | `wrapLines(c, str, maxW, size, title)` | functie |  |
+| 658 | `iconX(c, x, y, r, pulse)` | functie | The ✕ button as a painted icon (blue cross on a cream disc). |
+| 668 | `iconSq(c, x, y, r, pulse)` | functie | The □ button as a painted icon (pink square on a cream disc): help the friend. |
+| 679 | `iconO(c, x, y, r, pulse)` | functie | ○: help the friend. Same shape as ✕ and □, in the warm coral of the ○ button. |
+| 689 | `iconL3(c, x, y, r, t)` | functie | L3: the cap of the left stick with the letter L and a little arrow pressing it down. |
+| 703 | `richText(c, str, x, y, size, col, o)` | functie |  |
+| 717 | `starPath(c, x, y, r, rot)` | functie |  |
+| 728 | `sprite(key, w, h, paint)` | functie | Things that never change are painted once and then stamped: much faster per frame. |
+| 733 | `card(c, x, y, w, h, col, seed)` | functie |  |
+| 738 | `paintCard(c, x, y, w, h, col, seed)` | functie |  |
+| 741 | `p(dx, dy, sc, fill, a)` | functie sageata |  |
 
 ## 03-audio.js
 
@@ -363,14 +366,15 @@ Nicio functie.
 | 869 | `isDiorama(L)` | functie | ---------- The frame of the new levels (docs/24-sisteme-noi.md, S7.4 and S7.5) ---------- A level with look: 'diorama' (levels 7 - 12, or every level with CONFIG.look.preview) gets, once, at loading: - haze over its far part (the top of the picture): paler and bluer, like air between the eye and the far away; - the front plane (L.front): big dark blurred things at the edges of the screen; - the paper texture multiplied into the picture itself (L.paperBaked), when the light map is on: the light map then takes the place of the whole overlay (paper + night vignette). On the slow test machine every full-screen pass costs a few ms, and the light map is already one. Levels 1 - 6 stay as they are. |
 | 870 | `levelAmbient(L)` | functie |  |
 | 871 | `finishLook(L)` | functie |  |
-| 892 | `frontSlots()` | functie | where the things can be: two tall corners at the top, the two sides, two places at the bottom |
-| 900 | `paintFront(L)` | functie |  |
-| 924 | `paintFrontThing(t, kind, at, x, y, w, h, r, base, base2)` | functie |  |
-| 965 | `frontLeaf(t, x, y, len, ang, col)` | functie | a long pointed leaf from (x, y) in the direction ang, with a pale midrib |
-| 971 | `finishPaint(c, w, h, skyT, r, night)` | functie |  |
-| 983 | `genBoss()` | functie | The boss arena: one screen, the tallest tree in the valley. |
-| 1025 | `genArena()` | functie | The last level of the second game: George's arena. A clearing with mountains behind it, torches of fire all around, soldiers with spears, and in the middle the stone throne on which George sits. |
-| 1062 | `slab(w, y0, h, col)` | functie sageata |  |
+| 895 | `paintWater(L, c)` | functie | The water of the new levels (T6.8). Once, at loading: - L.water.path: the water cells as one Path2D (a rectangle for every run of cells on a row, a little smaller than the cells, so the waves stop before the bank); every frame fills it twice with the wave pattern (drawWater); - the reflection: the bank above every column of water, upside down, faint and out of focus, painted into the picture. It is made at a quarter of the size (that is what makes it soft), faded with depth, cut with a mask of soft discs (the shore of the water is not square), then laid over the water with a low alpha; - L.water.spark: the places where it sparkles. |
+| 932 | `frontSlots()` | functie | where the things can be: two tall corners at the top, the two sides, two places at the bottom |
+| 940 | `paintFront(L)` | functie |  |
+| 964 | `paintFrontThing(t, kind, at, x, y, w, h, r, base, base2)` | functie |  |
+| 1005 | `frontLeaf(t, x, y, len, ang, col)` | functie | a long pointed leaf from (x, y) in the direction ang, with a pale midrib |
+| 1011 | `finishPaint(c, w, h, skyT, r, night)` | functie |  |
+| 1023 | `genBoss()` | functie | The boss arena: one screen, the tallest tree in the valley. |
+| 1065 | `genArena()` | functie | The last level of the second game: George's arena. A clearing with mountains behind it, torches of fire all around, soldiers with spears, and in the middle the stone throne on which George sits. |
+| 1102 | `slab(w, y0, h, col)` | functie sageata |  |
 
 ## 07-play.js
 
@@ -491,35 +495,41 @@ Nicio functie.
 | 192 | `drawProjWarn(c, list)` | functie | the spot where a thrown pinecone will land |
 | 199 | `drawProjs(c, list)` | functie |  |
 | 208 | `drawWorld(c)` | functie |  |
-| 382 | `hintTarget()` | functie |  |
-| 392 | `nearestEgg(h, reqOnly, maxD)` | functie | The helper arrow: a soft arrow next to a hero that shows where to go and, in a small bubble, what waits there. |
-| 397 | `guideTarget(h)` | functie |  |
-| 418 | `drawGuides(c)` | functie |  |
-| 445 | `drawHints(c, v)` | functie |  |
-| 481 | `pressLabel(k)` | functie sageata |  |
-| 483 | `levelProgress()` | functie | How far the level is: eggs in groups, then the guardian, then the nest. |
-| 486 | `seg(k)` | functie sageata |  |
-| 495 | `drawProgress(c)` | functie |  |
-| 524 | `drawBadge(c, k, x, y)` | functie |  |
-| 542 | `downBanner()` | functie | "Ajută-l pe Boon! ○" while a friend is down and the seconds are running. It comes before any other banner. |
-| 546 | `waitBanner()` | functie |  |
-| 553 | `drawMidCard(c, ban)` | functie | The card in the middle, with what a banner says when there is one. A banner never comes down over the world. |
-| 612 | `drawHUD(c)` | functie |  |
-| 627 | `lightSprite(col)` | functie |  |
-| 634 | `addLight(x, y, r, col, a)` | functie |  |
-| 638 | `collectLights(L)` | functie |  |
-| 650 | `drawLightMap(c, v)` | functie |  |
-| 673 | `heroScreenBox(h, v)` | functie |  |
-| 677 | `frontOffset(L, v)` | functie |  |
-| 681 | `updateFront(L, v)` | functie | the alphas: called while drawing, from the time that passed in the game |
-| 698 | `drawFront(c, v)` | functie |  |
-| 708 | `drawPlay(c)` | functie |  |
-| 717 | `drawEdgePulse(c)` | functie | The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. |
-| 727 | `drawNestShelter(c)` | functie | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
-| 735 | `drawDecor(c, l, tp, vw, vh)` | functie | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
-| 751 | `drawArenaBack(c)` | functie | the torches of fire around the arena |
-| 755 | `drawThrone(c)` | functie |  |
-| 762 | `drawGeorgeBoss(c, o, t)` | functie |  |
+| 384 | `hintTarget()` | functie |  |
+| 394 | `nearestEgg(h, reqOnly, maxD)` | functie | The helper arrow: a soft arrow next to a hero that shows where to go and, in a small bubble, what waits there. |
+| 399 | `guideTarget(h)` | functie |  |
+| 420 | `drawGuides(c)` | functie |  |
+| 447 | `drawHints(c, v)` | functie |  |
+| 483 | `pressLabel(k)` | functie sageata |  |
+| 485 | `levelProgress()` | functie | How far the level is: eggs in groups, then the guardian, then the nest. |
+| 488 | `seg(k)` | functie sageata |  |
+| 497 | `drawProgress(c)` | functie |  |
+| 526 | `drawBadge(c, k, x, y)` | functie |  |
+| 544 | `downBanner()` | functie | "Ajută-l pe Boon! ○" while a friend is down and the seconds are running. It comes before any other banner. |
+| 548 | `waitBanner()` | functie |  |
+| 555 | `drawMidCard(c, ban)` | functie | The card in the middle, with what a banner says when there is one. A banner never comes down over the world. |
+| 614 | `drawHUD(c)` | functie |  |
+| 629 | `lightSprite(col)` | functie |  |
+| 636 | `addLight(x, y, r, col, a, glow)` | functie |  |
+| 640 | `collectLights(L)` | functie |  |
+| 656 | `drawLightMap(c, v)` | functie |  |
+| 684 | `waterSpark()` | functie |  |
+| 691 | `drawWater(c, L, t, l, tp, vw, vh)` | functie |  |
+| 709 | `moteKind(L)` | functie |  |
+| 711 | `moteSprite(col)` | functie |  |
+| 717 | `moteInit(L)` | functie |  |
+| 725 | `drawMotes(c, v)` | functie |  |
+| 752 | `heroScreenBox(h, v)` | functie |  |
+| 756 | `frontOffset(L, v)` | functie |  |
+| 760 | `updateFront(L, v)` | functie | the alphas: called while drawing, from the time that passed in the game |
+| 777 | `drawFront(c, v)` | functie |  |
+| 787 | `drawPlay(c)` | functie |  |
+| 797 | `drawEdgePulse(c)` | functie | The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. |
+| 807 | `drawNestShelter(c)` | functie | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
+| 815 | `drawDecor(c, l, tp, vw, vh)` | functie | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
+| 831 | `drawArenaBack(c)` | functie | the torches of fire around the arena |
+| 835 | `drawThrone(c)` | functie |  |
+| 842 | `drawGeorgeBoss(c, o, t)` | functie |  |
 
 ## 09-screens.js
 

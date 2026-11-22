@@ -10,7 +10,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 |---|---|
 | 1-16 | tot fisierul |
 
-## 01-config.js (260 linii)
+## 01-config.js (265 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -31,8 +31,8 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 143-156 | Run: press the left stick (L3) |
 | 157-163 | Sound |
 | 164-169 | Look |
-| 170-198 | The look of levels 7 - 12 and of the heroes (docs/24-sisteme-noi.md, S7) |
-| 199-260 | The second game, "Cea mai grea luptă" (invented by the children) |
+| 170-203 | The look of levels 7 - 12 and of the heroes (docs/24-sisteme-noi.md, S7) |
+| 204-265 | The second game, "Cea mai grea luptă" (invented by the children) |
 
 ## 015-lang.js (233 linii)
 
@@ -44,7 +44,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 99-224 | the second game, "Cea mai grea luptă". A key that starts with L: takes the place of the same key without it. |
 | 225-233 | Readable name of a keyboard key, for the "choose the keys" screen. |
 
-## 02-core.js (725 linii)
+## 02-core.js (760 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -53,23 +53,23 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 63-81 | Watercolor wash: a few translucent layers plus a soft darker rim where pigment pools. |
 | 82-190 | Opaque painted shape for characters: solid fill with a soft colored rim. |
 | 191-286 | The pattern of a tile of w x h units. sprite() paints at double size, so the pattern is shrunk by half to be w x h again. |
-| 287-427 | The materials of the world (T6.3): wood, metal, stone, crystal, leaf, lava |
-| 428-450 | A wobbly brush line through points. |
-| 451-483 | Paper: noise-generated grain, soft blotches and a few fibers. Multiplied over the whole screen. |
-| 484-495 | Per-scene overlay = paper + warm light tint + soft violet-brown vignette. |
-| 496-533 | Sky colors drift from afternoon (t=0) to sunset (t=1) to dusk (t=1.3). |
-| 534-558 | The sky of the second game: night, a big moon, stars and northern lights in the seven rainbow colors. |
-| 559-574 | Two rows of pointed mountains with pale snow on top, for George's arena. |
-| 575-593 | Layered distant hills along a horizon line. night = the colors are used as they are (no afternoon haze). |
-| 594-621 | Text. No black outlines: a soft cream halo and a warm shadow instead. |
-| 622-631 | The ✕ button as a painted icon (blue cross on a cream disc). |
-| 632-641 | The □ button as a painted icon (pink square on a cream disc): help the friend. |
-| 642-642 | Text that may contain ✕ or □, drawn with the painted icons. Returns nothing. |
-| 643-652 | ○: help the friend. Same shape as ✕ and □, in the warm coral of the ○ button. |
-| 653-665 | L3: the cap of the left stick with the letter L and a little arrow pressing it down. |
-| 666-689 | The four button signs that can stand inside a text: ✕ □ ○ and ◉ (= L3, pressing the left stick). |
-| 690-691 | A painted card (panel) used by menus and story screens. |
-| 692-725 | Things that never change are painted once and then stamped: much faster per frame. |
+| 287-462 | The materials of the world (T6.3): wood, metal, stone, crystal, leaf, lava |
+| 463-485 | A wobbly brush line through points. |
+| 486-518 | Paper: noise-generated grain, soft blotches and a few fibers. Multiplied over the whole screen. |
+| 519-530 | Per-scene overlay = paper + warm light tint + soft violet-brown vignette. |
+| 531-568 | Sky colors drift from afternoon (t=0) to sunset (t=1) to dusk (t=1.3). |
+| 569-593 | The sky of the second game: night, a big moon, stars and northern lights in the seven rainbow colors. |
+| 594-609 | Two rows of pointed mountains with pale snow on top, for George's arena. |
+| 610-628 | Layered distant hills along a horizon line. night = the colors are used as they are (no afternoon haze). |
+| 629-656 | Text. No black outlines: a soft cream halo and a warm shadow instead. |
+| 657-666 | The ✕ button as a painted icon (blue cross on a cream disc). |
+| 667-676 | The □ button as a painted icon (pink square on a cream disc): help the friend. |
+| 677-677 | Text that may contain ✕ or □, drawn with the painted icons. Returns nothing. |
+| 678-687 | ○: help the friend. Same shape as ✕ and □, in the warm coral of the ○ button. |
+| 688-700 | L3: the cap of the left stick with the letter L and a little arrow pressing it down. |
+| 701-724 | The four button signs that can stand inside a text: ✕ □ ○ and ◉ (= L3, pressing the left stick). |
+| 725-726 | A painted card (panel) used by menus and story screens. |
+| 727-760 | Things that never change are painted once and then stamped: much faster per frame. |
 
 ## 03-audio.js (550 linii)
 
@@ -142,7 +142,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 549-561 | Boon's boomerang bone: two round ends and a shaft, cream amber, with a small crack. |
 | 562-566 | What a thrown thing looks like: Killer's and Leo's ball, or Boon's bone. |
 
-## 06-level.js (1075 linii)
+## 06-level.js (1115 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -165,8 +165,8 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 580-836 | Second game: a rock with little crystals growing on it, a big glowing mushroom, a torch, a totem with a rainbow pinwheel. |
 | 837-848 | A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). |
 | 849-859 | The door of the hideout: an arched wooden door with a rainbow knob. x = middle, y = the ground line. |
-| 860-981 | Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). |
-| 982-1075 | The boss arena: one screen, the tallest tree in the valley. |
+| 860-1021 | Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). |
+| 1022-1115 | The boss arena: one screen, the tallest tree in the valley. |
 
 ## 07-play.js (958 linii)
 
@@ -212,22 +212,22 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 341-354 | Things on the ground during a mini-fight: where the next attack will land, shadows. (The shelter ring is in drawNestShelter.) |
 | 355-378 | Things above everything: flying guardians, thrown pinecones, leaves, hearts. |
 
-## 08-draw.js (773 linii)
+## 08-draw.js (853 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 2-42 | DRAWING THE GAME: world, heroes, effects, HUD |
 | 43-173 | Boon's claws while they spin: rainbow slashes that run around him, on a soft shield. |
-| 174-390 | Small enemies show how many hits they still take, once they were hit. |
-| 391-481 | The helper arrow: a soft arrow next to a hero that shows where to go and, in a small bubble, what waits there. |
-| 482-539 | How far the level is: eggs in groups, then the guardian, then the nest. |
-| 540-540 | "We wait for X in the nest": it used to be written in the world, over the nest. Now it is a banner in the band. |
-| 541-551 | "Ajută-l pe Boon! ○" while a friend is down and the seconds are running. It comes before any other banner. |
-| 552-715 | The card in the middle, with what a banner says when there is one. A banner never comes down over the world. |
-| 716-725 | The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. |
-| 726-733 | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
-| 734-749 | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
-| 750-773 | George's arena (the last level of the second game) |
+| 174-392 | Small enemies show how many hits they still take, once they were hit. |
+| 393-483 | The helper arrow: a soft arrow next to a hero that shows where to go and, in a small bubble, what waits there. |
+| 484-541 | How far the level is: eggs in groups, then the guardian, then the nest. |
+| 542-542 | "We wait for X in the nest": it used to be written in the world, over the nest. Now it is a banner in the band. |
+| 543-553 | "Ajută-l pe Boon! ○" while a friend is down and the seconds are running. It comes before any other banner. |
+| 554-795 | The card in the middle, with what a banner says when there is one. A banner never comes down over the world. |
+| 796-805 | The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. |
+| 806-813 | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
+| 814-829 | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
+| 830-853 | George's arena (the last level of the second game) |
 
 ## 09-screens.js (954 linii)
 

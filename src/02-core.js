@@ -425,6 +425,41 @@ MATERIALS.lava = {
   }
 };
 
+// water (T6.8): a deep blue base, then two rows of thin pale waves that go in opposite directions. o.t is the time in seconds.
+// The wave tile is one picture, painted once: the two rows are the same pattern, drawn twice with different shifts.
+const WAVE_W = 160, WAVE_H = 48, WAVE_COL = '#E6F6F8', WATER_DEEP = '#2E5FA8', WATER_SHALLOW = '#5FA8D8';
+function paintWaveTile(c) {              // two thin wavy lines; each makes whole turns across the tile, so it repeats without a seam
+  c.lineCap = 'round';
+  for (const [y0, k, ph, a] of [[13, 2, 0.4, 3.2], [37, 3, 2.1, 2.4]]) {
+    for (let x = 0; x < WAVE_W; x += 5) {
+      const u = x / WAVE_W, yy = y0 + Math.sin(u * TAU * k + ph) * a, y2 = y0 + Math.sin((u + 5 / WAVE_W) * TAU * k + ph) * a;
+      c.strokeStyle = rgba(WAVE_COL, 0.45 + 0.55 * (0.5 + 0.5 * Math.sin(u * TAU * 2 + ph * 2)));       // the line fades in and out along its length
+      c.lineWidth = 1.8; c.beginPath(); c.moveTo(x, yy); c.lineTo(x + 5.5, y2); c.stroke();
+    }
+  }
+}
+/* The two rows of waves over the shape `path` (a Path2D in the same coordinates). The pattern is made once (matPattern);
+   a frame only moves it (setTransform): no createPattern while drawing. */
+function fillWaves(c, path, t, sa, sb) {
+  const pat = matPattern('water-wave', WAVE_W, WAVE_H, paintWaveTile);
+  c.save();
+  pat.setTransform(new DOMMatrix([0.5, 0, 0, 0.5, (t * sa) % WAVE_W, 0])); c.globalAlpha = 0.5; c.fillStyle = pat; c.fill(path);
+  pat.setTransform(new DOMMatrix([0.5, 0, 0, 0.5, (WAVE_W * 9 - t * sb + 57) % WAVE_W, WAVE_H / 2])); c.globalAlpha = 0.38; c.fill(path);
+  pat.setTransform(new DOMMatrix([0.5, 0, 0, 0.5, 0, 0]));
+  c.restore();
+}
+MATERIALS.water = {
+  gloss: 0,
+  paint(c, o, path) {
+    const w = o.w || 60, h = o.h || 60, x0 = (o.x || 0) - w / 2, y0 = (o.y || 0) - h;
+    const g = c.createLinearGradient(0, y0, 0, y0 + h);
+    g.addColorStop(0, rgba(WATER_SHALLOW, 0.55)); g.addColorStop(1, rgba(WATER_DEEP, 0.6));
+    c.fillStyle = g; c.fillRect(x0 - 8, y0 - 8, w + 16, h + 16);
+    const box = new Path2D(); box.rect(x0 - 8, y0 - 8, w + 16, h + 16);
+    fillWaves(c, box, o.t || 0, 14, 9);
+  }
+};
+
 /* A wobbly brush line through points. */
 function brushLine(c, pts, width, col, alpha, seed) {
   c.lineCap = 'round'; c.lineJoin = 'round';

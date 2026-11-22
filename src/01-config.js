@@ -176,6 +176,11 @@ const CONFIG = {
     freeze: 0.06,          // seconds the game holds its breath at a big hit (S7.6). 0 = off
     maxLights: 24,         // lights drawn in one frame. The ones nearest the middle of the screen win
     lightGlow: 0.6,        // how strong the lights of the light map are over the ambient (the darker the ambient, the stronger)
+    halo: 0.5,             // glow over the things that give light (torches, crystals, lava): alpha 0.35 - 0.6 around this value (S7.5). 0 = none
+    haloMax: 12,           // at most this many halos in one frame
+    waves: true,           // the water of the new levels: two rows of waves, a reflection and sparkles. false = the old shimmer
+    waveSpeedA: 14,        // units per second: the first row of waves goes right at this speed, the second goes left (waveSpeedB)
+    waveSpeedB: 9,
     preview: false,        // true = the new frame (light map, front plane, haze) also on levels 1 - 6, to see it before 7 - 12 exist
     frontFade: 0.2,        // seconds a thing of the front plane takes to fade when a hero comes near it
     frontMin: 0.15,        // how much of it stays when it fades

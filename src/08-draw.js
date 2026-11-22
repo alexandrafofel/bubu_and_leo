@@ -214,8 +214,10 @@ function drawWorld(c) {
   if (tp < 0) { c.fillStyle = L.skyTop || '#CFE4F2'; c.fillRect(0, 0, W, Math.ceil(-tp * z) + 1); }      // that strip has no painting: it is sky
   c.drawImage(L.bg, l, tp, vw, vh, 0, 0, W, H);
   c.save(); c.scale(z, z); c.translate(-l, -tp);
-  // water shimmer
-  if (L.waterCells.length) {
+  // water: in the new levels two rows of waves and sparkles (drawWater), elsewhere the old shimmer
+  if (L.water && CONFIG.look.waves) drawWater(c, L, t, l, tp, vw, vh);
+  else if (L.waterCells.length) {
+    WaterCount.waves = WaterCount.spark = 0;
     c.strokeStyle = 'rgba(250,255,246,0.55)'; c.lineWidth = 2.5; c.lineCap = 'round';
     for (let i = 0; i < 46; i++) {
       const a = Math.sin(t * 1.4 + i * 1.7); if (a < 0.2) continue;
@@ -623,7 +625,7 @@ function drawHUD(c) {
    straight on the screen costs about 3 ms. The difference: a light here adds warm colour over the darkened world,
    instead of giving back the world's own colour; the darker the ambient, the stronger the lights (lightGlow). */
 const _lights = [], _lightPool = [];
-const LightCount = { fill: 0, draw: 0, big: 0 };              // for the test: what the last frame did
+const LightCount = { fill: 0, draw: 0, big: 0, halo: 0, haloLo: 1, haloHi: 0 };              // for the test: what the last frame did
 function lightSprite(col) {
   return sprite('light-' + col, 64, 64, c => {
     const g = c.createRadialGradient(32, 32, 0, 32, 32, 32);
@@ -631,24 +633,28 @@ function lightSprite(col) {
     c.fillStyle = g; c.fillRect(0, 0, 64, 64);
   });
 }
-function addLight(x, y, r, col, a) {
+function addLight(x, y, r, col, a, glow) {
   const o = _lightPool[_lights.length] || (_lightPool[_lights.length] = {});
-  o.x = x; o.y = y; o.r = r; o.col = col; o.a = a; _lights.push(o);
+  o.x = x; o.y = y; o.r = r; o.col = col; o.a = a; o.glow = !!glow; _lights.push(o);       // glow: it also gets a halo, it gives light by itself
 }
 function collectLights(L) {
   _lights.length = 0;
   for (const h of P.heroes) addLight(h.x, h.y - 70, 150, mix(CONFIG.heroes[h.k].color, '#FFF6E0', 0.5), 0.45);
   for (const e of P.eggs) if (e.delay <= 0 && e.state === 'idle' && !(e.big && L.cave && L.cave.reveal < 0.05)) addLight(e.x, e.y, 50, '#FFE6A8', 0.7);
-  for (const s of P.stars) if (!s.got && !s.hidden) addLight(s.x, s.y, 60, '#FFF0B8', 0.7);
+  for (const s of P.stars) if (!s.got && !s.hidden) addLight(s.x, s.y, 60, '#FFF0B8', 0.7, true);
   for (const f of P.flock) addLight(f.x, f.y - 16, 70, '#FFE8C0', 0.6);
   for (const q of P.heal) addLight(q.x, q.y, 90, '#FFF0C8', 0.8);
-  for (const ln of L.lanterns) if (ln.lit > 0) addLight(ln.x + 20, ln.y - 76, 230, '#FFD9A0', 0.85 * ln.lit);
-  if (L.torches) for (const tc of L.torches) addLight(tc.x, tc.y - 86, 210, '#FFBE80', 0.85);
-  if (L.lights) for (const lt of L.lights) addLight(lt.x, lt.y, lt.r, lt.col, lt.a == null ? 0.8 : lt.a);     // the lights a level puts by itself (lava, the Sun Crystal...)
-  if (P.nestOpen && !L.boss) addLight(L.nest.x, L.nest.y, 260, '#FFE28C', 0.6);
+  for (const ln of L.lanterns) if (ln.lit > 0) addLight(ln.x + 20, ln.y - 76, 230, '#FFD9A0', 0.85 * ln.lit, true);
+  if (L.torches) for (const tc of L.torches) addLight(tc.x, tc.y - 86, 210, '#FFBE80', 0.85, true);
+  if (L.lights) for (const lt of L.lights) addLight(lt.x, lt.y, lt.r, lt.col, lt.a == null ? 0.8 : lt.a, lt.glow !== false);     // the lights a level puts by itself (lava, the Sun Crystal...)
+  if (P.nestOpen && !L.boss) addLight(L.nest.x, L.nest.y, 260, '#FFE28C', 0.6, true);
+  if (L.arena && P.boss) {                                       // the crystals at the foot of George's throne give light too
+    const ne = Math.max(0, Math.round(12 * (1 - P.boss.phase / CONFIG.boss.hits)));
+    for (let i = 0; i < ne; i++) addLight(850 + (i % 6) * 44, 600 - (i / 6 | 0) * 44 - 14, 54, RAINBOW[i % 7], 0.7, true);
+  }
 }
 function drawLightMap(c, v) {
-  const L = P.L; LightCount.fill = LightCount.draw = LightCount.big = 0;
+  const L = P.L; LightCount.fill = LightCount.draw = LightCount.big = LightCount.halo = 0; LightCount.haloLo = 1; LightCount.haloHi = 0;
   if (!v || !isDiorama(L) || !CONFIG.look.lights) return;
   const vw = W / v.z, vh = H / v.z, mx = v.l + vw / 2, my = v.tp + vh / 2;
   collectLights(L);
@@ -661,8 +667,81 @@ function drawLightMap(c, v) {
   c.globalCompositeOperation = 'multiply'; c.fillStyle = amb; c.fillRect(0, 0, W, H);
   c.globalCompositeOperation = 'lighter';
   for (const o of _lights) { c.globalAlpha = Math.min(1, o.a * k); const s = o.r * v.z; c.drawImage(lightSprite(o.col), (o.x - v.l) * v.z - s, (o.y - v.tp) * v.z - s, s * 2, s * 2); }
+  const HA = CONFIG.look.halo;                               // the halos: a small bright core over what gives light, alpha 0.35 - 0.6 (it breathes a little)
+  if (HA > 0) for (const o of _lights) {
+    if (!o.glow || LightCount.halo >= CONFIG.look.haloMax) continue;
+    const s = Math.max(24, o.r * 0.34) * v.z, fl = 0.8 + 0.2 * Math.sin(P.time * 5 + o.x * 0.05 + o.y * 0.03);
+    c.globalAlpha = clamp(HA * fl * (0.55 + 0.45 * o.a), 0.7 * HA, 1.2 * HA); LightCount.haloLo = Math.min(LightCount.haloLo, c.globalAlpha); LightCount.haloHi = Math.max(LightCount.haloHi, c.globalAlpha);
+    c.drawImage(lightSprite(mix(o.col, '#FFFFFF', 0.45)), (o.x - v.l) * v.z - s, (o.y - v.tp) * v.z - s, s * 2, s * 2); LightCount.halo++;
+  }
   c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
   LightCount.fill = 1; LightCount.draw = _lights.length;
+}
+/* ---------- Water (T6.8) ----------
+   Two rows of thin pale waves that go in opposite directions (one pattern, drawn twice with other shifts, in fillWaves),
+   and small sparkles that come and go, each at its own time. The reflection is already in the picture (paintWater). */
+const WaterCount = { waves: 0, spark: 0 };
+function waterSpark() {
+  return sprite('water-spark', 24, 24, k => {
+    const g = k.createRadialGradient(12, 12, 0, 12, 12, 12); g.addColorStop(0, 'rgba(255,252,236,1)'); g.addColorStop(0.3, 'rgba(255,244,208,0.5)'); g.addColorStop(1, 'rgba(255,244,208,0)');
+    k.fillStyle = g; k.fillRect(0, 0, 24, 24); k.strokeStyle = 'rgba(255,252,236,0.9)'; k.lineWidth = 1.4; k.lineCap = 'round';
+    k.beginPath(); k.moveTo(2, 12); k.lineTo(22, 12); k.moveTo(12, 2); k.lineTo(12, 22); k.stroke();
+  });
+}
+function drawWater(c, L, t, l, tp, vw, vh) {
+  WaterCount.waves = WaterCount.spark = 0;
+  fillWaves(c, L.water.path, t, CONFIG.look.waveSpeedA, CONFIG.look.waveSpeedB); WaterCount.waves = 2;
+  const sp = waterSpark();
+  c.globalCompositeOperation = 'lighter';
+  for (const q of L.water.spark) {
+    if (q.x < l - 20 || q.x > l + vw + 20 || q.y < tp - 20 || q.y > tp + vh + 20) continue;
+    const a = Math.sin(t * 2.2 + q.ph); if (a < 0.45) continue;               // most of the time it is dark: a glint is short
+    const k = (a - 0.45) / 0.55; c.globalAlpha = k * 0.9; const s = q.s * (0.6 + 0.4 * k);
+    c.drawImage(sp, q.x - s, q.y - s, s * 2, s * 2); WaterCount.spark++;
+  }
+  c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+}
+/* ---------- Dust in the light (T6.8) ----------
+   CONFIG.look.motes tiny specks float through the whole screen (in screen space, not in the world), alpha 0.15 - 0.4,
+   stronger near a light. On the volcano they are sparks that rise, in the cave spores that fall, elsewhere dust that drifts. */
+const MoteCount = { draw: 0 }, _motes = [];
+let _moteFor = null, _moteT = -1;
+function moteKind(L) { return L.def.key === 'volcano' ? 'spark' : L.def.key === 'cave' ? 'spore' : 'dust'; }
+const MOTE_COLS = { spark: ['#FFB060', '#FFD27A', '#FF8A4C'], spore: ['#D8C8FF', '#B8E0FF', '#F0C8F0'], dust: ['#FFF0C8', '#FFE6A8', '#FFF6E0'] };
+function moteSprite(col) {
+  return sprite('mote-' + col, 16, 16, k => {
+    const g = k.createRadialGradient(8, 8, 0, 8, 8, 8); g.addColorStop(0, rgba(col, 1)); g.addColorStop(0.45, rgba(col, 0.5)); g.addColorStop(1, rgba(col, 0));
+    k.fillStyle = g; k.fillRect(0, 0, 16, 16);
+  });
+}
+function moteInit(L) {
+  const r = rng((L.seed || 5) + 1313), kind = moteKind(L); _motes.length = 0;
+  for (let i = 0; i < CONFIG.look.motes; i++) {
+    _motes.push({ x: r() * W, y: r() * H, ph: r() * TAU, s: 1.6 + r() * 2.2, col: MOTE_COLS[kind][i % 3],
+      vy: kind === 'spark' ? -(40 + r() * 50) : kind === 'spore' ? 10 + r() * 18 : -(5 + r() * 10), vx: (r() - 0.5) * 12 });
+  }
+  _moteFor = L; _moteT = -1;
+}
+function drawMotes(c, v) {
+  const L = P.L; MoteCount.draw = 0;
+  if (!v || !isDiorama(L) || CONFIG.look.motes <= 0) return;
+  if (_moteFor !== L || _motes.length !== CONFIG.look.motes) moteInit(L);
+  const dt = _moteT < 0 ? 0 : clamp(P.time - _moteT, 0, 0.1); _moteT = P.time;
+  const t = P.time, lights = CONFIG.look.lights;
+  c.globalCompositeOperation = 'lighter';
+  for (const m of _motes) {
+    m.x += (m.vx + Math.sin(t * 0.7 + m.ph) * 9) * dt; m.y += m.vy * dt;
+    if (m.y < -12) { m.y = H + 12; m.x = (m.x * 7.3 + 311) % W; } else if (m.y > H + 12) { m.y = -12; m.x = (m.x * 7.3 + 311) % W; }
+    if (m.x < -12) m.x += W + 24; else if (m.x > W + 12) m.x -= W + 24;
+    let near = 0;
+    if (lights) for (const o of _lights) {                                   // _lights holds what the light map drew in this frame
+      const dx = (o.x - v.l) * v.z - m.x, dy = (o.y - v.tp) * v.z - m.y, R = o.r * v.z * 0.9, d2 = dx * dx + dy * dy;
+      if (d2 < R * R) near = Math.max(near, (1 - Math.sqrt(d2) / R) * o.a);
+    }
+    c.globalAlpha = clamp(0.15 + 0.1 * (0.5 + 0.5 * Math.sin(t * 1.3 + m.ph)) + 0.15 * near, 0.15, 0.4);
+    const s = m.s * 2.4; c.drawImage(moteSprite(m.col), m.x - s, m.y - s, s * 2, s * 2); MoteCount.draw++;
+  }
+  c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
 }
 /* ---------- The front plane (S7.4) ----------
    The things painted once in L.front, each drawn with its own alpha (at most 12 drawImage). They move 1.15 times the
@@ -708,6 +787,7 @@ function drawFront(c, v) {
 function drawPlay(c) {
   const v = drawWorld(c);
   drawLightMap(c, v);
+  drawMotes(c, v);
   drawFront(c, v);
   drawHints(c, v);
   drawEdgePulse(c);

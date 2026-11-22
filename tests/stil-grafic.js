@@ -72,7 +72,7 @@ const boot = require('./common.js');
     // gradientele rotunde: numaram cu harta pornita si oprita, pe aceleasi cadre; diferenta trebuie sa fie 0
     const radCount = (on) => { CONFIG.look.lights = on; let n = 0; CanvasRenderingContext2D.prototype.createRadialGradient = function () { n++; return orad.apply(this, arguments); }; for (let i = 0; i < 10; i++) step(1); CanvasRenderingContext2D.prototype.createRadialGradient = orad; return n; };
     CONFIG.look.lights = true; cnt.fill = cnt.draw = cnt.big = 0; step(1);
-    out.lm = { fill: cnt.fill, draw: cnt.draw, big: cnt.big, lights: _lights.length, max: CONFIG.look.maxLights };
+    out.lm = { fill: cnt.fill, draw: cnt.draw, big: cnt.big, lights: _lights.length, max: CONFIG.look.maxLights, halo: LightCount.halo, haloMax: CONFIG.look.haloMax };
     out.radOn = radCount(true); out.radOff = radCount(false);
     // cu lights: false nu se deseneaza harta si ramane vinieta veche
     CONFIG.look.lights = false; cnt.fill = cnt.draw = cnt.big = 0; step(1);
@@ -93,13 +93,89 @@ const boot = require('./common.js');
   check('in asezarile de la margine chiar s-au stins lucruri (testul a ajuns acolo)', r.faded > 20, r.faded);
   check('planul din fata: cel mult 12 drawImage pe cadru', r.maxDraw <= 12, r.maxDraw);
   check('harta de lumina: 1 umplere (ambianta)', r.lm.fill === 1, r.lm);
-  check('harta de lumina: cel mult ' + r.lm.max + ' drawImage, cu 60 de cristale pe ecran', r.lm.draw <= r.lm.max && r.lm.draw >= Math.min(r.lm.max, 20), r.lm);
+  check('harta de lumina: cel mult ' + r.lm.max + ' de lumini, cu 60 de cristale pe ecran, si halourile (cel mult ' + r.lm.haloMax + ') in plus', r.lm.lights <= r.lm.max && r.lm.draw === r.lm.lights + r.lm.halo && r.lm.halo <= r.lm.haloMax && r.lm.lights >= Math.min(r.lm.max, 20), r.lm);
   check('harta de lumina: nicio imagine marita pe tot ecranul (luminile se pun direct)', r.lm.big === 0, r.lm);
   check('niciun createRadialGradient in plus pe cadru cu harta pornita', r.radOn === r.radOff, { pornita: r.radOn, oprita: r.radOff });
   check('lights: false: harta nu se deseneaza, ramane vinieta veche', r.off.fill === 0 && r.off.draw === 0 && r.off.big === 0 && r.off.overlayOld, r.off);
   check('lights: true: hartia e in pictura, harta ia locul vinietei (o singura trecere pe tot ecranul)', r.onOverlayNew, r.onOverlayNew);
   check('front: false: niciun drawImage din planul din fata', r.frontOff === 0, r.frontOff);
   check('nivelurile 1 - 6 fara preview: fara plan din fata si fara harta', !r.plain.front && !r.plain.lm && r.plain.frontDraw === 0, r.plain);
+
+  // ================= T6.8: stralucire, apa, praf in lumina =================
+  const w = await page.evaluate(() => {
+    const G = __game, out = {}, ctxM = document.getElementById('game').getContext('2d'), P2 = CanvasRenderingContext2D.prototype;
+    const grey = (hex) => { const n = parseInt(hex.slice(1), 16), R = n >> 16, Gc = (n >> 8) & 255, B = n & 255; return R === Gc && Gc === B; };
+    CONFIG.look.preview = true; CONFIG.look.lights = true; CONFIG.look.front = true; CONFIG.look.waves = true; CONFIG.look.motes = 40; CONFIG.look.halo = 0.5;
+    go(2); step(30);
+    const L = G.P.L, wc = L.waterCells[(L.waterCells.length / 2) | 0], wx = (wc % L.cols + 0.5) * 40, wy = ((wc / L.cols | 0) + 0.5) * 40;
+    for (const [k, h] of G.P.heroes.entries()) { h.x = h.px = wx + (k ? 140 : -140); h.y = h.py = wy - 140; h.inv = 999; }
+    step(30);
+    // ---- praful: 40 de puncte, alpha 0.15 - 0.4, in spatiul ecranului
+    const al = []; const md = ctxM.drawImage; let inM = false; const dm = window.drawMotes;
+    window.drawMotes = function () { inM = true; try { return dm.apply(this, arguments); } finally { inM = false; } };
+    ctxM.drawImage = function () { if (inM) al.push(ctxM.globalAlpha); return md.apply(this, arguments); };
+    step(2); out.motes = MoteCount.draw; out.moteAlpha = [Math.min(...al), Math.max(...al)];
+    ctxM.drawImage = md; window.drawMotes = dm;
+    const m0 = _motes.map(m => [m.x, m.y]); for (let i = 0; i < 30; i++) step(1); out.moteMoved = _motes.filter((m, i) => Math.hypot(m.x - m0[i][0], m.y - m0[i][1]) > 1).length;
+    out.moteDir = _motes.filter((m, i) => { const dy = m.y - m0[i][1]; return Math.abs(dy) < 100 && dy * m.vy > 0; }).length;      // fiecare urca sau coboara dupa viteza lui, nu doar se leagana
+    CONFIG.look.motes = 0; step(2); out.motes0 = MoteCount.draw; CONFIG.look.motes = 40; step(2);
+    out.moteGrey = Object.values(MOTE_COLS).flat().filter(grey).length;
+    // vulcan: scantei care urca; pestera: spori care coboara; altfel praf care pluteste usor in sus
+    const fake = (key) => { moteInit({ def: { key }, seed: 3 }); return _motes.map(m => m.vy); };
+    const vs = fake('volcano'), vc = fake('cave'), vd = fake('x');
+    out.kinds = { spark: vs.every(v => v < 0), spore: vc.every(v => v > 0), dust: vd.every(v => v < 0 && v > -20), sparkFast: Math.min(...vs) < -40 };
+    moteInit(G.P.L);
+    // ---- apa: doua randuri de valuri, in sens opus; fara createPattern pe cadru; oglindire in pictura
+    out.water = !!L.water; out.waves = WaterCount.waves; out.sparkMax = L.water.spark.length;
+    const pat = matPattern('water-wave', WAVE_W, WAVE_H, paintWaveTile), e = [], st = pat.setTransform;
+    pat.setTransform = function (m) { e.push(m.e); return st.apply(this, arguments); };
+    const dctx = ctxM; fillWaves(dctx, L.water.path, 1.0, 14, 9); const a1 = e.slice(); e.length = 0; fillWaves(dctx, L.water.path, 1.5, 14, 9); const a2 = e.slice();
+    pat.setTransform = st;
+    out.dir = { first: a2[0] - a1[0], second: a2[1] - a1[1] };
+    const cnt = { pat: 0, rad: 0 }, op = P2.createPattern, orad = P2.createRadialGradient;
+    P2.createPattern = function () { cnt.pat++; return op.apply(this, arguments); };
+    const perFrame = () => { cnt.rad = 0; P2.createRadialGradient = function () { cnt.rad++; return orad.apply(this, arguments); }; for (let i = 0; i < 10; i++) step(1); P2.createRadialGradient = orad; return cnt.rad; };
+    out.radAll = perFrame(); out.pat = cnt.pat;
+    CONFIG.look.waves = true; CONFIG.look.motes = 0; CONFIG.look.halo = 0; out.radBase = perFrame(); out.pat0 = cnt.pat;
+    P2.createPattern = op; CONFIG.look.motes = 40; CONFIG.look.halo = 0.5;
+    // oglindirea: pictura apei difera cu si fara ea (media pe 60 de celule de apa)
+    const sample = (LL) => { const d = LL.bg.getContext('2d'); let v = []; for (let i = 0; i < 60; i++) { const k = LL.waterCells[(i * 7) % LL.waterCells.length], px = d.getImageData((k % LL.cols + 0.5) * 40 | 0, ((k / LL.cols | 0) + 0.5) * 40 | 0, 1, 1).data; v.push(px[0], px[1], px[2]); } return v; };
+    const sOn = sample(G.P.L); CONFIG.look.waves = false; go(2); step(3); out.noWaterOff = !G.P.L.water; const sOff = sample(G.P.L);
+    out.refl = sOn.reduce((a, b, i) => a + Math.abs(b - sOff[i]), 0) / sOn.length;
+    CONFIG.look.waves = true; go(2); step(3);
+    // culorile valurilor: niciun gri (nici in placa pictata)
+    const tile = sprite('mat-water-wave', WAVE_W, WAVE_H, paintWaveTile).getContext('2d').getImageData(0, 0, WAVE_W * 2, WAVE_H * 2).data;
+    let tg = 0, tn = 0; for (let i = 0; i < tile.length; i += 4) if (tile[i + 3] > 120) { tn++; if (tile[i] === tile[i + 1] && tile[i + 1] === tile[i + 2]) tg++; }
+    out.tile = { n: tn, grey: tg };
+    // ---- halouri: pe ce da lumina, alpha 0.35 - 0.6, cel mult haloMax; halo: 0 = niciunul
+    go(6); step(30);
+    out.arenaHalo = LightCount.halo; out.haloRange = [LightCount.haloLo, LightCount.haloHi]; out.haloMax = CONFIG.look.haloMax;
+    CONFIG.look.halo = 0; step(2); out.halo0 = LightCount.halo; CONFIG.look.halo = 0.5; step(2);
+    CONFIG.look.haloMax = 2; step(2); out.haloCap = LightCount.halo; CONFIG.look.haloMax = 12;
+    // ---- nivelurile 1 - 6 fara preview: fara apa noua, fara praf
+    CONFIG.look.preview = false; go(2); step(30);
+    out.plain = { water: !!G.P.L.water, motes: MoteCount.draw };
+    return out;
+  });
+  check('praful: 40 de puncte pe ecran', w.motes === 40, w.motes);
+  check('praful: alpha intre 0.15 si 0.4', w.moteAlpha[0] >= 0.149 && w.moteAlpha[1] <= 0.401 && w.moteAlpha[1] > w.moteAlpha[0], w.moteAlpha);
+  check('praful: se misca', w.moteMoved >= 30, w.moteMoved);
+  check('praful: urca sau coboara dupa viteza fiecaruia (nu doar se leagana)', w.moteDir >= 30, w.moteDir);
+  check('motes: 0: niciun punct', w.motes0 === 0, w.motes0);
+  check('praful: culorile nu sunt gri', w.moteGrey === 0, w.moteGrey);
+  check('vulcan: scantei care urca; pestera: spori care coboara; altfel praf usor', w.kinds.spark && w.kinds.spore && w.kinds.dust && w.kinds.sparkFast, w.kinds);
+  check('apa: pictura apei exista (L.water) si doua randuri de valuri pe cadru', w.water && w.waves === 2, { water: w.water, valuri: w.waves });
+  check('apa: cel mult 24 de sclipiri', w.sparkMax > 0 && w.sparkMax <= 24, w.sparkMax);
+  check('apa: cele doua randuri merg in sens opus', w.dir.first > 0 && w.dir.second < 0, w.dir);
+  check('apa si praful: niciun createPattern pe cadru', w.pat === 0 && w.pat0 === 0, { cu: w.pat, fara: w.pat0 });
+  check('apa, praful si halourile: niciun createRadialGradient in plus pe cadru', w.radAll === w.radBase, { cu: w.radAll, fara: w.radBase });
+  check('oglindirea: pictura apei difera cu ea', w.refl > 0.5, w.refl);
+  check('waves: false: nu se mai picteaza apa noua (ramane clipirea veche)', w.noWaterOff, w.noWaterOff);
+  check('valurile: nicio culoare gri in placa', w.tile.n > 200 && w.tile.grey === 0, w.tile);
+  check('halouri: pe arena, pe ce da lumina, cel mult haloMax', w.arenaHalo > 0 && w.arenaHalo <= w.haloMax, w.arenaHalo);
+  check('halouri: alpha intre 0.35 si 0.6', w.haloRange[0] >= 0.349 && w.haloRange[1] <= 0.601, w.haloRange);
+  check('halo: 0: niciun halou; haloMax limiteaza', w.halo0 === 0 && w.haloCap <= 2, { fara: w.halo0, cap: w.haloCap });
+  check('nivelurile 1 - 6 fara preview: fara apa noua si fara praf', !w.plain.water && w.plain.motes === 0, w.plain);
   console.log(bad.length ? 'NEREUSIT: ' + bad.join(' | ') : 'stil-grafic OK');
   await done();
 })();

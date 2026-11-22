@@ -423,3 +423,25 @@ Cinci defectiuni puse pe rand, toate prinse: fara stingere (412 eroi acoperiti),
 - **Harta de lumina din specificatie costa prea mult**: nivelul cu 56% peste cel vechi. Masurat pe bucati: marirea canvasului mic pe tot ecranul era 10 ms. Acum luminile se pun direct pe ecran.
 - **Pixeli gri in planul din fata**, la margini, unde marginea calda se amesteca cu violet si verde. Marginea are acum nuanta lucrului.
 - Testul insusi a avut o greseala: tinea minte `P` de la nivelul de dinainte (`G.P` e un getter); "fara preview" arata planul nivelului vechi.
+
+## Update 22 noiembrie 2026: stralucire, apa si praf (sarcina T6.8)
+
+`tests/stil-grafic.js` primeste partea a doua (pe nivelul 3, cu `preview`, si pe arena):
+
+| Ce verifica | Rezultat |
+|---|---|
+| Praful: 40 de puncte pe ecran, alpha intre 0.15 si 0.4, fiecare urca sau coboara dupa viteza lui (nu doar se leagana), `motes: 0` = niciunul, nicio culoare gri. | OK |
+| Vulcan: scantei care urca repede; pestera: spori care coboara; altfel praf care urca incet. | OK |
+| Apa: `L.water` exista, doua randuri de valuri pe cadru, cel mult 24 de sclipiri, **cele doua randuri merg in sens opus** (deplasarile primei si a doua au semne diferite). | OK: +7 si -4,5 pe 0,5 s |
+| Niciun `createPattern` pe cadru; niciun `createRadialGradient` in plus cu apa, praful si halourile (40 si 40). | OK |
+| Oglindirea: pictura apei difera cu ea. `waves: false`: nu se mai picteaza apa noua. Placa valurilor: nicio culoare gri. | OK |
+| Halouri: pe arena, doar la lucruri care lumineaza, cel mult `haloMax`, alpha intre 0.35 si 0.6; `halo: 0` = niciunul. | OK |
+| Nivelurile 1 - 6 fara `preview`: fara apa noua si fara praf. | OK |
+
+Harta de lumina se numara acum ca "luminile (cel mult 24) plus halourile (cel mult 12)".
+
+### Verificat ca poate sa pice
+
+12 defecte puse pe rand, 12 prinse: alpha prea mare la praf, praf care nu se misca, scantei care coboara, valuri in acelasi sens, `createPattern` pe cadru, fara oglindire, halou prea puternic, `haloMax` ignorat, valuri gri, prea multe sclipiri, praf pe nivelurile vechi, `motes: 0` care tot deseneaza. **Unul a trecut prima data** (praful care nu urca, doar se leagana pe orizontala); testul a fost intarit cu verificarea directiei si defectul prins.
+
+Scripturile de o singura data (`tests/tmp/apa-proba.js`, `perf-cadru3.js`, `perf-cadru4.js`, `capturi-t68.js`) nu intra in depozit. Capturile: `24-apa-nou.jpg`, `24-apa-vechi.jpg`, `24-halouri.jpg`.

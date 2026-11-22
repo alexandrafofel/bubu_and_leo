@@ -290,7 +290,11 @@ Stilul grafic nou (`docs/24-sisteme-noi.md`, S7) are reglajele lui. Fiecare se p
 | `look.frontMin` | `0.15` | Cat ramane din el stins. |
 | `look.frontPar` | `1.15` | De cate ori se misca planul din fata fata de camera (paralaxa). |
 | `look.frontNear` | `220` | La ce distanta (pe ecran) de un lucru din fata incepe sa se stinga, ca sa fie deja stins cand eroul ajunge sub el. |
-| `look.motes` | `40` | Cate fire de praf plutesc in lumina. `0` = niciunul. De la T6.8. |
+| `look.motes` | `40` | Cate fire de praf plutesc in lumina (in spatiul ecranului). `0` = niciunul. T6.8. |
+| `look.halo` | `0.5` | Cat de tare stralucesc lucrurile care lumineaza (torte, cristale, lava): alpha 0.35 - 0.6 in jurul acestei valori. `0` = niciun halou. T6.8. |
+| `look.haloMax` | `12` | Cel mult atatea halouri pe cadru, in plus fata de cele `maxLights` lumini. T6.8. |
+| `look.waves` | `true` | Apa nivelurilor noi: doua randuri de valuri, oglindire, sclipiri. `false` = vechea clipire. T6.8. |
+| `look.waveSpeedA`, `look.waveSpeedB` | `14`, `9` | Unitati pe secunda: primul rand de valuri merge spre dreapta, al doilea spre stanga. T6.8. |
 | `look.freeze` | `0.06` | Cate secunde sta jocul la o lovitura mare (S7.6). `0` = nu sta deloc. De la T6.9. |
 | `look.maxLights` | `24` | Cate lumini se deseneaza intr-un cadru. Daca sunt mai multe, raman cele mai apropiate de mijlocul ecranului. De la T6.7. |
 | `look.tailLift` | `0.18` | Cat se ridica coada lui Boon si a lui George la viteza de mers (radiani). La fuga mai mult, pana la `tailMax`. T6.5. |

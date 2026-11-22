@@ -173,6 +173,11 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `look.freeze` | `0.06` |  |
 | `look.maxLights` | `24` |  |
 | `look.lightGlow` | `0.6` |  |
+| `look.halo` | `0.5` |  |
+| `look.haloMax` | `12` |  |
+| `look.waves` | `true` |  |
+| `look.waveSpeedA` | `14` |  |
+| `look.waveSpeedB` | `9` |  |
 | `look.preview` | `false` |  |
 | `look.frontFade` | `0.2` |  |
 | `look.frontMin` | `0.15` |  |
