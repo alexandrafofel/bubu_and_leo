@@ -66,7 +66,7 @@ Implementarea poate porni fara raspunsuri: se foloseste coloana "Daca nu raspunz
 
 | Nr | Intrebare | Daca nu raspunzi | Unde se schimba |
 |---|---|---|---|
-| I1 | Fuga, cele 10 secunde si butoanele noi sa fie si in "Bubu și Leo"? | Da. | `CONFIG.sprint.games`, `CONFIG.rescue.limitGames` |
+| I1 | Fuga, cele 10 secunde si butoanele noi sa fie si in "Bubu și Leo"? | Da. | Nu mai e o intrebare: un singur joc, deci fuga si ajutorul sunt deja in el. Chei: `CONFIG.sprint.enabled`, `CONFIG.rescue.enabled` |
 | I2 | Bubu si Leo sa primeasca si ei o a doua putere? | Nu. | `CONFIG.heroes[k].power2` |
 | I3 | Boon arunca oase. Preferati altceva: oua pestrite, dinti, bulgari de lava? | Oase. | `CONFIG.lupta.heroes[0].throw.look` |
 | I4 | Fuga: o apasare (tine pana lasi stick-ul) sau cat tii apasat? | O apasare. | `CONFIG.sprint.mode` |
@@ -147,6 +147,8 @@ Inainte de orice sarcina si dupa fiecare: `./build.sh`, `node tools/gen-docs.js`
 | T14.8 | Mesajele si ghidul: bannerele `quotaDone` si `quotaBoth`, `quota.full`, `quota.far`, `quota.auto`; textele in `STR`, romana si engleza, cu varianta `L:`; sageata `kind: 'give'`; sunetul `give` ramane pe T14.4. | 27, C5 (texte si sageata), C11 | Verificarea 8 din `cota.js` trece, in ambele limbi. |
 | T14.9 | `tests/cota.js` cu cele 16 verificari din C10, fiecare verificat ca poate sa pice (strica regula, vezi `NEREUSIT`, apoi pune la loc). | 27, C10 | Toate cele 16 verificari trec si fiecare pica atunci cand regula e stricata. |
 | T14.10 | Boti, teste complete, documentatie: `balanseaza()` in `tests/common.js`, `joc-complet-bot.js` si `nivele-bot-mers.js` termina jocul, `tests/toate.sh` intreg, timpul pe nivel in `17-testare.md`, toate capitolele, `27` devine istoric. | 27, C8 (9), C10 (15 - 16) | `tests/toate.sh` trece intreg, cu `errors 0`. Planul marcheaza T14.1 - T14.10 facute. |
+
+**Verificare la 21 noiembrie 2026 (dupa PR-urile #5 - #14).** `tests/salvare-prieten.js` era rosu pe `main` dupa T4: testul astepta 12 s de la lovitura, dar limita de ajutor e 10 s (`CONFIG.rescue.limit`), deci nivelul reincepea inainte de verificare. Jocul era bine; testul nu fusese actualizat. Testul a fost corectat: asteapta 5 s (inca in limita) si verifica reinceperea dupa `bothDown` (3 s) in loc de "se ridica singuri". Dupa aceea `tests/toate.sh` a trecut cu toate cele 26 de teste.
 
 Dupa **T5** jocul are deja toate regulile cerute, pe nivelurile de acum: butoane, fuga, a doua putere, cele 10 secunde, capitole, scrisul reparat. Este cel mai bun moment sa il incerce copiii si sa primim raspunsurile la intrebarile I1 - I9 de mai sus, inainte de nivelurile noi. T1 - T5 sunt un update intreg si folositor chiar fara nimic dupa el.
 

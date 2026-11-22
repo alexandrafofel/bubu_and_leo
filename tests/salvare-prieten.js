@@ -17,7 +17,8 @@ const boot = require('./common.js');
     const x0 = a.x; inp[0] = { x: 1, y: 0 }; step(120); inp[0] = { x: 0, y: 0 };
     out['cat asteapta: pixeli parcursi cu stickul impins'] = Math.round(Math.abs(a.x - x0));
     out['cat asteapta: marimea eroului'] = +a.small.toFixed(2);
-    step(60 * 12); out['dupa 12 secunde tot asteapta (nu se ridica singur)'] = a.down === true;
+    // the friend has 10 s (CONFIG.rescue.limit), and the test has already used ~2.7 s: wait 5 s more, then the friend still comes in time
+    step(60 * 5); out['dupa ~8 secunde tot asteapta (nu se ridica singur)'] = a.down === true && G.Game.state === 'play';
     const hits0 = P.hits; a.inv = 0; G.hitHero(a, a.x - 60, a.y); out['nu poate fi lovit din nou cat asteapta'] = P.hits === hits0;
     // 2. the second hero helps from far away, but not from too far
     inp[1].bP = true; step(3); out['al doilea erou, prea departe (800): nu merge'] = a.down === true && P.heal.length === 0;
@@ -37,8 +38,10 @@ const boot = require('./common.js');
     // 4. both down: they get up alone after a short while
     place(300); G.hitHero(a, a.x - 60, a.y); G.hitHero(b, b.x + 60, b.y); step(30);
     out['amandoi loviti: amandoi asteapta'] = a.down && b.down;
-    step(Math.round(R.bothDown * 60) + 30); out['amandoi loviti: dupa ' + R.bothDown + ' s se ridica singuri'] = !a.down && !b.down && P.rescues === 2;
+    // with the limit on, nobody is left to help: after bothDown s the chapter starts again (CONFIG.rescue.bothDownRestart)
+    step(Math.round(R.bothDown * 60) + 30); out['amandoi loviti: dupa ' + R.bothDown + ' s nivelul reincepe'] = G.Game.state === 'retry' || (!R.bothDownRestart || !(R.limit > 0));
     // 5. a player alone never waits
+    go(0); calm(); P = G.P; a = P.heroes[0]; b = P.heroes[1];
     joined = [true, false]; place(300); G.hitHero(a, a.x - 60, a.y); step(20);
     out['un singur jucator: nu asteapta pe nimeni'] = a.down === false && a.dizzy > 0;
     joined = [true, true];
@@ -58,10 +61,10 @@ const boot = require('./common.js');
     return out;
   });
   const want = {
-    'lovit: asteapta ajutor': true, 'lovit: scapa un ou': 1, 'dupa 12 secunde tot asteapta (nu se ridica singur)': true, 'nu poate fi lovit din nou cat asteapta': true,
+    'lovit: asteapta ajutor': true, 'lovit: scapa un ou': 1, 'dupa ~8 secunde tot asteapta (nu se ridica singur)': true, 'nu poate fi lovit din nou cat asteapta': true,
     'al doilea erou, prea departe (800): nu merge': true, 'mingea ajunge: eroul se ridica': true, 'dupa ajutor e ferit o vreme': true,
     'al doilea erou lovit: asteapta': true, 'primul erou, la 400: prea departe': true, 'primul erou: apare semnul "vino mai aproape"': true,
-    'amandoi loviti: amandoi asteapta': true, 'un singur jucator: nu asteapta pe nimeni': true,
+    'amandoi loviti: amandoi asteapta': true, 'amandoi loviti: dupa 3 s nivelul reincepe': true, 'un singur jucator: nu asteapta pe nimeni': true,
     'lupta: paznicul asteapta cat un erou e lovit': true, 'lupta: paznicul nu poate fi lovit in acest timp': true, 'lupta: dupa ajutor paznicul ataca din nou': true
   };
   const bad = [];
