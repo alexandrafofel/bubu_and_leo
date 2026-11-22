@@ -4,7 +4,7 @@
 
 Textele sunt in `STR` din src/015-lang.js. Cheia este numele folosit in cod: `T('cheie')`. `{0}` si `{1}` sunt locuri completate de cod (un nume, un numar).
 
-Total: 202 texte in romana si 202 in engleza.
+Total: 214 texte in romana si 213 in engleza.
 
 | Cheie | Linia (ro) | Romana | Engleza |
 |---|---|---|---|
@@ -21,6 +21,17 @@ Total: 202 texte in romana si 202 in engleza.
 | `t.then` | 33 | apoi pornim! | then off we go! |
 | `t.onPad` | 33 | pe controller | on the controller |
 | `quota.full` | 34 | Plin! | Full! |
+| `quota.far` | 34 | Apropie-te de {0}! | Come closer to {0}! |
+| `quota.need` | 34 | {0} mai are nevoie de {1}! | {0} still needs {1}! |
+| `quota.auto` | 34 | {0} îți trimite un ou. | {0} sends you one. |
+| `quota.done` | 34 | Ai găsit toate ouăle! Acum ajută-l și pe {0}: poți să-i dai cu {1}. | You found them all! Now help {0}: you can give them with {1}. |
+| `L:quota.done` | 34 | Ai găsit toate cristalele! Acum ajută-l și pe {0}: poți să-i dai cu {1}. | You found all the crystals! Now help {0}: you can give them with {1}. |
+| `quota.both` | 34 | Amândoi ați găsit toate! La cuib! | You both found them all! To the nest! |
+| `L:quota.auto` | 34 | {0} îți trimite un cristal. | (lipseste) |
+| `quota.one` | 34 | un ou | one egg |
+| `quota.many` | 34 | {0} ouă | {0} eggs |
+| `L:quota.one` | 34 | un cristal | one crystal |
+| `L:quota.many` | 34 | {0} cristale | {0} crystals |
 | `t.final` | 34 | Marele final | Grand finale |
 | `t.level` | 34 | Nivelul {0} | Level {0} |
 | `t.cont` | 34 | Continuă: {0} | Continue: {0} |
@@ -158,6 +169,7 @@ Total: 202 texte in romana si 202 in engleza.
 | `key.b` | 84 | Ajută prietenul (butonul ○) | Help your friend (the ○ button) |
 | `key.c` | 84 | A doua putere (butonul □) | Second power (the □ button) |
 | `key.r` | 84 | Fugă (apasă stick-ul, L3) | Run (press the stick, L3) |
+| `key.g` | 84 | Dă un ou prietenului (butonul L1) | Give an egg to your friend (the L1 button) |
 | `key.press` | 85 | Apasă tasta nouă | Press the new key |
 | `key.reset` | 85 | Tastele de la început | Starting keys |
 | `key.space` | 85 | Spațiu | Space |

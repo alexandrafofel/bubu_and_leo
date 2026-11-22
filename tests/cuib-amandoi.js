@@ -8,7 +8,7 @@ const boot = require('./common.js');
     const G = __game; go(0); const P = G.P, L = P.L;
     for (const b of L.beetles) { b.state = 'sleep'; b.cool = 999; } L.cones.length = 0;
     P.eggs.length = 0; P.wave = L.NW - 1; for (const t of L.trees) if (t.spark) t.spark.done = true;
-    G.openNest(); inp[0] = {}; inp[1] = {};
+    G.openNest(); inp[0] = {}; inp[1] = {}; P.found = [P.q, P.q];      // each found the quota (T14.5), so only the nest decides here
     P.heroes[0].x = L.nest.x - 30; P.heroes[0].y = L.nest.y + 20; P.heroes[1].x = L.nest.x - 700; P.heroes[1].y = L.nest.y + 60; step(5);
   });
   const out = {};

@@ -146,8 +146,8 @@ const CONFIG = {
   deadzone: 0.25,              // stick deadzone (0.25 or more)
   vibration: true,
   keys: [                      // starting keys: player 1, player 2 (KeyboardEvent.code names)
-    { up: 'KeyW', down: 'KeyS', left: 'KeyA', right: 'KeyD', a: 'Space', b: 'KeyE', c: 'KeyQ', r: 'ShiftLeft' },   // a = first power (✕), b = help the friend (○), c = second power (□), r = run (L3)
-    { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', a: 'Enter', b: 'ShiftRight', c: 'Slash', r: 'AltRight' }
+    { up: 'KeyW', down: 'KeyS', left: 'KeyA', right: 'KeyD', a: 'Space', b: 'KeyE', c: 'KeyQ', r: 'ShiftLeft', g: 'KeyR' },   // a = first power (✕), b = help the friend (○), c = second power (□), r = run (L3), g = give an egg (L1)
+    { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', a: 'Enter', b: 'ShiftRight', c: 'Slash', r: 'AltRight', g: 'Period' }
   ],
 
   // ---- Run: press the left stick (L3) ----
