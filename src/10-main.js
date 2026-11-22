@@ -98,7 +98,7 @@ function update(dt) {
       const lost = Input.slots.findIndex(s => s.lost);
       if (lost >= 0) UI.lostK = lost;
       if (Input.pause || lost >= 0) { Game.paused = true; UI.pauseSel = 0; UI.ask = null; Snd.setDuck(0.35); }
-      else updatePlay(dt);
+      else if (!holdBreath(dt)) updatePlay(dt);      // not while the game holds its breath after a big hit (T6.9)
     }
   } else if (st === 'levelEnd') {
     UI.lvlT += dt; stepParts(dt);

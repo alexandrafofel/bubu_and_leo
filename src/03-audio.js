@@ -458,11 +458,14 @@ const Snd = (() => {
     gloves(b, t) { for (let i = 0; i < 2; i++) noise(b, t + i * 0.12, 0.14, 0.012, 0.13, 'bandpass', 500, 1400, 1.2); osc(b, 'sine', 900, t + 0.1, 0.09, 0.01, 0.08, { f2: 700, gt: 0.07 }); },
     // The ten seconds: a soft wooden knock every second (higher in the last three), and the three kind notes of "Încă o dată!"
     tick(b, t, v) { osc(b, 'sine', v > 0.5 ? 880 : 660, t, 0.14, 0.004, 0.05, { f2: v > 0.5 ? 760 : 580, gt: 0.04 }); },
+    // a mechanism clicks before it moves (T6.9): a short soft wooden "tic" with a spark of air
+    click(b, t) { osc(b, 'triangle', 1250, t, 0.12, 0.002, 0.045, { f2: 900, gt: 0.04 }); noise(b, t, 0.04, 0.001, 0.05, 'bandpass', 2600, 1800, 2.0); },
     retry(b, t) { [72, 67, 64].forEach((n, i) => marimba(b, mtof(n), t + i * 0.16, 0.3)); chime(b, mtof(79), t + 0.42, 0.1); }
   };
   /* Running (L3) in the first game too: the same short soft whoosh. */
   fx.dash = fx2.dash; fx.tick = fx2.tick; fx.retry = fx2.retry;
   const CHR = { give: 1, egg: 1, star: 1, giant: 1, stomp: 1, kick: 1, bounce: 1, bonk: 1, drop: 1, squelch: 1, step: 1, swish: 1, heal: 1, grab: 1, dash: 1, bone: 1, tock: 1, gloves: 1 };
+  fx.dash = fx2.dash; fx.tick = fx2.tick; fx.retry = fx2.retry; fx.click = fx2.click;
   /* play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. */
   function play(name, arg, k, vol) {
     const f = (GAME === 'lupta' && fx2[name]) || fx[name];

@@ -320,6 +320,7 @@ Cuvinte noi pentru Boon si pentru Killer: `power2` si `power2Big` (a doua putere
 
 | Sunet | Cand | Cum e facut |
 |---|---|---|
+| `click` | un mecanism inainte sa se miste (T6.9) | Triunghi 1250 -> 900 Hz, 0.045 s, plus putin zgomot trece-banda 2600 Hz: un "tic" moale de lemn. Sunet al lumii, nu al unui erou. |
 | `tick` | la fiecare secunda a numaratorii | Sinus 660 -> 580 Hz, 0.05 s: un toc moale de lemn. In ultimele 3 secunde, 880 -> 760 Hz si de doua ori pe secunda. |
 | `retry` | cand nivelul reincepe | Trei note de marimba care coboara (do, sol, mi) si un clopotel la sfarsit. Blande, nu o alarma: nu e o pedeapsa. |
 

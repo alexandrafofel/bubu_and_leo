@@ -53,7 +53,7 @@ Total: 40 efecte.
 
 Cat se joaca "Cea mai grea luptă", efectele de mai jos iau locul celor cu acelasi nume din `fx`. Un nume care nu e in `fx` exista doar in al doilea joc.
 
-Total: 34 efecte.
+Total: 35 efecte.
 
 | Linia | Nume | Grup | Comentariul din cod | Cod |
 |---|---|---|---|---|
@@ -90,4 +90,5 @@ Total: 34 efecte.
 | 456 | `tock` | personaje |  | `tock(b, t) { osc(b, 'sine', 520, t, 0.16, 0.004, 0.06, { f2: 430, gt: 0.05 }); noise(b, t, 0.07, 0.002, 0.03, 'bandpass', 1500, 900, 2.2); },` |
 | 458 | `gloves` | personaje |  | `gloves(b, t) { for (let i = 0; i < 2; i++) noise(b, t + i * 0.12, 0.14, 0.012, 0.13, 'bandpass', 500, 1400, 1.2); osc(b, 'sine', 900, t + 0.1, 0.09, 0.01, 0.08, ...` |
 | 460 | `tick` | lume |  | `tick(b, t, v) { osc(b, 'sine', v > 0.5 ? 880 : 660, t, 0.14, 0.004, 0.05, { f2: v > 0.5 ? 760 : 580, gt: 0.04 }); },` |
-| 461 | `retry` | lume |  | `retry(b, t) { [72, 67, 64].forEach((n, i) => marimba(b, mtof(n), t + i * 0.16, 0.3)); chime(b, mtof(79), t + 0.42, 0.1); }` |
+| 462 | `click` | lume |  | `click(b, t) { osc(b, 'triangle', 1250, t, 0.12, 0.002, 0.045, { f2: 900, gt: 0.04 }); noise(b, t, 0.04, 0.001, 0.05, 'bandpass', 2600, 1800, 2.0); },` |
+| 463 | `retry` | lume |  | `retry(b, t) { [72, 67, 64].forEach((n, i) => marimba(b, mtof(n), t + i * 0.16, 0.3)); chime(b, mtof(79), t + 0.42, 0.1); }` |

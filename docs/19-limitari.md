@@ -147,6 +147,7 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - **George cazand in arena** se roteste: lumina se roteste cu el. Dureaza o clipa.
 - **Bubu si Leo** folosesc inca `drawEye` vechi (neschimbat). Nu se mai joaca.
 
+
 ## T6.5 (22 noiembrie 2026): ce nu s-a putut verifica
 
 - **Cum se simte miscarea pe ecranul mare, la 60 de cadre reale.** S-a vazut pe GIF (15 cadre pe secunda) si pe capturi.
@@ -205,8 +206,21 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - `nivele-bot-mers.js` joaca singur, deci drumul in care doi copii isi impart diamantele pe un nivel intreg nu e mers cu adevarat de nimeni; `joc-complet-bot.js` il face, dar mutand eroii direct.
 - Numarul de diamante pe nivel urmeaza valurile (21 pe nivelul 1, nu 22): intrebare deschisa pentru proprietara, vezi `28-t15-george-de-doua-ori.md`, G3.
 - Nimic din cota nu a fost incercat pe un Mac, cu controllere, cu copii. Lucrurile pe care nu le poate spune niciun test sunt in `27-cota-de-oua.md`, C11: daca cel de 6 ani intelege ca a primit un diamant, daca cel de 8 ani da din proprie initiativa, si daca cele doua minute pana la ajutorul automat sunt prea multe.
-
 ## T15 (22 noiembrie 2026)
+
+## T6.9 (22 noiembrie 2026): ce nu s-a putut verifica
+
+- **Cum se simte pe controller.** Oprirea de 0.06 s si apropierea de 4% s-au masurat (cadre, zoom), dar daca "se simt" bine cu un DualShock in mana nu se poate sti de aici. Se regleaza din `look.freeze` si `look.kick`.
+- **Mecanismele nu exista inca** (T7): `mechMove` si `mechClick` sunt verificate pe functii pure si pe un clic, nu pe un pod sau o poarta adevarata. Poarta care se deschide si bolovanul care cade nu cheama inca `bigHit` (nu exista).
+- **Anticiparea lui George** e doar in lupta de pe arena (si in cea din copac); paznicii din mini-lupte nu se trag inapoi (S7.6 cere asta doar pentru George si pentru mecanisme).
+- **Zguduirea** a ramas cum era, deci la o lovitura mare se aduna: oprire, zoom si zguduire. Daca pare prea mult, se opreste una din ele din `CONFIG.look`.
+
+## T6.10 (22 noiembrie 2026): ce nu s-a putut verifica
+
+- **Intrebarea 8 din S7.8** (copilul isi recunoaste desenul in Boon, Killer, George): numai copiii pot raspunde. De aratat lor `capturi/24-personaje-comparatie.jpg` si `capturi/24-final-ro-3.jpg`.
+- **Timpul pe un Mac si pe televizorul familiei.** Bugetul de +20% e masurat sub SwiftShader (procesor, fara placa video), cu zgomot de ±2 ms. Valorile reale pe Chrome/macOS pot sa difere; raportul ar trebui sa fie mai mic acolo, dar nu s-a masurat.
+- **Gradientii vechi.** Codul vechi de desen (nivelurile 1 - 6 fara `preview`, `drawBubu`, `drawLeo`) are inca in jur de 40 de `createRadialGradient` pe cadru. Lista din `stil-grafic.js` acopera doar functiile stilului nou.
+- **Pixelii gri** se cauta doar cu R = G = B. Un gri cu o nuanta usoara de culoare nu e prins (vezi `17-testare.md`, "Limita cunoscuta").
 
 - Toate cifrele din T15 (`fieldEnemies`, `midThrows`, `nestEnemies`, `enemyHp`, `chaseSpeed`, `minT`) sunt puncte de pornire. Nu au fost incercate cu copii.
 - Botii au nevoie de 40 - 90 de secunde pe nivel ca sa invinga 30 de inamici; doi copii vor avea nevoie de mai mult. Nu stim daca 30 de inamici pe nivel se simt ca un joc sau ca o corvoada.

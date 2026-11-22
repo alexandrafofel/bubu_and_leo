@@ -194,6 +194,13 @@ Trei copii ale eroului in spate (0.28, 0.18, 0.09), apoi sase linii subtiri de v
 
 Atentie la `text(...)`: `halo` este **grosimea conturului ca parte din marimea fontului** (0.2 implicit), nu un numar de pixeli. `halo: 5` deseneaza un cerc crem imens peste jumatate de ecran.
 
+## Update 22 noiembrie 2026: insigna cu cota (T14.7, T14.8)
+
+- `drawBadge` are 300 x 108: portret rotund (`drawPort`, inel in culoarea eroului), nume, dificultate sus in dreapta si, cand nivelul are cota, un ou / cristal mic si `gasite / cota`.
+- Numarul e verde (`QUOTA_GREEN`) cand e gata, cu bifa (`drawTick`), si rosu (`QUOTA_RED`) cand lipseste, cu o clatinare de 1 grad la 3 secunde. Creste la 1,25 cand soseste un ou (`numT`) si se scutura cand L1 nu are ce da (`noT`).
+- `drawMidCard` are bannerele `quotaDone` (portret, text pe 2 randuri, `iconL1` care pulseaza, sageata spre prieten) si `quotaBoth`; `waitBanner` intoarce `need` cand cota lipseste.
+- `guideTarget` trimite eroul plin spre prietenul care are nevoie (`give`) sau spre cuib. `drawHints` deseneaza balonul "Apropie-te" si "Plin!".
+- Banda de sus ramane liber de eroi: `STRICT=1 node ../hud-acoperire.js` da 0%.
 ## Update 22 noiembrie 2026 (T6.6, T6.7): planul din fata si harta de lumina
 
 Amandoua sunt doar pe nivelurile cu `look: 'diorama'` (7 - 12, cand vor exista) sau pe toate, cu `CONFIG.look.preview: true`. Nivelurile 1 - 6 raman cum erau. Se pun la incarcarea nivelului in `finishLook(L)` (`06-level.js`) si se desenează in `drawPlay`, dupa lume: intai harta de lumina, apoi planul din fata, apoi indicatiile si banda de sus.
@@ -262,13 +269,21 @@ Ca si harta (T6.7), doar pe nivelurile cu `look: 'diorama'` sau cu `CONFIG.look.
 
 T6.8 adauga cam 1,3 ms (cam 6%) peste T6.7; tot cadrul nou e cam 20% peste cel vechi, **chiar la limita din S7.7** (20%). Masuratoarea are un zgomot de aproape 2 ms intre rulari. Reglaje daca un Mac se chinuie: `motes`, `halo`, `waves`.
 
-## Update 22 noiembrie 2026: insigna cu cota (T14.7, T14.8)
+## Update 22 noiembrie 2026 (T6.9): greutatea miscarii
 
-- `drawBadge` are 300 x 108: portret rotund (`drawPort`, inel in culoarea eroului), nume, dificultate sus in dreapta si, cand nivelul are cota, un ou / cristal mic si `gasite / cota`.
-- Numarul e verde (`QUOTA_GREEN`) cand e gata, cu bifa (`drawTick`), si rosu (`QUOTA_RED`) cand lipseste, cu o clatinare de 1 grad la 3 secunde. Creste la 1,25 cand soseste un ou (`numT`) si se scutura cand L1 nu are ce da (`noT`).
-- `drawMidCard` are bannerele `quotaDone` (portret, text pe 2 randuri, `iconL1` care pulseaza, sageata spre prieten) si `quotaBoth`; `waitBanner` intoarce `need` cand cota lipseste.
-- `guideTarget` trimite eroul plin spre prietenul care are nevoie (`give`) sau spre cuib. `drawHints` deseneaza balonul "Apropie-te" si "Plin!".
-- Banda de sus ramane liber de eroi: `STRICT=1 node ../hud-acoperire.js` da 0%.
+In toate nivelurile (nu doar pe cele cu `look: 'diorama'`): loviturile mari se simt. Se regleaza din `CONFIG.look` (`freeze`, `kick`, `kickIn`, `kickOut`, `anticipate`).
+
+- **Oprirea** (`bigHit`, `holdBreath`, `07-play.js`): la o lovitura mare jocul sta `look.freeze` secunde (0.06 = trei sau patru cadre): `updatePlay` nu ruleaza (`P.freeze > 0`), dar desenul ruleaza in fiecare cadru. Loviturile mari de acum: paznicul lovit (`duelHit`) si George cazut (`bossBall`). O poarta care se deschide sau un bolovan care cade (T7) cheama `bigHit()` si ele. `look.freeze: 0` = nu sta deloc.
+- **Un buton apasat in timpul opririi nu se pierde.** `Input.poll` da fiecare apasare ca "front" pentru un singur cadru; in cadrele oprite, fronturile (`aP`, `aR`, `cP`, `cR`, `hP`, `runP`) se tin minte in `P.latch` si se dau primului cadru care ruleaza.
+- **Apropierea** (`kickZoom`, folosita in `drawWorld`): zoom 1 + `look.kick` (4%) in `kickIn` (0.15 s, `easeOut`), apoi inapoi in `kickOut` (0.4 s). Camera insasi (`P.cam.zoom`) nu se atinge: apropierea se inmulteste doar la desen, deci nu se lupta cu mersul camerei. Ceasul ei (`P.kickT`) merge si in cadrele oprite. `look.kick: 0` = fara apropiere. Zguduirea (`P.shake`) a ramas neschimbata.
+- **Anticiparea lui George**: in cele 0.15 s dinaintea aruncarii, `bs.windup` creste de la 0 la 1 si el se trage inapoi (sus 12 unitati, putin ingustat si inclinat, `drawGeorgeBoss`). **Momentul aruncarii nu se schimba** (30 de cadre cu si fara): tragerea e doar in cele 0.15 s de dinainte, nu o intarziere. Cat asteapta un erou ajutor, George nu arunca si nu se trage inapoi.
+- **Mecanismele** (T7): `mechMove(t, dur, pull)` (`02-core.js`) da drumul unui pod, unei porti sau unei plute ca fractie: intai se trage inapoi cu 6% in `look.anticipate` (0.15 s), apoi merge la 1 cu `easeBack` (depaseste cu 8%, adica 1.0848 dupa tragere, si se aseaza). `mechClick(x, y)` (`07-play.js`) scoate un clic (sunetul nou `click`) si cateva scantei inainte sa porneasca. Mecanismele insele vin cu T7.
+- **`easeBack`** (`02-core.js`, langa `easeOut`): 0 la 0, 1 la 1, varful 1.08 la t = 0.6.
+- **Sunetul `click`** (`03-audio.js`): un "tic" moale de lemn (triunghi 1250 -> 900 Hz, 0.045 s, plus putin zgomot trece-banda); sunet al lumii (nu al unui erou), deci merge pe boxele calculatorului.
+
+**Cost:** nimic masurabil (un calcul pe cadru). `performanta.js` ramane cum era.
+
+**T6.10:** capturile finale ro/en ale nivelului 3 si ale luptei cu George: `capturi/24-final-*.jpg` (lista S7.8 in `17-testare.md`).
 
 ## Update 22 noiembrie 2026: T15 pe ecran
 

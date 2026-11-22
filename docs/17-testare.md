@@ -377,6 +377,55 @@ Sapte defectiuni, toate prinse: ochi fara `flip` (lucirea trece in dreapta), `li
 - **Costul:** prima varianta (toate partile prin `lit()` complet) era 7,2 ms pentru cei trei, fata de 2 ms. Gasit cu o masuratoare a pictorilor singuri, inainte de `performanta.js`.
 - Pe foaia de personaje: luciu pe fiecare parte, margini de lumina care pareau contururi, cusaturi pe pantaloni si maneci (prea mici), umbra langa erou in loc de sub el. Toate reparate.
 
+## Update 22 noiembrie 2026: butonul L1 (sarcina T14.3)
+
+Verificare T14.3: `tests/setari-ui.js` si `tests/tastatura-reala.js` trec (`errors 0`). Tasta `KeyR` (jucatorul 1) si `Period` (jucatorul 2) sunt in `CONFIG.keys` si in `KEY_FIELDS`, deci apar in pagina "Alege tastele". Testerul de controller din Setari arata L1 in coltul de sus, stanga. Un script scurt a verificat ca tasta R si valoarea implicita a salvarilor vechi merg. Pagina "Alege tastele" are acum 11 randuri (9 taste si 2 butoane); `tests/control-nou.js` si-a schimbat asteptarea de la 10 la 11 si verifica ca incape (1046 din 1048 unitati). Verificarea cu tasta R: `Input.slots[0].g` ramane adevarat cat tasta e tinuta si se intoarce la fals cand e lasata. `gP` e un front de un singur cadru, deci nu se citeste dupa o apasare lunga. Nu s-a verificat un apasat real de L1 pe un controller DualShock.
+
+## Update 22 noiembrie 2026: dat cu L1 si sfarsitul nivelului (T14.4, T14.5)
+
+Verificare (script scurt; `tests/cota.js` vine in T14.9; verificarile 4, 5 si 6 din `27-cota-de-oua.md`): prea departe nu da, fara oua nu da, un ou dat ajunge la prieten chiar daca cel care a dat e lovit, prietenul plin nu primeste, cota 10 cu 15 si 7 in cuib nu termina nivelul si `needT` creste, dupa trei oua date nivelul se termina. Cu `CONFIG.quota.on = false` verificarile pica. Harness-ul (`tests/common.js`) a primit `inp[k].gP` si `inp[k].g`.
+
+Testele vechi adaptate: `tests/cuib-amandoi.js` da fiecarui erou cota (`P.found = [q, q]`) inainte de verificarea cuibului. `tests/joc-complet-bot.js`: in cuib, cel cu mai multe oua da cu L1 celui cu mai putine, **un ou odata** (urmatorul dupa ce precedentul a ajuns), altfel ouale in zbor nu se numara si se plimba intre eroi fara sfarsit. Linia de stare a botului arata acum `found`.
+
+## Update 22 noiembrie 2026: ajutorul automat (T14.6)
+
+Verificare (scripturi scurte; `tests/cota.js` vine in T14.9; verificarile 9, 11 si 13 din `27-cota-de-oua.md`):
+
+- **13.** Cu `autoGive` 3 si `autoEvery` 0.5: primele 2 secunde in cuib nu muta nimic, apoi apare bannerul `quota.auto`, ouale trec pana la cota si nivelul se termina. Cu `autoGive` 0 nu se muta nimic si nivelul nu se termina.
+- **9.** Cu un singur jucator: nu exista limita (eroul trece peste `cap`), cota celui care nu joaca se socoteste indeplinita, iar nivelul se termina cand cel care joaca ajunge in cuib cu cota lui.
+- **11.** Al doilea jucator intra in mijlocul nivelului: cele 3 oua peste `cap` ale primului trec la el.
+- Reincepere dupa cele 10 secunde: `P` nou, `P.found` revine la `[0, 0]`.
+- Balonul "Apropie-te de {0}!" tine acum mai mult de un cadru (vezi `19-limitari.md`, T14.4).
+
+Fiecare verificare a fost pusa sa pice (`autoGive` 0, fara intrarea jucatorului).
+
+`tests/joc-complet-bot.js`: cand primul erou e la limita (`found >= cap`), prietenul lui merge dupa ouale ramase pe jos. Fara asta botul se blocase pe nivelul 3 cu 30 / 13 din cota 20 si doua oua `req` pe jos, pe care eroul plin nu le mai putea lua, deci cuibul nu se deschidea. Pe un copil nu-l blocheaza (specificatia garanteaza `E <= 2 * cap`, deci impreuna pot lua tot), dar botul mergea doar cu primul erou dupa oua.
+
+## Update 22 noiembrie 2026: `tests/cota.js` (T14.9)
+
+Ruleaza verificarile 1 - 14 din `27-cota-de-oua.md` (C10) pe controllere false (butonul 4 = L1) si pe tastatura (tasta R). Iese cu `cota OK` sau `NEREUSIT: <numere>`, apoi `errors N`. Verificarile 15 si 16 le fac `joc-complet-bot.js`, `nivele-bot-mers.js` si `toate.sh`. Verificarea 14 porneste `hud-acoperire.js` cu `STRICT=1`. Culorile insignei se citesc din pixelii canvasului, dupa nuanta (hartia schimba putin culoarea).
+
+Dovada ca pot pica: `MUTA=n node ../cota.js` strica o regula (cota de nivel, `quotaOk`, `canTake`, `giveEgg`, raza L1, `quotaState`, bannerul, `bothJoined`, `hitHero`, intrarea la mijloc, `goal` pe oua, `autoGive`). Fiecare `n` din 1 - 13 da `NEREUSIT`.
+
+## Update 22 noiembrie 2026: botii si cota (T14.10)
+
+`balanseaza()` sta in `tests/common.js`, ca text injectat in pagina (`BALANSEAZA`), si e disponibila in orice test pornit cu `boot()`. Ea muta un diamant de la eroul care are peste cota la cel care inca are nevoie, prin `__game.giveEgg` (acelasi drum ca L1). Cand cei doi sunt mai departe de `giveRange`, intai apropie pe cel care da. Intoarce `false` cand nu e nimic de facut: un singur jucator, fara cota, sau amandoi gata.
+
+`joc-complet-bot.js` o cheama in doua locuri: in cuib (la fiecare 8 cadre) si pe drum, cand unul si-a terminat cota si celalalt nu. Asa nu mai apasa L1 orbeste. `nivele-bot-mers.js` joaca singur, deci `balanseaza()` nu i-ar face nimic; in schimb are acum un verdict propriu: fiecare nivel trebuie sa ajunga la `levelEnd`, fara blocaj, si eroul singur trebuie sa isi atinga cota.
+
+Timpii masurati in Chrome fara placa video (SwiftShader), deci mai mari decat pe un Mac:
+
+| Capitol | `joc-complet-bot.js` (doi eroi) | `nivele-bot-mers.js` (singur, mers adevarat) |
+|---|---|---|
+| Nivelul 1 | 27 s | 63 s |
+| Nivelul 2 | 29 s | 107 s |
+| Nivelul 3 | 31 s | 100 s |
+| Nivelul 4 | 36 s | 104 s |
+| Nivelul 5 | 40 s | 96 s |
+| Nivelul 6 | 43 s | 123 s |
+| Lupta finala | 46 s | - |
+
+Botul cu doi eroi a dat 49 de diamante cu `giveEgg` intr-un joc intreg si a apasat ○ de 21 de ori pentru 11 eroi loviti. La fiecare nivel a terminat cu surplus la primul erou si exact cota la al doilea (de exemplu 43 si 35 pe nivelul 6), adica impartirea functioneaza.
 ## Update 22 noiembrie 2026: miscarea eroilor (sarcina T6.5)
 
 Un script de o singura data, `tests/tmp/miscare-proba.js`, misca eroul in joc (pe un loc liber, stick-ul simulat) si masoara starea. GIF-ul il face `tests/tmp/miscare-gif.js`.
@@ -450,55 +499,51 @@ Harta de lumina se numara acum ca "luminile (cel mult 24) plus halourile (cel mu
 
 Scripturile de o singura data (`tests/tmp/apa-proba.js`, `perf-cadru3.js`, `perf-cadru4.js`, `capturi-t68.js`) nu intra in depozit. Capturile: `24-apa-nou.jpg`, `24-apa-vechi.jpg`, `24-halouri.jpg`.
 
-## Update 22 noiembrie 2026: butonul L1 (sarcina T14.3)
+## Update 22 noiembrie 2026: greutatea miscarii (sarcina T6.9)
 
-Verificare T14.3: `tests/setari-ui.js` si `tests/tastatura-reala.js` trec (`errors 0`). Tasta `KeyR` (jucatorul 1) si `Period` (jucatorul 2) sunt in `CONFIG.keys` si in `KEY_FIELDS`, deci apar in pagina "Alege tastele". Testerul de controller din Setari arata L1 in coltul de sus, stanga. Un script scurt a verificat ca tasta R si valoarea implicita a salvarilor vechi merg. Pagina "Alege tastele" are acum 11 randuri (9 taste si 2 butoane); `tests/control-nou.js` si-a schimbat asteptarea de la 10 la 11 si verifica ca incape (1046 din 1048 unitati). Verificarea cu tasta R: `Input.slots[0].g` ramane adevarat cat tasta e tinuta si se intoarce la fals cand e lasata. `gP` e un front de un singur cadru, deci nu se citeste dupa o apasare lunga. Nu s-a verificat un apasat real de L1 pe un controller DualShock.
+Test permanent nou, **`tests/greutate.js`** (in `toate.sh`, inainte de `performanta.js`):
 
-## Update 22 noiembrie 2026: dat cu L1 si sfarsitul nivelului (T14.4, T14.5)
+| Ce verifica | Rezultat |
+|---|---|
+| `easeBack`: 0 -> 0, 1 -> 1, varful 1.08 (nu 1.05, nu 1.12) la t = 0.6, urca o data si coboara o data. | OK |
+| `mechMove`: tragerea inapoi e treptata (la jumatate, 75% din 6%), minimul -0.06 la 0.15 s, varful 1.0848, ajunge la 1; cu `anticipate: 0` nu se trage deloc. | OK |
+| `bigHit`: `P.freeze` = 0.06; `updatePlay` nu ruleaza 4 cadre, apoi ruleaza; **`drawPlay` ruleaza in toate cele 8 cadre**; `freeze: 0` = nimic nu se opreste; `P.shake` nu se schimba. | OK |
+| ✕ apasat in al doilea cadru oprit ajunge la primul cadru care ruleaza. | OK |
+| Apropierea: zoom 1 la 0, 1.04 la 0.15 s, 1 dupa 0.55 s; `kick: 0` = fara; desenul cu zoom nu da erori. | OK |
+| Paznicul lovit si George cazut cheama `bigHit` (oprire 0.06, `kickT` 0). | OK |
+| George: `windup` creste in cele 9 cadre dinaintea aruncarii, 0 inainte si dupa; aruncarea ramane la 30 de cadre cu si fara; cu `anticipate: 0` e exact 0; cat asteapta un erou ajutor, e 0. | OK |
 
-Verificare (script scurt; `tests/cota.js` vine in T14.9; verificarile 4, 5 si 6 din `27-cota-de-oua.md`): prea departe nu da, fara oua nu da, un ou dat ajunge la prieten chiar daca cel care a dat e lovit, prietenul plin nu primeste, cota 10 cu 15 si 7 in cuib nu termina nivelul si `needT` creste, dupa trei oua date nivelul se termina. Cu `CONFIG.quota.on = false` verificarile pica. Harness-ul (`tests/common.js`) a primit `inp[k].gP` si `inp[k].g`.
+### Verificat ca poate sa pice
 
-Testele vechi adaptate: `tests/cuib-amandoi.js` da fiecarui erou cota (`P.found = [q, q]`) inainte de verificarea cuibului. `tests/joc-complet-bot.js`: in cuib, cel cu mai multe oua da cu L1 celui cu mai putine, **un ou odata** (urmatorul dupa ce precedentul a ajuns), altfel ouale in zbor nu se numara si se plimba intre eroi fara sfarsit. Linia de stare a botului arata acum `found`.
+15 defecte puse pe rand; **12 prinse din prima, 3 au trecut**: (1) tragerea inapoi inlocuita cu un salt (testul se uita doar la minim: acum verifica ca e treptata); (2) `windup` negativ cu `anticipate: 0` (testul accepta orice sub 0: acum cere exact 0); (3) `kick: 0` fara test de `kick <= 0`: **mutant echivalent** (`kick: 0` da oricum zoom 1), nu e un defect. Dupa intarirea testelor, defectele (1) si (2) sunt prinse: 14 din 14 defecte reale.
 
-## Update 22 noiembrie 2026: ajutorul automat (T14.6)
+Din `toate.sh` nu cade niciun alt test din cauza cadrelor oprite.
 
-Verificare (scripturi scurte; `tests/cota.js` vine in T14.9; verificarile 9, 11 si 13 din `27-cota-de-oua.md`):
+## Update 22 noiembrie 2026: testul stilului grafic intreg si bugetul de timp (sarcina T6.10)
 
-- **13.** Cu `autoGive` 3 si `autoEvery` 0.5: primele 2 secunde in cuib nu muta nimic, apoi apare bannerul `quota.auto`, ouale trec pana la cota si nivelul se termina. Cu `autoGive` 0 nu se muta nimic si nivelul nu se termina.
-- **9.** Cu un singur jucator: nu exista limita (eroul trece peste `cap`), cota celui care nu joaca se socoteste indeplinita, iar nivelul se termina cand cel care joaca ajunge in cuib cu cota lui.
-- **11.** Al doilea jucator intra in mijlocul nivelului: cele 3 oua peste `cap` ale primului trec la el.
-- Reincepere dupa cele 10 secunde: `P` nou, `P.found` revine la `[0, 0]`.
-- Balonul "Apropie-te de {0}!" tine acum mai mult de un cadru (vezi `19-limitari.md`, T14.4).
+`tests/stil-grafic.js` primeste partea finala:
 
-Fiecare verificare a fost pusa sa pice (`autoGive` 0, fara intrarea jucatorului).
+| Verificare | Cum |
+|---|---|
+| Pixeli negri sau gri | 29 de scene (ro si en, acuarela si diorama, nivelurile 1 - 6 si lupta cu George, mini-lupta). Fractia de pixeli cu R = G = B si sub 200 trebuie sa fie sub 0.1%. Cel mai rau caz masurat: 0.0103% (en, acuarela, nivelul 4). |
+| Nimic interzis la fiecare cadru | 36 de functii ale stilului nou (`lit`, `drawLightMap`, `drawMotes`, `drawWater`, `holdBreath`, pictorii eroilor...) citite cu `toString`, fara comentarii: niciuna nu are `createRadialGradient`, `createPattern`, `shadowBlur`. O functie din lista care lipseste din cod strica testul. |
 
-`tests/joc-complet-bot.js`: cand primul erou e la limita (`found >= cap`), prietenul lui merge dupa ouale ramase pe jos. Fara asta botul se blocase pe nivelul 3 cu 30 / 13 din cota 20 si doua oua `req` pe jos, pe care eroul plin nu le mai putea lua, deci cuibul nu se deschidea. Pe un copil nu-l blocheaza (specificatia garanteaza `E <= 2 * cap`, deci impreuna pot lua tot), dar botul mergea doar cu primul erou dupa oua.
+`tests/performanta.js` primeste **bugetul de timp** (S7.7): nivelul 6 cu tot stilul nou aprins (`preview`, `lights`, `front`, `waves`, `motes`, `halo`) si cu el stins, in cinci runde alternate; se ia cel mai bun cadru din fiecare. Afiseaza `buget OK: cadrul nou e N% peste cel vechi (limita 20%)` sau `buget NEREUSIT`. Valorile din trei rulari: +14%, +4%, +13%. Cu mediana in loc de minim, zgomotul (±2 ms sub SwiftShader) dadea pana la +20%, de aceea e minimul din cinci.
 
-## Update 22 noiembrie 2026: `tests/cota.js` (T14.9)
+**Verificat ca poate sa pice:** patru defecte puse pe rand in `drawMotes`, toate prinse: un dreptunghi gri #808080 pe tot ecranul, un `createRadialGradient`, un `shadowBlur`, o asteptare de 8 ms pe cadru (aceasta de `performanta.js`).
 
-Ruleaza verificarile 1 - 14 din `27-cota-de-oua.md` (C10) pe controllere false (butonul 4 = L1) si pe tastatura (tasta R). Iese cu `cota OK` sau `NEREUSIT: <numere>`, apoi `errors N`. Verificarile 15 si 16 le fac `joc-complet-bot.js`, `nivele-bot-mers.js` si `toate.sh`. Verificarea 14 porneste `hud-acoperire.js` cu `STRICT=1`. Culorile insignei se citesc din pixelii canvasului, dupa nuanta (hartia schimba putin culoarea).
+### Lista S7.8 (capturi `capturi/24-final-ro-3.jpg`, `24-final-ro-6.jpg`, `24-final-en-3.jpg`, `24-final-en-6.jpg`)
 
-Dovada ca pot pica: `MUTA=n node ../cota.js` strica o regula (cota de nivel, `quotaOk`, `canTake`, `giveEgg`, raza L1, `quotaState`, bannerul, `bothJoined`, `hitHero`, intrarea la mijloc, `goal` pe oua, `autoGive`). Fiecare `n` din 1 - 13 da `NEREUSIT`.
-
-## Update 22 noiembrie 2026: botii si cota (T14.10)
-
-`balanseaza()` sta in `tests/common.js`, ca text injectat in pagina (`BALANSEAZA`), si e disponibila in orice test pornit cu `boot()`. Ea muta un diamant de la eroul care are peste cota la cel care inca are nevoie, prin `__game.giveEgg` (acelasi drum ca L1). Cand cei doi sunt mai departe de `giveRange`, intai apropie pe cel care da. Intoarce `false` cand nu e nimic de facut: un singur jucator, fara cota, sau amandoi gata.
-
-`joc-complet-bot.js` o cheama in doua locuri: in cuib (la fiecare 8 cadre) si pe drum, cand unul si-a terminat cota si celalalt nu. Asa nu mai apasa L1 orbeste. `nivele-bot-mers.js` joaca singur, deci `balanseaza()` nu i-ar face nimic; in schimb are acum un verdict propriu: fiecare nivel trebuie sa ajunga la `levelEnd`, fara blocaj, si eroul singur trebuie sa isi atinga cota.
-
-Timpii masurati in Chrome fara placa video (SwiftShader), deci mai mari decat pe un Mac:
-
-| Capitol | `joc-complet-bot.js` (doi eroi) | `nivele-bot-mers.js` (singur, mers adevarat) |
+| # | Intrebare | Raspuns |
 |---|---|---|
-| Nivelul 1 | 27 s | 63 s |
-| Nivelul 2 | 29 s | 107 s |
-| Nivelul 3 | 31 s | 100 s |
-| Nivelul 4 | 36 s | 104 s |
-| Nivelul 5 | 40 s | 96 s |
-| Nivelul 6 | 43 s | 123 s |
-| Lupta finala | 46 s | - |
-
-Botul cu doi eroi a dat 49 de diamante cu `giveEgg` intr-un joc intreg si a apasat ○ de 21 de ori pentru 11 eroi loviti. La fiecare nivel a terminat cu surplus la primul erou si exact cota la al doilea (de exemplu 43 si 35 pe nivelul 6), adica impartirea functioneaza.
+| 1 | Se vede de unde vine lumina? | da (halouri la torte si cristale, lumina calda langa eroi) |
+| 2 | Obiectele mari au umbra pe pamant, in aceeasi directie? | da |
+| 3 | Se poate spune din ce e facut fiecare lucru? | da (solzi, panza, piatra, lemn, cristal, apa) |
+| 4 | Ceva in fata si ceva in departare? | da (frunze si stanci in fata, munti si luna in spate) |
+| 5 | Eroii sunt cei mai luminosi si limpezi? Se gasesc in sub o secunda? | da (inel colorat la picioare, nume deasupra) |
+| 6 | Planul din fata si scrisul de sus nu ii acopera? | da (400 de asezari testate) |
+| 7 | Niciun pixel negru sau gri curat? | da (script: max 0.0103%) |
+| 8 | Copilul isi recunoaste desenul in Boon, Killer, George? | **nu s-a putut verifica de aici**: formele si culorile din desene nu s-au schimbat, dar numai copiii pot spune (`capturi/24-personaje-comparatie.jpg`) |
 
 ## Update 22 noiembrie 2026: T15 si `tests/george.js`
 

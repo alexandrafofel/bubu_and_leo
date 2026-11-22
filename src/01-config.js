@@ -186,6 +186,10 @@ const CONFIG = {
     freeze: 0.06,          // seconds the game holds its breath at a big hit (S7.6). 0 = off
     maxLights: 24,         // lights drawn in one frame. The ones nearest the middle of the screen win
     lightGlow: 0.6,        // how strong the lights of the light map are over the ambient (the darker the ambient, the stronger)
+    kick: 0.04,            // at a big hit the camera comes closer by this much (4%) in kickIn seconds and goes back in kickOut (S7.6). 0 = no zoom
+    kickIn: 0.15,
+    kickOut: 0.4,
+    anticipate: 0.15,      // seconds a mechanism, or George before an attack, pulls back before it goes (S7.6). 0 = none
     halo: 0.5,             // glow over the things that give light (torches, crystals, lava): alpha 0.35 - 0.6 around this value (S7.5). 0 = none
     haloMax: 12,           // at most this many halos in one frame
     waves: true,           // the water of the new levels: two rows of waves, a reflection and sparkles. false = the old shimmer

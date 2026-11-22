@@ -340,6 +340,7 @@ Cererea proprietarei: "scoate jocul Bubu si Leo, lasa doar Cea mai grea lupta. M
 | Coroana lui George nu s-a schimbat. | E "cornul-coroana" din desen, cu dungi; promptul cere sa nu se atinga. |
 | Varful mai inchis al picioarelor lui Boon si al pantalonilor lui Killer s-a pierdut (`lite` nu are suprapunere de culoare). | Diferenta e de cateva procente de culoare pe o parte mica; costa un `clip`. |
 
+
 ## Miscarea eroilor (sarcina T6.5, 22 noiembrie 2026)
 
 | Hotarare | De ce |
@@ -439,7 +440,6 @@ Cele 16 hotarari din specificatie (`27-cota-de-oua.md`, C2) au fost implementate
 | C16 | Portretul din insigna e cel pictat de joc. | `drawPort`, inel in culoarea eroului. Fara imagini in fisier (regula 1). |
 
 Hotararea de proces: `balanseaza()` sta in `tests/common.js` si cheama `giveEgg` direct, nu apasa L1. Motivul: un bot care apasa butoane la momentul potrivit ar testa botul, nu jocul; drumul diamantului e acelasi. Ce nu prinde asa, scris in `19-limitari.md`.
-
 ### T15: George cu diamante comune (22 noiembrie 2026)
 
 | Decizie | De ce |
@@ -459,6 +459,33 @@ Hotararea de proces: `balanseaza()` sta in `tests/common.js` si cheama `giveEgg`
 
 | Decizie | De ce |
 |---|---|
+| Cadrul nou (plan din fata, harta, ceata) e doar pe nivelurile cu `look: 'diorama'`, plus `CONFIG.look.preview`. | Promptul: nivelurile 1 - 6 raman cum sunt. Nivelurile 7 - 12 inca nu exista; `preview` lasa cadrul sa se vada si sa se testeze pe 1 - 6 inainte. Implicit `false`: jocul de acum nu se schimba. |
+| Luminile se pun direct pe ecran, nu intr-un canvas mic marit. | Marirea unui canvas mic pe tot ecranul: 10 ms cu netezire, 4 ms fara (si lumina in patratele). Direct: 3 ms. Cu canvasul mic, nivelul era cu 56% peste cel vechi; bugetul din S7.7 e 20%. |
+| Hartia se pune o data in pictura nivelului; peste nivel nu mai e strat de hartie si vinieta cand harta e pornita. | Harta e deja o trecere pe tot ecranul; doua treceri costau prea mult. Promptul cere ca textura de hartie sa ramana: ramane, in pictura. |
+| Planul din fata e marit o data, nu la fiecare cadru. | 1,2 ms in loc de 2,2 ms pe cadru, pentru 8 MB in plus pe nivel (S7.7 vorbea de jumatate de rezolutie pentru memorie). |
+| Sase lucruri, nimic sus-mijloc. | Sus-mijloc e banda de cartonase (132 de unitati): un lucru acolo nu s-ar vedea. |
+| Paralaxa limitata la 60 de unitati, dreptunghiul din mijloc cu o marja de 60. | Altfel paralaxa (1.15 x camera, pe un nivel de 3200) ar fi mutat lucrurile cu sute de unitati, pana in mijloc. |
+| Un lucru se stinge cand un erou e la 220 de unitati de el, nu doar cand e sub el; si pe loc daca eroul e deja sub el. | Fuga merge cu 1100 pe secunda: in 0,2 s (cat dureaza stingerea) un erou trece 220. Iar cand camera sare (inceputul nivelului, un erou pus in alt loc), nu e timp de stins. Primul test a gasit 31 de eroi acoperiti din cauza asta. |
+| Marginea luminoasa a lucrurilor din fata are nuanta lor. | O margine calda (`KEY`) peste violet si verde, stearsa, dadea pixeli gri. |
+
+## Greutatea miscarii (sarcina T6.9, 22 noiembrie 2026)
+
+| Hotarare | De ce |
+|---|---|
+| Oprirea si apropierea sunt in toate nivelurile, nu doar pe cele cu `look: 'diorama'`. | Sunt miscare, nu pictura: un paznic lovit trebuie sa se simta la fel peste tot. Se pot opri cu `freeze: 0` si `kick: 0`. |
+| Fronturile butoanelor apasate in timpul opririi se tin minte (`P.latch`). | `Input.poll` le da pentru un singur cadru; la 0.06 s (3 - 4 cadre) o apasare de ✕ sau □ s-ar fi pierdut si copilul ar fi simtit o putere "inghitita". |
+| Zoom-ul se inmulteste in `drawWorld`, `P.cam.zoom` nu se atinge. | Camera isi are netezirea ei (`camTarget`); un zoom pus in ea s-ar fi luptat cu ea si ar fi lasat urme dupa lovitura. |
+| Anticiparea lui George e o tragere in cele 0.15 s dinaintea aruncarii, nu o intarziere. | Ritmul luptei (`CONFIG.boss.throwEvery`) ramane cel testat si cel cu care copiii s-au obisnuit; testul verifica ca momentul aruncarii nu se schimba (30 de cadre cu si fara). |
+| `mechMove` da fractia, nu pozitia. | Fiecare mecanism (pod, poarta, pluta) isi inmulteste fractia cu drumul lui; T7 le foloseste pe toate la fel. |
+| Tragerea inapoi a mecanismelor e de 6% si depasirea de 8%, ambele reglabile. | 8% e cifra din S7.6; 6% pentru tragere e aleasa sa se vada in 0.15 s fara sa para ca se strica mecanismul. |
+| Sunetul `click` nu e al unui erou (nu e in `CHR`). | Clicul e al lumii: se aude pe boxele calculatorului, nu in difuzorul unui controller. |
+
+## Testul stilului grafic si bugetul (sarcina T6.10, 22 noiembrie 2026)
+
+- **Buget masurat ca minim din cinci runde alternate**, nu ca mediana: sub SwiftShader mediana oscila intre +4% si +20%, minimul intre +4% si +14%. Limita de 20% din S7.7 ramane.
+- **Lista de functii in loc de cautare in tot codul** pentru `createRadialGradient`/`createPattern`/`shadowBlur`: codul vechi are ~40 de gradienti pe cadru si ar strica testul; stilul nou n-are niciunul. Functiile noi se adauga in lista.
+- **Pixeli gri: R = G = B sub 200**, exact regula din S7.8, pe 29 de scene.
+
 | Totalul echipei e o functie (`teamFound`) care numara si diamantele in zbor | Un diamant dat cu L1 sta in aer 0.45 s; fara el totalul ar cobori o clipa si George ar putea veni de doua ori la acelasi prag. |
 | `fieldEnemies` numara toti inamicii mici, iar robotii completeaza | Un singur numar de reglat pe nivel, oricati copaci si benzi ar avea nivelul. |
 | Orice inamic mic lasa un diamant, prin `hurtSmall` | Un singur loc pentru regula; si conurile, pasarile si inamicii aruncati dau diamante. |

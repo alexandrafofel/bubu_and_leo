@@ -77,7 +77,7 @@ function duelEggs(n) {
 }
 function duelHit(k) {
   const d = P.duel, h = P.heroes[k], last = d.hp <= 1;
-  d.hp--; d.flash = 0.6; P.shake = Math.max(P.shake, 0.3);
+  d.hp--; d.flash = 0.6; P.shake = Math.max(P.shake, 0.3); bigHit();
   Snd.play('goal'); Snd.play('squeak', 1 + (d.maxHp - d.hp) * 0.1); Snd.talk(k, last ? 'guardGone' : 'guardHit');
   Input.rumble(0, 0.6, 0.8, 260); Input.rumble(1, 0.6, 0.8, 260);
   burst(d.x, d.y - 40 - d.z, 34, { speed: 320, life: 1.1, size: 10 }); burst(d.x, d.y - 40 - d.z, 14, { kind: 'petal', cols: PETALS, speed: 240, life: 1.4, g: 90 });

@@ -208,7 +208,7 @@ function drawProjs(c, list) {
 }
 
 function drawWorld(c) {
-  const L = P.L, cam = P.cam, z = cam.zoom, vw = W / z, vh = H / z, t = P.time;
+  const L = P.L, cam = P.cam, z = cam.zoom * kickZoom(), vw = W / z, vh = H / z, t = P.time;      // kickZoom: the camera comes closer at a big hit (T6.9)
   let l = cam.x - vw / 2, tp = cam.y - vh / 2;
   if (P.shake > 0) { l += Math.sin(t * 90) * P.shake * 22; tp += Math.cos(t * 77) * P.shake * 22; }
   const tpMin = -(HUD_TOP + 20) / z;         // the camera may look above the top edge of the world, so no hero hides under the band
@@ -912,6 +912,7 @@ function drawGeorgeBoss(c, o, t) {
   if (!up) castShadow(c, o.x, (st === 'down' || st === 'won') ? o.y + 4 : 660, 100 * S, 70 * S, 21, 1);   // the cast shadow of S7.1
   c.save(); c.translate(o.x + (up ? Math.sin(t * 38) * o.treeShake * 9 : 0), o.y + (up ? 34 + Math.sin(t * 3) * 3 : 0));
   if (st === 'falling') c.rotate(o.t * 9);
+  if (o.windup > 0) { const w = easeOut(o.windup); c.translate(0, -12 * w); c.scale(1 - 0.05 * w, 1 + 0.07 * w); c.rotate(-0.1 * w); }      // anticipation: he draws back before he throws (T6.9)
   drawGeorge(c, 0, st === 'falling' ? 40 : 0, { tail: tailFollow(o, o.x, t, 260), scale: S, t: t, face: st === 'won' ? 1 : (P.heroes[0].x + P.heroes[1].x < o.x * 2 ? -1 : 1), mood, moving: st === 'won' && o.t > 1.2, walk: t * 18, noCrown: st === 'won' });
   c.restore();
   if (st === 'down') drawDizzyStars(c, o.x + 30, o.y - 190, t);

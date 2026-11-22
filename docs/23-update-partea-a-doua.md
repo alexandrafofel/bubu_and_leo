@@ -128,8 +128,8 @@ Inainte de orice sarcina si dupa fiecare: `./build.sh`, `node tools/gen-docs.js`
 | T6.6 | Planul din fata (**facuta pe 22 noiembrie 2026**): `L.front`, un canvas pe nivel, paralaxa 1.15, elemente doar in afara dreptunghiului central de 1500 x 760. **Regula care nu se incalca:** nu acopera niciodata un erou (alpha spre 0.15 in 0.2 s). | 24, S7.4 | `tests/stil-grafic.js` (partea de plan din fata) arata ca niciun erou nu e acoperit, in 400 de asezari. Cel mult 12 `drawImage` pe cadru. |
 | T6.7 | Harta de lumina (**facuta pe 22 noiembrie 2026**): canvasul `LM` de 480 x 270, ambianta nivelului, cel mult 24 de lumini din sprite-uri, desenata peste lume cu `multiply`. Ia locul vinietei de noapte pe nivelurile noi. | 24, S7.5 (harta) si S7.7 | Cu `CONFIG.look.lights: false` ramane vinieta veche. 1 umplere + cel mult 24 `drawImage` + 1 marit. Niciun `createRadialGradient` pe cadru. |
 | T6.8 | Stralucirea lucrurilor care lumineaza (**facuta pe 22 noiembrie 2026**), apa (oglindire, doua randuri de valuri, sclipiri) si praful care pluteste in lumina (40 de puncte, scantei pe vulcan, spori in pestera). | 24, S7.5 (restul) | Se vad pe capturi. `CONFIG.look.motes` le regleaza. |
-| T6.9 | Greutatea miscarii: oprirea scurta (`P.freeze`, 0.06 s), apropierea camerei cu 4%, anticiparea (0.15 s inapoi) si urmarea (`easeBack`, depasire 8%). | 24, S7.6 | Oprirea nu opreste desenul, doar `updatePlay`. Cu `CONFIG.look.freeze: 0` nu se intampla. |
-| T6.10 | `tests/stil-grafic.js` intreg, bugetul de timp din S7.7, capturile si lista de verificare S7.8, documentatia. | 24, S7.7 si S7.8 | `tests/stil-grafic.js` trece: sub 0.1% pixeli negri sau gri. `performanta.js` cel mult 20% peste valoarea de dinainte, in aceeasi rulare. Raspuns "da" la toate cele 8 intrebari din S7.8. `tests/toate.sh` trece intreg. |
+| T6.9 | Greutatea miscarii (**facuta pe 22 noiembrie 2026**): oprirea scurta (`P.freeze`, 0.06 s), apropierea camerei cu 4%, anticiparea (0.15 s inapoi) si urmarea (`easeBack`, depasire 8%). | 24, S7.6 | Oprirea nu opreste desenul, doar `updatePlay`. Cu `CONFIG.look.freeze: 0` nu se intampla. |
+| T6.10 | (**facuta pe 22 noiembrie 2026**) `tests/stil-grafic.js` intreg, bugetul de timp din S7.7, capturile si lista de verificare S7.8, documentatia. | 24, S7.7 si S7.8 | `tests/stil-grafic.js` trece: sub 0.1% pixeli negri sau gri. `performanta.js` cel mult 20% peste valoarea de dinainte, in aceeasi rulare. Raspuns "da" la toate cele 8 intrebari din S7.8. `tests/toate.sh` trece intreg. |
 | T7 | Cadrul mecanismelor (benzi, porti, intrari) si nivelul 7. | 25, 3 si 4 | `tests/mecanisme.js` trece pentru nivelul 7, cu regulile G1 - G10. Botul termina nivelul. |
 | T8 | Nivelurile 8 si 9 (tinte, benzi rulante, pluta). | 25, 4 | La fel, pentru 8 si 9. |
 | T9 | Nivelurile 10 si 11 (cristalul carat prin intuneric, bolovanul). | 25, 4 | La fel, pentru 10 si 11. |
@@ -178,8 +178,8 @@ Starea e cea din `main` la 21 noiembrie 2026 (PR-urile #5 - #12 mergeate). **Mod
 | T6.6 | Facuta | T6.1, T6.3 | Opus | 1 - 2 h |
 | T6.7 | Facuta | T6.1 | Opus | 1,5 - 2,5 h |
 | T6.8 | Facuta | T6.7 | Sonnet | 1 - 2 h |
-| T6.9 | De facut | T6.1 | Sonnet | 1 - 1,5 h |
-| T6.10 | De facut | T6.1 - T6.9 | Sonnet | 1,5 - 3 h |
+| T6.9 | Facuta | T6.1 | Sonnet | 1 - 1,5 h |
+| T6.10 | Facuta | T6.1 - T6.9 | Sonnet | 1,5 - 3 h |
 | T7 | De facut | T6.1 - T6.10 | Opus | 4 - 7 h |
 | T8 | De facut | T7 | Sonnet | 2 - 4 h |
 | T9 | De facut | T7 (si T8, ca ordine) | Sonnet | 2 - 4 h |
