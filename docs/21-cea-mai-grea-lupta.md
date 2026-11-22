@@ -304,3 +304,5 @@ Eroii au greutate si viata, fara sa isi schimbe desenul. Totul se regleaza din `
 | **Turtire si intindere** (`h.squash`) | Intindere la pornire, turtire la oprire, turtire la aterizare, intindere la pornirea fugii. La lovitura era deja (0.25). Sub 0.0001 devine exact 0. |
 | **Nimic nu tremura** | Cand eroul sta, coada si turtirea ajung exact la 0 (nu la numere tot mai mici). Verificat: dupa 6 s pe loc, starea nu se mai schimba deloc in urmatoarele 5 s. |
 | **Urmele din fuga** | Fiecare copie e pictata o data, cand apare, si apoi doar pusa cu `drawImage` (`ghostCanvas`). Doi eroi care fug: 26,2 ms pe cadru, fata de 29,1 ms inainte (SwiftShader). |
+
+**T6.10:** stilul nou are acum testul lui complet (`tests/stil-grafic.js`) si un buget de timp (+20 0.000000ata de cadrul vechi, `tests/performanta.js`). Vezi `17-testare.md`.

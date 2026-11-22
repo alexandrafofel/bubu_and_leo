@@ -236,3 +236,7 @@ Aceleasi cadru si aceleasi reguli ca la eroi (placa pictata o data, model facut 
 | `lite` | Doar gradientul si luciul: fara `clip`, fara material, fara margine. Pentru partile mici. |
 
 **Umbrele au iesit din `lit()` intr-o functie a lor**, `castShadow(c, x, y, w, h, seed, k)`, pe care `lit()` o cheama la fel ca inainte. Un erou are o singura umbra, desenata de cine il deseneaza (`drawHeroFull`), nu cate una pe fiecare parte. `h` hotaraste doar cat de departe spre dreapta-jos cade umbra: un erou da mai putin decat inaltimea lui, ca umbra sa porneasca de la picioare. `k` (0 - 1): cat de tare; sub 0.95 nu mai e linie de contact (eroul e in aer).
+
+## Update 22 noiembrie 2026 (T6.10): cum se verifica stilul nou
+
+Testul permanent `tests/stil-grafic.js` (pixeli gri, fara gradienti pe cadru) si bugetul de timp din `tests/performanta.js` sunt descrise in `17-testare.md`. Functiile noi de desen ale stilului nou se adauga in lista `names` din test.

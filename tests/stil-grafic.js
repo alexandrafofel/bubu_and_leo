@@ -176,6 +176,39 @@ const boot = require('./common.js');
   check('halouri: alpha intre 0.35 si 0.6', w.haloRange[0] >= 0.349 && w.haloRange[1] <= 0.601, w.haloRange);
   check('halo: 0: niciun halou; haloMax limiteaza', w.halo0 === 0 && w.haloCap <= 2, { fara: w.halo0, cap: w.haloCap });
   check('nivelurile 1 - 6 fara preview: fara apa noua si fara praf', !w.plain.water && w.plain.motes === 0, w.plain);
+
+  // ================= T6.10: pixeli negri sau gri pe fiecare captura; nimic interzis in desenul de la fiecare cadru =================
+  const z = await page.evaluate(() => {
+    const G = __game, out = { scenes: {}, src: {} }, cv = document.getElementById('game'), cx = cv.getContext('2d');
+    const grey = () => { const d = cx.getImageData(0, 0, cv.width, cv.height).data; let n = 0; for (let i = 0; i < d.length; i += 4) if (d[i] === d[i + 1] && d[i + 1] === d[i + 2] && d[i] < 200) n++; return n / (cv.width * cv.height) * 100; };
+    CONFIG.look.lights = true; CONFIG.look.front = true; CONFIG.look.waves = true; CONFIG.look.motes = 40; CONFIG.look.halo = 0.5;
+    for (const lang of ['ro', 'en']) {
+      G.Opt.lang = lang; setLanguage(lang);
+      for (const prev of [false, true]) {
+        CONFIG.look.preview = prev;
+        for (let lv = 0; lv <= 6; lv++) { go(lv); step(120); out.scenes[lang + (prev ? ' diorama ' : ' acuarela ') + lv] = +grey().toFixed(4); }
+      }
+    }
+    CONFIG.look.preview = true; go(2); step(30); G.startDuel(); step(90); out.scenes['mini-lupta'] = +grey().toFixed(4);
+    G.Opt.lang = 'ro'; setLanguage('ro'); CONFIG.look.preview = false;
+    // codul stilului nou, care ruleaza la fiecare cadru: niciun createRadialGradient, createPattern sau shadowBlur
+    // (picatorii care se pun in sprite() si matPattern, care face pattern-ul o singura data, sunt in afara listei)
+    const names = ['lit', 'litGloss', 'castShadow', 'litTube', 'litPuff', 'litClaws', 'litTeeth', 'eyeLit', 'sewNumber', 'matFill', 'drawLightMap', 'collectLights', 'addLight',
+      'drawFront', 'updateFront', 'frontOffset', 'heroScreenBox', 'drawMotes', 'drawWater', 'fillWaves', 'holdBreath', 'bigHit', 'kickZoom', 'mechMove', 'mechClick', 'easeBack',
+      'heroMotion', 'tailStep', 'tailFollow', 'blinkOn', 'drawRunTrail', 'drawGeorgeBoss', 'drawBoon', 'drawKiller', 'drawGeorge', 'drawGlove'];
+    const miss = [], hit = [];
+    for (const n of names) {
+      let f; try { f = (0, eval)(n); } catch (e) { f = null; }
+      if (typeof f !== 'function') { miss.push(n); continue; }
+      const src = f.toString().replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+      for (const bad of ['createRadialGradient', 'createPattern', 'shadowBlur']) if (src.includes(bad)) hit.push(n + ':' + bad);
+    }
+    out.src = { n: names.length, miss, hit };
+    return out;
+  });
+  const worst = Object.entries(z.scenes).sort((a, b) => b[1] - a[1])[0];
+  check('pe fiecare captura (' + Object.keys(z.scenes).length + ': ro si en, acuarela si diorama, nivelurile 1 - 6 si lupta, mini-lupta) sub 0.1% pixeli negri sau gri (R = G = B sub 200)', worst[1] < 0.1, { cel_mai_rau: worst });
+  check('desenul stilului nou nu are createRadialGradient, createPattern, shadowBlur (' + z.src.n + ' de functii)', z.src.miss.length === 0 && z.src.hit.length === 0, z.src);
   console.log(bad.length ? 'NEREUSIT: ' + bad.join(' | ') : 'stil-grafic OK');
   await done();
 })();

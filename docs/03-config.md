@@ -312,3 +312,5 @@ Stilul grafic nou (`docs/24-sisteme-noi.md`, S7) are reglajele lui. Fiecare se p
 | `look.squashRun` | `-0.16` | Intindere cand porneste fuga (L3). |
 
 La T6.1 valorile sunt doar scrise, nu si citite: `lit()` nu are nevoie de ele. Sarcinile T6.6 - T6.9 le folosesc pe rand.
+
+T6.10: nu se adauga chei noi; testul `tests/stil-grafic.js` si bugetul din `performanta.js` citesc `look.*` asa cum sunt.

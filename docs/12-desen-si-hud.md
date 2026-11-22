@@ -275,3 +275,5 @@ In toate nivelurile (nu doar pe cele cu `look: 'diorama'`): loviturile mari se s
 - **Sunetul `click`** (`03-audio.js`): un "tic" moale de lemn (triunghi 1250 -> 900 Hz, 0.045 s, plus putin zgomot trece-banda); sunet al lumii (nu al unui erou), deci merge pe boxele calculatorului.
 
 **Cost:** nimic masurabil (un calcul pe cadru). `performanta.js` ramane cum era.
+
+**T6.10:** capturile finale ro/en ale nivelului 3 si ale luptei cu George: `capturi/24-final-*.jpg` (lista S7.8 in `17-testare.md`).
