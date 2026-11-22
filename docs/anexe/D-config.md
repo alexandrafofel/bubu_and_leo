@@ -167,6 +167,11 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `fontUI` | `"\"Avenir Next\", \"Trebuchet MS\", \"Helvetica Neue\", Arial, sans-serif"` |  |
 | `maxRenderWidth` | `1920` |  |
 | `saveKey` | `"bubu-leo-oua-de-aur-v1"` |  |
+| `look.lights` | `true` |  |
+| `look.front` | `true` |  |
+| `look.motes` | `40` |  |
+| `look.freeze` | `0.06` |  |
+| `look.maxLights` | `24` |  |
 | `lupta.villainName` | `"George cel Rău"` |  |
 | `lupta.heroes.0.name` | `"Boon"` |  |
 | `lupta.heroes.0.power` | `"spin"` |  |

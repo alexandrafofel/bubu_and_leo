@@ -276,3 +276,71 @@ In `control-nou.js` (testul butoanelor, de la T2) a fost nevoie de o linie in pl
 Verificat ca poate sa pice: cu vibratia prietenului scoasa si cu `Game.failLevel()` inlocuit de "se ridica singur", testul scrie `NEREUSIT` la 8 din 9 puncte.
 
 `tests/toate.sh` il ruleaza la fiecare rulare completa.
+
+## Update 21 noiembrie 2026: `lit()` (sarcina T6.1)
+
+Testul permanent al stilului grafic (`tests/stil-grafic.js`) se scrie la T6.10. Pana atunci, `lit()` a fost verificat cu un script de o singura data, `tests/tmp/lit-proba.js` (dosarul `tests/tmp/` nu intra in depozit). Deseneaza trei obiecte de proba pe un canvas al lui, nu pe cel al jocului: bucla jocului ar desena peste.
+
+| Nr | Ce verifica | Rezultat |
+|---|---|---|
+| 1 | Lumina vine din stanga-sus (masurat pe obiectul mat, fara pata de stralucire). | OK |
+| 2 | Pata de stralucire apare pe materialul lucios... | OK |
+| 3 | ...si nu apare pe cel mat (`gloss: 0`). | OK |
+| 4 | Umbra aruncata e in dreapta-jos si e mai inchisa decat fundalul. | OK |
+| 5 | In stanga-jos nu e umbra. | OK |
+| 6 | Cel care sta pe pamant are umbra de contact. | OK |
+| 7 | Cu `shadow: false` nu lasa umbra aruncata... | OK |
+| 8 | ...si nici umbra de contact. | OK |
+| 9 | Niciun pixel gri (R, G, B egale si sub 200). | OK (0) |
+| 10 | Nimic mai inchis decat `#241A3A`. | OK (0) |
+
+### Ce a prins verificarea ca poate sa pice
+
+Prima varianta a scriptului masura lumina **in locul petei de stralucire**. Cu gradientul inversat anume, verificarea tot trecea: masura pata alba, nu gradientul. Acum gradientul se masoara pe obiectul mat, care nu are pata. Tot atunci s-a vazut si ca `shadow: false` lasa umbra de contact desenata; verificarea de atunci masura in alt loc si n-o prindea. Ambele reparate.
+
+**Limita cunoscuta:** regula "niciun pixel gri" din S7.8 cere `R`, `G` si `B` **egale**. Un gri desenat peste un fundal colorat iese cu canalele aproape egale, nu egale, si nu e prins. Verificat: un `rgba(80,80,80,0.9)` peste crem da `(97, 96, 94)` si trece. `tests/stil-grafic.js` (T6.10) ar trebui sa accepte si o mica abatere intre canale.
+
+## Update 21 noiembrie 2026: materialele eroilor (sarcina T6.2)
+
+Tot cu un script de o singura data, `tests/tmp/mat-proba.js` (nu intra in depozit; testul permanent e `tests/stil-grafic.js`, la T6.10). Pentru fiecare material deseneaza o forma de proba si **aceeasi forma fara material**, ca sa se vada exact ce adauga textura. Mai deseneaza un rand cu toate materialele pe **aceeasi culoare de baza**, ca sa le compare doar pe ele.
+
+| Ce verifica | Rezultat |
+|---|---|
+| Fiecare textura se vede: difera de forma fara material (media diferentei de luminanta). | OK: scale 2.85, fabric 2.46, rubber 10.76, bone 1.06 |
+| Nimic nu iese din contur: punctele din afara formei sunt identice cu cele fara material. | OK (0 la toate patru) |
+| Niciun pixel gri, nimic sub `#241A3A`, in forma desenata. | OK |
+| **Fiecare placa** (`SPR['mat-...']`): niciun pixel vizibil gri sau mai inchis decat `#241A3A`. | OK |
+| Doua materiale oarecare, pe aceeasi culoare de baza, lasa imagini diferite (6 perechi, minim 0.7). | OK: de la 3.93 la 12.95 |
+| `createPattern`: cel mult unul pe material in primul cadru, **niciunul in urmatoarele 60**. | OK: 3 si 0 |
+| `scale`: textura de pe jumatatea stanga e cel putin 1.25 x cea de pe dreapta. | OK: 3.36 vs 1.8 |
+| Luciul urmeaza materialul: pata de la `rubber` (0.4) e mai lata decat la `fabric` (0.05). | OK: 47 vs 33 |
+
+### Verificat ca poate sa pice
+
+Sapte defectiuni puse pe rand in `src/02-core.js`, fiecare prinsa de o verificare: fara `clip` (4 verificari pica, textura iese 49.9 din contur), fara cache pentru model (180 de `createPattern` noi), `rubber` care nu picteaza (diferenta 0.12), `fabric` facut la fel cu `scale` (diferenta 0.04), fara stratul din spate, `rubber` cu luciu 0.05, placa de pori neagra.
+
+### Ce a prins verificarea in timp ce se scria
+
+- **Doua verificari erau prea slabe** si nu picau la prima injectare. "Se deosebesc" compara materiale pe culori de baza diferite, deci doua materiale identice treceau (culorile erau diferite). Acum se compara pe aceeasi culoare. "Mai des spre spate" masura deviatia standard, adica gradientul si nu textura, si trecea si fara stratul din spate. Acum masoara forta texturii fata de forma fara material.
+- **Comparatia pe aceeasi culoare dadea 4.92 pentru doua materiale identice.** Cauza: modelul e prins de coordonatele canvasului, iar obiectele erau la x diferit, deci fazele texturii difereau. Nu e o greseala in cod (la erou, `translate` o rezolva), dar scriptul trebuia sa deseneze si el dupa `translate`.
+- Pata de stralucire nu e "aproape alb", e un alb translucid. Primul prag (toate canalele peste 225) dadea 0 la amandoua materialele. Acum se masoara latimea petei pe randul care trece prin ea.
+- Porii de 36 x 36 se vedeau in grila pe captura. Placa a ajuns 64 x 64.
+
+## Update 21 noiembrie 2026: materialele lumii (sarcina T6.3)
+
+Acelasi `tests/tmp/mat-proba.js`, rulat cu toate cele zece materiale (`node ../tmp/mat-proba.js scale,fabric,rubber,bone,wood,metal,stone,crystal,leaf,lava`). Pentru cele sase noi verifica aceleasi lucruri ca la T6.2 (textura se vede, nimic in afara conturului, fara gri sau sub `#241A3A`, placile curate, toate 45 de perechi se deosebesc pe aceeasi culoare de baza, zero `createPattern` in 60 de cadre) si inca doua, pentru lava:
+
+| Ce verifica | Rezultat |
+|---|---|
+| Crapaturile pulseaza: pe opt momente (la 0.4 s), media canalului verde al pixelilor de crapatura variaza cu peste 20. | OK: 51.3 |
+| In niciun moment al pulsului nu apare gri sau pixel mai inchis decat `#241A3A`. | OK: 0 |
+| Texturile se vad: wood 3.17, metal 7.02, stone 5.57, crystal 20.44, leaf 2.18, lava 62.17. | OK |
+
+### Verificat ca poate sa pice
+
+Cinci defectiuni, toate prinse: lava fara puls (span 0.0), crusta `#555555` (16642 pixeli gri), `crystal` care nu picteaza (0.11), `metal` care nu picteaza (0.12), verde crud in loc de galben (27 de pixeli prea inchisi / span 138.7 cu pixeli care apar si dispar).
+
+### Ce a prins in timp ce se scria
+
+- **Lava parea fixa.** Prima varianta defaza crapaturile cu 1.3 rad: sumate, se anulau, iar masuratoarea dadea span 4.2. Nu era doar testul: si pe ecran vulcanul n-ar fi parut sa pulseze. Defazajul e acum 0.45.
+- **Piatra avea dreptunghiuri.** Petele taiate la marginea placii de 96 x 96 lasau margini drepte pe captura. Fiecare pata se deseneaza acum si la o placa distanta.

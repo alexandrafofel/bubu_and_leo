@@ -46,10 +46,10 @@ function drawParts(c) {
 function drawDownRing(c, h, by) {
   const RS = CONFIG.rescue, full = rescueLimit() || RS.limit, left = h.downLeft, t = P.time;
   const col = CONFIG.heroes[1 - h.k].color, hurry = left <= 3, n = 10;
-  const lit = Math.ceil(left / full * n);                 // how many beads are still on
+  const onN = Math.ceil(left / full * n);                 // how many beads are still on ("lit" is the painter in 02-core.js)
   for (let i = 0; i < n; i++) {
-    const a = i / n * TAU - Math.PI / 2, bx = h.x + Math.cos(a) * 76, byy = h.y - 50 + Math.sin(a) * 40, on = i < lit;
-    const pu = on && i === lit - 1 ? 1 + 0.3 * Math.abs(Math.sin(t * 7)) : 1;
+    const a = i / n * TAU - Math.PI / 2, bx = h.x + Math.cos(a) * 76, byy = h.y - 50 + Math.sin(a) * 40, on = i < onN;
+    const pu = on && i === onN - 1 ? 1 + 0.3 * Math.abs(Math.sin(t * 7)) : 1;
     c.fillStyle = on ? col : 'rgba(255,246,224,0.45)';
     c.beginPath(); c.arc(bx, byy, 8 * pu, 0, TAU); c.fill();
     c.strokeStyle = on ? 'rgba(255,248,232,0.9)' : rgba(col, 0.4); c.lineWidth = on ? 2.5 : 2; c.stroke();
