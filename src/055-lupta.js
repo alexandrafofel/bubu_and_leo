@@ -24,53 +24,162 @@ function clawTips(c, x, y, ang, len, n, col) {       // n little pointed claws f
   }
 }
 
+/* ---- The new look of the heroes and of George (T6.4, docs/24-sisteme-noi.md, S7.3) ----
+   Every part of a body goes through lit() with its material: scale for the dinosaurs, fabric for Killer's kit,
+   rubber for his boots and gloves, bone for claws and teeth. The parts have no shadow of their own (shadow: false):
+   a hero has one cast shadow, painted under him by whoever draws him (castShadow(), 02-core.js).
+   The shapes and the colours are the ones of the children's drawings; only the light and the materials are new. */
+
+/* A tube made of quadratic pieces that go on from one another, as one closed contour (lit() needs one path:
+   the old tube() was a pile of circles). segs = [x0, y0, cx, cy, x1, y1, r0, r1,  cx, cy, x2, y2, r2,  ...]:
+   the first piece, then 5 numbers (control point, end, radius at the end) for every next piece. At most 3 pieces. */
+const _tb = new Float32Array(5 * 34), _tbBox = [0, 0, 0, 0];
+let _tbN = 0;
+function tubeSamples(segs) {
+  const per = 10, pieces = 1 + (segs.length - 8) / 5;
+  let x0 = segs[0], y0 = segs[1], r0 = segs[6], n = 0, minX = 1e9, minY = 1e9, maxX = -1e9, maxY = -1e9, minR = 1e9;
+  for (let p = 0; p < pieces; p++) {
+    const b = p ? 8 + (p - 1) * 5 : 2, cx = segs[b], cy = segs[b + 1], x1 = segs[b + 2], y1 = segs[b + 3], r1 = p ? segs[b + 4] : segs[7];
+    for (let i = p ? 1 : 0; i <= per; i++) {
+      const u = i / per, v = 1 - u, x = v * v * x0 + 2 * v * u * cx + u * u * x1, y = v * v * y0 + 2 * v * u * cy + u * u * y1;
+      let dx = v * (cx - x0) + u * (x1 - cx), dy = v * (cy - y0) + u * (y1 - cy), l = Math.hypot(dx, dy);
+      if (l < 1e-6) { dx = x1 - x0; dy = y1 - y0; l = Math.hypot(dx, dy) || 1; }
+      const r = lerp(r0, r1, u), k = n * 5;
+      _tb[k] = x; _tb[k + 1] = y; _tb[k + 2] = -dy / l; _tb[k + 3] = dx / l; _tb[k + 4] = r; n++;
+      if (x - r < minX) minX = x - r; if (x + r > maxX) maxX = x + r; if (y - r < minY) minY = y - r; if (y + r > maxY) maxY = y + r; if (r < minR) minR = r;
+    }
+    x0 = x1; y0 = y1; r0 = r1;
+  }
+  _tbN = n; _tbBox[0] = minX; _tbBox[1] = minY; _tbBox[2] = maxX; _tbBox[3] = maxY;
+  return minR;
+}
+function tubePath(c) {                    // the contour of the last tubeSamples(): one side, a round end, the other side, a round start
+  const n = _tbN, L = (n - 1) * 5;
+  c.beginPath();
+  for (let i = 0; i < n; i++) { const k = i * 5; i ? c.lineTo(_tb[k] + _tb[k + 2] * _tb[k + 4], _tb[k + 1] + _tb[k + 3] * _tb[k + 4]) : c.moveTo(_tb[k] + _tb[k + 2] * _tb[k + 4], _tb[k + 1] + _tb[k + 3] * _tb[k + 4]); }
+  let a = Math.atan2(_tb[L + 3], _tb[L + 2]); c.arc(_tb[L], _tb[L + 1], _tb[L + 4], a, a - Math.PI, true);
+  for (let i = n - 1; i >= 0; i--) { const k = i * 5; c.lineTo(_tb[k] - _tb[k + 2] * _tb[k + 4], _tb[k + 1] - _tb[k + 3] * _tb[k + 4]); }
+  a = Math.atan2(-_tb[3], -_tb[2]); c.arc(_tb[0], _tb[1], _tb[4], a, a - Math.PI, true);
+  c.closePath();
+}
+let _fl = 1;                                      // -1 while a painter draws mirrored: passed to lit() so it does not read the transform for every part
+const partRim = r => clamp(r * 0.45, 1.2, 5);   // a thin part gets a thin rim light, or the two rims would cover it
+const PART_RIM_A = 0.5;                           // and a softer one: a hero has many parts, each one with its own rim
+const LITE_R = 10;                                // a part thinner than this (radius) and without a material gets only the gradient (lit's lite)
+/* The parts have no gloss unless the painter asks for it (the material's gloss is not used here): a gloss spot on
+   every leg and finger turned a hero into a bag of marbles. Only the body, the head and boots / gloves shine. */
+/* A tube in the new look. o.col2: the tube turns into this colour toward its end. o.grad: [[stop, colour], ...]
+   along the tube, for a tail that changes colour on the way (George's: green, then blue). */
+function litTube(c, segs, col, o) {
+  const minR = tubeSamples(segs), mat = MATERIALS[o.mat], x0 = _tbBox[0], y0 = _tbBox[1], w = _tbBox[2] - x0, h = _tbBox[3] - y0;
+  const oo = { x: x0 + w / 2, y: y0 + h, w, h, shadow: false, flip: _fl, seed: o.seed || 1, rim: partRim(minR), rimA: PART_RIM_A, gloss: o.gloss || 0, lite: !o.mat && !o.grad && minR < LITE_R };
+  if (o.col2 || o.grad) {
+    const ax = segs[0], ay = segs[1], bx = _tb[(_tbN - 1) * 5], by = _tb[(_tbN - 1) * 5 + 1];
+    oo.mat = (cc, q, path) => {
+      const g = cc.createLinearGradient(ax, ay, bx, by);
+      if (o.grad) for (const st of o.grad) g.addColorStop(st[0], rgba(st[1], 0.78));
+      else { g.addColorStop(0, rgba(o.col2, 0)); g.addColorStop(1, rgba(o.col2, 0.85)); }
+      cc.fillStyle = g; cc.fillRect(x0 - 4, y0 - 4, w + 8, h + 8);
+      if (mat) mat.paint(cc, q, path);
+    };
+  } else if (o.mat) oo.mat = o.mat;
+  lit(c, tubePath, col, oo);
+}
+/* A round part (body, head, boot) in the new look: the same blob as puff(). */
+function litPuff(c, x, y, rx, ry, seed, col, o) {
+  o = o || {};
+  lit(c, cc => blobPath(cc, x, y, rx, ry, seed || 1, 0.045, 10), col, { x, y: y + ry, w: rx * 2, h: ry * 2, shadow: false, flip: _fl, seed: seed || 1, rim: partRim(Math.min(rx, ry)), rimA: PART_RIM_A, mat: o.mat, gloss: o.gloss || 0, lite: !o.mat && Math.min(rx, ry) < LITE_R });
+}
+/* Claws: little pointed triangles, all in one contour. Long claws (the power is on) go through lit() in bone;
+   the small ones get only the light's gradient: a rim and a texture on a claw of a few pixels cost a lot and show nothing. */
+function litClaws(c, x, y, ang, len, n, col) {
+  const path = cc => {
+    cc.beginPath();
+    for (let i = 0; i < n; i++) {
+      const a = ang + (i - (n - 1) / 2) * 0.42, bx = Math.cos(a + Math.PI / 2) * len * 0.22, by = Math.sin(a + Math.PI / 2) * len * 0.22;
+      cc.moveTo(x + bx, y + by); cc.lineTo(x + Math.cos(a) * len, y + Math.sin(a) * len); cc.lineTo(x - bx, y - by); cc.closePath();
+    }
+  };
+  col = col || '#FFF3D6';
+  if (len >= 20) { lit(c, path, col, { x: x + Math.cos(ang) * len * 0.5, y: y + len * 0.5, w: len * 1.4, h: len * 1.2, shadow: false, flip: _fl, mat: 'bone', rim: 1.2, rimA: PART_RIM_A, gloss: 0.25 }); return; }
+  const g = c.createLinearGradient(x - _fl * len * 0.5, y - len * 0.5, x + _fl * len * 0.5, y + len * 0.5);
+  g.addColorStop(0, shade(col, 0.2)); g.addColorStop(1, mix(shade(col, -0.25), '#5A3550', 0.1));
+  path(c); c.fillStyle = g; c.fill();
+}
+function litTeeth(c, pts, col) {          // pts: [x0, base y, tip y, width] for every tooth
+  const path = cc => { cc.beginPath(); for (const q of pts) { cc.moveTo(q[0], q[1]); cc.lineTo(q[0] + q[3] / 2, q[2]); cc.lineTo(q[0] + q[3], q[1]); cc.closePath(); } };
+  let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+  for (const q of pts) { x0 = Math.min(x0, q[0]); x1 = Math.max(x1, q[0] + q[3]); y0 = Math.min(y0, q[1], q[2]); y1 = Math.max(y1, q[1], q[2]); }
+  lit(c, path, col || '#FFFDF4', { x: (x0 + x1) / 2, y: y1, w: x1 - x0, h: y1 - y0 || 1, shadow: false, flip: _fl, mat: 'bone', rim: 1.2, rimA: PART_RIM_A, gloss: 0 });
+}
+/* An eye in the new look: two gleams that follow the light (a big one up-left, a small one down-right, on the screen,
+   whichever way the hero looks) and a soft shadow under the upper lid. Closed, happy or dizzy: the old eye. */
+function eyeLit(c, x, y, r, o, look) {
+  const t = o.t || 0;
+  if (o.dizzy || o.happy || ((t + (o.blinkOff || 0)) % 3.7) < 0.13) { drawEye(c, x, y, r, o, look); return; }
+  const fl = _fl;
+  c.beginPath(); c.ellipse(x, y, r, r * 1.08, 0, 0, TAU); c.fillStyle = '#FFFDF4'; c.fill();
+  const g = c.createLinearGradient(0, y - r * 1.08, 0, y - r * 0.15);              // the lid shadow: the upper half of the eye, fading down
+  g.addColorStop(0, rgba(SHADOW, 0.34)); g.addColorStop(1, rgba(SHADOW, 0));
+  c.beginPath(); c.ellipse(x, y, r, r * 1.08, 0, Math.PI, TAU); c.closePath(); c.fillStyle = g; c.fill();
+  c.beginPath(); c.ellipse(x, y, r, r * 1.08, 0, 0, TAU);
+  c.strokeStyle = 'rgba(120,70,80,0.25)'; c.lineWidth = 1.4; c.stroke();
+  const px = x + (look || 0) * r * 0.25 + r * 0.12, py = y + r * 0.08;
+  c.fillStyle = '#4B2E33'; c.beginPath(); c.ellipse(px, py, r * 0.66, r * 0.72, 0, 0, TAU); c.fill();
+  c.fillStyle = '#FFFFFF';
+  c.beginPath(); c.arc(px - fl * r * 0.26, py - r * 0.3, r * 0.27, 0, TAU); c.fill();
+  c.beginPath(); c.arc(px + fl * r * 0.27, py + r * 0.26, r * 0.12, 0, TAU); c.fill();
+}
+/* Killer's 10, "sewn on": a patch around the digits and a dotted cream stitch just outside them. */
+function sewNumber(c, str, x, y, size, ink, patch) {
+  setFont(c, size, false, 'bold'); c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round';
+  c.lineWidth = size * 0.3; c.strokeStyle = patch; c.strokeText(str, x, y);                                  // the patch, a little lighter than the shirt
+  c.setLineDash([size * 0.08, size * 0.09]); c.lineWidth = size * 0.21; c.strokeStyle = 'rgba(255,246,224,0.9)'; c.strokeText(str, x, y);
+  c.setLineDash([]); c.lineWidth = size * 0.11; c.strokeStyle = patch; c.strokeText(str, x, y);           // covers the inner half: the stitch stays just outside
+  c.fillStyle = ink; c.fillText(str, x, y);
+}
+
 /* BOON: the little one's hero. Round teal body, a dome of blue spikes on the back, long tan neck, small blue head,
    lime legs and a long lime tail. o.claw (0 to 1) = the claws are out and spinning. */
 function drawBoon(c, x, y, o) {
   const s = o.scale || 1, f = o.face || 1, t = o.t || 0;
+  _fl = f;
   const step = o.moving ? Math.sin(o.walk || 0) : 0, hop = o.moving ? Math.abs(step) * 6 : 0;
   const br = Math.sin(t * 2.4) * 0.025 * (o.moving ? 0.3 : 1), sq = o.squash || 0, claw = o.claw != null && o.claw >= 0;
   const teal = '#3DBDB4', tealD = '#2B9A9E', lime = '#B7D645', limeD = '#8FB436', tan = '#CFA052', blue = '#3F78D8', navy = '#56609E', lilac = '#C4BEDC';
   c.save(); c.translate(x, y - (o.z || 0) * s); c.scale(s * f, s);
-  // tail: thick at the body, down to the ground, long
+  // tail: thick at the body, down to the ground, long. One contour, lime turning darker toward the tip
   const wag = Math.sin(t * 3.1) * 4;
-  tube(c, -30, -30, -52, -30, -58, -10 + wag * 0.3, 11, 8, lime);
-  tube(c, -58, -10 + wag * 0.3, -62, 2, -92, -4 + wag, 8, 4.5, lime, limeD);
+  litTube(c, [-30, -30, -52, -30, -58, -10 + wag * 0.3, 11, 8, -62, 2, -92, -4 + wag, 4.5], lime, { mat: 'scale', col2: limeD, seed: 3, gloss: 0.15 });
   // legs with little claws
-  const leg = (lx, lift, fwd) => {
-    tube(c, lx, -26, lx + fwd * 0.4, -16 - lift * 0.5, lx + fwd, -6 - lift, 6.5, 5.5, lime, limeD);
-    clawTips(c, lx + fwd + 4, -4 - lift, 0.15, 9, 3, '#FFF3D6');
+  const leg = (lx, lift, fwd, sd) => {
+    litTube(c, [lx, -26, lx + fwd * 0.4, -16 - lift * 0.5, lx + fwd, -6 - lift, 6.5, 5.5], lime, { col2: limeD, seed: sd });
+    litClaws(c, lx + fwd + 4, -4 - lift, 0.15, 9, 3, '#FFF3D6');
   };
-  leg(-14, Math.max(0, step) * 6, step * 7); leg(12, Math.max(0, -step) * 6, -step * 7);
+  leg(-14, Math.max(0, step) * 6, step * 7, 5); leg(12, Math.max(0, -step) * 6, -step * 7, 6);
   c.translate(0, -hop); c.scale(1 + br + sq, 1 - br - sq);
   // the dome on the back with three blue spikes ("mountains") and their pale tips
-  c.beginPath(); c.moveTo(-40, -40); c.bezierCurveTo(-40, -124, 30, -128, 32, -40); c.closePath();
-  let g = c.createLinearGradient(0, -106, 0, -40); g.addColorStop(0, shade(tealD, 0.15)); g.addColorStop(1, tealD);
-  c.fillStyle = g; c.fill(); c.strokeStyle = 'rgba(40,110,120,0.3)'; c.lineWidth = 2.2; c.stroke();
+  lit(c, cc => { cc.beginPath(); cc.moveTo(-40, -40); cc.bezierCurveTo(-40, -124, 30, -128, 32, -40); cc.closePath(); }, tealD, { x: -4, y: -40, w: 72, h: 66, shadow: false, flip: _fl, mat: 'scale', seed: 4, rimA: PART_RIM_A, gloss: 0 });
   const spikes = [[-35, -9, -21, -91], [-13, 15, 1, -99], [9, 29, 19, -88]];
-  for (const sp of spikes) {
-    c.fillStyle = blue; c.beginPath(); c.moveTo(sp[0], -44); c.lineTo(sp[2], sp[3]); c.lineTo(sp[1], -44); c.closePath(); c.fill();
-    c.fillStyle = lilac; c.beginPath(); c.moveTo(lerp(sp[0], sp[2], 0.7), lerp(-44, sp[3], 0.7)); c.lineTo(sp[2], sp[3]); c.lineTo(lerp(sp[1], sp[2], 0.7), lerp(-44, sp[3], 0.7)); c.closePath(); c.fill();
-  }
-  // body
-  g = c.createRadialGradient(8, -46, 6, 0, -34, 48); g.addColorStop(0, shade(teal, 0.4)); g.addColorStop(0.55, teal); g.addColorStop(1, tealD);
-  puff(c, -2, -34, 42, 24, g, 1, 'rgba(40,110,120,0.3)');
-  soft(c, 6, -26, 26, 11, '#BFF0E4', 0.45, 2);
+  lit(c, cc => { cc.beginPath(); for (const sp of spikes) { cc.moveTo(sp[0], -44); cc.lineTo(sp[2], sp[3]); cc.lineTo(sp[1], -44); cc.closePath(); } }, blue, { x: -3, y: -44, w: 64, h: 55, shadow: false, flip: _fl, gloss: 0, lite: true, seed: 5 });
+  c.fillStyle = lilac;
+  for (const sp of spikes) { c.beginPath(); c.moveTo(lerp(sp[0], sp[2], 0.7), lerp(-44, sp[3], 0.7)); c.lineTo(sp[2], sp[3]); c.lineTo(lerp(sp[1], sp[2], 0.7), lerp(-44, sp[3], 0.7)); c.closePath(); c.fill(); }
+  // body, with its pale belly
+  litPuff(c, -2, -34, 42, 24, 1, teal, { mat: 'scale', gloss: 0.3 });
+  soft(c, 6, -26, 26, 11, '#BFF0E4', 0.38, 2);
   // neck
-  tube(c, 28, -40, 37, -78, 34, -116, 10.5, 8.5, tan, shade(tan, 0.15));
-  soft(c, 31, -80, 4, 30, shade(tan, 0.4), 0.5, 3);
+  litTube(c, [28, -40, 37, -78, 34, -116, 10.5, 8.5], tan, { mat: 'scale', seed: 7 });
   // arm: short normally; long, with long claws, when the power is on
   const reach = claw ? 26 : 0, ay = -50 + (o.moving ? step * 2 : 0);
-  tube(c, 28, -48, 40 + reach * 0.5, ay - 6, 46 + reach, ay, 5.5, 5, '#4A9FE0');
-  soft(c, 48 + reach, ay, 7, 6, '#4A9FE0', 1, 5);
-  clawTips(c, 52 + reach, ay, 0, claw ? 26 : 9, 3, claw ? '#FFFBEA' : '#EAF2FF');
+  litTube(c, [28, -48, 40 + reach * 0.5, ay - 6, 46 + reach, ay, 5.5, 5], '#4A9FE0', { seed: 8 });
+  litPuff(c, 48 + reach, ay, 7, 6, 5, '#4A9FE0');
+  litClaws(c, 52 + reach, ay, 0, claw ? 26 : 9, 3, claw ? '#FFFBEA' : '#EAF2FF');
   if (o.hug > 0) for (let i = 0; i < 3; i++) { heartPath(c, 62 + i * 14, ay - 20 - i * 12 - (1 - o.hug) * 30, 6); c.fillStyle = rgba('#F29C9C', o.hug); c.fill(); }
   // head: round and blue, with a darker snout
   c.translate(0, -16);
-  puff(c, 30, -110, 14, 13, blue, 6, 'rgba(50,70,150,0.3)');
-  puff(c, 47, -107, 14, 9, navy, 7, 'rgba(50,50,110,0.3)');
-  soft(c, 26, -116, 6, 4, shade(blue, 0.45), 0.7, 8);
-  drawEye(c, 36, -112, 6.5, o, 1);
+  litPuff(c, 30, -110, 14, 13, 6, blue, { mat: 'scale', gloss: 0.3 });
+  litPuff(c, 47, -107, 14, 9, 7, navy);
+  eyeLit(c, 36, -112, 6.5, o, 1);
   c.strokeStyle = '#2F3566'; c.lineWidth = 2; c.lineCap = 'round'; c.beginPath();
   if (o.dizzy) { c.moveTo(44, -101); c.quadraticCurveTo(48, -104, 52, -101); c.quadraticCurveTo(55, -98, 58, -101); } else c.arc(50, -105, 6, 0.25, Math.PI * 0.8);
   c.stroke();
@@ -81,16 +190,16 @@ function drawBoon(c, x, y, o) {
 /* KILLER: the big one's hero. A footballer all in blue, number 10, big red boots, a round head with big eyes and a wide grin. */
 function drawKiller(c, x, y, o) {
   const s = o.scale || 1, f = o.face || 1, t = o.t || 0;
+  _fl = f;
   const step = o.moving ? Math.sin(o.walk || 0) : 0, hop = o.moving ? Math.abs(step) * 6 : 0;
   const br = Math.sin(t * 2.6 + 1) * 0.022 * (o.moving ? 0.3 : 1), sq = o.squash || 0, kick = o.kick || 0;
   const skin = '#F6D2AE', kit = '#2F6FD0', kitD = '#2456A8', boot = '#E4583C', ink = '#243A7A', up = o.happy || o.hug > 0;
   c.save(); c.translate(x, y - (o.z || 0) * s); c.scale(s * f, s);
-  // legs in blue, big red boots
+  // legs in blue, big red rubber boots
   const leg = (lx, lift, fwd, seed) => {
-    tube(c, lx, -32, lx + fwd * 0.4, -22 - lift * 0.5, lx + fwd * 0.8, -11 - lift, 5.5, 5, skin);
-    tube(c, lx, -34, lx + fwd * 0.15, -29 - lift * 0.2, lx + fwd * 0.35, -22 - lift * 0.45, 7.5, 7, kit, kitD);
-    puff(c, lx + fwd + 3, -5 - lift, 13, 7.5, boot, seed, 'rgba(150,50,40,0.4)');
-    soft(c, lx + fwd + 6, -8 - lift, 5, 2.5, shade(boot, 0.4), 0.6, seed + 1);
+    litTube(c, [lx, -32, lx + fwd * 0.4, -22 - lift * 0.5, lx + fwd * 0.8, -11 - lift, 5.5, 5], skin, { gloss: 0.1, seed });
+    litTube(c, [lx, -34, lx + fwd * 0.15, -29 - lift * 0.2, lx + fwd * 0.35, -22 - lift * 0.45, 7.5, 7], kit, { col2: kitD, seed: seed + 1 });
+    litPuff(c, lx + fwd + 3, -5 - lift, 13, 7.5, seed, boot, { mat: 'rubber', gloss: 0.4 });
   };
   leg(-10, Math.max(0, step) * 6, step * 7, 40);
   leg(10, Math.max(0, -step) * 6 + kick * 8, -step * 7 + kick * 16, 44);
@@ -100,24 +209,22 @@ function drawKiller(c, x, y, o) {
   const arm = (sd, sw) => {
     if (gl > 0) {
       const ext = 1 + 1.4 * Math.min(1, gl * 4) * (gl > 0.85 ? (1 - gl) / 0.15 : 1), wob = Math.sin(t * 24 + sd * 2) * 5;
-      tube(c, sd * 17, -62, sd * (26 * ext), -58 + wob * 0.4, sd * (34 * ext), -52 + wob, 6.5, 5.5, skin);
+      litTube(c, [sd * 17, -62, sd * (26 * ext), -58 + wob * 0.4, sd * (34 * ext), -52 + wob, 6.5, 5.5], skin, { gloss: 0.1, seed: 47 + sd });
       drawGlove(c, sd * (36 * ext), -50 + wob, 13, sd, t);
-    } else if (up) tube(c, sd * 17, -62, sd * 30, -74, sd * 34, -92 + Math.sin(t * 9 + sd) * 4, 6.5, 6, skin);
-    else tube(c, sd * 17, -62, sd * 32, -56 + sw * 3, sd * 36, -38 + sw * 5, 6.5, 6.5, skin);
-    soft(c, sd * 17, -62, 8, 6, kit, 1, 50 + sd);                      // sleeve
+    } else if (up) litTube(c, [sd * 17, -62, sd * 30, -74, sd * 34, -92 + Math.sin(t * 9 + sd) * 4, 6.5, 6], skin, { gloss: 0.1, seed: 47 + sd });
+    else litTube(c, [sd * 17, -62, sd * 32, -56 + sw * 3, sd * 36, -38 + sw * 5, 6.5, 6.5], skin, { gloss: 0.1, seed: 47 + sd });
+    litPuff(c, sd * 17, -62, 8, 6, 50 + sd, kit);                      // sleeve (too small for stitches)
   };
   arm(-1, step);
-  let g = c.createLinearGradient(0, -70, 0, -26); g.addColorStop(0, shade(kit, 0.2)); g.addColorStop(1, kitD);
-  puff(c, 0, -46, 20, 23, g, 26, 'rgba(30,60,130,0.35)');           // shirt and shorts in one blue piece
+  litPuff(c, 0, -46, 20, 23, 26, kit, { mat: 'fabric' });             // shirt and shorts in one blue piece, with its stitches
   arm(1, -step);
   c.save(); c.scale(f, 1);                                             // the number is never mirrored
-  text(c, '10', 0, -47, 21, ink, { halo: 0, shadow: 0, weight: 'bold' });
+  sewNumber(c, '10', 0, -47, 21, ink, shade(kit, 0.18));
   c.restore();
   // head: round, no hair, big eyes, wide grin with teeth
-  g = c.createRadialGradient(6, -100, 4, 0, -90, 30); g.addColorStop(0, shade(skin, 0.35)); g.addColorStop(1, skin);
-  puff(c, 0, -92, 25, 24, g, 28, 'rgba(180,110,80,0.3)');
+  litPuff(c, 0, -92, 25, 24, 28, skin, { gloss: 0.15 });
   soft(c, -22, -92, 4.5, 6.5, skin, 1, 29);
-  drawEye(c, -5, -99, 7.5, o, 1); drawEye(c, 11, -99, 7.5, o, 1);
+  eyeLit(c, -5, -99, 7.5, o, 1); eyeLit(c, 11, -99, 7.5, o, 1);
   soft(c, 19, -86, 5, 3.5, '#F29C8E', 0.5, 30); soft(c, -13, -85, 5, 3.5, '#F29C8E', 0.4, 31);
   if (o.dizzy) { c.strokeStyle = '#9A5440'; c.lineWidth = 2.3; c.lineCap = 'round'; c.beginPath(); c.moveTo(-6, -79); c.quadraticCurveTo(-1, -83, 3, -79); c.quadraticCurveTo(7, -75, 12, -79); c.stroke(); }
   else {
@@ -150,46 +257,45 @@ function drawBallL(c, x, y, r, spin) {
    mood: calm | angry | dizzy | scared */
 function drawGeorge(c, x, y, o) {
   const s = o.scale || 1, f = o.face || 1, t = o.t || 0, mood = o.mood || 'calm';
+  _fl = f;
   const step = o.moving ? Math.sin(o.walk || 0) : 0, hop = o.moving ? Math.abs(step) * 5 : 0, sq = o.squash || 0;
-  const pink = '#E45AA0', pinkD = '#C2417F', brown = '#9A6B3C', eo = { t: t, dizzy: mood === 'dizzy', blinkOff: 0.9 };
+  const pink = '#E45AA0', brown = '#9A6B3C', eo = { t: t, dizzy: mood === 'dizzy', blinkOff: 0.9 };
   c.save(); c.translate(x, y); c.scale(s * f, s);
-  // tail: green at the body, then blue, curling up
+  // tail: green at the body, then blue, curling up. One contour, the colour changes along it
   const wag = Math.sin(t * 3.4) * 5;
-  tube(c, -36, -40, -70, -34, -84, -52 + wag * 0.4, 12, 9, '#A8D645', '#6FC96A');
-  tube(c, -84, -52 + wag * 0.4, -98, -74 + wag, -78, -94 + wag, 9, 4.5, '#46A8D8', '#3F78D8');
+  litTube(c, [-36, -40, -70, -34, -84, -52 + wag * 0.4, 12, 9, -98, -74 + wag, -78, -94 + wag, 4.5], '#6FC96A',
+    { mat: 'scale', seed: 9, grad: [[0, '#A8D645'], [0.5, '#6FC96A'], [0.62, '#46A8D8'], [1, '#3F78D8']] });
   c.strokeStyle = 'rgba(40,60,120,0.45)'; c.lineWidth = 2; c.lineCap = 'round';
   for (let i = 0; i < 3; i++) { const yy = -70 - i * 8 + wag * 0.8; c.beginPath(); c.moveTo(-96 + i * 4, yy); c.lineTo(-88 + i * 4, yy - 3); c.stroke(); }
   // thin brown legs: a pink foot behind, a pale claw foot in front
-  tube(c, -14 + step * 5, -26, -14 + step * 6, -14, -14 + step * 8, -5 - Math.max(0, step) * 5, 4.5, 4, brown);
-  soft(c, -11 + step * 8, -3 - Math.max(0, step) * 5, 10, 6, '#E77AB4', 1, 61);
-  tube(c, 14 - step * 5, -26, 14 - step * 6, -14, 15 - step * 8, -5 - Math.max(0, -step) * 5, 4.5, 4, brown);
-  clawTips(c, 18 - step * 8, -3 - Math.max(0, -step) * 5, 0.2, 15, 3, '#DCD6EC');
+  litTube(c, [-14 + step * 5, -26, -14 + step * 6, -14, -14 + step * 8, -5 - Math.max(0, step) * 5, 4.5, 4], brown, { seed: 10 });
+  litPuff(c, -11 + step * 8, -3 - Math.max(0, step) * 5, 10, 6, 61, '#E77AB4');
+  litTube(c, [14 - step * 5, -26, 14 - step * 6, -14, 15 - step * 8, -5 - Math.max(0, -step) * 5, 4.5, 4], brown, { seed: 11 });
+  litClaws(c, 18 - step * 8, -3 - Math.max(0, -step) * 5, 0.2, 15, 3, '#DCD6EC');
   c.translate(0, -hop); c.scale(1 + sq, 1 - sq);
   // body
-  let g = c.createRadialGradient(10, -62, 6, 0, -46, 54); g.addColorStop(0, shade(pink, 0.4)); g.addColorStop(0.55, pink); g.addColorStop(1, pinkD);
-  puff(c, 0, -46, 46, 31, g, 60, 'rgba(150,40,100,0.35)');
+  litPuff(c, 0, -46, 46, 31, 60, pink, { mat: 'scale', gloss: 0.3 });
   c.strokeStyle = 'rgba(255,220,236,0.4)'; c.lineWidth = 5; c.lineCap = 'round';
   for (let i = 0; i < 3; i++) { c.beginPath(); c.moveTo(-22 + i * 18, -62); c.lineTo(-8 + i * 18, -34); c.stroke(); }       // crayon strokes
   // thin arm with claws
-  tube(c, 30, -52, 44, -50, 50, -38 + (mood === 'angry' ? Math.sin(t * 20) * 3 : 0), 4, 3.5, brown);
-  clawTips(c, 51, -35, 1.2, 10, 3, '#FFF3D6');
+  litTube(c, [30, -52, 44, -50, 50, -38 + (mood === 'angry' ? Math.sin(t * 20) * 3 : 0), 4, 3.5], brown, { seed: 12 });
+  litClaws(c, 51, -35, 1.2, 10, 3, '#FFF3D6');
   // neck and the rainbow head: red at the back, orange, yellow, then the blue snout
-  tube(c, 22, -64, 24, -78, 26, -90, 12, 12, '#E4455A');
+  litTube(c, [22, -64, 24, -78, 26, -90, 12, 12], '#E4455A', { mat: 'scale', seed: 13 });
   c.save(); c.translate(0, mood === 'scared' ? Math.sin(t * 30) * 1.5 : 0);
-  puff(c, 16, -100, 21, 21, '#E4455A', 62, 'rgba(150,40,60,0.3)');
-  puff(c, 34, -101, 17, 20, '#F58A3C', 63, 0);
-  puff(c, 50, -101, 16, 19, '#F6CE46', 64, 0);
+  litPuff(c, 16, -100, 21, 21, 62, '#E4455A');
+  litPuff(c, 34, -101, 17, 20, 63, '#F58A3C');
+  litPuff(c, 50, -101, 16, 19, 64, '#F6CE46');
   // jaws: open wider when he is angry
   const open = mood === 'angry' ? 9 + Math.abs(Math.sin(t * 9)) * 4 : mood === 'dizzy' ? 7 : mood === 'scared' ? 10 : 4;
   c.save(); c.translate(60, -96); c.rotate(open * 0.02);
-  puff(c, 16, 8 + open * 0.5, 19, 6.5, '#8E8AC0', 66, 'rgba(60,60,120,0.3)');                                     // lower jaw
-  c.fillStyle = '#FFFDF4'; for (let i = 0; i < 3; i++) { c.beginPath(); c.moveTo(6 + i * 9, 5 + open * 0.5); c.lineTo(10 + i * 9, -2 + open * 0.3); c.lineTo(14 + i * 9, 5 + open * 0.5); c.closePath(); c.fill(); }
+  litPuff(c, 16, 8 + open * 0.5, 19, 6.5, 66, '#8E8AC0');                                       // lower jaw
+  litTeeth(c, [[6, 5 + open * 0.5, -2 + open * 0.3, 8], [15, 5 + open * 0.5, -2 + open * 0.3, 8], [24, 5 + open * 0.5, -2 + open * 0.3, 8]]);
   c.restore();
-  g = c.createLinearGradient(56, -116, 56, -92); g.addColorStop(0, '#5A9AE8'); g.addColorStop(1, '#3F78D8');
-  puff(c, 74, -104, 24, 12, g, 65, 'rgba(40,60,130,0.35)');                                                       // upper jaw, the blue snout
-  c.fillStyle = '#FFFDF4'; for (let i = 0; i < 4; i++) { c.beginPath(); c.moveTo(60 + i * 9, -95); c.lineTo(64 + i * 9, -86 + (i % 2)); c.lineTo(68 + i * 9, -95); c.closePath(); c.fill(); }
+  litPuff(c, 74, -104, 24, 12, 65, '#4C89E0', { gloss: 0.3 });                                                 // upper jaw, the blue snout
+  litTeeth(c, [[60, -95, -86, 8], [69, -95, -85, 8], [78, -95, -86, 8], [87, -95, -85, 8]]);
   c.fillStyle = 'rgba(30,40,100,0.6)'; c.beginPath(); c.arc(92, -109, 1.8, 0, TAU); c.fill();
-  drawEye(c, 38, -108, 7.5, eo, 1); drawEye(c, 55, -108, 7, eo, 1);
+  eyeLit(c, 38, -108, 7.5, eo, 1); eyeLit(c, 55, -108, 7, eo, 1);
   c.strokeStyle = '#7A2A3A'; c.lineWidth = 3.2; c.lineCap = 'round'; c.beginPath();
   if (mood === 'angry' || mood === 'calm') { c.moveTo(29, -120); c.lineTo(43, -115); c.moveTo(50, -115); c.lineTo(63, -119); }
   else if (mood === 'scared') { c.moveTo(29, -115); c.lineTo(43, -120); c.moveTo(50, -120); c.lineTo(63, -116); }
@@ -377,13 +483,14 @@ function drawSoldier(c, so, t) {
 /* One goalkeeper glove: red, white palm, a blue star in the palm. sd = which side it points to. */
 function drawGlove(c, x, y, r, sd, t) {
   c.save(); c.translate(x, y); c.rotate(sd * 0.25 + Math.sin((t || 0) * 18) * 0.12); c.scale(sd, 1);
+  const fl0 = _fl; _fl = c.getTransform().a < 0 ? -1 : 1;                   // drawn inside Killer (mirrored or not) and in the whirl ring
   soft(c, 1, r * 0.2, r, r * 0.95, SHADOW, 0.22, 7);
-  puff(c, 0, 0, r, r * 0.95, '#E4583C', 8, 'rgba(150,50,40,0.45)');          // the glove
-  puff(c, r * 0.18, r * 0.05, r * 0.6, r * 0.62, '#FFF6E2', 9, 'rgba(200,150,120,0.35)');   // the white palm
+  litPuff(c, 0, 0, r, r * 0.95, 8, '#E4583C', { mat: 'rubber', gloss: 0.4 });                  // the glove, rubber
+  litPuff(c, r * 0.18, r * 0.05, r * 0.6, r * 0.62, 9, '#FFF6E2', { gloss: 0.1 });    // the white palm
   c.save(); c.translate(r * 0.18, r * 0.05); c.fillStyle = '#3B6FE0'; starPath(c, 0, 0, r * 0.4, 0.3); c.fill(); c.restore();
-  puff(c, -r * 0.62, -r * 0.42, r * 0.34, r * 0.46, '#E4583C', 10, 'rgba(150,50,40,0.4)');  // the thumb
+  litPuff(c, -r * 0.62, -r * 0.42, r * 0.34, r * 0.46, 10, '#E4583C');  // the thumb
   soft(c, -r * 0.1, -r * 0.72, r * 0.7, r * 0.2, shade('#E4583C', 0.35), 0.5, 11);          // the cuff
-  c.restore();
+  c.restore(); _fl = fl0;
 }
 
 /* Boon's boomerang bone: two round ends and a shaft, cream amber, with a small crack. */

@@ -87,7 +87,9 @@ In `capturi/` sunt capturi facute de testele automate. Capturile 01 pana la 15 s
 | [21-george-mini-lupta](capturi/21-george-mini-lupta.jpg) | Mini-lupta cu George cel Rău |
 | [22-arena](capturi/22-arena.jpg) | Lupta finala: arena cu munti, torte si soldati cu sulite |
 | [23-final-medalii](capturi/23-final-medalii.jpg) | Finalul: medalii si stelute care imbratiseaza eroii |
-| [24-personaje](capturi/24-personaje.jpg) | Boon, Killer si George cel Rău, pictati dupa desenele copiilor |
+| [24-personaje](capturi/24-personaje.jpg) | Boon, Killer si George cel Rău, in stilul nou (T6.4) |
+| [24-personaje-vechi](capturi/24-personaje-vechi.jpg) | Aceeasi foaie inainte de T6.4 |
+| [24-personaje-comparatie](capturi/24-personaje-comparatie.jpg) | Foaia veche (stanga) si cea noua (dreapta), alaturi |
 
 ## Prompturi
 
