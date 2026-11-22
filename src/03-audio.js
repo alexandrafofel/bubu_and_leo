@@ -466,7 +466,6 @@ const Snd = (() => {
   fx.dash = fx2.dash; fx.tick = fx2.tick; fx.retry = fx2.retry;
   const CHR = { give: 1, egg: 1, star: 1, giant: 1, stomp: 1, kick: 1, bounce: 1, bonk: 1, drop: 1, squelch: 1, step: 1, swish: 1, heal: 1, grab: 1, dash: 1, bone: 1, tock: 1, gloves: 1 };
   fx.dash = fx2.dash; fx.tick = fx2.tick; fx.retry = fx2.retry; fx.click = fx2.click;
-  const CHR = { egg: 1, star: 1, giant: 1, stomp: 1, kick: 1, bounce: 1, bonk: 1, drop: 1, squelch: 1, step: 1, swish: 1, heal: 1, grab: 1, dash: 1, bone: 1, tock: 1, gloves: 1 };
   /* play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. */
   function play(name, arg, k, vol) {
     const f = (GAME === 'lupta' && fx2[name]) || fx[name];
