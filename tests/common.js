@@ -1,4 +1,25 @@
 const { chromium } = require('./pw.js');
+/* BALANSEAZA: source injected into the page by the bots (addInitScript). It defines window.balanseaza(),
+   which moves eggs from the hero who has more than his quota to the friend who still needs some, with
+   __game.giveEgg (the same path as L1). The bots set hero positions themselves, so when the two are
+   farther apart than CONFIG.quota.giveRange it first walks the giver next to the friend.
+   Returns true when it did something this frame, so the bot's own movement yields to it.
+   Solo play, no quota or quota already met: returns false and changes nothing. */
+const BALANSEAZA = `window.balanseaza = function () {
+  const G = window.__game; if (!G || !G.P) return false;
+  const P = G.P; if (!G.quotaOn || !G.quotaOn() || P.done) return false;
+  if (!G.isJoined(0) || !G.isJoined(1)) return false;                      // solo: nothing to share
+  if (P.gifts.length) return true;                                        // an egg is already flying: wait for it to land
+  const a = G.quotaState(0), b = G.quotaState(1);
+  if (a.ok && b.ok) return false;
+  const from = a.ok && !b.ok ? 0 : (b.ok && !a.ok ? 1 : (P.found[0] >= P.found[1] ? 0 : 1));
+  if (P.found[from] < 1 || G.quotaState(1 - from).ok) return false;
+  const g = P.heroes[from], f = P.heroes[1 - from];
+  if (g.down || g.dizzy > 0 || g.carried || f.down) return false;
+  const R = G.CONFIG.quota.giveRange;
+  if (Math.hypot(g.x - f.x, g.y - f.y) > R * 0.6) { g.x = f.x + (from ? 90 : -90); g.y = f.y; return true; }
+  return G.giveEgg(from) || true;
+};`;
 /* boot(opts): opens the game in a headless Chrome, clicks once (sound), and (unless opts.manual === false)
    starts the game and replaces Input.poll so the test decides what the players press.
    opts.game: always 'lupta' (the only game). */
@@ -8,6 +29,7 @@ module.exports = async function boot(opts = {}) {
   const errs = [], game = opts.game || require('./pw.js').game;
   page.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
   page.on('pageerror', e => errs.push('PAGEERROR ' + e.message + '\n' + e.stack));
+  await page.addInitScript(BALANSEAZA);           // window.balanseaza() available in every test
   if (opts.init) await page.addInitScript(opts.init);
   await page.goto(require('./pw.js').url);
   await page.waitForTimeout(800);
@@ -26,3 +48,4 @@ module.exports = async function boot(opts = {}) {
   const done = async () => { console.log('errors', errs.length); errs.slice(0, 8).forEach(e => console.log(e)); await browser.close(); };
   return { browser, page, errs, shot, done, game };
 };
+module.exports.BALANSEAZA = BALANSEAZA;        // for the bots, which build their own page instead of calling boot()
