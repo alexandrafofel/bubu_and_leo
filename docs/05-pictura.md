@@ -174,3 +174,50 @@ Ce primeste in `o`:
 **Lumina de margine, cum e facuta:** se taie la forma (`clip`) si se traseaza acelasi contur mutat putin. Mutat in jos-dreapta, din el se vede banda de pe marginea de sus-stanga; mutat in sus-stanga, banda de pe cea de jos-dreapta. Asa nu e nevoie de `shadowBlur`.
 
 **Bugetul (S7.7):** `lit()` ruleaza la fiecare cadru, deci nu foloseste `createRadialGradient`, `createPattern` sau `shadowBlur`. Gradientul liniar e singurul permis acolo.
+
+## Update 21 noiembrie 2026 (T6.2): materialele eroilor
+
+`lit()` primeste acum si **materialul** obiectului. Un material da o textura peste forma (stratul 3 din `lit()`), taiata la contur, si luciul pe care il are in mod normal. Se alege dupa nume:
+
+```js
+lit(c, path, col, { x, y, w, h, mat: 'scale' });          // luciul vine din material: 0.3
+lit(c, path, col, { x, y, w, h, mat: 'scale', gloss: 0 });  // un luciu al apelantului il bate pe al materialului
+```
+
+`o.mat` poate fi si o functie `(c, o, path)`, pentru un material facut pe loc. Un nume care nu exista scrie o singura data o eroare in consola (nu la fiecare cadru) si desenul merge mai departe fara textura.
+
+Materialele sunt in `MATERIALS` (`src/02-core.js`), fiecare `{ gloss, paint(c, o, path) }`.
+
+### Cum se fac texturile
+
+O textura e o **placa mica**, pictata o singura data (`sprite()`), facuta model o singura data (`matPattern()`, pastrat in `_matPat`) si apoi doar umpluta cu `fillRect` la fiecare cadru. **`createPattern` nu se cheama niciodata cat se deseneaza un cadru** (S7.7): doar la prima folosire a unui material. Placile sunt pictate opace, in violet-umbra sau crem; materialul hotaraste cat de tare se vad (`globalAlpha`).
+
+`sprite()` picteaza la dublu, deci modelul e micsorat la jumatate (`setTransform`) ca placa sa aiba din nou marimea ei.
+
+**Modelul e prins de sistemul de coordonate de la momentul desenului.** Un pictor de erou face `translate` la erou, deci textura merge cu eroul si nu "aluneca" cand se misca. Cine deseneaza un material fara `translate` o are prinsa de coltul ecranului.
+
+### Cele patru materiale ale eroilor
+
+| Material | Luciu | Unde | Cum arata |
+|---|---|---|---|
+| `scale` | 0.3 | Boon, George | Semicercuri mici pe randuri decalate (placa 22 x 16, fara cusatura), alpha 0.12. **Mai dese spre spate:** un al doilea strat (alpha 0.07) doar pe jumatatea stanga, pentru ca pictorii intorc tot eroul, iar spatele e mereu la stanga. |
+| `fabric` | 0.05 | tricoul si sortul lui Killer, steaguri | O tesatura foarte fina (linii in cruce, la 3 unitati, alpha 0.08) si, la ~4 unitati de margine, **cusaturi**: o linie punctata crem. Cusaturile sunt acelasi contur micsorat in jurul mijlocului: la forme rotunde da o distanta aproape egala, la forme foarte alungite nu. |
+| `rubber` | 0.4 | manusile lui Killer, mingea, rotile, ghetele | Neted. O singura banda lata si moale de lumina (`KEY`) in diagonala, fara margine dura. |
+| `bone` | 0.25 | oasele lui Boon, coltii | Aproape neted. Pori mici (placa 64 x 64, 11 pori, unii in grupuri de cate trei) si o crapatura cu margine palida alaturi. Crapatura se muta cu `o.seed`. |
+
+Placa de pori e mare dinadins: una de 36 x 36 repeta aceleasi grupuri intr-o grila vizibila. La marimea unui os de erou (30 - 60 de unitati) placa de 64 nu se repeta deloc.
+
+## Update 21 noiembrie 2026 (T6.3): materialele lumii
+
+Aceleasi cadru si aceleasi reguli ca la eroi (placa pictata o data, model facut o data, `fillRect` la fiecare cadru; `lit()` da materialului si conturul). Sase materiale noi in `MATERIALS`:
+
+| Material | Luciu | Cum arata |
+|---|---|---|
+| `wood` | 0.15 | Fibre lungi, usor ondulate (placa 96 x 48, alpha 0.2), trei noduri cu inele la locuri alese dupa `o.seed`, capetele scandurii mai deschise (benzi de `KEY` la ~12% din latime). |
+| `metal` | 0.8 | Benzi de lumina pe orizontala (deschis, inchis, deschis), patru nituri cu umbra lor la un sfert din cutie fata de colturi, zgarieturi fine crem (placa 70 x 70, alpha 0.25). |
+| `stone` | 0.1 | Pete mari in doua tonuri (placa 96 x 96, fiecare pata desenata si la o placa distanta, ca modelul sa nu aiba cusatura dreapta), doua crapaturi, muschi verde (`rgba(122,174,94)`) din treimea de jos. |
+| `crystal` | 1 | Sapte fatete (triunghiuri din centru) in trei tonuri: `KEY`, `SHADOW`, `FILL`; miez crem, mai deschis. |
+| `leaf` | 0.35 | Nervura centrala usor curbata, sase perechi de nervuri laterale, toate crem; marginea mai inchisa (contur lat de 5, taiat la jumatate de `clip`). |
+| `lava` | 0 | Crusta `#5A2A3A` (alpha 0.92 - 0.95, ca gradientul de dedesubt sa se mai vada) si cinci crapaturi luminoase care **pulseaza**. |
+
+**Lava pulseaza dupa `o.t`** (secunde, dat de cel care deseneaza; fara el sta pe loc). Culoarea crapaturii e `mix(#F58A3C, #F6CE46, puls)`, puls = 0.5 + 0.5 sin(2.4 t + 0.45 k). Defazajul dintre crapaturi e mic dinadins: la 1.3 pulsau in faze opuse, iar vulcanul parea ca sta nemiscat. Doua straturi: o dunga larga si moale (alpha 0.3) si crapatura insasi (alpha 0.95). Galben si portocaliu raman in paleta: nicio culoare de pe drum nu e gri sau negru.

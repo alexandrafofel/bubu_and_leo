@@ -5,9 +5,9 @@
 | Ce | Cate |
 |---|---|
 | Fisiere sursa | 14 |
-| Linii de cod | 6449 |
-| Functii si metode | 509 |
-| Culori hex diferite | 543 |
+| Linii de cod | 6706 |
+| Functii si metode | 529 |
+| Culori hex diferite | 544 |
 | Texte (romana) | 201 |
 | Texte (engleza) | 201 |
 | Efecte sonore | 39 |
@@ -20,7 +20,7 @@
 | 00-head.html | 16 |
 | 01-config.js | 241 |
 | 015-lang.js | 233 |
-| 02-core.js | 445 |
+| 02-core.js | 702 |
 | 03-audio.js | 550 |
 | 04-input.js | 163 |
 | 05-chars.js | 338 |

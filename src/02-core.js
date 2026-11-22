@@ -101,8 +101,9 @@ function soft(c, x, y, rx, ry, col, alpha, seed) {
    col   the color of the object
    o     x, y    where the object stands on the ground: the middle of its base
          w, h    how wide and how tall it is. The shadow and the gradient are built from these
-         gloss   0 to 1, how shiny the material is. 0 = no gloss spot at all
-         mat     a material painter (c, o), called inside the shape, over the gradient (T6.2, T6.3)
+         gloss   0 to 1, how shiny the material is. 0 = no gloss spot at all. Left out: the gloss of the material
+         mat     the name of a material (see MATERIALS below), or a painter (c, o, path) of your own. It is
+                 called inside the shape, over the gradient, and cut to the contour
          seed    for the hand-painted wobble of the gloss spot
          shadow  false = no cast shadow (things that do not stand on the ground: a thrown bone, a cloud)
    The rim light is painted by stroking the same path a little moved, inside the clip of the shape:
@@ -110,7 +111,8 @@ function soft(c, x, y, rx, ry, col, alpha, seed) {
    No createRadialGradient, no createPattern, no shadowBlur: this runs on every frame (S7.7). */
 function lit(c, path, col, o) {
   o = o || {};
-  const x = o.x || 0, y = o.y || 0, w = o.w || 60, h = o.h || 60, gloss = o.gloss || 0;
+  const mat = matOf(o.mat);
+  const x = o.x || 0, y = o.y || 0, w = o.w || 60, h = o.h || 60, gloss = o.gloss != null ? o.gloss : (mat && mat.gloss) || 0;
   if (o.shadow !== false) {                                  // a thing that does not stand on the ground has neither shadow
     // 1. cast shadow: pushed to the lower right because the light comes from the upper left, and flattened
     c.save();
@@ -130,7 +132,7 @@ function lit(c, path, col, o) {
   g.addColorStop(0, shade(col, 0.22));
   g.addColorStop(1, mix(shade(col, -0.28), '#5A3550', 0.1));
   path(c); c.fillStyle = g; c.fill(); c.clip();
-  if (typeof o.mat === 'function') o.mat(c, o);               // the material lies over the shape, cut to the contour
+  if (mat) mat.paint(c, o, path);                              // the material lies over the shape, cut to the contour
   // 4. rim light, inside the shape: warm along the upper-left edge, cool along the lower-right one
   c.lineWidth = 5;
   c.save(); c.translate(2.4, 2.4); path(c); c.strokeStyle = rgba(KEY, 0.7); c.stroke(); c.restore();
@@ -144,6 +146,261 @@ function lit(c, path, col, o) {
   }
   c.restore();
 }
+
+/* ---- Materials of the new look (docs/24-sisteme-noi.md, S7.2) ----
+   A material is an object { gloss, paint(c, o, path) }. `lit()` calls paint inside the shape, over the gradient,
+   with the clip of the contour already on, so a texture can never leave the object. `gloss` is the shine the
+   material has when the caller does not say otherwise (S7.2: scale 0.3, fabric 0.05, rubber 0.4, bone 0.25).
+   Use one by name: lit(c, path, col, { x, y, w, h, mat: 'scale' }).
+
+   The textures are small tiles painted ONCE (sprite()), turned into a pattern ONCE (matPattern()) and then only
+   filled with fillRect on every frame. createPattern is never called while drawing a frame (S7.7).
+   A tile is painted opaque in a dark violet or a cream: the material decides how strongly it shows (globalAlpha). */
+const MATERIALS = {}, _matPat = new Map(), _matWarned = new Set();
+let _matScratch = null;
+function matOf(m) {
+  if (!m) return null;
+  if (typeof m === 'function') return { gloss: 0, paint: m };
+  const k = MATERIALS[m];
+  if (!k && !_matWarned.has(m)) { _matWarned.add(m); console.error('lit(): no material named "' + m + '"'); }
+  return k || null;
+}
+/* The pattern of a tile of w x h units. sprite() paints at double size, so the pattern is shrunk by half to be w x h again. */
+function matPattern(key, w, h, paint) {
+  let p = _matPat.get(key);
+  if (!p) {
+    const tile = sprite('mat-' + key, w, h, paint);
+    if (!_matScratch) _matScratch = makeCanvas(1, 1).getContext('2d');
+    p = _matScratch.createPattern(tile, 'repeat');
+    if (p.setTransform) p.setTransform(new DOMMatrix([0.5, 0, 0, 0.5, 0, 0]));
+    _matPat.set(key, p);
+  }
+  return p;
+}
+/* Fills the box of the shape with a pattern. part 'back' = only its left half: the back of a hero, who faces right
+   (the painters flip the whole hero, so "left" is always the back). */
+function matFill(c, pat, o, alpha, part) {
+  const w = o.w || 60, h = o.h || 60;
+  c.save(); c.globalAlpha = alpha; c.fillStyle = pat;
+  c.fillRect((o.x || 0) - w / 2 - 8, (o.y || 0) - h - 8, part === 'back' ? w / 2 + 8 : w + 16, h + 16);
+  c.restore();
+}
+
+// scale: little half circles in rows that are shifted by half a scale. The tile repeats without a seam (every scale is also drawn one tile away)
+function paintScaleTile(c) {
+  c.strokeStyle = SHADOW; c.lineWidth = 1.5; c.lineCap = 'round';
+  for (const dy of [-16, 0, 16]) for (const dx of [-22, 0, 22]) {
+    for (const cx of [5.5, 16.5]) { c.beginPath(); c.arc(cx + dx, 5 + dy, 5.5, 0.1, Math.PI - 0.1); c.stroke(); }
+    for (const cx of [0, 11, 22]) { c.beginPath(); c.arc(cx + dx, 13 + dy, 5.5, 0.1, Math.PI - 0.1); c.stroke(); }
+  }
+}
+MATERIALS.scale = {
+  gloss: 0.3,
+  paint(c, o) {
+    const p = matPattern('scale', 22, 16, paintScaleTile);
+    matFill(c, p, o, 0.12);               // the whole shape
+    matFill(c, p, o, 0.07, 'back');       // closer together toward the back: a second layer over the left half
+  }
+};
+
+// fabric: a very fine weave (lines that cross) and, 4 units inside the edge, a line of stitches
+function paintWeaveTile(c) {
+  c.fillStyle = SHADOW;
+  c.fillRect(0, 0, 3, 1.2); c.fillRect(0, 0, 1.2, 3);       // one thread across, one down, every 3 units
+}
+MATERIALS.fabric = {
+  gloss: 0.05,
+  paint(c, o, path) {
+    matFill(c, matPattern('weave', 3, 3, paintWeaveTile), o, 0.08);
+    // the stitches: the same contour made a little smaller around the middle of the shape (about 4 units inside), dashed and cream
+    const w = o.w || 60, h = o.h || 60, mx = o.x || 0, my = (o.y || 0) - h / 2;
+    c.save();
+    c.translate(mx, my); c.scale(Math.max(0.2, 1 - 4 / (w / 2)), Math.max(0.2, 1 - 4 / (h / 2))); c.translate(-mx, -my);
+    path(c);
+    c.setLineDash([3.5, 3.5]); c.lineWidth = 1.5; c.lineCap = 'round'; c.strokeStyle = 'rgba(255,246,224,0.7)';
+    c.stroke();
+    c.restore();
+  }
+};
+
+// rubber: smooth. One wide soft band of light across the upper left, with no hard edge
+MATERIALS.rubber = {
+  gloss: 0.4,
+  paint(c, o) {
+    const w = o.w || 60, h = o.h || 60, x0 = (o.x || 0) - w / 2, y0 = (o.y || 0) - h;
+    const g = c.createLinearGradient(x0, y0, x0 + w, y0 + h);
+    g.addColorStop(0, rgba(KEY, 0)); g.addColorStop(0.16, rgba(KEY, 0.1)); g.addColorStop(0.32, rgba(KEY, 0.32));
+    g.addColorStop(0.5, rgba(KEY, 0.08)); g.addColorStop(0.64, rgba(KEY, 0));
+    c.fillStyle = g; c.fillRect(x0 - 8, y0 - 8, w + 16, h + 16);
+  }
+};
+
+// bone: almost smooth. A few small pores, and one crack with a pale edge beside it.
+// The tile is big (64 x 64) and the pores sit at random, in lone ones and in little groups: a small tile repeats like a grid
+function paintPoreTile(c) {
+  c.fillStyle = SHADOW;
+  for (let i = 0; i < 11; i++) {
+    const x = 4 + hash(41, i) * 56, y = 4 + hash(42, i) * 56, n = hash(46, i) > 0.6 ? 3 : 1;     // some pores come in threes
+    for (let k = 0; k < n; k++) {
+      c.beginPath(); c.ellipse(x + (hash(47, i * 5 + k) - 0.5) * 7, y + (hash(48, i * 5 + k) - 0.5) * 5, 0.8 + hash(43, i * 5 + k) * 1.1, 0.6 + hash(44, i * 5 + k) * 0.8, hash(45, i) * 3, 0, TAU); c.fill();
+    }
+  }
+}
+MATERIALS.bone = {
+  gloss: 0.25,
+  paint(c, o) {
+    matFill(c, matPattern('pores', 64, 64, paintPoreTile), o, 0.3);
+    const w = o.w || 60, h = o.h || 60, sd = o.seed || 1, x = (o.x || 0) + (hash(sd, 1) - 0.5) * w * 0.3, y = (o.y || 0) - h * (0.62 + hash(sd, 2) * 0.12);
+    const pts = [[x, y]];
+    for (let i = 1; i <= 4; i++) pts.push([x + (hash(sd, 10 + i) - 0.3) * w * 0.12, y + i * h * 0.1]);
+    c.lineCap = 'round'; c.lineJoin = 'round';
+    for (const [dx, col, a, lw] of [[1.2, KEY, 0.5, 1.2], [0, SHADOW, 0.34, 1.5]]) {   // the pale edge first, the dark crack over it
+      c.beginPath(); pts.forEach((q, i) => i ? c.lineTo(q[0] + dx, q[1] + dx) : c.moveTo(q[0] + dx, q[1] + dx));
+      c.strokeStyle = rgba(col, a); c.lineWidth = lw; c.stroke();
+    }
+  }
+};
+
+// ---- The materials of the world (T6.3): wood, metal, stone, crystal, leaf, lava ----
+
+// wood: long grain lines that wiggle a little, a couple of knots, and lighter plank ends
+function paintGrainTile(c) {
+  c.strokeStyle = SHADOW; c.lineWidth = 1.1; c.lineCap = 'round';
+  for (let i = 0; i < 9; i++) {
+    const y = 3 + i * 5.2 + (hash(51, i) - 0.5) * 2, a = 1 + hash(52, i) * 1.6, ph = hash(53, i) * TAU;
+    c.beginPath();
+    for (let x = 0; x <= 96; x += 4) { const yy = y + Math.sin(x / 96 * TAU * 2 + ph) * a; x ? c.lineTo(x, yy) : c.moveTo(x, yy); }
+    c.stroke();
+  }
+}
+MATERIALS.wood = {
+  gloss: 0.15,
+  paint(c, o) {
+    const w = o.w || 60, h = o.h || 60, x0 = (o.x || 0) - w / 2, y0 = (o.y || 0) - h, sd = o.seed || 1;
+    matFill(c, matPattern('grain', 96, 48, paintGrainTile), o, 0.2);
+    for (let k = 0; k < 3; k++) {                            // knots: a few rings, at seeded places
+      const kx = x0 + w * (0.15 + hash(sd, 20 + k) * 0.7), ky = y0 + h * (0.2 + hash(sd, 30 + k) * 0.6), r = Math.min(w, h) * (0.05 + hash(sd, 40 + k) * 0.03);
+      for (let j = 3; j >= 1; j--) { c.beginPath(); c.ellipse(kx, ky, r * j * 0.55 + 1, r * j * 0.38 + 0.8, 0, 0, TAU); c.strokeStyle = rgba(SHADOW, 0.16 + 0.05 * (3 - j)); c.lineWidth = 1.2; c.stroke(); }
+    }
+    const e = Math.min(w * 0.12, 14);                       // the ends of the plank, lighter
+    for (const [xa, dir] of [[x0, 1], [x0 + w, -1]]) {
+      const g = c.createLinearGradient(xa, 0, xa + dir * e, 0);
+      g.addColorStop(0, rgba(KEY, 0.2)); g.addColorStop(1, rgba(KEY, 0));
+      c.fillStyle = g; c.fillRect(Math.min(xa, xa + dir * e), y0 - 4, e, h + 8);
+    }
+  }
+};
+
+// metal: bands of light (light, dark, light), little rivets with a shadow, and fine pale scratches
+function paintScratchTile(c) {
+  c.strokeStyle = '#FFF6E0'; c.lineWidth = 0.8; c.lineCap = 'round';
+  for (let i = 0; i < 9; i++) {
+    const x = hash(61, i) * 70, y = hash(62, i) * 70, a = -0.5 + hash(63, i) * 1.0, l = 6 + hash(64, i) * 14;
+    c.beginPath(); c.moveTo(x, y); c.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); c.stroke();
+  }
+}
+MATERIALS.metal = {
+  gloss: 0.8,
+  paint(c, o) {
+    const w = o.w || 60, h = o.h || 60, x0 = (o.x || 0) - w / 2, y0 = (o.y || 0) - h;
+    const g = c.createLinearGradient(x0, 0, x0 + w, 0);
+    g.addColorStop(0, rgba(KEY, 0.3)); g.addColorStop(0.2, rgba(KEY, 0)); g.addColorStop(0.42, rgba(SHADOW, 0.26));
+    g.addColorStop(0.62, rgba(SHADOW, 0)); g.addColorStop(0.8, rgba(KEY, 0.26)); g.addColorStop(1, rgba(SHADOW, 0.1));
+    c.fillStyle = g; c.fillRect(x0 - 8, y0 - 8, w + 16, h + 16);
+    matFill(c, matPattern('scratch', 70, 70, paintScratchTile), o, 0.25);
+    const ins = Math.min(11, Math.min(w, h) * 0.12), r = Math.max(1.4, Math.min(w, h) * 0.022);
+    for (const [fx, fy] of [[0.2, 0.2], [0.8, 0.2], [0.2, 0.8], [0.8, 0.8]]) {     // rivets, at a quarter of the box from every corner
+      const rx = x0 + Math.max(ins, w * fx), ry = y0 + Math.max(ins, h * fy);
+      c.beginPath(); c.arc(rx + r * 0.6, ry + r * 0.7, r, 0, TAU); c.fillStyle = rgba(SHADOW, 0.4); c.fill();
+      c.beginPath(); c.arc(rx, ry, r, 0, TAU); c.fillStyle = rgba(KEY, 0.55); c.fill();
+    }
+  }
+};
+
+// stone: big irregular blotches in two tones, cracks, and moss low down
+function paintBlotchTile(c) {
+  for (let i = 0; i < 9; i++) {
+    c.fillStyle = i % 2 ? SHADOW : '#FFF6E0';
+    for (const dx of [-96, 0, 96]) for (const dy of [-96, 0, 96]) {      // every blotch is also drawn one tile away, so the tile repeats without a straight seam
+      c.beginPath(); c.ellipse(hash(71, i) * 96 + dx, hash(72, i) * 96 + dy, 9 + hash(73, i) * 16, 7 + hash(74, i) * 12, hash(75, i) * 3, 0, TAU); c.fill();
+    }
+  }
+}
+MATERIALS.stone = {
+  gloss: 0.1,
+  paint(c, o) {
+    const w = o.w || 60, h = o.h || 60, x0 = (o.x || 0) - w / 2, y0 = (o.y || 0) - h, sd = o.seed || 1;
+    matFill(c, matPattern('blotch', 96, 96, paintBlotchTile), o, 0.16);
+    c.lineCap = 'round'; c.lineJoin = 'round';
+    for (let k = 0; k < 2; k++) {                             // two cracks
+      let x = x0 + w * (0.25 + hash(sd, 50 + k) * 0.5), y = y0 + h * (0.15 + hash(sd, 52 + k) * 0.25);
+      c.beginPath(); c.moveTo(x, y);
+      for (let i = 1; i <= 5; i++) { x += (hash(sd, 60 + k * 9 + i) - 0.5) * w * 0.12; y += h * 0.09; c.lineTo(x, y); }
+      c.strokeStyle = rgba(SHADOW, 0.4); c.lineWidth = 1.5; c.stroke();
+    }
+    const mg = c.createLinearGradient(0, y0 + h * 0.62, 0, y0 + h);                 // moss: from the lower third down
+    mg.addColorStop(0, 'rgba(122,174,94,0)'); mg.addColorStop(1, 'rgba(122,174,94,0.4)');
+    c.fillStyle = mg; c.fillRect(x0 - 8, y0 + h * 0.62, w + 16, h * 0.38 + 8);
+    for (let i = 0; i < 8; i++) { c.beginPath(); c.arc(x0 + w * (0.08 + i * 0.12) + (hash(sd, 80 + i) - 0.5) * 8, y0 + h * (0.84 + hash(sd, 90 + i) * 0.1), 2 + hash(sd, 100 + i) * 3, 0, TAU); c.fillStyle = 'rgba(122,174,94,0.32)'; c.fill(); }
+  }
+};
+
+// crystal: facets (triangles in three tones of the same colour) and a lighter core
+MATERIALS.crystal = {
+  gloss: 1,
+  paint(c, o) {
+    const w = o.w || 60, h = o.h || 60, cx = o.x || 0, cy = (o.y || 0) - h / 2, sd = o.seed || 1, N = 7, rx = w * 0.62, ry = h * 0.62;
+    const pt = (i) => { const a = (i + (hash(sd, i % N) - 0.5) * 0.5) / N * TAU; return [cx + Math.cos(a) * rx, cy + Math.sin(a) * ry]; };
+    for (let i = 0; i < N; i++) {
+      const a = pt(i), b = pt(i + 1), t = i % 3;
+      c.beginPath(); c.moveTo(cx + (hash(sd, 20) - 0.5) * w * 0.12, cy + (hash(sd, 21) - 0.5) * h * 0.12); c.lineTo(a[0], a[1]); c.lineTo(b[0], b[1]); c.closePath();
+      c.fillStyle = t === 0 ? rgba(KEY, 0.26) : t === 1 ? rgba(SHADOW, 0.2) : rgba(FILL, 0.12); c.fill();
+      c.strokeStyle = rgba(KEY, 0.3); c.lineWidth = 1; c.stroke();
+    }
+    const g = c.createRadialGradient(cx, cy, 0, cx, cy, Math.min(w, h) * 0.38);
+    g.addColorStop(0, 'rgba(255,246,224,0.55)'); g.addColorStop(1, 'rgba(255,246,224,0)');
+    c.fillStyle = g; c.fillRect(cx - w / 2 - 8, cy - h / 2 - 8, w + 16, h + 16);
+  }
+};
+
+// leaf: one midrib and side veins in pairs, all pale, and an edge a little darker
+MATERIALS.leaf = {
+  gloss: 0.35,
+  paint(c, o, path) {
+    const w = o.w || 60, h = o.h || 60, cx = o.x || 0, yb = o.y || 0, yt = yb - h, sd = o.seed || 1;
+    c.lineCap = 'round';
+    const bend = (hash(sd, 1) - 0.5) * w * 0.12;
+    c.beginPath(); c.moveTo(cx, yb - h * 0.04); c.quadraticCurveTo(cx + bend, yb - h * 0.5, cx, yt + h * 0.06);
+    c.strokeStyle = rgba(KEY, 0.5); c.lineWidth = Math.max(1.6, w * 0.018); c.stroke();
+    for (let i = 1; i <= 6; i++) {
+      const f = i / 7, y = yb - h * f * 0.92 - h * 0.04, x = cx + bend * 4 * f * (1 - f);
+      for (const d of [-1, 1]) { c.beginPath(); c.moveTo(x, y); c.quadraticCurveTo(x + d * w * 0.18, y - h * 0.03, x + d * w * (0.34 - f * 0.12), y - h * 0.11); c.strokeStyle = rgba(KEY, 0.34); c.lineWidth = 1.2; c.stroke(); }
+    }
+    c.save(); path(c); c.strokeStyle = rgba(SHADOW, 0.32); c.lineWidth = 5; c.stroke(); c.restore();   // only the inner half shows: the shape is clipped
+  }
+};
+
+// lava: a dark crust (#5A2A3A) with glowing cracks. The glow pulses from yellow to orange: o.t is the time in seconds
+const LAVA_CRUST = '#5A2A3A', LAVA_HOT = '#F6CE46', LAVA_WARM = '#F58A3C';
+MATERIALS.lava = {
+  gloss: 0,
+  paint(c, o) {
+    const w = o.w || 60, h = o.h || 60, x0 = (o.x || 0) - w / 2, y0 = (o.y || 0) - h, sd = o.seed || 1;
+    const g = c.createLinearGradient(x0, y0, x0 + w, y0 + h);
+    g.addColorStop(0, rgba(shade(LAVA_CRUST, 0.12), 0.92)); g.addColorStop(1, rgba(LAVA_CRUST, 0.95));
+    c.fillStyle = g; c.fillRect(x0 - 8, y0 - 8, w + 16, h + 16);
+    c.lineCap = 'round'; c.lineJoin = 'round';
+    for (let k = 0; k < 5; k++) {
+      const pulse = 0.5 + 0.5 * Math.sin((o.t || 0) * 2.4 + k * 0.45), col = mix(LAVA_WARM, LAVA_HOT, pulse);
+      let x = x0 + w * (0.1 + hash(sd, 110 + k) * 0.8), y = y0 + h * (0.05 + hash(sd, 120 + k) * 0.3);
+      const pts = [[x, y]];
+      for (let i = 1; i <= 5; i++) { x += (hash(sd, 130 + k * 9 + i) - 0.5) * w * 0.22; y += h * (0.1 + hash(sd, 150 + k * 9 + i) * 0.06); pts.push([x, y]); }
+      c.beginPath(); pts.forEach((q, i) => i ? c.lineTo(q[0], q[1]) : c.moveTo(q[0], q[1]));
+      c.strokeStyle = rgba(col, 0.3); c.lineWidth = 7; c.stroke();         // the soft glow around it
+      c.strokeStyle = rgba(col, 0.95); c.lineWidth = 2.4; c.stroke();     // the crack itself
+    }
+  }
+};
 
 /* A wobbly brush line through points. */
 function brushLine(c, pts, width, col, alpha, seed) {
