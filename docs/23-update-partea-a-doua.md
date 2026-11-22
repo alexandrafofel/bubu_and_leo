@@ -125,8 +125,8 @@ Inainte de orice sarcina si dupa fiecare: `./build.sh`, `node tools/gen-docs.js`
 | T6.3 | Materialele lumii (**facuta pe 21 noiembrie 2026**): `wood`, `metal`, `stone`, `crystal`, `leaf`, `lava`. | 24, S7.2 | La fel, pentru cele sase. `lava` pulseaza fara sa iasa din paleta (fara negru, fara gri). |
 | T6.4 | Boon, Killer si George repictati (**facuta pe 22 noiembrie 2026**) cu `lit()` si materiale: ochi cu doua luciri, cusaturi la tricou, numarul 10 "cusut". Formele si culorile din desenele copiilor nu se schimba. | 24, S7.3 (prima parte) | Foaia de personaje (`docs/capturi/24-personaje.jpg`) refacuta si pusa langa cea veche. Un copil isi recunoaste desenul. |
 | T6.5 | Miscarea eroilor (**facuta pe 22 noiembrie 2026**): coada care intarzie fata de corp (Boon, George), bratele lui Killer la mers, clipit la 3 - 6 s, respiratie cand stau, turtire si intindere la pornire, oprire, lovitura, aterizare si la pornirea fugii. | 24, S7.3 (a doua parte) | Miscarile se vad pe capturi si pe un GIF scurt. `performanta.js` nu creste peste limita din S7.7. |
-| T6.6 | Planul din fata: `L.front`, un canvas pe nivel, paralaxa 1.15, elemente doar in afara dreptunghiului central de 1500 x 760. **Regula care nu se incalca:** nu acopera niciodata un erou (alpha spre 0.15 in 0.2 s). | 24, S7.4 | `tests/stil-grafic.js` (partea de plan din fata) arata ca niciun erou nu e acoperit, in 400 de asezari. Cel mult 12 `drawImage` pe cadru. |
-| T6.7 | Harta de lumina: canvasul `LM` de 480 x 270, ambianta nivelului, cel mult 24 de lumini din sprite-uri, desenata peste lume cu `multiply`. Ia locul vinietei de noapte pe nivelurile noi. | 24, S7.5 (harta) si S7.7 | Cu `CONFIG.look.lights: false` ramane vinieta veche. 1 umplere + cel mult 24 `drawImage` + 1 marit. Niciun `createRadialGradient` pe cadru. |
+| T6.6 | Planul din fata (**facuta pe 22 noiembrie 2026**): `L.front`, un canvas pe nivel, paralaxa 1.15, elemente doar in afara dreptunghiului central de 1500 x 760. **Regula care nu se incalca:** nu acopera niciodata un erou (alpha spre 0.15 in 0.2 s). | 24, S7.4 | `tests/stil-grafic.js` (partea de plan din fata) arata ca niciun erou nu e acoperit, in 400 de asezari. Cel mult 12 `drawImage` pe cadru. |
+| T6.7 | Harta de lumina (**facuta pe 22 noiembrie 2026**): canvasul `LM` de 480 x 270, ambianta nivelului, cel mult 24 de lumini din sprite-uri, desenata peste lume cu `multiply`. Ia locul vinietei de noapte pe nivelurile noi. | 24, S7.5 (harta) si S7.7 | Cu `CONFIG.look.lights: false` ramane vinieta veche. 1 umplere + cel mult 24 `drawImage` + 1 marit. Niciun `createRadialGradient` pe cadru. |
 | T6.8 | Stralucirea lucrurilor care lumineaza, apa (oglindire, doua randuri de valuri, sclipiri) si praful care pluteste in lumina (40 de puncte, scantei pe vulcan, spori in pestera). | 24, S7.5 (restul) | Se vad pe capturi. `CONFIG.look.motes` le regleaza. |
 | T6.9 | Greutatea miscarii: oprirea scurta (`P.freeze`, 0.06 s), apropierea camerei cu 4%, anticiparea (0.15 s inapoi) si urmarea (`easeBack`, depasire 8%). | 24, S7.6 | Oprirea nu opreste desenul, doar `updatePlay`. Cu `CONFIG.look.freeze: 0` nu se intampla. |
 | T6.10 | `tests/stil-grafic.js` intreg, bugetul de timp din S7.7, capturile si lista de verificare S7.8, documentatia. | 24, S7.7 si S7.8 | `tests/stil-grafic.js` trece: sub 0.1% pixeli negri sau gri. `performanta.js` cel mult 20% peste valoarea de dinainte, in aceeasi rulare. Raspuns "da" la toate cele 8 intrebari din S7.8. `tests/toate.sh` trece intreg. |
@@ -168,8 +168,8 @@ Starea e cea din `main` la 21 noiembrie 2026 (PR-urile #5 - #12 mergeate). **Mod
 | T6.3 | Facuta | T6.1 | Sonnet | 1 - 2 h |
 | T6.4 | Facuta | T6.1, T6.2 | Opus | 1,5 - 3 h |
 | T6.5 | Facuta | T6.4 | Sonnet | 1 - 2 h |
-| T6.6 | De facut | T6.1, T6.3 | Opus | 1 - 2 h |
-| T6.7 | De facut | T6.1 | Opus | 1,5 - 2,5 h |
+| T6.6 | Facuta | T6.1, T6.3 | Opus | 1 - 2 h |
+| T6.7 | Facuta | T6.1 | Opus | 1,5 - 2,5 h |
 | T6.8 | De facut | T6.7 | Sonnet | 1 - 2 h |
 | T6.9 | De facut | T6.1 | Sonnet | 1 - 1,5 h |
 | T6.10 | De facut | T6.1 - T6.9 | Sonnet | 1,5 - 3 h |

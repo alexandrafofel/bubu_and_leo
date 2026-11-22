@@ -142,3 +142,12 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - **George in arena:** arcul cozii e pas cu pas in desen; daca desenul se sare (pauza, alt ecran), primul pas e limitat la 0,05 s.
 - **Urmele din fuga** au rezolutia 1,25: pe un ecran 4K pot parea putin moi. Sunt transparente si dureaza 0,12 s.
 - Ecranele de meniu (start, final) nu dau coada: acolo coada sta, doar leganatul vechi o misca.
+
+## T6.6, T6.7 (22 noiembrie 2026): ce nu s-a putut verifica
+
+- **Cum arata pe nivelurile 7 - 12.** Nu exista inca. S-au vazut doar pe 1 - 6, cu `preview`, cu ambianta implicita a noptii (`#C4BCEE`). Fiecare nivel nou isi va avea `ambient` si, eventual, lucrurile lui din fata.
+- **Lumina e "adaugata", nu "data inapoi"** (vezi `16-decizii.md`). Pe o ambianta foarte deschisa (zi), luminile se vad putin.
+- **Pe un Mac real** marirea unui canvas mic ar fi probabil ieftina (placa video o face singura); masurat doar in SwiftShader. Daca vreodata se vrea harta din specificatie, se poate incerca acolo.
+- **Planul din fata e subtil**: lucrurile sunt doar la margini (150 de unitati pe laturi, 100 jos), iar pe o noapte inchisa se vad mai ales prin margine.
+- **Banda de cartonase** nu mai are hartia peste ea pe nivelurile cu harta: e putin mai alba.
+- Ecranele dintre niveluri (intrare, "Încă o dată!", final de nivel) pastreaza vinieta veche.

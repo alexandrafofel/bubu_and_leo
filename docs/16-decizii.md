@@ -333,3 +333,16 @@ Cererea proprietarei: "scoate jocul Bubu si Leo, lasa doar Cea mai grea lupta. M
 | Respiratia doar cand stau, numai in sus (1 -> 1.02). | Asa scrie promptul. Cea veche respira si la mers si se micsora sub 1. |
 | Urmele din fuga sunt canvasuri pictate o data. | S7.7: 3 `drawImage` pe erou. Dupa T6.4 fiecare urma era un erou intreg cu `lit()`: fuga devenise cea mai scumpa clipa din joc. 4 canvasuri pe erou: unul mai mult decat se vad, ca cel refolosit sa nu fie inca pe ecran. |
 | Urmele au rezolutia 1,25. | Sunt transparente si in miscare; la 2 ar costa de 2,5 ori mai mult de pictat. |
+
+## Planul din fata si harta de lumina (sarcinile T6.6 si T6.7, 22 noiembrie 2026)
+
+| Hotarare | De ce |
+|---|---|
+| Cadrul nou (plan din fata, harta, ceata) e doar pe nivelurile cu `look: 'diorama'`, plus `CONFIG.look.preview`. | Promptul: nivelurile 1 - 6 raman cum sunt. Nivelurile 7 - 12 inca nu exista; `preview` lasa cadrul sa se vada si sa se testeze pe 1 - 6 inainte. Implicit `false`: jocul de acum nu se schimba. |
+| Luminile se pun direct pe ecran, nu intr-un canvas mic marit. | Marirea unui canvas mic pe tot ecranul: 10 ms cu netezire, 4 ms fara (si lumina in patratele). Direct: 3 ms. Cu canvasul mic, nivelul era cu 56% peste cel vechi; bugetul din S7.7 e 20%. |
+| Hartia se pune o data in pictura nivelului; peste nivel nu mai e strat de hartie si vinieta cand harta e pornita. | Harta e deja o trecere pe tot ecranul; doua treceri costau prea mult. Promptul cere ca textura de hartie sa ramana: ramane, in pictura. |
+| Planul din fata e marit o data, nu la fiecare cadru. | 1,2 ms in loc de 2,2 ms pe cadru, pentru 8 MB in plus pe nivel (S7.7 vorbea de jumatate de rezolutie pentru memorie). |
+| Sase lucruri, nimic sus-mijloc. | Sus-mijloc e banda de cartonase (132 de unitati): un lucru acolo nu s-ar vedea. |
+| Paralaxa limitata la 60 de unitati, dreptunghiul din mijloc cu o marja de 60. | Altfel paralaxa (1.15 x camera, pe un nivel de 3200) ar fi mutat lucrurile cu sute de unitati, pana in mijloc. |
+| Un lucru se stinge cand un erou e la 220 de unitati de el, nu doar cand e sub el; si pe loc daca eroul e deja sub el. | Fuga merge cu 1100 pe secunda: in 0,2 s (cat dureaza stingerea) un erou trece 220. Iar cand camera sare (inceputul nivelului, un erou pus in alt loc), nu e timp de stins. Primul test a gasit 31 de eroi acoperiti din cauza asta. |
+| Marginea luminoasa a lucrurilor din fata are nuanta lor. | O margine calda (`KEY`) peste violet si verde, stearsa, dadea pixeli gri. |

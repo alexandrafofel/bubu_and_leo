@@ -172,6 +172,12 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `look.motes` | `40` |  |
 | `look.freeze` | `0.06` |  |
 | `look.maxLights` | `24` |  |
+| `look.lightGlow` | `0.6` |  |
+| `look.preview` | `false` |  |
+| `look.frontFade` | `0.2` |  |
+| `look.frontMin` | `0.15` |  |
+| `look.frontPar` | `1.15` |  |
+| `look.frontNear` | `220` |  |
 | `look.tailLift` | `0.18` |  |
 | `look.tailMax` | `0.5` |  |
 | `look.tailSpring` | `70` |  |

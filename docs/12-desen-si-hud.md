@@ -193,3 +193,31 @@ Trei copii ale eroului in spate (0.28, 0.18, 0.09), apoi sase linii subtiri de v
 - `iconO` si bulina prietenului de deasupra eroului cazut se mut la dreapta cand numaratoarea merge, ca sa faca loc cifrei.
 
 Atentie la `text(...)`: `halo` este **grosimea conturului ca parte din marimea fontului** (0.2 implicit), nu un numar de pixeli. `halo: 5` deseneaza un cerc crem imens peste jumatate de ecran.
+
+## Update 22 noiembrie 2026 (T6.6, T6.7): planul din fata si harta de lumina
+
+Amandoua sunt doar pe nivelurile cu `look: 'diorama'` (7 - 12, cand vor exista) sau pe toate, cu `CONFIG.look.preview: true`. Nivelurile 1 - 6 raman cum erau. Se pun la incarcarea nivelului in `finishLook(L)` (`06-level.js`) si se desenează in `drawPlay`, dupa lume: intai harta de lumina, apoi planul din fata, apoi indicatiile si banda de sus.
+
+### Ceata de aer (S7.4, fundal)
+
+Peste partea de sus a picturii nivelului (departarea, pana la 45% din inaltime, cel mult 800) se pune o data un gradient albastru-pal, cel mai tare sus. Doar pe nivelurile noi.
+
+### Planul din fata (S7.4): `L.front`
+
+- Pictat o data la 960 x 540 (ecranul la jumatate), sters (`filter: blur`) si marit o data intr-un canvas cat ecranul: lucrurile par nefocalizate. Desenat 1:1 la fiecare cadru costa jumatate fata de marit la fiecare cadru (1,2 fata de 2,2 ms); in schimb tine 8 MB in plus pe nivel.
+- Sase lucruri pe nivel, fiecare intr-un dreptunghi al lui pe ecran (`L.front.items`): doua colturi sus, cele doua laturi, doua locuri jos. Nimic de-a lungul sus-mijloc: acolo e banda de cartonase. **Nimic in dreptunghiul din mijloc de 1500 x 760**, plus o marja de 60 (`FRONT_PAR_MAX`), cat poate muta paralaxa.
+- Ce fel de lucruri, dupa nivel (`L.def.key`): pestera - stalactite si pietre; fabrica si castelul - lanturi, stalpi si pietre; restul - liane si frunze uriase. Culoarea: ambianta nivelului amestecata spre `#2A2048` (inchis, dar peste culoarea cea mai inchisa permisa), frunzele spre un verde adanc, cu o margine mai deschisa spre lumina, de aceeasi nuanta (o margine calda peste violet si verde dadea gri), ca sa se vada si pe o noapte inchisa.
+- Paralaxa: se misca de `frontPar` (1.15) ori cat camera, dar cel mult 60 de unitati de locul lui.
+- **Regula care nu se incalca:** un lucru nu acopera niciodata un erou. Daca un erou (cutia lui pe ecran) e la mai putin de `frontNear` (220) de lucru, acesta se stinge spre `frontMin` (0.15) in `frontFade` (0.2 s), asa ca e deja stins cand eroul ajunge sub el. Daca eroul e deja sub el (camera a sarit, un erou a fost pus acolo), se stinge pe loc.
+- Un `drawImage` pe lucru, cu alpha lui: cel mult 12 (sunt 6). `CONFIG.look.front: false` il opreste.
+- Se elibereaza cu nivelul (e un camp al lui `L`).
+
+### Harta de lumina (S7.5)
+
+- La fiecare cadru, dupa lume: tot ecranul e inmultit (`multiply`) cu ambianta nivelului (`levelAmbient(L)`: `def.ambient`, sau `#C4BCEE` noaptea si `#F0E4D4` ziua) - o umplere. Apoi fiecare lumina e adaugata cu `lighter`, ca un sprite rotund pictat o data pe culoare (`lightSprite`). **Niciun `createRadialGradient` la fiecare cadru.**
+- **Altfel decat S7.5:** specificatia cere un canvas mic (`LM`, 480 x 270) marit peste ecran cu `multiply`. Pe masina de test (SwiftShader), marirea unui canvas mic pe tot ecranul costa singura 10 ms cu netezire (4 ms fara, dar lumina iese in patratele de 4 pixeli, vazute pe captura). Cu luminile puse direct pe ecran costa cam 3 ms. Diferenta de aspect: o lumina adauga culoare calda peste lumea intunecata, in loc sa ii dea inapoi culoarea pictata. Cu cat ambianta e mai inchisa, cu atat luminile sunt mai tari (`look.lightGlow`, 0.6).
+- Luminile (`collectLights`): eroii (raza 150, culoarea lor amestecata cu crem, 0.45), cristalele de pe jos (50), stelele (60), lucrurile aruncate (70), mingea care vindeca (90), felinarele aprinse (230), tortele din arena (210), cuibul deschis (260) si `L.lights`, luminile pe care si le pune un nivel singur (lava, Cristalul-Soare...; de la T7 incolo).
+- Cel mult `look.maxLights` (24): intai cele de pe ecran, apoi cele mai apropiate de mijloc.
+- **Hartia intra in pictura nivelului** (`L.paperBaked`, o data, in `finishLook`), iar peste nivel nu se mai pune deloc stratul de hartie si vinieta (`levelOverlay` intoarce `null`): harta de lumina ii ia locul. O trecere pe tot ecranul in loc de doua. Banda de cartonase nu mai e inmultita cu hartia (cartonasele sunt deja pictate pe hartie).
+- `CONFIG.look.lights: false`: harta nu se deseneaza si ramane stratul vechi, cu vinieta. (Daca harta era pornita la incarcarea nivelului, hartia e deja in pictura si se vede putin mai tare.)
+- `LightCount` si `FrontCount` spun ce a facut ultimul cadru (pentru teste).

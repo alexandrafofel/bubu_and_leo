@@ -4,7 +4,7 @@
 
 Fiecare functie, functie sageata si metoda din cod, in ordinea din fisier. Coloana "Comentariul din cod" este textul scris chiar langa functie. Explicatiile pe larg sunt in capitolele din docs/.
 
-Total: 548 intrari.
+Total: 564 intrari.
 
 ## 01-config.js
 
@@ -360,10 +360,17 @@ Nicio functie.
 | 807 | `room(grow, col, al)` | functie sageata | rounded cave room plus the short tunnel to the waterfall |
 | 838 | `paintVines(c, x, y, w, len, seed, sway, P)` | functie | A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). |
 | 850 | `paintDoor(c, x, y)` | functie | The door of the hideout: an arched wooden door with a rainbow knob. x = middle, y = the ground line. |
-| 861 | `finishPaint(c, w, h, skyT, r, night)` | functie | Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). |
-| 873 | `genBoss()` | functie | The boss arena: one screen, the tallest tree in the valley. |
-| 915 | `genArena()` | functie | The last level of the second game: George's arena. A clearing with mountains behind it, torches of fire all around, soldiers with spears, and in the middle the stone throne on which George sits. |
-| 952 | `slab(w, y0, h, col)` | functie sageata |  |
+| 869 | `isDiorama(L)` | functie | ---------- The frame of the new levels (docs/24-sisteme-noi.md, S7.4 and S7.5) ---------- A level with look: 'diorama' (levels 7 - 12, or every level with CONFIG.look.preview) gets, once, at loading: - haze over its far part (the top of the picture): paler and bluer, like air between the eye and the far away; - the front plane (L.front): big dark blurred things at the edges of the screen; - the paper texture multiplied into the picture itself (L.paperBaked), when the light map is on: the light map then takes the place of the whole overlay (paper + night vignette). On the slow test machine every full-screen pass costs a few ms, and the light map is already one. Levels 1 - 6 stay as they are. |
+| 870 | `levelAmbient(L)` | functie |  |
+| 871 | `finishLook(L)` | functie |  |
+| 892 | `frontSlots()` | functie | where the things can be: two tall corners at the top, the two sides, two places at the bottom |
+| 900 | `paintFront(L)` | functie |  |
+| 924 | `paintFrontThing(t, kind, at, x, y, w, h, r, base, base2)` | functie |  |
+| 965 | `frontLeaf(t, x, y, len, ang, col)` | functie | a long pointed leaf from (x, y) in the direction ang, with a pale midrib |
+| 971 | `finishPaint(c, w, h, skyT, r, night)` | functie |  |
+| 983 | `genBoss()` | functie | The boss arena: one screen, the tallest tree in the valley. |
+| 1025 | `genArena()` | functie | The last level of the second game: George's arena. A clearing with mountains behind it, torches of fire all around, soldiers with spears, and in the middle the stone throne on which George sits. |
+| 1062 | `slab(w, y0, h, col)` | functie sageata |  |
 
 ## 07-play.js
 
@@ -498,13 +505,21 @@ Nicio functie.
 | 546 | `waitBanner()` | functie |  |
 | 553 | `drawMidCard(c, ban)` | functie | The card in the middle, with what a banner says when there is one. A banner never comes down over the world. |
 | 612 | `drawHUD(c)` | functie |  |
-| 617 | `drawPlay(c)` | functie |  |
-| 624 | `drawEdgePulse(c)` | functie | The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. |
-| 634 | `drawNestShelter(c)` | functie | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
-| 642 | `drawDecor(c, l, tp, vw, vh)` | functie | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
-| 658 | `drawArenaBack(c)` | functie | the torches of fire around the arena |
-| 662 | `drawThrone(c)` | functie |  |
-| 669 | `drawGeorgeBoss(c, o, t)` | functie |  |
+| 627 | `lightSprite(col)` | functie |  |
+| 634 | `addLight(x, y, r, col, a)` | functie |  |
+| 638 | `collectLights(L)` | functie |  |
+| 650 | `drawLightMap(c, v)` | functie |  |
+| 673 | `heroScreenBox(h, v)` | functie |  |
+| 677 | `frontOffset(L, v)` | functie |  |
+| 681 | `updateFront(L, v)` | functie | the alphas: called while drawing, from the time that passed in the game |
+| 698 | `drawFront(c, v)` | functie |  |
+| 708 | `drawPlay(c)` | functie |  |
+| 717 | `drawEdgePulse(c)` | functie | The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. |
+| 727 | `drawNestShelter(c)` | functie | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
+| 735 | `drawDecor(c, l, tp, vw, vh)` | functie | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
+| 751 | `drawArenaBack(c)` | functie | the torches of fire around the arena |
+| 755 | `drawThrone(c)` | functie |  |
+| 762 | `drawGeorgeBoss(c, o, t)` | functie |  |
 
 ## 09-screens.js
 
@@ -615,5 +630,6 @@ Nicio functie.
 | 65 | `Game.levelEnd()` | functie |  |
 | 66 | `Game.toEnding()` | functie |  |
 | 68 | `update(dt)` | functie |  |
-| 112 | `draw()` | functie |  |
-| 133 | `frame(ts)` | functie |  |
+| 114 | `levelOverlay(L)` | functie | The paper and the vignette over the level. None while the light map is drawn on a level that has its paper in the picture (finishLook): the light map takes the vignette's place. |
+| 115 | `draw()` | functie |  |
+| 136 | `frame(ts)` | functie |  |

@@ -239,7 +239,9 @@ Pictorii sunt `drawBoon`, `drawKiller`, `drawGeorge` din `src/055-lupta.js`. Sem
 
 Verificare: foaia de personaje (`docs/capturi/24-personaje.jpg`) refacuta si pusa langa cea veche. Un copil trebuie sa isi recunoasca desenul.
 
-### S7.4 Adancime: trei planuri
+### S7.4 Adancime: trei planuri - **facuta (T6.6, 22 noiembrie 2026)**
+
+Descrierea, la timpul prezent: `12-desen-si-hud.md`, "Update 22 noiembrie 2026 (T6.6, T6.7)". Ce s-a facut altfel: sase lucruri pe nivel, nimic sus-mijloc (sub banda de cartonase); paralaxa e limitata la 60 de unitati, iar dreptunghiul din mijloc are o marja de 60, ca un lucru sa nu ajunga niciodata in mijloc; un erou deja sub un lucru il stinge pe loc. Fundalul inca nu e pictat cu `lit()` (vine cu nivelurile 7 - 12); ceata de aer e un gradient peste partea de sus a picturii.
 
 | Plan | Ce contine | Cum |
 |---|---|---|
@@ -249,7 +251,9 @@ Verificare: foaia de personaje (`docs/capturi/24-personaje.jpg`) refacuta si pus
 
 **Regula care nu se incalca:** planul din fata nu acopera niciodata un erou. Fiecare element din fata are un dreptunghi. Daca un erou (pe ecran) intra in el, elementul devine transparent (alpha spre 0.15 in 0.2 s). Elementele se pun doar in afara unui dreptunghi central de 1500 x 760. E aceeasi grija ca la S6.
 
-### S7.5 Lumina care se misca
+### S7.5 Lumina care se misca - **harta facuta (T6.7, 22 noiembrie 2026)**; stralucirea, apa si praful vin cu T6.8
+
+Descrierea hartii: `12-desen-si-hud.md`, "Update 22 noiembrie 2026 (T6.6, T6.7)". **Ce s-a facut altfel:** nu exista canvasul mic `LM` marit peste ecran (costa 10 ms pe masina de test); ecranul e inmultit direct cu ambianta si luminile se pun direct, cu aceleasi sprite-uri si aceeasi limita de 24. Hartia e in pictura nivelului, iar stratul de hartie si vinieta nu se mai pun peste nivel cand harta e pornita.
 
 **Harta de lumina.** Un canvas mic, `LM`, de 480 x 270 (un sfert din ecran). La fiecare cadru:
 

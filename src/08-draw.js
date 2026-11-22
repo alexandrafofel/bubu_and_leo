@@ -614,8 +614,101 @@ function drawHUD(c) {
   drawMidCard(c, downBanner() || P.banner || waitBanner());
   if (!P.L.boss) drawProgress(c);
 }
+/* ---------- The light map (S7.5) ----------
+   The whole screen is multiplied by the level's ambient colour (one fill), then every light is added on it ('lighter')
+   as a round sprite painted once per colour: at most maxLights drawImage, no createRadialGradient per frame.
+   S7.5 asks for a small canvas (480 x 270) blown up over the screen with 'multiply'. Measured on the test machine
+   (SwiftShader), blowing a small canvas up to the whole screen with smoothing costs 10 ms by itself (without
+   smoothing 4 ms, but the light comes out in blocks of 4 pixels): over the budget of S7.7. Painting the same lights
+   straight on the screen costs about 3 ms. The difference: a light here adds warm colour over the darkened world,
+   instead of giving back the world's own colour; the darker the ambient, the stronger the lights (lightGlow). */
+const _lights = [], _lightPool = [];
+const LightCount = { fill: 0, draw: 0, big: 0 };              // for the test: what the last frame did
+function lightSprite(col) {
+  return sprite('light-' + col, 64, 64, c => {
+    const g = c.createRadialGradient(32, 32, 0, 32, 32, 32);
+    g.addColorStop(0, rgba(col, 1)); g.addColorStop(0.4, rgba(col, 0.55)); g.addColorStop(1, rgba(col, 0));
+    c.fillStyle = g; c.fillRect(0, 0, 64, 64);
+  });
+}
+function addLight(x, y, r, col, a) {
+  const o = _lightPool[_lights.length] || (_lightPool[_lights.length] = {});
+  o.x = x; o.y = y; o.r = r; o.col = col; o.a = a; _lights.push(o);
+}
+function collectLights(L) {
+  _lights.length = 0;
+  for (const h of P.heroes) addLight(h.x, h.y - 70, 150, mix(CONFIG.heroes[h.k].color, '#FFF6E0', 0.5), 0.45);
+  for (const e of P.eggs) if (e.delay <= 0 && e.state === 'idle' && !(e.big && L.cave && L.cave.reveal < 0.05)) addLight(e.x, e.y, 50, '#FFE6A8', 0.7);
+  for (const s of P.stars) if (!s.got && !s.hidden) addLight(s.x, s.y, 60, '#FFF0B8', 0.7);
+  for (const f of P.flock) addLight(f.x, f.y - 16, 70, '#FFE8C0', 0.6);
+  for (const q of P.heal) addLight(q.x, q.y, 90, '#FFF0C8', 0.8);
+  for (const ln of L.lanterns) if (ln.lit > 0) addLight(ln.x + 20, ln.y - 76, 230, '#FFD9A0', 0.85 * ln.lit);
+  if (L.torches) for (const tc of L.torches) addLight(tc.x, tc.y - 86, 210, '#FFBE80', 0.85);
+  if (L.lights) for (const lt of L.lights) addLight(lt.x, lt.y, lt.r, lt.col, lt.a == null ? 0.8 : lt.a);     // the lights a level puts by itself (lava, the Sun Crystal...)
+  if (P.nestOpen && !L.boss) addLight(L.nest.x, L.nest.y, 260, '#FFE28C', 0.6);
+}
+function drawLightMap(c, v) {
+  const L = P.L; LightCount.fill = LightCount.draw = LightCount.big = 0;
+  if (!v || !isDiorama(L) || !CONFIG.look.lights) return;
+  const vw = W / v.z, vh = H / v.z, mx = v.l + vw / 2, my = v.tp + vh / 2;
+  collectLights(L);
+  let n = 0;                                                // keep the ones on screen, then the nearest to the middle
+  for (let i = 0; i < _lights.length; i++) { const o = _lights[i]; if (o.x + o.r < v.l || o.x - o.r > v.l + vw || o.y + o.r < v.tp || o.y - o.r > v.tp + vh || o.a <= 0) continue; o.d = (o.x - mx) * (o.x - mx) + (o.y - my) * (o.y - my); _lights[n++] = o; }
+  _lights.length = n;
+  if (n > CONFIG.look.maxLights) { _lights.sort((a, b) => a.d - b.d); _lights.length = CONFIG.look.maxLights; }
+  const amb = levelAmbient(L), ar = parseInt(amb.slice(1, 3), 16), ag = parseInt(amb.slice(3, 5), 16), ab = parseInt(amb.slice(5, 7), 16);
+  const k = CONFIG.look.lightGlow * (0.35 + 1 - (ar * 0.299 + ag * 0.587 + ab * 0.114) / 255);
+  c.globalCompositeOperation = 'multiply'; c.fillStyle = amb; c.fillRect(0, 0, W, H);
+  c.globalCompositeOperation = 'lighter';
+  for (const o of _lights) { c.globalAlpha = Math.min(1, o.a * k); const s = o.r * v.z; c.drawImage(lightSprite(o.col), (o.x - v.l) * v.z - s, (o.y - v.tp) * v.z - s, s * 2, s * 2); }
+  c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+  LightCount.fill = 1; LightCount.draw = _lights.length;
+}
+/* ---------- The front plane (S7.4) ----------
+   The things painted once in L.front, each drawn with its own alpha (at most 12 drawImage). They move 1.15 times the
+   camera, but never more than FRONT_PAR_MAX from their place, so they stay at the edges. THE RULE: a thing never
+   covers a hero. A hero closer than frontNear (on screen) to a thing makes it fade to frontMin in frontFade seconds,
+   so it is already faded when he gets under it. If he is under it anyway (the camera jumped), it fades at once. */
+const FrontCount = { draw: 0 };
+function heroScreenBox(h, v) {
+  const sx = (h.x - v.l) * v.z, sy = (h.y - v.tp) * v.z, s = v.z * (h.small || 1);
+  return [sx - 75 * s, sy - (190 + (h.z || 0)) * s, sx + 75 * s, sy + 20 * s];
+}
+function frontOffset(L, v) {
+  const vw = W / v.z, vh = H / v.z, p = CONFIG.look.frontPar - 1;
+  return [clamp(-(v.l - (L.W - vw) / 2) * p * v.z, -FRONT_PAR_MAX, FRONT_PAR_MAX), clamp(-(v.tp - (L.H - vh) / 2) * p * v.z, -FRONT_PAR_MAX, FRONT_PAR_MAX)];
+}
+function updateFront(L, v) {                                   // the alphas: called while drawing, from the time that passed in the game
+  const F = L.front, LK = CONFIG.look, dt = F.t < 0 ? 1 : clamp(P.time - F.t, 0, 0.1); F.t = P.time;
+  const [ox, oy] = frontOffset(L, v), near = LK.frontNear, step = (1 - LK.frontMin) / LK.frontFade * dt;
+  const boxes = P.heroes.map(h => heroScreenBox(h, v));
+  for (const it of F.items) {
+    const x0 = it.x + ox - near, y0 = it.y + oy - near, x1 = it.x + ox + it.w + near, y1 = it.y + oy + it.h + near;
+    let hit = false, under = false;
+    for (const b of boxes) {
+      if (b[2] > x0 && b[0] < x1 && b[3] > y0 && b[1] < y1) hit = true;
+      if (b[2] > it.x + ox && b[0] < it.x + ox + it.w && b[3] > it.y + oy && b[1] < it.y + oy + it.h) under = true;
+    }
+    const tg = hit ? LK.frontMin : 1;
+    if (under) it.a = LK.frontMin;                             // already under it (the camera jumped, a hero was put there): at once, no fading
+    else it.a = it.a < tg ? Math.min(tg, it.a + step) : Math.max(tg, it.a - step);
+  }
+  return [ox, oy];
+}
+function drawFront(c, v) {
+  const L = P.L; FrontCount.draw = 0;
+  if (!v || !L.front || !CONFIG.look.front) return;
+  const [ox, oy] = updateFront(L, v), cv = L.front.cv;
+  for (const it of L.front.items) {
+    if (it.a < 0.01) continue;
+    c.globalAlpha = it.a; c.drawImage(cv, it.x, it.y, it.w, it.h, it.x + ox, it.y + oy, it.w, it.h); FrontCount.draw++;
+  }
+  c.globalAlpha = 1;
+}
 function drawPlay(c) {
   const v = drawWorld(c);
+  drawLightMap(c, v);
+  drawFront(c, v);
   drawHints(c, v);
   drawEdgePulse(c);
   drawHUD(c);

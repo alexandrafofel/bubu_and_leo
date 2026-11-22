@@ -175,6 +175,12 @@ const CONFIG = {
     motes: 40,             // tiny specks floating in the light. 0 = none
     freeze: 0.06,          // seconds the game holds its breath at a big hit (S7.6). 0 = off
     maxLights: 24,         // lights drawn in one frame. The ones nearest the middle of the screen win
+    lightGlow: 0.6,        // how strong the lights of the light map are over the ambient (the darker the ambient, the stronger)
+    preview: false,        // true = the new frame (light map, front plane, haze) also on levels 1 - 6, to see it before 7 - 12 exist
+    frontFade: 0.2,        // seconds a thing of the front plane takes to fade when a hero comes near it
+    frontMin: 0.15,        // how much of it stays when it fades
+    frontPar: 1.15,        // the front plane moves this many times more than the camera (parallax)
+    frontNear: 220,        // a hero closer than this (on screen) to a thing of the front plane makes it fade, before he is under it
     // how the heroes and George move (S7.3, second part)
     tailLift: 0.18,        // how high the tail lifts at walking speed (radians). Running lifts it more, up to tailMax
     tailMax: 0.5,

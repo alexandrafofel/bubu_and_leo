@@ -190,6 +190,12 @@ const CONFIG = {
     motes: 40,             // tiny specks floating in the light. 0 = none
     freeze: 0.06,          // seconds the game holds its breath at a big hit (S7.6). 0 = off
     maxLights: 24,         // lights drawn in one frame. The ones nearest the middle of the screen win
+    lightGlow: 0.6,        // how strong the lights of the light map are over the ambient (the darker the ambient, the stronger)
+    preview: false,        // true = the new frame (light map, front plane, haze) also on levels 1 - 6, to see it before 7 - 12 exist
+    frontFade: 0.2,        // seconds a thing of the front plane takes to fade when a hero comes near it
+    frontMin: 0.15,        // how much of it stays when it fades
+    frontPar: 1.15,        // the front plane moves this many times more than the camera (parallax)
+    frontNear: 220,        // a hero closer than this (on screen) to a thing of the front plane makes it fade, before he is under it
     // how the heroes and George move (S7.3, second part)
     tailLift: 0.18,        // how high the tail lifts at walking speed (radians). Running lifts it more, up to tailMax
     tailMax: 0.5,
@@ -3669,7 +3675,7 @@ function paintLevel(L) {
   finishPaint(c, L.W, L.H, L.skyT, r, N);
   L.bg = cv; L.skyTop = topColor(cv);
   L.overlay = N ? makeOverlay('#C8D0FF', 0.1, 0.5, true) : makeOverlay(mix('#FFF4E0', '#FFC08C', L.skyT), 0.1 + L.skyT * 0.16, 0.42);
-  return L;
+  return finishLook(L);
 }
 /* A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). */
 function paintVines(c, x, y, w, len, seed, sway, P) {
@@ -3695,6 +3701,116 @@ function paintDoor(c, x, y) {
   for (let i = 0; i < 7; i++) { c.fillStyle = RAINBOW[i]; c.beginPath(); c.moveTo(x + 26, y - 44); c.arc(x + 26, y - 44, 8, i / 7 * TAU, (i + 1) / 7 * TAU); c.closePath(); c.fill(); }
 }
 /* Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). */
+/* ---------- The frame of the new levels (docs/24-sisteme-noi.md, S7.4 and S7.5) ----------
+   A level with look: 'diorama' (levels 7 - 12, or every level with CONFIG.look.preview) gets, once, at loading:
+   - haze over its far part (the top of the picture): paler and bluer, like air between the eye and the far away;
+   - the front plane (L.front): big dark blurred things at the edges of the screen;
+   - the paper texture multiplied into the picture itself (L.paperBaked), when the light map is on: the light map then
+     takes the place of the whole overlay (paper + night vignette). On the slow test machine every full-screen pass
+     costs a few ms, and the light map is already one.
+   Levels 1 - 6 stay as they are. */
+function isDiorama(L) { return !!(L && L.def && (L.def.look === 'diorama' || CONFIG.look.preview)); }
+function levelAmbient(L) { return L.def.ambient || (L.night ? '#C4BCEE' : '#F0E4D4'); }
+function finishLook(L) {
+  if (!isDiorama(L)) return L;
+  const c = L.bg.getContext('2d'), hz = Math.min(L.H * 0.45, 800);
+  const g = c.createLinearGradient(0, 0, 0, hz);                         // the haze: strongest at the top (the farthest), gone by the middle
+  g.addColorStop(0, 'rgba(176,196,240,0.34)'); g.addColorStop(1, 'rgba(176,196,240,0)');
+  c.fillStyle = g; c.fillRect(0, 0, L.W, hz);
+  L.front = paintFront(L);
+  if (CONFIG.look.lights) {        // the paper goes into the picture once: the light map then replaces the whole overlay (one full-screen pass, not two)
+    if (!PAPER) PAPER = makePaper();
+    c.globalCompositeOperation = 'multiply';
+    for (let y = 0; y < L.H; y += H) for (let x = 0; x < L.W; x += W) c.drawImage(PAPER, x, y);
+    c.globalCompositeOperation = 'source-over';
+    L.paperBaked = true;
+  }
+  return L;
+}
+/* The front plane: painted once at half resolution (960 x 540), blurred, then blown up once to a canvas the size of the screen.
+   items: a rectangle on the screen for each thing (x, y, w, h in screen units), and its alpha.
+   Nothing is put inside the middle rectangle of 1500 x 760, nor in a margin of FRONT_PAR_MAX around it,
+   so the parallax cannot push a thing into the middle. */
+const FRONT_MID = { x: 210, y: 160, w: 1500, h: 760 }, FRONT_PAR_MAX = 60;
+function frontSlots() {          // where the things can be: two tall corners at the top, the two sides, two places at the bottom
+  const m = FRONT_PAR_MAX, L0 = FRONT_MID.x - m, R0 = FRONT_MID.x + FRONT_MID.w + m, B0 = FRONT_MID.y + FRONT_MID.h + m;
+  return [
+    { at: 'top', x: 0, y: 0, w: L0, h: 640 }, { at: 'top', x: R0, y: 0, w: W - R0, h: 600 },
+    { at: 'side', x: 0, y: 620, w: L0, h: 460 }, { at: 'side', x: R0, y: 560, w: W - R0, h: 520 },
+    { at: 'bottom', x: 330, y: B0, w: 420, h: H - B0 }, { at: 'bottom', x: 1180, y: B0, w: 460, h: H - B0 }
+  ];                             // nothing along the top middle: the band of cards (HUD_TOP) covers it anyway
+}
+function paintFront(L) {
+  const key = L.def.key, r = rng((L.seed || 7) + 911);
+  const kinds = key === 'cave' ? { top: 'stal', side: 'stal', bottom: 'rock' }
+    : (key === 'works' || key === 'castle') ? { top: 'chain', side: 'pillar', bottom: 'rock' }
+    : { top: 'vine', side: 'leaf', bottom: 'leaf' };
+  const tmp = makeCanvas(960, 540), t = tmp.getContext('2d');
+  const base = mix(levelAmbient(L), '#2A2048', 0.7), base2 = mix(base, '#1F7A4A', key === 'cave' || key === 'works' || key === 'castle' ? 0.1 : 0.6);   // leaves: a deep green, never a grey
+  const items = [];
+  for (const sl of frontSlots()) {
+    const kind = kinds[sl.at], x = sl.x / 2, y = sl.y / 2, w = sl.w / 2, h = sl.h / 2;
+    t.save(); t.beginPath(); t.rect(x, y, w, h); t.clip();
+    paintFrontThing(t, kind, sl.at, x, y, w, h, r, base, base2);
+    t.restore();
+    items.push({ x: sl.x, y: sl.y, w: sl.w, h: sl.h, a: 1, kind });
+  }
+  // a thin warm rim on the side the light comes from (upper left), so the dark things still read against a dark night
+  const rim = makeCanvas(960, 540), rc = rim.getContext('2d');
+  rc.drawImage(tmp, 0, 0); rc.globalCompositeOperation = 'source-in'; rc.fillStyle = rgba(mix(base2, KEY, 0.45), 0.6); rc.fillRect(0, 0, 960, 540);   // the rim keeps the hue of the things: warm light over a violet and a green made greys
+  t.globalCompositeOperation = 'destination-over'; t.drawImage(rim, -2, -2); t.globalCompositeOperation = 'source-over';
+  const half = makeCanvas(960, 540), hc = half.getContext('2d');
+  hc.filter = 'blur(2.5px)'; hc.drawImage(tmp, 0, 0); hc.filter = 'none';    // out of focus: painted at half size, blurred...
+  const cv = makeCanvas(W, H); cv.getContext('2d').drawImage(half, 0, 0, W, H);  // ...then blown up once, here: drawn 1:1 on every frame it costs half
+  return { cv, items, t: -1 };
+}
+function paintFrontThing(t, kind, at, x, y, w, h, r, base, base2) {
+  const fromLeft = x < 480 / 1, cx = x + w / 2;
+  t.lineCap = 'round'; t.lineJoin = 'round';
+  if (kind === 'vine') {                                   // two or three lianas hanging from the top, with big leaves
+    for (let i = 0; i < 3; i++) {
+      const x0 = x + w * (0.2 + i * 0.3), sway = (r() - 0.5) * w * 0.6, len = h * (0.6 + r() * 0.4);
+      t.strokeStyle = i % 2 ? base : base2; t.lineWidth = 7 + r() * 5;
+      t.beginPath(); t.moveTo(x0, y - 5); t.bezierCurveTo(x0 + sway, y + len * 0.4, x0 - sway, y + len * 0.7, x0 + sway * 0.5, y + len); t.stroke();
+      for (let j = 0; j < 4; j++) { const u = 0.25 + j * 0.2, lx = x0 + sway * Math.sin(u * 3), ly = y + len * u; frontLeaf(t, lx, ly, 18 + r() * 14, (j % 2 ? 1 : -1) * (0.6 + r() * 0.5), j % 2 ? base2 : base); }
+    }
+  } else if (kind === 'leaf') {                            // one or two giant leaves coming in from the edge
+    const n = at === 'bottom' ? 2 : 1;
+    for (let i = 0; i < n; i++) {
+      const lx = at === 'bottom' ? x + w * (0.3 + i * 0.45) : (fromLeft ? x + w * 0.2 : x + w * 0.8), ly = at === 'bottom' ? y + h * 1.1 : y + h * (0.55 + r() * 0.2);
+      const ang = at === 'bottom' ? -Math.PI / 2 + (i ? 0.5 : -0.5) : (fromLeft ? -0.5 - r() * 0.4 : Math.PI + 0.5 + r() * 0.4);
+      frontLeaf(t, lx, ly, at === 'bottom' ? h * 1.6 : w * 1.5, ang, i % 2 ? base2 : base);
+    }
+  } else if (kind === 'stal') {                            // stalactites from the top, or a stalagmite at a side
+    const n = Math.max(2, w / 34 | 0);
+    for (let i = 0; i < n; i++) {
+      const sx = x + (i + 0.5) * w / n, sw = w / n * (0.7 + r() * 0.5), sh = (at === 'top' ? h : h * 0.8) * (0.4 + r() * 0.6);
+      t.fillStyle = i % 2 ? base : base2; t.beginPath();
+      if (at === 'top') { t.moveTo(sx - sw / 2, y - 4); t.quadraticCurveTo(sx - sw * 0.1, y + sh * 0.7, sx, y + sh); t.quadraticCurveTo(sx + sw * 0.1, y + sh * 0.7, sx + sw / 2, y - 4); }
+      else { t.moveTo(sx - sw / 2, y + h + 4); t.quadraticCurveTo(sx - sw * 0.1, y + h - sh * 0.7, sx, y + h - sh); t.quadraticCurveTo(sx + sw * 0.1, y + h - sh * 0.7, sx + sw / 2, y + h + 4); }
+      t.closePath(); t.fill();
+    }
+  } else if (kind === 'chain') {                           // chains hanging from the top
+    for (let i = 0; i < 2; i++) {
+      const x0 = x + w * (0.3 + i * 0.4), n = (h * (0.6 + r() * 0.4)) / 16 | 0;
+      t.strokeStyle = i ? base2 : base; t.lineWidth = 5;
+      for (let j = 0; j < n; j++) { t.beginPath(); if (j % 2) t.ellipse(x0, y + j * 15, 3, 9, 0, 0, TAU); else t.ellipse(x0, y + j * 15, 7, 9, 0, 0, TAU); t.stroke(); }
+    }
+  } else if (kind === 'pillar') {                          // a big column at the side
+    const pw = w * 0.7, px = fromLeft ? x : x + w - pw;
+    t.fillStyle = base; t.fillRect(px, y - 10, pw, h + 20);
+    t.fillStyle = base2; t.fillRect(px + (fromLeft ? pw * 0.6 : 0), y - 10, pw * 0.4, h + 20);
+    for (let j = 0; j < 4; j++) { t.fillStyle = base2; t.fillRect(px - 6, y + h * (0.2 + j * 0.22), pw + 12, 7); }
+  } else {                                                 // rock: big dark round stones at the bottom
+    for (let i = 0; i < 3; i++) { t.fillStyle = i % 2 ? base : base2; blobPath(t, x + w * (0.2 + i * 0.3), y + h * 1.05, w * 0.22, h * 0.9, i + 3, 0.08, 10); t.fill(); }
+  }
+}
+function frontLeaf(t, x, y, len, ang, col) {               // a long pointed leaf from (x, y) in the direction ang, with a pale midrib
+  t.save(); t.translate(x, y); t.rotate(ang);
+  t.fillStyle = col; t.beginPath(); t.moveTo(0, 0); t.bezierCurveTo(len * 0.3, -len * 0.32, len * 0.75, -len * 0.22, len, 0); t.bezierCurveTo(len * 0.75, len * 0.22, len * 0.3, len * 0.32, 0, 0); t.fill();
+  t.strokeStyle = rgba(shade(col, 0.35), 0.6); t.lineWidth = Math.max(1.5, len * 0.025); t.beginPath(); t.moveTo(0, 0); t.lineTo(len * 0.92, 0); t.stroke();
+  t.restore();
+}
 function finishPaint(c, w, h, skyT, r, night) {
   for (let i = 0; i < 7000; i++) { c.fillStyle = i % 2 ? 'rgba(110,70,90,0.07)' : 'rgba(255,250,235,0.1)'; c.beginPath(); c.arc(r() * w, r() * h, 0.6 + r() * 1.6, 0, TAU); c.fill(); }
   for (let i = 0; i < 260; i++) { blobPath(c, r() * w, r() * h, 14 + r() * 50, 10 + r() * 36, i, 0.3, 11); c.strokeStyle = 'rgba(255,250,232,0.09)'; c.lineWidth = 2 + r() * 3; c.stroke(); }
@@ -3744,7 +3860,7 @@ function genBoss() {
   for (let k = 0; k < 150; k++) { const b = blobs[k % blobs.length], a = tr() * TAU, d = 0.3 + tr() * 0.7; wash(t, bx + b[0] + Math.cos(a) * b[2] * d, by + b[1] + Math.sin(a) * b[3] * d, 14 + tr() * 22, 10 + tr() * 14, shade(P.canopy[k % P.canopy.length], (tr() - 0.5) * 0.6), { a: 0.5, seed: k, layers: 1, edge: 0 }); }
   L.treeCv = tc; L.treeOff = { x: 960 - bx, y: 580 - by };
   L.overlay = makeOverlay('#FFBE8C', 0.2, 0.45);
-  return L;
+  return finishLook(L);
 }
 
 /* The last level of the second game: George's arena. A clearing with mountains behind it, torches of fire all around,
@@ -3797,7 +3913,7 @@ function genArena() {
   for (let i = 0; i < 16; i++) { t.strokeStyle = 'rgba(60,50,120,0.25)'; t.lineWidth = 2.5; t.lineCap = 'round'; t.beginPath(); const x = bx - 200 + r() * 400, y = by - 20 - r() * 200; t.moveTo(x, y); t.lineTo(x + (r() - 0.5) * 30, y + 14 + r() * 16); t.stroke(); }
   L.treeCv = tc; L.treeOff = { x: 960 - bx, y: 600 - by };
   L.overlay = makeOverlay('#C8D0FF', 0.1, 0.52, true);
-  return L;
+  return finishLook(L);
 }
 
 /* ==========================================================================
@@ -5749,8 +5865,101 @@ function drawHUD(c) {
   drawMidCard(c, downBanner() || P.banner || waitBanner());
   if (!P.L.boss) drawProgress(c);
 }
+/* ---------- The light map (S7.5) ----------
+   The whole screen is multiplied by the level's ambient colour (one fill), then every light is added on it ('lighter')
+   as a round sprite painted once per colour: at most maxLights drawImage, no createRadialGradient per frame.
+   S7.5 asks for a small canvas (480 x 270) blown up over the screen with 'multiply'. Measured on the test machine
+   (SwiftShader), blowing a small canvas up to the whole screen with smoothing costs 10 ms by itself (without
+   smoothing 4 ms, but the light comes out in blocks of 4 pixels): over the budget of S7.7. Painting the same lights
+   straight on the screen costs about 3 ms. The difference: a light here adds warm colour over the darkened world,
+   instead of giving back the world's own colour; the darker the ambient, the stronger the lights (lightGlow). */
+const _lights = [], _lightPool = [];
+const LightCount = { fill: 0, draw: 0, big: 0 };              // for the test: what the last frame did
+function lightSprite(col) {
+  return sprite('light-' + col, 64, 64, c => {
+    const g = c.createRadialGradient(32, 32, 0, 32, 32, 32);
+    g.addColorStop(0, rgba(col, 1)); g.addColorStop(0.4, rgba(col, 0.55)); g.addColorStop(1, rgba(col, 0));
+    c.fillStyle = g; c.fillRect(0, 0, 64, 64);
+  });
+}
+function addLight(x, y, r, col, a) {
+  const o = _lightPool[_lights.length] || (_lightPool[_lights.length] = {});
+  o.x = x; o.y = y; o.r = r; o.col = col; o.a = a; _lights.push(o);
+}
+function collectLights(L) {
+  _lights.length = 0;
+  for (const h of P.heroes) addLight(h.x, h.y - 70, 150, mix(CONFIG.heroes[h.k].color, '#FFF6E0', 0.5), 0.45);
+  for (const e of P.eggs) if (e.delay <= 0 && e.state === 'idle' && !(e.big && L.cave && L.cave.reveal < 0.05)) addLight(e.x, e.y, 50, '#FFE6A8', 0.7);
+  for (const s of P.stars) if (!s.got && !s.hidden) addLight(s.x, s.y, 60, '#FFF0B8', 0.7);
+  for (const f of P.flock) addLight(f.x, f.y - 16, 70, '#FFE8C0', 0.6);
+  for (const q of P.heal) addLight(q.x, q.y, 90, '#FFF0C8', 0.8);
+  for (const ln of L.lanterns) if (ln.lit > 0) addLight(ln.x + 20, ln.y - 76, 230, '#FFD9A0', 0.85 * ln.lit);
+  if (L.torches) for (const tc of L.torches) addLight(tc.x, tc.y - 86, 210, '#FFBE80', 0.85);
+  if (L.lights) for (const lt of L.lights) addLight(lt.x, lt.y, lt.r, lt.col, lt.a == null ? 0.8 : lt.a);     // the lights a level puts by itself (lava, the Sun Crystal...)
+  if (P.nestOpen && !L.boss) addLight(L.nest.x, L.nest.y, 260, '#FFE28C', 0.6);
+}
+function drawLightMap(c, v) {
+  const L = P.L; LightCount.fill = LightCount.draw = LightCount.big = 0;
+  if (!v || !isDiorama(L) || !CONFIG.look.lights) return;
+  const vw = W / v.z, vh = H / v.z, mx = v.l + vw / 2, my = v.tp + vh / 2;
+  collectLights(L);
+  let n = 0;                                                // keep the ones on screen, then the nearest to the middle
+  for (let i = 0; i < _lights.length; i++) { const o = _lights[i]; if (o.x + o.r < v.l || o.x - o.r > v.l + vw || o.y + o.r < v.tp || o.y - o.r > v.tp + vh || o.a <= 0) continue; o.d = (o.x - mx) * (o.x - mx) + (o.y - my) * (o.y - my); _lights[n++] = o; }
+  _lights.length = n;
+  if (n > CONFIG.look.maxLights) { _lights.sort((a, b) => a.d - b.d); _lights.length = CONFIG.look.maxLights; }
+  const amb = levelAmbient(L), ar = parseInt(amb.slice(1, 3), 16), ag = parseInt(amb.slice(3, 5), 16), ab = parseInt(amb.slice(5, 7), 16);
+  const k = CONFIG.look.lightGlow * (0.35 + 1 - (ar * 0.299 + ag * 0.587 + ab * 0.114) / 255);
+  c.globalCompositeOperation = 'multiply'; c.fillStyle = amb; c.fillRect(0, 0, W, H);
+  c.globalCompositeOperation = 'lighter';
+  for (const o of _lights) { c.globalAlpha = Math.min(1, o.a * k); const s = o.r * v.z; c.drawImage(lightSprite(o.col), (o.x - v.l) * v.z - s, (o.y - v.tp) * v.z - s, s * 2, s * 2); }
+  c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+  LightCount.fill = 1; LightCount.draw = _lights.length;
+}
+/* ---------- The front plane (S7.4) ----------
+   The things painted once in L.front, each drawn with its own alpha (at most 12 drawImage). They move 1.15 times the
+   camera, but never more than FRONT_PAR_MAX from their place, so they stay at the edges. THE RULE: a thing never
+   covers a hero. A hero closer than frontNear (on screen) to a thing makes it fade to frontMin in frontFade seconds,
+   so it is already faded when he gets under it. If he is under it anyway (the camera jumped), it fades at once. */
+const FrontCount = { draw: 0 };
+function heroScreenBox(h, v) {
+  const sx = (h.x - v.l) * v.z, sy = (h.y - v.tp) * v.z, s = v.z * (h.small || 1);
+  return [sx - 75 * s, sy - (190 + (h.z || 0)) * s, sx + 75 * s, sy + 20 * s];
+}
+function frontOffset(L, v) {
+  const vw = W / v.z, vh = H / v.z, p = CONFIG.look.frontPar - 1;
+  return [clamp(-(v.l - (L.W - vw) / 2) * p * v.z, -FRONT_PAR_MAX, FRONT_PAR_MAX), clamp(-(v.tp - (L.H - vh) / 2) * p * v.z, -FRONT_PAR_MAX, FRONT_PAR_MAX)];
+}
+function updateFront(L, v) {                                   // the alphas: called while drawing, from the time that passed in the game
+  const F = L.front, LK = CONFIG.look, dt = F.t < 0 ? 1 : clamp(P.time - F.t, 0, 0.1); F.t = P.time;
+  const [ox, oy] = frontOffset(L, v), near = LK.frontNear, step = (1 - LK.frontMin) / LK.frontFade * dt;
+  const boxes = P.heroes.map(h => heroScreenBox(h, v));
+  for (const it of F.items) {
+    const x0 = it.x + ox - near, y0 = it.y + oy - near, x1 = it.x + ox + it.w + near, y1 = it.y + oy + it.h + near;
+    let hit = false, under = false;
+    for (const b of boxes) {
+      if (b[2] > x0 && b[0] < x1 && b[3] > y0 && b[1] < y1) hit = true;
+      if (b[2] > it.x + ox && b[0] < it.x + ox + it.w && b[3] > it.y + oy && b[1] < it.y + oy + it.h) under = true;
+    }
+    const tg = hit ? LK.frontMin : 1;
+    if (under) it.a = LK.frontMin;                             // already under it (the camera jumped, a hero was put there): at once, no fading
+    else it.a = it.a < tg ? Math.min(tg, it.a + step) : Math.max(tg, it.a - step);
+  }
+  return [ox, oy];
+}
+function drawFront(c, v) {
+  const L = P.L; FrontCount.draw = 0;
+  if (!v || !L.front || !CONFIG.look.front) return;
+  const [ox, oy] = updateFront(L, v), cv = L.front.cv;
+  for (const it of L.front.items) {
+    if (it.a < 0.01) continue;
+    c.globalAlpha = it.a; c.drawImage(cv, it.x, it.y, it.w, it.h, it.x + ox, it.y + oy, it.w, it.h); FrontCount.draw++;
+  }
+  c.globalAlpha = 1;
+}
 function drawPlay(c) {
   const v = drawWorld(c);
+  drawLightMap(c, v);
+  drawFront(c, v);
   drawHints(c, v);
   drawEdgePulse(c);
   drawHUD(c);
@@ -6876,6 +7085,9 @@ function update(dt) {
   const hide = Game.state === 'play' && !Game.paused;
   if (hide !== UI.hidden) { UI.hidden = hide; document.body.classList.toggle('playing', hide); }
 }
+/* The paper and the vignette over the level. None while the light map is drawn on a level that has its paper in the
+   picture (finishLook): the light map takes the vignette's place. */
+function levelOverlay(L) { return L.paperBaked && CONFIG.look.lights && Game.state === 'play' ? null : L.overlay; }
 function draw() {
   const c = ctx, t = Game.t, st = Game.state;
   c.setTransform(renderScale, 0, 0, renderScale, 0, 0);
@@ -6886,14 +7098,14 @@ function draw() {
   else if (st === 'title') drawTitle(c, t);
   else if (st === 'chapters') drawChapters(c, t);
   else if (st === 'loading') drawLoading(c, t);
-  else if (st === 'intro') { drawIntro(c, t); ov = P.L.overlay; }
-  else if (st === 'play') { drawPlay(c); if (Game.paused && !UI.set) drawPause(c, t); ov = P.L.overlay; }
-  else if (st === 'retry') { drawRetry(c, t); ov = P.L.overlay; }
-  else if (st === 'levelEnd') { drawLevelEnd(c, t); ov = P.L.overlay; }
+  else if (st === 'intro') { drawIntro(c, t); ov = levelOverlay(P.L); }
+  else if (st === 'play') { drawPlay(c); if (Game.paused && !UI.set) drawPause(c, t); ov = levelOverlay(P.L); }
+  else if (st === 'retry') { drawRetry(c, t); ov = levelOverlay(P.L); }
+  else if (st === 'levelEnd') { drawLevelEnd(c, t); ov = levelOverlay(P.L); }
   else if (st === 'ending') { drawEnding(c, t); ov = UI.endOv; }
   if (UI.set && (st === 'title' || st === 'play')) { UI.hits.length = 0; drawSettings(c, t); }
   // the paper texture, the warm light and the vignette lie over everything
-  c.globalCompositeOperation = 'multiply'; c.drawImage(ov, 0, 0, W, H); c.globalCompositeOperation = 'source-over';
+  if (ov) { c.globalCompositeOperation = 'multiply'; c.drawImage(ov, 0, 0, W, H); c.globalCompositeOperation = 'source-over'; }
 }
 let _last = 0;
 const Perf = { ms: 0, n: 0, max: 0 };

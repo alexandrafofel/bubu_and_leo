@@ -92,6 +92,8 @@ In `capturi/` sunt capturi facute de testele automate. Capturile 01 pana la 15 s
 | [24-personaje-comparatie](capturi/24-personaje-comparatie.jpg) | Foaia veche (stanga) si cea noua (dreapta), alaturi |
 | [24-miscare](capturi/24-miscare.gif) | Boon, Killer si George stau, merg, fug, se opresc (T6.5) |
 | [24-miscare-cadre](capturi/24-miscare-cadre.jpg) | Sase cadre din acelasi GIF |
+| [24-cadru-nou](capturi/24-cadru-nou.jpg) | Nivelul 6 cu cadrul nou (`look.preview`): harta de lumina si planul din fata (T6.6, T6.7) |
+| [24-cadru-vechi](capturi/24-cadru-vechi.jpg) | Acelasi loc fara cadrul nou |
 
 ## Prompturi
 
