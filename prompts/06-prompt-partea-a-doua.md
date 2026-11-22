@@ -998,3 +998,137 @@ Gata cand: `tests/toate.sh` trece intreg, cu `errors 0` si fara `NEREUSIT`. Capt
 Nu face: nu schimba nivelurile noi (T6 - T12) sau limba (T13).
 ````
 
+
+## T15. George vine de doua ori, dupa diamante (6 subsarcini)
+
+Specificatia: `docs/28-t15-george-de-doua-ori.md` (G1 - G11). Ordinea: T15.1, T15.2, apoi T15.3, T15.4, T15.5, T15.6.
+
+### T15.1 - Fara maxim de diamante
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia: docs/28-t15-george-de-doua-ori.md, sectiunile G1, G2 (varianta B1), G4 si G8.
+
+Sarcina T15.1: diamantele nu mai au maxim. Cota ramane doar minim.
+
+Ce faci:
+1. Scoti `CONFIG.quota.cap` si `CONFIG.quota.extra`. Scoti `P.cap`.
+2. `canTake` nu mai refuza nimic pentru cota. `quotaState(k)` intoarce `{ found, q, ok, extra }`, fara `cap`.
+3. `giveEgg` si `sendEgg` nu mai au limita la primitor. `flying()` ramane pentru desen.
+4. Scoti balonul "Plin!": cheile `quota.full` si `L:quota.full`, campul `h.fullT` si desenul lui.
+5. Insigna (`drawBadge`): `gasite / minim`; dupa minim, bifa si `+n` mic, verde, cu cheia noua `quota.extra`. Numarul nu mai e rosu dupa minim.
+6. Randul de pe ecranul de sfarsit de nivel: la fel, cu `+n`.
+7. Adaptezi testele care foloseau `cap`: `tests/cota.js` (verificarile 3, 4, 9, 11), `ordine-nivel.js`.
+
+Gata cand: `./build.sh`, `node tools/gen-docs.js`, apoi `tests/cota.js`, `joc-complet-bot.js`, `controller-simulat.js`, `setari-ui.js`, `cuib-amandoi.js` si `hud-acoperire.js` (cu `STRICT=1`) trec, cu `errors 0` si fara `NEREUSIT`. Te uiti la capturi.
+
+Nu face: nu atinge declansatorul luptelor (T15.4), nici inamicii aruncati (T15.5).
+````
+
+### T15.2 - Cote noi si mai multe diamante pe nivel
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Specificatia: docs/28-t15-george-de-doua-ori.md, sectiunea G3.
+
+Sarcina T15.2: minimul pe nivel creste si nivelul are mai multe diamante.
+
+Ce faci:
+1. `CONFIG.quota.perLevel = [15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70]` (minimul fiecarui erou).
+2. `CONFIG.quota.supply = 2.5`: nivelul genereaza cel putin `supply * 2 * q` diamante. Schimbi generarea din `06-level.js` si regula veche "2q .. 2cap".
+3. Verifici cu 10 seminte pe fiecare nivel ca numarul iese.
+4. Actualizezi `docs/03-config.md` si `docs/09-niveluri.md`.
+
+Gata cand: `tests/cota.js` (verificarea 1 adaptata la noua regula), `numara-elemente.js` si `joc-complet-bot.js` trec, cu `errors 0`.
+
+Nu face: nu schimba nimic la George.
+````
+
+### T15.3 - Padurea nu seaca
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Specificatia: docs/28-t15-george-de-doua-ori.md, sectiunile G2 (varianta B1) si G4, "Padurea nu seaca".
+
+Sarcina T15.3: cand nu mai sunt diamante pe jos si un erou e sub minimul lui, padurea mai da.
+
+Ce faci:
+1. `keepEnough()` in `07-play.js`, chemata o data pe secunda din `updatePlay`. Conditii: nicio lupta in curs, niciun diamant pe jos, niciun copac aprins, un erou sub minim cu `n`.
+2. Aprinde cel mai apropiat copac neatins de eroul care are nevoie, cu `n + 2` diamante. Fara copaci: doua diamante langa el, la `CONFIG.quota.refillEvery` (3 s).
+3. Bannerul `george.more` ("Pădurea mai are!" / "The forest has more!"), o singura data pe nivel.
+4. Ajutorul automat (`updateAutoGive`) ramane neschimbat.
+
+Gata cand: verificarea 10 din G9 trece (zero diamante pe jos si un erou sub minim: in 3 secunde apar diamante noi), plus `tests/cota.js`, `joc-complet-bot.js` si `nivele-bot-mers.js`, cu `errors 0`.
+
+Nu face: nu lasa padurea sa dea diamante in timpul unei lupte.
+````
+
+### T15.4 - George vine dupa diamante
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Specificatia: docs/28-t15-george-de-doua-ori.md, sectiunile G2 (varianta A1 si A4), G3 si G4.
+
+Sarcina T15.4: luptele nu mai pornesc din numarul de valuri, ci din diamantele stranse.
+
+Ce faci:
+1. `P.teamFound = P.found[0] + P.found[1]`, numarate o data (diamantele date cu L1 nu se numara de doua ori).
+2. Cu `Q = 2 * P.q`: la `teamFound >= Q / 2` si `!P.midFought`, bannerul `george.half`, apoi `startDuel('mid')`. La `teamFound >= Q` si `!P.nestFought`, bannerul `george.final`, apoi `startDuel('nest')`.
+3. Lupta din mijloc nu porneste in primele `CONFIG.lupta.george.minT` (20) secunde ale nivelului.
+4. `checkWave()` ramane doar cu valurile si cu deschiderea cuibului; scoti de acolo chemarea luptelor.
+5. Textele noi in `STR.ro` si `STR.en`. Bannerele se deseneaza ca `drawMidCard`, cu portretul lui George.
+6. Dupa reincepere ("Încă o dată!"), `teamFound`, `midFought` si `nestFought` sunt zero.
+
+Gata cand: verificarile 3, 4, 5, 6 si 13 din G9 trec, plus `tests/cota.js`, `ordine-nivel.js`, `joc-complet-bot.js` si `capitole.js`, cu `errors 0`. Te uiti la capturi, in romana si in engleza.
+
+Nu face: nu schimba atacurile lui George (`DUEL_DEFS_L`) si nu adauga inamicii aruncati (T15.5).
+````
+
+### T15.5 - Inamicii aruncati
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Specificatia: docs/28-t15-george-de-doua-ori.md, sectiunile G2 (varianta C2), G3 si G4, "Inamicii aruncati".
+
+Sarcina T15.5: in lupta de la cuib, George arunca inamici mici cu 3 inimi.
+
+Ce faci:
+1. `CONFIG.lupta.george = { minT: 20, throws: [[2], [4], [2, 2], [3, 3], [4, 4], [4, 4, 4]], smallHp: 3, smallHpEasy: 2, smallDrop: 1, throwArc: 0.9 }`.
+2. Doar in `startDuel('nest')`: prima aruncare la inceput, urmatoarele la fiecare treime din inimile lui George pierdute.
+3. Aruncarea: George se ridica, bannerul mic `george.throw` ("Ai grijă!" / "Look out!"), sunet de avertizare, cercuri rosii pe pamant (ca la conuri), inamicii zboara in arc `throwArc` si aterizeaza cu un nor de praf.
+4. Un inamic aruncat e un `smallEnemy` cu `hits: 3` (2 pe Ușor), `thrown: true`, `drops: 1`. Invins, lasa un diamant `goal`. Nu reapare. Dispare cand George e invins.
+5. George NU e blindat: poate fi lovit cat timp inamicii traiesc.
+6. Sub inimile lui George, in lupta de la cuib, punctele aruncarilor ramase.
+7. Sunetele: calde si moi (regula 5 din CLAUDE.md), fara nimic care sperie.
+
+Gata cand: verificarile 7, 8 si 9 din G9 trec, plus `tests/cota.js`, `inamici-mici.js`, `joc-complet-bot.js`, `performanta-lupta.js` si `hud-acoperire.js` (cu `STRICT=1`), cu `errors 0`. Te uiti la capturi din lupta de la cuib pe nivelurile 1, 2 si 6.
+
+Nu face: nu face George blindat si nu lasa inamicii sa fure diamante.
+````
+
+### T15.6 - Sfarsitul nivelului, teste si documentatie
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Specificatia: docs/28-t15-george-de-doua-ori.md, sectiunile G4 ("Nivelul se termina"), G9 si G10.
+
+Sarcina T15.6: nivelul se termina cu cele trei conditii, totul e testat si documentat.
+
+Ce faci:
+1. Nivelul se termina doar cu: George invins in lupta de la cuib, minimul fiecarui erou care joaca, amandoi in cuib. Cuibul se deschide dupa George. Bannerul `need` de la T14 ramane. Niciodata "Game Over".
+2. `tests/george.js` cu cele 13 verificari din G9, fiecare pusa sa pice cu `MUTA=n`. Il adaugi in `tests/toate.sh`, dupa `cota.js`.
+3. `tests/toate.sh` intreg, cu `errors 0` si fara `NEREUSIT`.
+4. Documentatia: `03-config.md`, `09-niveluri.md`, `10-gameplay.md`, `11-mini-lupte.md`, `12-desen-si-hud.md`, `17-testare.md`, `19-limitari.md`, `16-decizii.md` (deciziile din G2, cu motivele) si `23-update-partea-a-doua.md` (T15.1 - T15.6 marcate "Facut").
+5. `CLAUDE.md`: regulile 6 si 9 si tabelul "Unde gasesti lucrurile" (`CONFIG.lupta.george`, `keepEnough`).
+6. `node tools/gen-docs.js` si `./build.sh`.
+
+Gata cand: `tests/toate.sh` trece intreg. Capturile (ro si en) sunt privite cu ochiul. Spui in raport ce nu s-a putut verifica fara copii (G11).
+
+Nu face: nu lasa nivelul sa se termine fara George.
+````
