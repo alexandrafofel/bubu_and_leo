@@ -191,6 +191,10 @@ const CONFIG = {
     freeze: 0.06,          // seconds the game holds its breath at a big hit (S7.6). 0 = off
     maxLights: 24,         // lights drawn in one frame. The ones nearest the middle of the screen win
     lightGlow: 0.6,        // how strong the lights of the light map are over the ambient (the darker the ambient, the stronger)
+    kick: 0.04,            // at a big hit the camera comes closer by this much (4%) in kickIn seconds and goes back in kickOut (S7.6). 0 = no zoom
+    kickIn: 0.15,
+    kickOut: 0.4,
+    anticipate: 0.15,      // seconds a mechanism, or George before an attack, pulls back before it goes (S7.6). 0 = none
     halo: 0.5,             // glow over the things that give light (torches, crystals, lava): alpha 0.35 - 0.6 around this value (S7.5). 0 = none
     haloMax: 12,           // at most this many halos in one frame
     waves: true,           // the water of the new levels: two rows of waves, a reflection and sparkles. false = the old shimmer
@@ -521,6 +525,18 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const dist = (ax, ay, bx, by) => Math.hypot(ax - bx, ay - by);
 const ease = t => t * t * (3 - 2 * t);
 const easeOut = t => 1 - (1 - t) * (1 - t);
+/* easeBack (T6.9): goes to 1, goes past it by 8% and comes back. t in 0..1 -> 0..1.08..1. A bridge, a gate or a raft that stops
+   "with weight" uses it instead of easeOut. (The overshoot of 1 + (c+1)(t-1)^3 + c(t-1)^2 is 1 + c*s^2/3 with s = 2c/(3(c+1)): 8% for c = 1.5.) */
+const easeBack = t => { t = Math.max(0, Math.min(1, t)) - 1; return 1 + 2.5 * t * t * t + 1.5 * t * t; };
+/* The way of a mechanism (a bridge, a gate, a raft) as a fraction: first it pulls back by `pull` (6%) for CONFIG.look.anticipate
+   seconds (0.15), then it goes to 1 in `dur` seconds with easeBack (it passes 1 by 8% and settles). t = seconds since it was told to move.
+   0 at the start, -pull at the end of the pull-back, 1 at the end. */
+function mechMove(t, dur, pull) {
+  const A = CONFIG.look.anticipate, p = pull == null ? 0.06 : pull;
+  if (A <= 0) return easeBack(t / dur);                                  // anticipate: 0 = no pull-back
+  if (t < A) return -p * easeOut(Math.max(0, t) / A);
+  return -p + (1 + p) * easeBack((t - A) / dur);
+}
 
 function rng(seed) {                 // small seeded random generator
   let a = seed >>> 0;
@@ -1727,10 +1743,12 @@ const Snd = (() => {
     gloves(b, t) { for (let i = 0; i < 2; i++) noise(b, t + i * 0.12, 0.14, 0.012, 0.13, 'bandpass', 500, 1400, 1.2); osc(b, 'sine', 900, t + 0.1, 0.09, 0.01, 0.08, { f2: 700, gt: 0.07 }); },
     // The ten seconds: a soft wooden knock every second (higher in the last three), and the three kind notes of "Încă o dată!"
     tick(b, t, v) { osc(b, 'sine', v > 0.5 ? 880 : 660, t, 0.14, 0.004, 0.05, { f2: v > 0.5 ? 760 : 580, gt: 0.04 }); },
+    // a mechanism clicks before it moves (T6.9): a short soft wooden "tic" with a spark of air
+    click(b, t) { osc(b, 'triangle', 1250, t, 0.12, 0.002, 0.045, { f2: 900, gt: 0.04 }); noise(b, t, 0.04, 0.001, 0.05, 'bandpass', 2600, 1800, 2.0); },
     retry(b, t) { [72, 67, 64].forEach((n, i) => marimba(b, mtof(n), t + i * 0.16, 0.3)); chime(b, mtof(79), t + 0.42, 0.1); }
   };
   /* Running (L3) in the first game too: the same short soft whoosh. */
-  fx.dash = fx2.dash; fx.tick = fx2.tick; fx.retry = fx2.retry;
+  fx.dash = fx2.dash; fx.tick = fx2.tick; fx.retry = fx2.retry; fx.click = fx2.click;
   const CHR = { egg: 1, star: 1, giant: 1, stomp: 1, kick: 1, bounce: 1, bonk: 1, drop: 1, squelch: 1, step: 1, swish: 1, heal: 1, grab: 1, dash: 1, bone: 1, tock: 1, gloves: 1 };
   /* play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. */
   function play(name, arg, k, vol) {
@@ -4040,7 +4058,7 @@ function makeEgg(x, y, o) {
 function startPlay(L) {
   const bs = !!L.boss;
   P = { L, eggs: [], stars: L.stars, parts: [], rings: [], wave: -1, time: 0, sinceEgg: 0, levelEggs: 0, levelStars: 0, combo: 0, comboT: 0,
-    cam: { x: L.spawn.x, y: L.spawn.y, zoom: 1 }, shake: 0, wind: { t: CONFIG.windEvery * 0.7, state: 'calm', dir: 1, power: 0 },
+    cam: { x: L.spawn.x, y: L.spawn.y, zoom: 1 }, shake: 0, freeze: 0, kickT: 99, latch: {}, wind: { t: CONFIG.windEvery * 0.7, state: 'calm', dir: 1, power: 0 },
     bfly: null, bflyT: 20 + Math.random() * 12, bflyCount: 0, crow: null, nestOpen: false, nestT: 0, done: false, doneT: 0, banner: null,
     tut: [{ moved: 0, used: false, used2: false, ran: false }, { moved: 0, used: false, used2: false, ran: false }], runHint: 0, runHintDone: false, nextWaveT: -1, waveNeed: 1, waveGot: 0, duel: null, hits: 0, hintCharge: 0, rumbleT: 0, bounceT: 0, glint: 0,
     heroes: [makeHero(0, bs ? 700 : L.spawn.x - 55, bs ? 830 : L.spawn.y), makeHero(1, bs ? 1220 : L.spawn.x + 55, bs ? 830 : L.spawn.y + 10)],
@@ -4075,6 +4093,40 @@ function startWave(k) {
 function part(x, y, o) {
   if (P.parts.length > 520) P.parts.splice(0, 40);
   P.parts.push(Object.assign({ x, y, vx: 0, vy: 0, g: 0, life: 1, max: 1, size: 6, col: '#FFE08A', kind: 'dot', rot: Math.random() * TAU, vr: 0, drag: 0 }, o));
+}
+/* ---------- The weight of a hit (T6.9, S7.6) ----------
+   bigHit(): the game holds its breath for CONFIG.look.freeze seconds (updatePlay does not run, the drawing does) and the camera comes
+   closer by look.kick in look.kickIn seconds and goes back in look.kickOut. Called when a guardian is hit and when George falls;
+   a gate that opens or a boulder that falls (T7) calls it too. The shake (P.shake) is separate and unchanged. */
+function bigHit() {
+  const K = CONFIG.look;
+  if (K.freeze > 0) P.freeze = Math.max(P.freeze, K.freeze);
+  if (K.kick > 0) P.kickT = 0;
+}
+/* The zoom of the camera at this moment: 1 + kick while it comes closer (easeOut) and while it goes back (easeOut the other way). */
+function kickZoom() {
+  const K = CONFIG.look, t = P.kickT;
+  if (K.kick <= 0 || t >= K.kickIn + K.kickOut) return 1;
+  return 1 + K.kick * (t < K.kickIn ? easeOut(t / K.kickIn) : 1 - easeOut((t - K.kickIn) / K.kickOut));
+}
+/* Called every frame before updatePlay. True while the game holds its breath: then updatePlay must not run. A button that is pressed or
+   let go in these frames (they last 0.06 s, three or four frames) is not lost: it is kept and given to the first frame that runs. */
+const EDGES = ['aP', 'aR', 'cP', 'cR', 'hP', 'runP'];
+function holdBreath(dt) {
+  P.kickT += dt;
+  const slots = Input.slots;
+  if (P.freeze > 0) {
+    P.freeze -= dt;
+    for (let k = 0; k < 2; k++) for (const e of EDGES) if (slots[k][e]) (P.latch[k] || (P.latch[k] = {}))[e] = true;
+    return true;
+  }
+  for (const k in P.latch) { for (const e in P.latch[k]) slots[k][e] = true; delete P.latch[k]; }
+  return false;
+}
+/* A mechanism clicks and sparks just before it moves (anticipation, S7.6). The pull-back itself is mechMove (02-core.js). */
+function mechClick(x, y) {
+  Snd.play('click');
+  burst(x, y, 5, { speed: 140, life: 0.35, size: 5 });
 }
 function burst(x, y, n, o) {
   o = o || {}; const cols = o.cols || ['#FFE08A', '#FFF3C0', '#F8C24E'];
@@ -4687,7 +4739,7 @@ function bossBall(b) {
   const bs = P.boss, L = P.L, g = bossGoal();
   if (dist(b.x, b.y, g.x, g.y) > g.r) return;
   if (bs.state === 'down') {
-    bs.phase++; Snd.play('goal'); Snd.talk(0, 'bossDown'); Snd.talk(1, 'bossDown'); Input.rumble(0, 0.7, 0.9, 350); Input.rumble(1, 0.7, 0.9, 350); P.shake = 0.3; b.state = 'return';
+    bs.phase++; Snd.play('goal'); Snd.talk(0, 'bossDown'); Snd.talk(1, 'bossDown'); Input.rumble(0, 0.7, 0.9, 350); Input.rumble(1, 0.7, 0.9, 350); P.shake = 0.3; b.state = 'return'; bigHit();
     burst(g.x, g.y, 50, { speed: 380, life: 1.4, size: 11 }); burst(g.x, g.y, 24, { kind: 'petal', cols: PETALS, speed: 260, life: 1.8, g: 80 });
     for (let i = 0; i < 8; i++) P.eggs.push(makeEgg(260 + Math.random() * 1400, 660 + Math.random() * 340, { state: 'pop', sx: g.x, sy: g.y, req: false, delay: i * 0.07 }));
     if (bs.phase >= CONFIG.boss.hits) { bs.state = 'won'; bs.t = 0; Snd.music('ending'); for (const p of bs.proj) p.dead = true; }
@@ -4705,6 +4757,7 @@ function updateBoss(dt) {
   if (bs.state === 'up') {
     bs.x = L.nest.x; bs.y = L.nest.y + 6;
     if (!P.heroes.some(h => h.down)) bs.throwT -= dt;      // nothing new is thrown while a hero waits for the friend's help
+    bs.windup = bs.throwT > 0 && bs.throwT < CONFIG.look.anticipate && CONFIG.look.anticipate > 0 && !P.heroes.some(h => h.down) ? 1 - bs.throwT / CONFIG.look.anticipate : 0;      // 0 -> 1 in the 0.15 s before a throw: George pulls back (T6.9)
     if (bs.throwT <= 0) {
       bs.throwT = B.throwEvery[Math.min(bs.phase, B.throwEvery.length - 1)] || 2.5;
       // one thing thrown at first, two from the second round, and one more in the last two rounds
@@ -4716,7 +4769,7 @@ function updateBoss(dt) {
         if (sol) sol.throwT = 0.5;
         bs.proj.push({ sx: sol ? sol.x : bs.x, sy: sol ? sol.y - 60 : bs.y - 40, tx: tx + i * 50 * (Math.random() - 0.5), ty, t: -i * 0.35, dur: [1.9, 1.4, 1.15][rank(h.k)], rot: 0, kind: sol ? 'spear' : L.arena ? 'rock' : 'cone' });
       }
-      bs.throwAnim = 0.4;
+      bs.throwAnim = 0.4; bs.windup = 0;
     }
   } else if (bs.state === 'falling') {
     const u = Math.min(1, bs.t / 0.8); bs.x = lerp(bs.sx, bs.fx, u); bs.y = lerp(bs.sy, bs.fy, u * u);
@@ -5030,7 +5083,7 @@ function duelEggs(n) {
 }
 function duelHit(k) {
   const d = P.duel, h = P.heroes[k], last = d.hp <= 1;
-  d.hp--; d.flash = 0.6; P.shake = Math.max(P.shake, 0.3);
+  d.hp--; d.flash = 0.6; P.shake = Math.max(P.shake, 0.3); bigHit();
   Snd.play('goal'); Snd.play('squeak', 1 + (d.maxHp - d.hp) * 0.1); Snd.talk(k, last ? 'guardGone' : 'guardHit');
   Input.rumble(0, 0.6, 0.8, 260); Input.rumble(1, 0.6, 0.8, 260);
   burst(d.x, d.y - 40 - d.z, 34, { speed: 320, life: 1.1, size: 10 }); burst(d.x, d.y - 40 - d.z, 14, { kind: 'petal', cols: PETALS, speed: 240, life: 1.4, g: 90 });
@@ -5537,7 +5590,7 @@ function drawProjs(c, list) {
 }
 
 function drawWorld(c) {
-  const L = P.L, cam = P.cam, z = cam.zoom, vw = W / z, vh = H / z, t = P.time;
+  const L = P.L, cam = P.cam, z = cam.zoom * kickZoom(), vw = W / z, vh = H / z, t = P.time;      // kickZoom: the camera comes closer at a big hit (T6.9)
   let l = cam.x - vw / 2, tp = cam.y - vh / 2;
   if (P.shake > 0) { l += Math.sin(t * 90) * P.shake * 22; tp += Math.cos(t * 77) * P.shake * 22; }
   const tpMin = -(HUD_TOP + 20) / z;         // the camera may look above the top edge of the world, so no hero hides under the band
@@ -6176,6 +6229,7 @@ function drawGeorgeBoss(c, o, t) {
   if (!up) castShadow(c, o.x, (st === 'down' || st === 'won') ? o.y + 4 : 660, 100 * S, 70 * S, 21, 1);   // the cast shadow of S7.1
   c.save(); c.translate(o.x + (up ? Math.sin(t * 38) * o.treeShake * 9 : 0), o.y + (up ? 34 + Math.sin(t * 3) * 3 : 0));
   if (st === 'falling') c.rotate(o.t * 9);
+  if (o.windup > 0) { const w = easeOut(o.windup); c.translate(0, -12 * w); c.scale(1 - 0.05 * w, 1 + 0.07 * w); c.rotate(-0.1 * w); }      // anticipation: he draws back before he throws (T6.9)
   drawGeorge(c, 0, st === 'falling' ? 40 : 0, { tail: tailFollow(o, o.x, t, 260), scale: S, t: t, face: st === 'won' ? 1 : (P.heroes[0].x + P.heroes[1].x < o.x * 2 ? -1 : 1), mood, moving: st === 'won' && o.t > 1.2, walk: t * 18, noCrown: st === 'won' });
   c.restore();
   if (st === 'down') drawDizzyStars(c, o.x + 30, o.y - 190, t);
@@ -7234,7 +7288,7 @@ function update(dt) {
       const lost = Input.slots.findIndex(s => s.lost);
       if (lost >= 0) UI.lostK = lost;
       if (Input.pause || lost >= 0) { Game.paused = true; UI.pauseSel = 0; UI.ask = null; Snd.setDuck(0.35); }
-      else updatePlay(dt);
+      else if (!holdBreath(dt)) updatePlay(dt);      // not while the game holds its breath after a big hit (T6.9)
     }
   } else if (st === 'levelEnd') {
     UI.lvlT += dt; stepParts(dt);

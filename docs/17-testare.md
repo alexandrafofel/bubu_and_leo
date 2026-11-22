@@ -445,3 +445,49 @@ Harta de lumina se numara acum ca "luminile (cel mult 24) plus halourile (cel mu
 12 defecte puse pe rand, 12 prinse: alpha prea mare la praf, praf care nu se misca, scantei care coboara, valuri in acelasi sens, `createPattern` pe cadru, fara oglindire, halou prea puternic, `haloMax` ignorat, valuri gri, prea multe sclipiri, praf pe nivelurile vechi, `motes: 0` care tot deseneaza. **Unul a trecut prima data** (praful care nu urca, doar se leagana pe orizontala); testul a fost intarit cu verificarea directiei si defectul prins.
 
 Scripturile de o singura data (`tests/tmp/apa-proba.js`, `perf-cadru3.js`, `perf-cadru4.js`, `capturi-t68.js`) nu intra in depozit. Capturile: `24-apa-nou.jpg`, `24-apa-vechi.jpg`, `24-halouri.jpg`.
+
+## Update 22 noiembrie 2026: greutatea miscarii (sarcina T6.9)
+
+Test permanent nou, **`tests/greutate.js`** (in `toate.sh`, inainte de `performanta.js`):
+
+| Ce verifica | Rezultat |
+|---|---|
+| `easeBack`: 0 -> 0, 1 -> 1, varful 1.08 (nu 1.05, nu 1.12) la t = 0.6, urca o data si coboara o data. | OK |
+| `mechMove`: tragerea inapoi e treptata (la jumatate, 75% din 6%), minimul -0.06 la 0.15 s, varful 1.0848, ajunge la 1; cu `anticipate: 0` nu se trage deloc. | OK |
+| `bigHit`: `P.freeze` = 0.06; `updatePlay` nu ruleaza 4 cadre, apoi ruleaza; **`drawPlay` ruleaza in toate cele 8 cadre**; `freeze: 0` = nimic nu se opreste; `P.shake` nu se schimba. | OK |
+| ✕ apasat in al doilea cadru oprit ajunge la primul cadru care ruleaza. | OK |
+| Apropierea: zoom 1 la 0, 1.04 la 0.15 s, 1 dupa 0.55 s; `kick: 0` = fara; desenul cu zoom nu da erori. | OK |
+| Paznicul lovit si George cazut cheama `bigHit` (oprire 0.06, `kickT` 0). | OK |
+| George: `windup` creste in cele 9 cadre dinaintea aruncarii, 0 inainte si dupa; aruncarea ramane la 30 de cadre cu si fara; cu `anticipate: 0` e exact 0; cat asteapta un erou ajutor, e 0. | OK |
+
+### Verificat ca poate sa pice
+
+15 defecte puse pe rand; **12 prinse din prima, 3 au trecut**: (1) tragerea inapoi inlocuita cu un salt (testul se uita doar la minim: acum verifica ca e treptata); (2) `windup` negativ cu `anticipate: 0` (testul accepta orice sub 0: acum cere exact 0); (3) `kick: 0` fara test de `kick <= 0`: **mutant echivalent** (`kick: 0` da oricum zoom 1), nu e un defect. Dupa intarirea testelor, defectele (1) si (2) sunt prinse: 14 din 14 defecte reale.
+
+Din `toate.sh` nu cade niciun alt test din cauza cadrelor oprite.
+
+## Update 22 noiembrie 2026: testul stilului grafic intreg si bugetul de timp (sarcina T6.10)
+
+`tests/stil-grafic.js` primeste partea finala:
+
+| Verificare | Cum |
+|---|---|
+| Pixeli negri sau gri | 29 de scene (ro si en, acuarela si diorama, nivelurile 1 - 6 si lupta cu George, mini-lupta). Fractia de pixeli cu R = G = B si sub 200 trebuie sa fie sub 0.1%. Cel mai rau caz masurat: 0.0103% (en, acuarela, nivelul 4). |
+| Nimic interzis la fiecare cadru | 36 de functii ale stilului nou (`lit`, `drawLightMap`, `drawMotes`, `drawWater`, `holdBreath`, pictorii eroilor...) citite cu `toString`, fara comentarii: niciuna nu are `createRadialGradient`, `createPattern`, `shadowBlur`. O functie din lista care lipseste din cod strica testul. |
+
+`tests/performanta.js` primeste **bugetul de timp** (S7.7): nivelul 6 cu tot stilul nou aprins (`preview`, `lights`, `front`, `waves`, `motes`, `halo`) si cu el stins, in cinci runde alternate; se ia cel mai bun cadru din fiecare. Afiseaza `buget OK: cadrul nou e N% peste cel vechi (limita 20%)` sau `buget NEREUSIT`. Valorile din trei rulari: +14%, +4%, +13%. Cu mediana in loc de minim, zgomotul (±2 ms sub SwiftShader) dadea pana la +20%, de aceea e minimul din cinci.
+
+**Verificat ca poate sa pice:** patru defecte puse pe rand in `drawMotes`, toate prinse: un dreptunghi gri #808080 pe tot ecranul, un `createRadialGradient`, un `shadowBlur`, o asteptare de 8 ms pe cadru (aceasta de `performanta.js`).
+
+### Lista S7.8 (capturi `capturi/24-final-ro-3.jpg`, `24-final-ro-6.jpg`, `24-final-en-3.jpg`, `24-final-en-6.jpg`)
+
+| # | Intrebare | Raspuns |
+|---|---|---|
+| 1 | Se vede de unde vine lumina? | da (halouri la torte si cristale, lumina calda langa eroi) |
+| 2 | Obiectele mari au umbra pe pamant, in aceeasi directie? | da |
+| 3 | Se poate spune din ce e facut fiecare lucru? | da (solzi, panza, piatra, lemn, cristal, apa) |
+| 4 | Ceva in fata si ceva in departare? | da (frunze si stanci in fata, munti si luna in spate) |
+| 5 | Eroii sunt cei mai luminosi si limpezi? Se gasesc in sub o secunda? | da (inel colorat la picioare, nume deasupra) |
+| 6 | Planul din fata si scrisul de sus nu ii acopera? | da (400 de asezari testate) |
+| 7 | Niciun pixel negru sau gri curat? | da (script: max 0.0103%) |
+| 8 | Copilul isi recunoaste desenul in Boon, Killer, George? | **nu s-a putut verifica de aici**: formele si culorile din desene nu s-au schimbat, dar numai copiii pot spune (`capturi/24-personaje-comparatie.jpg`) |

@@ -359,3 +359,21 @@ Cererea proprietarei: "scoate jocul Bubu si Leo, lasa doar Cea mai grea lupta. M
 | Praful e in spatiul ecranului, dupa `P.time`, cel mult 0,1 s pe cadru. | Cerut de S7.5. Cu pauza se opreste; la un cadru lung nu sare. |
 | Felul prafului (scantei, spori, praf) vine din `L.def.key`. | Vulcanul si pestera (T10, T11) nu exista inca; cheile lor vin din `docs/25`. |
 | Testul verifica si directia verticala a punctelor, nu doar ca "se misca". | Prima versiune a testului nu prindea un praf care se leagana doar pe orizontala (`m.y += 0`): defectul pus intentionat a trecut. |
+
+## Greutatea miscarii (sarcina T6.9, 22 noiembrie 2026)
+
+| Hotarare | De ce |
+|---|---|
+| Oprirea si apropierea sunt in toate nivelurile, nu doar pe cele cu `look: 'diorama'`. | Sunt miscare, nu pictura: un paznic lovit trebuie sa se simta la fel peste tot. Se pot opri cu `freeze: 0` si `kick: 0`. |
+| Fronturile butoanelor apasate in timpul opririi se tin minte (`P.latch`). | `Input.poll` le da pentru un singur cadru; la 0.06 s (3 - 4 cadre) o apasare de ✕ sau □ s-ar fi pierdut si copilul ar fi simtit o putere "inghitita". |
+| Zoom-ul se inmulteste in `drawWorld`, `P.cam.zoom` nu se atinge. | Camera isi are netezirea ei (`camTarget`); un zoom pus in ea s-ar fi luptat cu ea si ar fi lasat urme dupa lovitura. |
+| Anticiparea lui George e o tragere in cele 0.15 s dinaintea aruncarii, nu o intarziere. | Ritmul luptei (`CONFIG.boss.throwEvery`) ramane cel testat si cel cu care copiii s-au obisnuit; testul verifica ca momentul aruncarii nu se schimba (30 de cadre cu si fara). |
+| `mechMove` da fractia, nu pozitia. | Fiecare mecanism (pod, poarta, pluta) isi inmulteste fractia cu drumul lui; T7 le foloseste pe toate la fel. |
+| Tragerea inapoi a mecanismelor e de 6% si depasirea de 8%, ambele reglabile. | 8% e cifra din S7.6; 6% pentru tragere e aleasa sa se vada in 0.15 s fara sa para ca se strica mecanismul. |
+| Sunetul `click` nu e al unui erou (nu e in `CHR`). | Clicul e al lumii: se aude pe boxele calculatorului, nu in difuzorul unui controller. |
+
+## Testul stilului grafic si bugetul (sarcina T6.10, 22 noiembrie 2026)
+
+- **Buget masurat ca minim din cinci runde alternate**, nu ca mediana: sub SwiftShader mediana oscila intre +4% si +20%, minimul intre +4% si +14%. Limita de 20% din S7.7 ramane.
+- **Lista de functii in loc de cautare in tot codul** pentru `createRadialGradient`/`createPattern`/`shadowBlur`: codul vechi are ~40 de gradienti pe cadru si ar strica testul; stilul nou n-are niciunul. Functiile noi se adauga in lista.
+- **Pixeli gri: R = G = B sub 200**, exact regula din S7.8, pe 29 de scene.

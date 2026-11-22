@@ -273,7 +273,7 @@ Harta de lumina ia locul vinietei de noapte din `makeOverlay` pe nivelurile noi.
 
 **Praf in lumina.** 40 de puncte foarte mici care plutesc incet prin tot ecranul (in spatiul ecranului, nu al lumii), alpha 0.15 - 0.4, mai vizibile langa lumini. Pe vulcan sunt scantei care urca. In pestera, spori care coboara.
 
-### S7.6 Miscare si "greutate"
+### S7.6 Miscare si "greutate" - **facuta (T6.9, 22 noiembrie 2026)**; "Viata" (respiratie, coada) vine din T6.5
 
 | Efect | Cand | Cum |
 |---|---|---|
@@ -283,6 +283,8 @@ Harta de lumina ia locul vinietei de noapte din `makeOverlay` pe nivelurile noi.
 | Anticipare | Inaintea oricarui atac al lui George si a oricarei miscari de mecanism. | Obiectul se trage inapoi 0.15 s, apoi porneste. Mecanismele scot un "clic" si o scanteie inainte sa se miste. |
 | Urmare | Dupa. | Depaseste tinta cu 8% si revine (o functie noua, `easeBack`, langa `easeOut` in `02-core.js`). Podurile, portile, pluta. |
 | Viata | Mereu. | Tot ce e viu respira. Tot ce atarna se leagana. Flacarile, apa si lava nu stau nicio clipa. |
+
+Descrierea: `12-desen-si-hud.md`, "Update 22 noiembrie 2026 (T6.9)". **Ce s-a facut altfel:** oprirea si apropierea sunt in toate nivelurile; fronturile butoanelor apasate in cadrele oprite se tin minte; anticiparea lui George e o tragere in cele 0.15 s dinaintea aruncarii (nu o intarziere); `mechMove` da fractia unui mecanism; poarta si bolovanul vin cu T7.
 
 ### S7.7 Bugetul de timp
 
@@ -310,6 +312,8 @@ look: {
   maxLights: 24
 },
 ```
+
+*Sectiunile S7.1 - S7.8 sunt implementate (T6.1 - T6.10, noiembrie 2026); textul de mai jos e specificatia, ramasa ca istoric. Starea reala: `docs/16-decizii.md`, `docs/17-testare.md`, `docs/19-limitari.md`.*
 
 ### S7.8 Lista de verificare pentru capturi
 
