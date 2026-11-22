@@ -44,32 +44,32 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 99-224 | the second game, "Cea mai grea luptă". A key that starts with L: takes the place of the same key without it. |
 | 225-233 | Readable name of a keyboard key, for the "choose the keys" screen. |
 
-## 02-core.js (702 linii)
+## 02-core.js (725 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 2-45 | CORE: math, colors, watercolor painting helpers, paper texture, text |
 | 46-62 | A closed blob with slightly irregular, hand-painted edges. |
 | 63-81 | Watercolor wash: a few translucent layers plus a soft darker rim where pigment pools. |
-| 82-167 | Opaque painted shape for characters: solid fill with a soft colored rim. |
-| 168-263 | The pattern of a tile of w x h units. sprite() paints at double size, so the pattern is shrunk by half to be w x h again. |
-| 264-404 | The materials of the world (T6.3): wood, metal, stone, crystal, leaf, lava |
-| 405-427 | A wobbly brush line through points. |
-| 428-460 | Paper: noise-generated grain, soft blotches and a few fibers. Multiplied over the whole screen. |
-| 461-472 | Per-scene overlay = paper + warm light tint + soft violet-brown vignette. |
-| 473-510 | Sky colors drift from afternoon (t=0) to sunset (t=1) to dusk (t=1.3). |
-| 511-535 | The sky of the second game: night, a big moon, stars and northern lights in the seven rainbow colors. |
-| 536-551 | Two rows of pointed mountains with pale snow on top, for George's arena. |
-| 552-570 | Layered distant hills along a horizon line. night = the colors are used as they are (no afternoon haze). |
-| 571-598 | Text. No black outlines: a soft cream halo and a warm shadow instead. |
-| 599-608 | The ✕ button as a painted icon (blue cross on a cream disc). |
-| 609-618 | The □ button as a painted icon (pink square on a cream disc): help the friend. |
-| 619-619 | Text that may contain ✕ or □, drawn with the painted icons. Returns nothing. |
-| 620-629 | ○: help the friend. Same shape as ✕ and □, in the warm coral of the ○ button. |
-| 630-642 | L3: the cap of the left stick with the letter L and a little arrow pressing it down. |
-| 643-666 | The four button signs that can stand inside a text: ✕ □ ○ and ◉ (= L3, pressing the left stick). |
-| 667-668 | A painted card (panel) used by menus and story screens. |
-| 669-702 | Things that never change are painted once and then stamped: much faster per frame. |
+| 82-190 | Opaque painted shape for characters: solid fill with a soft colored rim. |
+| 191-286 | The pattern of a tile of w x h units. sprite() paints at double size, so the pattern is shrunk by half to be w x h again. |
+| 287-427 | The materials of the world (T6.3): wood, metal, stone, crystal, leaf, lava |
+| 428-450 | A wobbly brush line through points. |
+| 451-483 | Paper: noise-generated grain, soft blotches and a few fibers. Multiplied over the whole screen. |
+| 484-495 | Per-scene overlay = paper + warm light tint + soft violet-brown vignette. |
+| 496-533 | Sky colors drift from afternoon (t=0) to sunset (t=1) to dusk (t=1.3). |
+| 534-558 | The sky of the second game: night, a big moon, stars and northern lights in the seven rainbow colors. |
+| 559-574 | Two rows of pointed mountains with pale snow on top, for George's arena. |
+| 575-593 | Layered distant hills along a horizon line. night = the colors are used as they are (no afternoon haze). |
+| 594-621 | Text. No black outlines: a soft cream halo and a warm shadow instead. |
+| 622-631 | The ✕ button as a painted icon (blue cross on a cream disc). |
+| 632-641 | The □ button as a painted icon (pink square on a cream disc): help the friend. |
+| 642-642 | Text that may contain ✕ or □, drawn with the painted icons. Returns nothing. |
+| 643-652 | ○: help the friend. Same shape as ✕ and □, in the warm coral of the ○ button. |
+| 653-665 | L3: the cap of the left stick with the letter L and a little arrow pressing it down. |
+| 666-689 | The four button signs that can stand inside a text: ✕ □ ○ and ◉ (= L3, pressing the left stick). |
+| 690-691 | A painted card (panel) used by menus and story screens. |
+| 692-725 | Things that never change are painted once and then stamped: much faster per frame. |
 
 ## 03-audio.js (550 linii)
 
@@ -119,25 +119,27 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 334-335 | The small enemy that sleeps and wakes up: a beetle, or one of George's robots. |
 | 336-338 | The small enemy that comes down a lane: a rolling pinecone, or a sticky snail. |
 
-## 055-lupta.js (406 linii)
+## 055-lupta.js (513 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 2-10 | THE SECOND GAME, "CEA MAI GREA LUPTĂ": its characters and things. |
-| 11-80 | A soft tapered tube along a curve: tails, necks, arms, legs. |
-| 81-130 | KILLER: the big one's hero. A footballer all in blue, number 10, big red boots, a round head with big eyes and a wide grin. |
-| 131-212 | Killer's ball, like in the drawing: white, with hexagons. |
-| 213-249 | One of George's robots: asleep (a slow light), awake (!), chasing, dizzy. Same states as the beetle of the first game. |
-| 250-274 | A sticky snail that crawls down its lane and leaves a shiny trail. o.state 'stun' = it hides in its shell. |
-| 275-293 | A big jungle bird. It flies high: only its shadow touches the ground. o.grab = it carries a hero. o.spy = the small one that brings news to George. |
-| 294-317 | A rainbow crystal: a cut gem in one of the seven colors, with a soft glow. |
-| 318-329 | The secret star hidden behind the door: big, golden, with a ring in all the rainbow colors. |
-| 330-343 | The helper of the second game: a little rocket. Whoever touches it makes both heroes fast. |
-| 344-356 | Things thrown in the second game: a glowing rock (George) and a spear (his soldiers). |
-| 357-376 | One of George's soldiers: a small lizard with a helmet and a spear. They stand around the arena. throwT > 0 = it just threw. |
-| 377-388 | One goalkeeper glove: red, white palm, a blue star in the palm. sd = which side it points to. |
-| 389-401 | Boon's boomerang bone: two round ends and a shaft, cream amber, with a small crack. |
-| 402-406 | What a thrown thing looks like: Killer's and Leo's ball, or Boon's bone. |
+| 11-87 | A soft tapered tube along a curve: tails, necks, arms, legs. |
+| 88-132 | A round part (body, head, boot) in the new look: the same blob as puff(). |
+| 133-189 | Killer's 10, "sewn on": a patch around the digits and a dotted cream stitch just outside them. |
+| 190-237 | KILLER: the big one's hero. A footballer all in blue, number 10, big red boots, a round head with big eyes and a wide grin. |
+| 238-318 | Killer's ball, like in the drawing: white, with hexagons. |
+| 319-355 | One of George's robots: asleep (a slow light), awake (!), chasing, dizzy. Same states as the beetle of the first game. |
+| 356-380 | A sticky snail that crawls down its lane and leaves a shiny trail. o.state 'stun' = it hides in its shell. |
+| 381-399 | A big jungle bird. It flies high: only its shadow touches the ground. o.grab = it carries a hero. o.spy = the small one that brings news to George. |
+| 400-423 | A rainbow crystal: a cut gem in one of the seven colors, with a soft glow. |
+| 424-435 | The secret star hidden behind the door: big, golden, with a ring in all the rainbow colors. |
+| 436-449 | The helper of the second game: a little rocket. Whoever touches it makes both heroes fast. |
+| 450-462 | Things thrown in the second game: a glowing rock (George) and a spear (his soldiers). |
+| 463-482 | One of George's soldiers: a small lizard with a helmet and a spear. They stand around the arena. throwT > 0 = it just threw. |
+| 483-495 | One goalkeeper glove: red, white palm, a blue star in the palm. sd = which side it points to. |
+| 496-508 | Boon's boomerang bone: two round ends and a shaft, cream amber, with a small crack. |
+| 509-513 | What a thrown thing looks like: Killer's and Leo's ball, or Boon's bone. |
 
 ## 06-level.js (965 linii)
 

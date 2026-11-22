@@ -120,7 +120,7 @@ function drawHeroFull(c, h) {
   // colored ground ring so each player finds their hero at a glance
   c.lineWidth = 6; c.strokeStyle = rgba(cfg.color, 0.85); c.beginPath(); c.ellipse(h.x, h.y + 2, 44, 17, 0, 0, TAU); c.stroke();
   if (h.k === 1) { c.lineWidth = 3; c.strokeStyle = rgba(cfg.color2, 0.85); c.beginPath(); c.ellipse(h.x, h.y + 2, 37, 13, 0, 0, TAU); c.stroke(); }
-  c.fillStyle = rgba(SHADOW, 0.22); c.beginPath(); c.ellipse(h.x - 6, h.y + 3, Math.max(10, 34 - h.z * 0.3) * h.small, 11 * h.small, 0, 0, TAU); c.fill();
+  castShadow(c, h.x, h.y + 2, 70 * h.small, 50 * h.small, 11 + h.k, clamp(1 - h.z / 300, 0.35, 1));   // the cast shadow of S7.1 (smaller and paler in the air)
   if (h.down) {                            // hit: waits for the friend. A ring in the friend's color pulses around the hero.
     const pu = 0.5 + 0.5 * Math.sin(t * 6);
     if (fr.k === 0) { c.fillStyle = rgba(fcfg.color, 0.1 + pu * 0.06); c.beginPath(); c.ellipse(h.x, h.y, CONFIG.rescue.reachNear, CONFIG.rescue.reachNear * 0.6, 0, 0, TAU); c.fill(); }   // the first hero must step into this circle
@@ -658,7 +658,7 @@ function drawThrone(c) {
 function drawGeorgeBoss(c, o, t) {
   const L = P.L, st = o.state, up = st === 'up', S = CONFIG.lupta.bossSize * (o.sc || 1);
   const mood = st === 'won' ? 'scared' : (st === 'down' || st === 'falling') ? 'dizzy' : (o.throwAnim > 0 || o.bat > 0 || o.rings.length) ? 'angry' : 'calm';
-  if (!up) { c.fillStyle = rgba(SHADOW, 0.22); c.beginPath(); c.ellipse(o.x, (st === 'down' || st === 'won') ? o.y + 4 : 660, 60 * (o.sc || 1), 18 * (o.sc || 1), 0, 0, TAU); c.fill(); }
+  if (!up) castShadow(c, o.x, (st === 'down' || st === 'won') ? o.y + 4 : 660, 100 * S, 70 * S, 21, 1);   // the cast shadow of S7.1
   c.save(); c.translate(o.x + (up ? Math.sin(t * 38) * o.treeShake * 9 : 0), o.y + (up ? 34 + Math.sin(t * 3) * 3 : 0));
   if (st === 'falling') c.rotate(o.t * 9);
   drawGeorge(c, 0, st === 'falling' ? 40 : 0, { scale: S, t: t, face: st === 'won' ? 1 : (P.heroes[0].x + P.heroes[1].x < o.x * 2 ? -1 : 1), mood, moving: st === 'won' && o.t > 1.2, walk: t * 18, noCrown: st === 'won' });

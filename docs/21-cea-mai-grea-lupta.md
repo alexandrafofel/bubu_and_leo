@@ -262,3 +262,30 @@ Fiecare erou are acum doua puteri. Detaliile si regulile: `10-gameplay.md`, "Upd
 Desene noi in `055-lupta.js`: `drawBone` (os crem-chihlimbar cu doua capete rotunde si o crapatura), `drawGlove` (manusa rosie cu palma alba si stea albastra), `drawThrown` (alege mingea sau osul). In `08-draw.js`: `drawGloveRing` (inelul manusilor, cu panglici si cercul punctat de pe pamant).
 
 Sunete noi (`fx2`): `bone` (trei note joase cu tremur, la aruncare), `tock` (lemn, la perete), `gloves` (doua "fuip" si un scartait de cauciuc). Cuvinte noi pentru amandoi eroii: `power2` si `power2Big`.
+
+## Update 22 noiembrie 2026 (T6.4): eroii si George in stilul nou
+
+Boon, Killer si George sunt pictati cu lumina stilului nou (`lit()`, `05-pictura.md`) si cu materialele lor. **Formele si culorile din desenele copiilor sunt aceleasi**: aceleasi puncte, aceleasi raze, aceleasi culori ca inainte. Se schimba doar felul in care e pictata fiecare parte. Semnaturile (`drawBoon`, `drawKiller`, `drawGeorge`) nu s-au schimbat.
+
+Foaia de personaje: `capturi/24-personaje.jpg` (noua), `capturi/24-personaje-vechi.jpg` (de dinainte) si amandoua alaturi in `capturi/24-personaje-comparatie.jpg`.
+
+| Erou | Ce trece prin `lit()` cu material | Ce trece prin `lit()` fara material |
+|---|---|---|
+| Boon | corpul, cupola, coada, gatul, capul: `scale` | spinii, picioarele, bratul, mana, botul |
+| Killer | tricoul (`fabric`, cu cusaturi si numarul 10 "cusut"), ghetele si manusile (`rubber`) | capul, bratele, picioarele, manecile, pantalonii |
+| George | corpul, coada (verde, apoi albastru), gatul: `scale`; coltii: `bone` | capul curcubeu, falcile, picioarele, bratul, laba roz |
+
+Coroana lui George a ramas cum era.
+
+### Cum e facut
+
+- **Un tub e acum un singur contur.** `tube()` desena o gramada de cercuri; `lit()` are nevoie de un drum inchis. `tubeSamples()` + `tubePath()` fac conturul din aceleasi bucati de curba (cel mult trei, una dupa alta). Coada lui Boon si a lui George sunt cate un singur tub, ca sa nu apara o linie de lumina la imbinare.
+- **Culoarea care se schimba de-a lungul unui tub** (coada lui George verde -> albastru, varful mai inchis al cozii lui Boon) e un gradient pus peste, inainte de textura (`col2`, `grad` in `litTube`).
+- **Partile mici primesc doar gradientul** (`lite` in `lit()`): fara `clip`, fara margine de lumina, fara textura. O parte mai subtire de 10 unitati (raza) si fara material e "mica". Cu toate partile prin `lit()` complet, cei trei costau de 3,5 ori cat pictorii vechi.
+- **Luciul doar unde trebuie:** corpul, capul, ghetele, manusile. Materialul nu mai da singur luciu partilor (un luciu pe fiecare picior ii facea sa arate ca niste bile de sticla).
+- **Marginea de lumina e mai subtire si mai slaba pe parti** (`rim`, `rimA`): o margine de 5 unitati pe un picior de 12 il acoperea aproape tot.
+- **Lumina nu se intoarce cu eroul.** Pictorii oglindesc tot eroul cand se uita spre stanga (`c.scale(-1, 1)`). `lit()` primeste `flip` si intoarce gradientul, marginea si pata de luciu, ca lumina sa vina mereu din stanga-sus a ecranului.
+- **Ochii** (`eyeLit`): doua luciri, una mare stanga-sus si una mica dreapta-jos, pe ecran, oricum s-ar uita eroul, si o umbra moale sub pleoapa (jumatatea de sus a ochiului, care se stinge in jos). Ochii inchisi, fericiti sau ametiti sunt cei vechi (`drawEye`).
+- **Numarul 10 "cusut"** (`sewNumber`): un petic putin mai deschis decat tricoul in jurul cifrelor si o cusatura punctata crem chiar in afara lor.
+- **Umbra de pe pamant** e umbra aruncata din S7.1 (`castShadow`, `02-core.js`): impinsa spre dreapta-jos, plus linia de contact sub picioare. In aer e mai mica si mai palida si nu are linie de contact. La fel la George in arena si la paznicii din mini-lupte.
+- Insignele din banda de sus sunt sprite-uri facute din aceiasi pictori: s-au refacut singure.
