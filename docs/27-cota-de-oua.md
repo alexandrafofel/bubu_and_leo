@@ -2,7 +2,7 @@
 
 > **Un singur joc (18 noiembrie 2026).** "Bubu și Leo" a fost scos. Tot ce e specificat aici se implementeaza **doar in "Cea mai grea luptă"**. Unde scrie "ambele jocuri", "primul joc", variante `L:` sau teste pentru `bubu`, se citeste: un singur joc, textele lui (varianta `L:`), un singur rand de teste. Nu se mai scrie cod pentru primul joc.
 
-Status: **specificatie, neimplementata.** Vezi `23-update-partea-a-doua.md` pentru cerere, hotarari si planul in 32 de sarcini, si `../prompts/06-prompt-partea-a-doua.md` (T14) pentru promptul gata de lipit.
+Status: **implementat pe 22 noiembrie 2026** (sarcinile T14.1 - T14.10). Capitolul ramane ca istoric al hotararilor; jocul de acum e descris in `10-gameplay.md`, `12-desen-si-hud.md` si `03-config.md`. Ce s-a schimbat fata de specificatie e notat in `16-decizii.md` si `19-limitari.md`. Pasul urmator, care scoate maximul si leaga luptele de diamante, e in `28-t15-george-de-doua-ori.md`.
 
 Cererea proprietarei, 18 noiembrie 2026, cuvant cu cuvant:
 

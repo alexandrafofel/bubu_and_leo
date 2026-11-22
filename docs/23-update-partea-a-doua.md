@@ -195,7 +195,7 @@ Starea e cea din `main` la 21 noiembrie 2026 (PR-urile #5 - #12 mergeate). **Mod
 | T14.7 | Facut (22 noiembrie 2026) | T14.2 | Sonnet | 1,5 - 2,5 h |
 | T14.8 | Facut (22 noiembrie 2026) | T14.4, T14.7 | Sonnet | 1 - 2 h |
 | T14.9 | Facut (22 noiembrie 2026) | T14.1 - T14.8 | Sonnet | 1,5 - 2,5 h |
-| T14.10 | De facut | T14.9 | Sonnet | 1,5 - 3 h |
+| T14.10 | Facut (22 noiembrie 2026) | T14.9 | Sonnet | 1,5 - 3 h |
 | T15.1 | De facut | T14.9 | Sonnet | 1 - 2 h |
 | T15.2 | De facut | T15.1 | Haiku | 45 - 90 min |
 | T15.3 | De facut | T15.2 | Sonnet | 1 - 2 h |
@@ -221,9 +221,9 @@ Se rescriu in `CLAUDE.md` in sarcina in care devin adevarate, nu inainte.
 |---|---|---|---|
 | 4 | "Stilul vizual: pictura in acuarela dintr-o carte pentru copii." | Se adauga: "Nivelurile 7 - 12 ale celui de-al doilea joc sunt pictate ca o diorama cu lumina (vezi `docs/24`, S7). Ramane valabil peste tot: fara contururi negre, fara gri, fara negru." | T6 |
 | 6 | "Un erou lovit (...) asteapta pe loc pana il ajuta prietenul cu □. (...) daca amandoi sunt loviti se ridica amandoi dupa cateva secunde." | "Jocul nu spune niciodata 'Game Over'. Un erou lovit asteapta pe loc. Prietenul are 10 secunde sa il ajute cu ○. Daca nu, nivelul reincepe de la inceput, cu mesajul 'Încă o dată!'. Un copil care joaca singur se ridica singur." | **T4 facuta** |
-| 8 | "✕ pentru putere, □ pentru a ajuta prietenul" | "✕ prima putere, □ a doua putere, ○ ajuta prietenul, L3 (apasarea stick-ului) fuga, L1 da un ou / cristal prietenului, OPTIONS pauza." | **T2 facuta** (fara L1), T14 (L1) |
+| 8 **(rescrisa, 22 noiembrie 2026)** | "✕ pentru putere, □ pentru a ajuta prietenul" | "✕ prima putere, □ a doua putere, ○ ajuta prietenul, L3 (apasarea stick-ului) fuga, L1 da un ou / cristal prietenului, OPTIONS pauza." | **T2 facuta** (fara L1), T14 (L1) |
 | 9 | "6 niveluri + lupta finala" | "Primul joc: 6 niveluri si o lupta finala. Al doilea: 12 niveluri si doua lupte mari. Minimum 10.000 de elemente pentru fiecare 6 niveluri." | T11 (cand exista toate nivelurile si a doua lupta mare), T12 (elementele) |
-| 10 | "Nivelul se termina doar cand amandoi jucatorii sunt in cuib." | "Nivelul se termina doar cand amandoi jucatorii sunt in cuib si fiecare si-a gasit cota de oua / cristale (`docs/27`)." | T14 |
+| 10 **(rescrisa, 22 noiembrie 2026)** | "Nivelul se termina doar cand amandoi jucatorii sunt in cuib." | "Nivelul se termina doar cand amandoi jucatorii sunt in cuib si fiecare si-a gasit cota de oua / cristale (`docs/27`)." | T14 |
 | noua, 11 | - | "In nivelurile 7 - 12 fiecare poarta are nevoie de amandoi eroii. Cu un singur jucator, jocul face singur partea celuilalt." | T7 |
 | 9 (a doua schimbare) | "minimum 30 de cuvinte pe erou, niciunul la fel cu ale primului joc" | "Fiecare erou are propria limba, cu cel putin 950 de cuvinte generate (`docs/26`). Niciun cuvant nu e la fel cu al altui erou." | T13 |
 

@@ -2,19 +2,21 @@
 // Care joc: variabila JOC (bubu sau lupta), sau primul argument: node tests/joc-complet-bot.js lupta
 const { chromium } = require('./pw.js');
 const GAME = process.argv[2] === 'lupta' || process.argv[2] === 'bubu' ? process.argv[2] : require('./pw.js').game;
+const { BALANSEAZA } = require('./common.js');
 (async () => {
   const browser = await chromium.launch({ executablePath: require('./pw.js').chrome, headless: true, args: ['--no-sandbox'] });
   const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
   const errs = [];
   page.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
   page.on('pageerror', e => errs.push('PAGEERROR ' + e.message + '\n' + e.stack));
+  await page.addInitScript(BALANSEAZA);              // window.balanseaza(): moves eggs from the hero over his quota to the one who still needs some (T14.10)
   await page.goto(require('./pw.js').url);
   await page.waitForTimeout(1000);
   await page.evaluate(() => { localStorage.clear(); });
   await page.mouse.click(900, 500); await page.waitForTimeout(400);
   await page.evaluate((GAME) => {
     const G = __game, I = G.Input, orig = I.poll; let f = 0;
-    window.bot = { on: true, log: [], rescues: 0, downs: 0 };
+    window.bot = { on: true, log: [], rescues: 0, downs: 0, given: 0 };
     I.poll = function (dt) {
       orig(dt); if (!bot.on) return; f++;
       const S = I.slots, st = G.Game.state, P = G.P;
@@ -40,10 +42,11 @@ const GAME = process.argv[2] === 'lupta' || process.argv[2] === 'bubu' ? process
       S[1].x = Math.sin(f / 50); S[1].y = Math.cos(f / 70);
       if (P.nestOpen) {
         h.x = L.nest.x - 40; h.y = L.nest.y; l.x = L.nest.x + 40; l.y = L.nest.y;
-        if (f % 8 === 0 && P.q && !P.gifts.length && !(G.quotaState(0).ok && G.quotaState(1).ok)) S[P.found[0] >= P.found[1] ? 0 : 1].gP = true;      // the quota (T14.4): the one with more gives to the one with less, with L1, one egg at a time (the next after the last has landed)
+        if (f % 8 === 0) { const n0 = P.gifts.length; balanseaza(); if (P.gifts.length > n0) bot.given++; }   // the quota (T14.10): the one with more gives to the one who still needs some, one egg at a time
         return;
       }
       if (f % 6) return;
+      if (f % 48 === 0 && P.q && G.quotaState(0).ok !== G.quotaState(1).ok) { const n0 = P.gifts.length; const did = balanseaza(); if (P.gifts.length > n0) bot.given++; if (did) return; }   // one is done, the other is not: share (T14.10)
       // the quota (T14.2): a full hero cannot take any more, so his friend goes and fetches the eggs left on the ground
       const take = P.q && P.found[0] >= P.cap && P.found[1] < P.cap ? l : h;
       let best = null, bd = 1e9;
@@ -70,8 +73,8 @@ const GAME = process.argv[2] === 'lupta' || process.argv[2] === 'bubu' ? process
     if (r.st.startsWith('title') && seen.ending) break;
     if (errs.length) break;
   }
-  const info = await page.evaluate(() => ({ game: __game.GAME, downs: bot.downs, pressed: bot.rescues }));
-  console.log('joc', info.game, '| eroi loviti care au asteptat ajutor:', info.downs, '| apasari pe cerc:', info.pressed);
+  const info = await page.evaluate(() => ({ game: __game.GAME, downs: bot.downs, pressed: bot.rescues, given: bot.given }));
+  console.log('joc', info.game, '| eroi loviti care au asteptat ajutor:', info.downs, '| apasari pe cerc:', info.pressed, '| oua date:', info.given);
   console.log(seen.ending && last.startsWith('title') && info.game === GAME ? 'joc-complet OK (' + GAME + ')' : 'NEREUSIT: jocul nu a ajuns la final');
   console.log('errors', errs.length); errs.slice(0, 6).forEach(e => console.log(e));
   console.log('save', await page.evaluate(() => localStorage.getItem(__game.CONFIG.saveKey)));

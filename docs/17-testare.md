@@ -406,3 +406,23 @@ Fiecare verificare a fost pusa sa pice (`autoGive` 0, fara intrarea jucatorului)
 Ruleaza verificarile 1 - 14 din `27-cota-de-oua.md` (C10) pe controllere false (butonul 4 = L1) si pe tastatura (tasta R). Iese cu `cota OK` sau `NEREUSIT: <numere>`, apoi `errors N`. Verificarile 15 si 16 le fac `joc-complet-bot.js`, `nivele-bot-mers.js` si `toate.sh`. Verificarea 14 porneste `hud-acoperire.js` cu `STRICT=1`. Culorile insignei se citesc din pixelii canvasului, dupa nuanta (hartia schimba putin culoarea).
 
 Dovada ca pot pica: `MUTA=n node ../cota.js` strica o regula (cota de nivel, `quotaOk`, `canTake`, `giveEgg`, raza L1, `quotaState`, bannerul, `bothJoined`, `hitHero`, intrarea la mijloc, `goal` pe oua, `autoGive`). Fiecare `n` din 1 - 13 da `NEREUSIT`.
+
+## Update 22 noiembrie 2026: botii si cota (T14.10)
+
+`balanseaza()` sta in `tests/common.js`, ca text injectat in pagina (`BALANSEAZA`), si e disponibila in orice test pornit cu `boot()`. Ea muta un diamant de la eroul care are peste cota la cel care inca are nevoie, prin `__game.giveEgg` (acelasi drum ca L1). Cand cei doi sunt mai departe de `giveRange`, intai apropie pe cel care da. Intoarce `false` cand nu e nimic de facut: un singur jucator, fara cota, sau amandoi gata.
+
+`joc-complet-bot.js` o cheama in doua locuri: in cuib (la fiecare 8 cadre) si pe drum, cand unul si-a terminat cota si celalalt nu. Asa nu mai apasa L1 orbeste. `nivele-bot-mers.js` joaca singur, deci `balanseaza()` nu i-ar face nimic; in schimb are acum un verdict propriu: fiecare nivel trebuie sa ajunga la `levelEnd`, fara blocaj, si eroul singur trebuie sa isi atinga cota.
+
+Timpii masurati in Chrome fara placa video (SwiftShader), deci mai mari decat pe un Mac:
+
+| Capitol | `joc-complet-bot.js` (doi eroi) | `nivele-bot-mers.js` (singur, mers adevarat) |
+|---|---|---|
+| Nivelul 1 | 27 s | 63 s |
+| Nivelul 2 | 29 s | 107 s |
+| Nivelul 3 | 31 s | 100 s |
+| Nivelul 4 | 36 s | 104 s |
+| Nivelul 5 | 40 s | 96 s |
+| Nivelul 6 | 43 s | 123 s |
+| Lupta finala | 46 s | - |
+
+Botul cu doi eroi a dat 49 de diamante cu `giveEgg` intr-un joc intreg si a apasat ○ de 21 de ori pentru 11 eroi loviti. La fiecare nivel a terminat cu surplus la primul erou si exact cota la al doilea (de exemplu 43 si 35 pe nivelul 6), adica impartirea functioneaza.
