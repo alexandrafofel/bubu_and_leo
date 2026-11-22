@@ -525,3 +525,27 @@ Timpii botilor cu T15 (SwiftShader):
 | Nivelul 5 | 48 s | 76 s |
 | Nivelul 6 | 61 s | 73 s |
 | Lupta finala | 48 s | - |
+
+### `george.js`: verificat ca poate sa pice (22 noiembrie 2026)
+
+| `MUTA` | Ce strica | Verificari care pica |
+|---|---|---|
+| 1 | cota nivelului 3 = 10 | 1 |
+| 2 | un diamant pus la fiecare val | 2 |
+| 3 | `dropGems` nu lasa nimic | 3, 4 |
+| 4 | Micul George sta pe loc | 4 |
+| 5 | `minT = 0` | 5 |
+| 6 | lupta de la cuib nu mai vine | 6, 12 |
+| 7 | fara oase in lupta din mijloc | 7 |
+| 8 | fara oase peste jumatate, la cuib | 8 |
+| 9 | fara inamici la jumatate si la ultima inima | 9, 10 |
+| 10 | inamicii aruncati raman dupa George | 10 |
+| 11 | George blindat cat traiesc inamicii | 8 - 14 |
+| 12 | `quotaOk` mereu adevarat | 12 |
+| 13 | jocul singur cere cota a doi | 13 |
+| 14 | reinceperea pastreaza lupta din mijloc | 5, 6, 13, 14 |
+| 15 | eroul care nu joaca isi pastreaza diamantele | 13 |
+
+Prima runda a aratat ca mutatiile 8 - 11 si 15 nu prindeau nimic: verificarile 8 - 10 comparau cu valoarea din `CONFIG` citita chiar atunci (o mutatie a configuratiei se compara cu ea insasi), iar 11 si 13 chemau `G.duelHit` si `G.collectEgg`, care tin originalul. Acum mutatiile strica codul, iar testul cheama functiile pe numele lor global, ca jocul. O verificare care se opreste cu o eroare pica cu mesajul erorii, nu opreste testul.
+
+`cota.js`: mutatiile 3 (limita de sus pusa inapoi) si 7 (`quotaState` gresit) au fost rescrise pentru T15 si pica la verificarile 3 si 9, respectiv 7.

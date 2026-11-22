@@ -23,7 +23,7 @@ const MUTA = +process.env.MUTA || 0;
     };
     window.calm = () => { for (const h of G.P.heroes) { h.down = false; h.dizzy = 0; h.inv = 99; } };      // the heroes do not fall during a check
     window.duelReady = () => { const d = G.P.duel; let f = 0; while (d.state === 'enter' && f < 600) { calm(); step(1); f++; } return d; };
-    window.hitGeorge = () => { const d = G.P.duel; let f = 0; while ((d.state === 'enter' || d.state === 'hurt') && f < 600) { calm(); step(1); f++; } G.duelHit(1); calm(); step(2); };
+    window.hitGeorge = () => { const d = G.P.duel; let f = 0; while ((d.state === 'enter' || d.state === 'hurt') && f < 600) { calm(); step(1); f++; } window.duelHit(1); calm(); step(2); };
     const Cg = G.CONFIG.lupta.george;
     if (MUTA === 1) G.CONFIG.quota.perLevel[2] = 10;
     if (MUTA === 2) { const s = window.startWave; window.startWave = (k) => { s(k); G.P.eggs.push(window.makeEgg(G.P.heroes[0].x + 300, G.P.heroes[0].y, { req: false, goal: true })); }; }
@@ -32,9 +32,9 @@ const MUTA = +process.env.MUTA || 0;
     if (MUTA === 5) Cg.minT = 0;
     if (MUTA === 6) { const u = window.updateGeorge; window.updateGeorge = () => { const P = G.P; if (P.midFought && !P.nestFought) return; u(); }; }
     if (MUTA === 7) Cg.midThrows = [0, 0, 0, 0, 0, 0];
-    if (MUTA === 8) Cg.boneEvery = 0;
-    if (MUTA === 9) Cg.nestEnemies = [0, 0, 0, 0, 0, 0];
-    if (MUTA === 10) Cg.enemyHp = [1, 1, 1, 1, 1, 1];
+    if (MUTA === 8) { const t = window.georgeNestThrows; window.georgeNestThrows = (d) => { if (d.hp > d.maxHp / 2) return; t(d); }; }      // no bones above half
+    if (MUTA === 9) { const t = window.georgeNestThrows; window.georgeNestThrows = (d) => { if (d.hp > d.maxHp / 2) t(d); }; }      // no enemies at half or at the last heart
+    if (MUTA === 10) window.georgeClearThrown = () => {};      // the thrown enemies stay after George is beaten
     if (MUTA === 11) { const h = window.duelHit; window.duelHit = (k) => { if (G.P.L.beetles.some(b => b.thrown && b.state !== 'dead')) return; h(k); }; }
     if (MUTA === 12) window.quotaOk = () => true;
     if (MUTA === 13) window.teamNeed = () => G.P.q * 2;
@@ -42,10 +42,11 @@ const MUTA = +process.env.MUTA || 0;
     if (MUTA === 14) { const s = window.startPlay; window.startPlay = (L) => { s(L); G.P.midFought = true; }; }
   }, MUTA);
 
+  const ev = async (f) => { try { return await page.evaluate(f); } catch (e) { return { err: String(e.message).split('\n')[0] }; } };      // a check that crashes fails, it does not stop the others
   const out = [], T0 = Date.now(), ok = (n, label, v, extra) => { out.push([n, label, !!v, extra]); if (process.env.PAS) console.log('  .. ' + n + ' ' + ((Date.now() - T0) / 1000 | 0) + ' s'); };
 
   // 1. quota 15 everywhere, no upper limit
-  const r1 = await page.evaluate(() => {
+  const r1 = await ev(() => {
     const per = G.CONFIG.quota.perLevel.slice(0, G.CONFIG.levels), P = fresh(0), a = P.heroes[0];
     P.found = [20, 0]; const e = window.makeEgg(a.x + 8, a.y, { state: 'idle' }); P.eggs.push(e); step(20);
     return { per, took: P.found[0] === 21 };
@@ -53,7 +54,7 @@ const MUTA = +process.env.MUTA || 0;
   ok(1, 'cota e 15 pe fiecare nivel; un erou cu 20 mai ia un diamant', r1.per.every(q => q === 15) && r1.took, JSON.stringify(r1));
 
   // 2. diamonds come only from defeated enemies: the waves and the glowing trees bring none
-  const r2 = await page.evaluate(() => {
+  const r2 = await ev(() => {
     const P = fresh(1), L = P.L, o = {};
     o.waves = L.waves.every(w => w.length === 0); o.total = L.totalEggs === 2 * P.q;
     for (let i = 0; i < 60 * 12; i++) { for (const t of L.trees) if (t.spark && t.spark.active && !t.spark.done) shakeTree(t, 1, true); for (const b of L.beetles) b.cool = 999; calm(); step(1); }
@@ -63,7 +64,7 @@ const MUTA = +process.env.MUTA || 0;
   ok(2, 'valurile si copacii nu dau diamante; copacii dau melci', r2.waves && r2.total && r2.goalEggs === 0 && r2.snails >= 2, JSON.stringify(r2));
 
   // 3. a defeated small enemy leaves exactly one diamond, and the team total grows when it is picked up
-  const r3 = await page.evaluate(() => {
+  const r3 = await ev(() => {
     const P = fresh(0), L = P.L, b = L.beetles.find(x => x.look !== 'mini'), n0 = P.eggs.length, t0 = teamFound();
     while (!G.hurtSmall(b)); b.state = 'dead'; b.t = 999;
     const got = P.eggs.slice(n0); step(40);
@@ -73,7 +74,7 @@ const MUTA = +process.env.MUTA || 0;
   ok(3, 'un inamic mic invins lasa exact un diamant; luat, creste totalul echipei', r3.dropped === 1 && r3.goal && r3.team === 1, JSON.stringify(r3));
 
   // 4. Little George: 3 hearts, follows the nearest hero, never hits, leaves one diamond, comes back
-  const r4 = await page.evaluate(() => {
+  const r4 = await ev(() => {
     const P = fresh(0), L = P.L, m = L.beetles.find(b => b.look === 'mini'), a = P.heroes[0], o = {};
     if (!m) return { none: true };
     o.hp = m.maxHp === 3 && m.hp === 3;
@@ -88,7 +89,7 @@ const MUTA = +process.env.MUTA || 0;
   ok(4, 'Micul George: 3 inimi, se apropie de erou, nu loveste, lasa 1 diamant, revine', r4.hp && r4.closer && r4.noHit && r4.drop === 1 && r4.back, JSON.stringify(r4));
 
   // 5. the middle fight comes at half of the team's quota, and not before minT seconds
-  const r5 = await page.evaluate(() => {
+  const r5 = await ev(() => {
     const P = fresh(0), half = Math.ceil(teamNeed() / 2), o = {};
     P.time = 3; P.found = [half, 0]; calm(); step(2); o.early = !P.duel;
     P.time = G.CONFIG.lupta.george.minT + 1; P.found = [half - 1, 0]; calm(); step(2); o.under = !P.duel;
@@ -98,7 +99,7 @@ const MUTA = +process.env.MUTA || 0;
   ok(5, 'lupta din mijloc vine la jumatatea cotei comune (15), nu mai devreme de minT', r5.early && r5.under && r5.mid, JSON.stringify(r5));
 
   // 6. the nest fight comes at the whole team quota (30), once
-  const r6 = await page.evaluate(() => {
+  const r6 = await ev(() => {
     const P = fresh(0), need = teamNeed(), o = {};
     P.time = 30; P.found = [Math.ceil(need / 2), 0]; calm(); step(2); const d = P.duel;
     d.over = true; P.found = [need - 1, 0]; calm(); step(3); o.notYet = P.duel === d;
@@ -109,7 +110,7 @@ const MUTA = +process.env.MUTA || 0;
   ok(6, 'lupta de la cuib vine la cota comuna intreaga (30), o singura data', r6.notYet && r6.nest && r6.once, JSON.stringify(r6));
 
   // 7. the middle fight: midThrows bones and balls, no enemies
-  const r7 = await page.evaluate(() => {
+  const r7 = await ev(() => {
     const o = {}, per = [];
     for (const lvl of [0, 5]) {
       const P = fresh(lvl); G.startDuel('mid'); duelReady();
@@ -118,10 +119,10 @@ const MUTA = +process.env.MUTA || 0;
     }
     return per;
   });
-  ok(7, 'lupta din mijloc: George arunca midThrows oase si mingi si niciun inamic', r7.every(r => r.bones === r.want && r.want > 0 && r.enemies === 0), JSON.stringify(r7));
+  ok(7, 'lupta din mijloc: George arunca midThrows oase si mingi si niciun inamic', Array.isArray(r7) && r7.every(r => r.bones === r.want && r.want > 0 && r.enemies === 0), JSON.stringify(r7));
 
   // 8, 9, 10, 11. the nest fight: by the hearts he has left
-  const r8 = await page.evaluate(() => {
+  const r8 = await ev(() => {
     const out = [];
     for (const lvl of [1, 4]) {
       const P = fresh(lvl); G.startDuel('nest'); const d = duelReady(), H = d.maxHp, N = G.CONFIG.lupta.george.nestEnemies[lvl], o = { lvl, H, N, log: [] };
@@ -149,13 +150,13 @@ const MUTA = +process.env.MUTA || 0;
     }
     return out;
   });
-  ok(8, 'lupta de la cuib: la fiecare inima pierduta peste jumatate, boneEvery oase si mingi', r8.every(r => r.bonesOk), JSON.stringify(r8.map(r => [r.lvl, r.H, r.log.map(l => l[1])])));
-  ok(9, 'la jumatate arunca prima parte din nestEnemies, la ultima inima restul, care urmaresc', r8.every(r => r.enemiesOk && r.follow), JSON.stringify(r8.map(r => [r.lvl, r.N, r.log.map(l => l[2])])));
-  ok(10, 'inamicii aruncati au enemyHp inimi, cei de la ultima inima nu renunta, dispar cu George', r8.every(r => r.landed === r.N && r.hp && r.keepOn && r.cleared), JSON.stringify(r8.map(r => [r.lvl, r.landed, r.hp, r.keepOn, r.cleared])));
-  ok(11, 'George nu e blindat: poate fi lovit cat inamicii aruncati traiesc', r8.every(r => r.notArmored), JSON.stringify(r8.map(r => r.notArmored)));
+  ok(8, 'lupta de la cuib: la fiecare inima pierduta peste jumatate, boneEvery oase si mingi', Array.isArray(r8) && r8.every(r => r.bonesOk), JSON.stringify(!Array.isArray(r8) ? r8 : r8.map(r => [r.lvl, r.H, r.log.map(l => l[1])])));
+  ok(9, 'la jumatate arunca prima parte din nestEnemies, la ultima inima restul, care urmaresc', Array.isArray(r8) && r8.every(r => r.enemiesOk && r.follow), JSON.stringify(!Array.isArray(r8) ? r8 : r8.map(r => [r.lvl, r.N, r.log.map(l => l[2])])));
+  ok(10, 'inamicii aruncati au enemyHp inimi, cei de la ultima inima nu renunta, dispar cu George', Array.isArray(r8) && r8.every(r => r.landed === r.N && r.hp && r.keepOn && r.cleared), JSON.stringify(!Array.isArray(r8) ? r8 : r8.map(r => [r.lvl, r.landed, r.hp, r.keepOn, r.cleared])));
+  ok(11, 'George nu e blindat: poate fi lovit cat inamicii aruncati traiesc', Array.isArray(r8) && r8.every(r => r.notArmored), JSON.stringify(!Array.isArray(r8) ? r8 : r8.map(r => r.notArmored)));
 
   // 12. the level ends only with George beaten, the quota of each, and both in the nest
-  const r12 = await page.evaluate(() => {
+  const r12 = await ev(() => {
     const P = fresh(0), L = P.L, o = {};
     const inNest = () => { P.heroes[0].x = L.nest.x - 30; P.heroes[1].x = L.nest.x + 30; P.heroes[0].y = P.heroes[1].y = L.nest.y; for (const h of P.heroes) { h.vx = h.vy = 0; h.dizzy = 0; h.down = false; } };
     P.eggs.length = 0; P.time = 40; P.found = [P.q, P.q]; inNest(); for (let i = 0; i < 60 * 4; i++) { inNest(); calm(); step(1); }
@@ -174,11 +175,11 @@ const MUTA = +process.env.MUTA || 0;
   ok(12, 'nivelul nu se termina fara George invins, fara 15 fiecare, fara amandoi in cuib; se termina cu toate trei', r12.noGeorge && r12.open && r12.noQuota && r12.oneOut && r12.ends, JSON.stringify(r12));
 
   // 13. one player: the friend's quota counts as found; George comes at half and at all of one quota
-  const r13 = await page.evaluate(() => {
+  const r13 = await ev(() => {
     joined = [true, false]; go(0); const P = G.P, o = {};
     for (const b of P.L.beetles) { b.state = 'sleep'; b.cool = 999; } P.L.cones.length = 0; step(3);
     o.need = teamNeed() === P.q; o.friendOk = G.quotaState(1).ok;
-    const f0 = P.found[0]; G.collectEgg(window.makeEgg(P.heroes[1].x, P.heroes[1].y, { req: false, goal: true }), 1);
+    const f0 = P.found[0]; window.collectEgg(window.makeEgg(P.heroes[1].x, P.heroes[1].y, { req: false, goal: true }), 1);
     o.credit = P.found[0] === f0 + 1 && P.found[1] === 0;                       // what the hero who is not playing picks up counts for the one who plays
     P.time = 30; P.found = [Math.ceil(P.q / 2), 0]; calm(); step(2); o.mid = !!P.duel && P.duel.kind === 'mid';
     joined = [true, true]; return o;
@@ -186,7 +187,7 @@ const MUTA = +process.env.MUTA || 0;
   ok(13, 'un singur jucator: cota celuilalt e indeplinita, ce culege eroul care nu joaca se numara la cel care joaca, George vine la jumatatea cotei lui', r13.need && r13.friendOk && r13.credit && r13.mid, JSON.stringify(r13));
 
   // 14. "Încă o dată!": a restart begins with no diamonds and no George
-  const r14 = await page.evaluate(() => {
+  const r14 = await ev(() => {
     const P = fresh(0); P.time = 30; P.found = [8, 7]; calm(); step(2);
     const had = !!P.duel; G.Game.goLevel(G.Game.levelIdx); step(5); G.UI.introT = 2; inp[0].aP = true; step(3);
     const Q = G.P; return { had, team: teamFound(), mid: Q.midFought, nest: Q.nestFought, duel: !!Q.duel };
