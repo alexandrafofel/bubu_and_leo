@@ -465,3 +465,29 @@ Test permanent nou, **`tests/greutate.js`** (in `toate.sh`, inainte de `performa
 15 defecte puse pe rand; **12 prinse din prima, 3 au trecut**: (1) tragerea inapoi inlocuita cu un salt (testul se uita doar la minim: acum verifica ca e treptata); (2) `windup` negativ cu `anticipate: 0` (testul accepta orice sub 0: acum cere exact 0); (3) `kick: 0` fara test de `kick <= 0`: **mutant echivalent** (`kick: 0` da oricum zoom 1), nu e un defect. Dupa intarirea testelor, defectele (1) si (2) sunt prinse: 14 din 14 defecte reale.
 
 Din `toate.sh` nu cade niciun alt test din cauza cadrelor oprite.
+
+## Update 22 noiembrie 2026: testul stilului grafic intreg si bugetul de timp (sarcina T6.10)
+
+`tests/stil-grafic.js` primeste partea finala:
+
+| Verificare | Cum |
+|---|---|
+| Pixeli negri sau gri | 29 de scene (ro si en, acuarela si diorama, nivelurile 1 - 6 si lupta cu George, mini-lupta). Fractia de pixeli cu R = G = B si sub 200 trebuie sa fie sub 0.1%. Cel mai rau caz masurat: 0.0103% (en, acuarela, nivelul 4). |
+| Nimic interzis la fiecare cadru | 36 de functii ale stilului nou (`lit`, `drawLightMap`, `drawMotes`, `drawWater`, `holdBreath`, pictorii eroilor...) citite cu `toString`, fara comentarii: niciuna nu are `createRadialGradient`, `createPattern`, `shadowBlur`. O functie din lista care lipseste din cod strica testul. |
+
+`tests/performanta.js` primeste **bugetul de timp** (S7.7): nivelul 6 cu tot stilul nou aprins (`preview`, `lights`, `front`, `waves`, `motes`, `halo`) si cu el stins, in cinci runde alternate; se ia cel mai bun cadru din fiecare. Afiseaza `buget OK: cadrul nou e N% peste cel vechi (limita 20%)` sau `buget NEREUSIT`. Valorile din trei rulari: +14%, +4%, +13%. Cu mediana in loc de minim, zgomotul (±2 ms sub SwiftShader) dadea pana la +20%, de aceea e minimul din cinci.
+
+**Verificat ca poate sa pice:** patru defecte puse pe rand in `drawMotes`, toate prinse: un dreptunghi gri #808080 pe tot ecranul, un `createRadialGradient`, un `shadowBlur`, o asteptare de 8 ms pe cadru (aceasta de `performanta.js`).
+
+### Lista S7.8 (capturi `capturi/24-final-ro-3.jpg`, `24-final-ro-6.jpg`, `24-final-en-3.jpg`, `24-final-en-6.jpg`)
+
+| # | Intrebare | Raspuns |
+|---|---|---|
+| 1 | Se vede de unde vine lumina? | da (halouri la torte si cristale, lumina calda langa eroi) |
+| 2 | Obiectele mari au umbra pe pamant, in aceeasi directie? | da |
+| 3 | Se poate spune din ce e facut fiecare lucru? | da (solzi, panza, piatra, lemn, cristal, apa) |
+| 4 | Ceva in fata si ceva in departare? | da (frunze si stanci in fata, munti si luna in spate) |
+| 5 | Eroii sunt cei mai luminosi si limpezi? Se gasesc in sub o secunda? | da (inel colorat la picioare, nume deasupra) |
+| 6 | Planul din fata si scrisul de sus nu ii acopera? | da (400 de asezari testate) |
+| 7 | Niciun pixel negru sau gri curat? | da (script: max 0.0103%) |
+| 8 | Copilul isi recunoaste desenul in Boon, Killer, George? | **nu s-a putut verifica de aici**: formele si culorile din desene nu s-au schimbat, dar numai copiii pot spune (`capturi/24-personaje-comparatie.jpg`) |

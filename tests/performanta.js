@@ -22,10 +22,21 @@ const { chromium } = require('./pw.js');
     out.noFullscreenBlits = run(200);
     ctx.drawImage = od;
     const t0 = performance.now(); for (let k = 0; k < 200; k++) { G.Input.poll(1 / 60); G.update(1 / 60); } out.updateOnly = +((performance.now() - t0) / 200).toFixed(3);
+    // S7.7 (T6.10): cadrul nou (harta de lumina, planul din fata, halouri, praf, apa) la nivelul 6, in aceeasi rulare cu cel vechi,
+    // cate 5 runde alternate; se ia cea mai mica medie din runde (zgomotul masinii doar adauga). Limita: cel mult 20% peste.
+    {
+      const old = Object.assign({}, G.CONFIG.look), all = { preview: true, lights: true, front: true, waves: true, motes: 40, halo: 0.5 }, none = { preview: false, lights: false, front: false, waves: false, motes: 0, halo: 0 };
+      const at = (lv, c) => { Object.assign(G.CONFIG.look, c); G.Game.goLevel(lv); for (let k = 0; k < 4; k++) G.update(1 / 60); G.Game.state = 'play'; const Q = G.P; Q.heroes[1].x = 2600; Q.heroes[1].y = 1500; Q.heroes[0].x = 400; Q.heroes[0].y = 500; run(30); return run(100); };
+      const o = [], n = [];
+      for (let round = 0; round < 5; round++) { o.push(at(5, none)); n.push(at(5, all)); }
+      out.nivel6 = { vechi: Math.min(...o), nou: Math.min(...n), raport: +(Math.min(...n) / Math.min(...o)).toFixed(3), runde_vechi: o, runde_nou: n };
+      Object.assign(G.CONFIG.look, old);
+    }
     out.gl = (() => { try { const c = document.createElement('canvas').getContext('webgl'); const e = c.getExtension('WEBGL_debug_renderer_info'); return c.getParameter(e.UNMASKED_RENDERER_WEBGL); } catch (e) { return 'none'; } })();
     return out;
   }, require('./pw.js').game);
   console.log(JSON.stringify(r));
+  if (r.nivel6) console.log(r.nivel6.raport <= 1.2 ? 'buget OK: cadrul nou e ' + Math.round((r.nivel6.raport - 1) * 100) + '% peste cel vechi (limita 20%)' : 'buget NEREUSIT: cadrul nou e ' + Math.round((r.nivel6.raport - 1) * 100) + '% peste cel vechi (limita 20%)');
   console.log('errors', errs.length); errs.slice(0, 6).forEach(e => console.log(e));
   await browser.close();
 })();

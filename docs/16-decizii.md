@@ -371,3 +371,9 @@ Cererea proprietarei: "scoate jocul Bubu si Leo, lasa doar Cea mai grea lupta. M
 | `mechMove` da fractia, nu pozitia. | Fiecare mecanism (pod, poarta, pluta) isi inmulteste fractia cu drumul lui; T7 le foloseste pe toate la fel. |
 | Tragerea inapoi a mecanismelor e de 6% si depasirea de 8%, ambele reglabile. | 8% e cifra din S7.6; 6% pentru tragere e aleasa sa se vada in 0.15 s fara sa para ca se strica mecanismul. |
 | Sunetul `click` nu e al unui erou (nu e in `CHR`). | Clicul e al lumii: se aude pe boxele calculatorului, nu in difuzorul unui controller. |
+
+## Testul stilului grafic si bugetul (sarcina T6.10, 22 noiembrie 2026)
+
+- **Buget masurat ca minim din cinci runde alternate**, nu ca mediana: sub SwiftShader mediana oscila intre +4% si +20%, minimul intre +4% si +14%. Limita de 20% din S7.7 ramane.
+- **Lista de functii in loc de cautare in tot codul** pentru `createRadialGradient`/`createPattern`/`shadowBlur`: codul vechi are ~40 de gradienti pe cadru si ar strica testul; stilul nou n-are niciunul. Functiile noi se adauga in lista.
+- **Pixeli gri: R = G = B sub 200**, exact regula din S7.8, pe 29 de scene.

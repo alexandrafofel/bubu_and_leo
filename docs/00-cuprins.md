@@ -92,6 +92,7 @@ In `capturi/` sunt capturi facute de testele automate. Capturile 01 pana la 15 s
 | [24-personaje-comparatie](capturi/24-personaje-comparatie.jpg) | Foaia veche (stanga) si cea noua (dreapta), alaturi |
 | [24-miscare](capturi/24-miscare.gif) | Boon, Killer si George stau, merg, fug, se opresc (T6.5) |
 | [24-miscare-cadre](capturi/24-miscare-cadre.jpg) | Sase cadre din acelasi GIF |
+| [24-final-ro-3](capturi/24-final-ro-3.jpg), [24-final-ro-6](capturi/24-final-ro-6.jpg), [24-final-en-3](capturi/24-final-en-3.jpg), [24-final-en-6](capturi/24-final-en-6.jpg) | Capturile finale ale stilului nou, in romana si engleza: nivelul 3 si lupta cu George (T6.10) |
 | [24-cadru-nou](capturi/24-cadru-nou.jpg) | Nivelul 6 cu cadrul nou (`look.preview`): harta de lumina si planul din fata (T6.6, T6.7) |
 | [24-cadru-vechi](capturi/24-cadru-vechi.jpg) | Acelasi loc fara cadrul nou |
 | [24-apa-nou](capturi/24-apa-nou.jpg) | Raul din nivelul 3 cu valuri, oglindire, sclipiri si praf (T6.8) |

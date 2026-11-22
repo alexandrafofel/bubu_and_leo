@@ -132,3 +132,7 @@ De ce iconite: copilul de 6 ani nu citeste. "Misca stick-ul" si "apasa ✕" sunt
 - `drawBubu` si `drawLeo` iau culorile din `GAME_BASE.heroes`, nu din `CONFIG.heroes`. Pe ecranul "Alege jocul" sunt desenati si cand jocul ales e al doilea, cand `CONFIG.heroes` ii contine pe Boon si Killer.
 - Optiuni noi de desen pentru eroi (din `heroOpts` in `08-draw.js`): `scale` vine acum din `h.small` (micsorarea din al doilea joc), `hug` (primul erou isi intinde bratele cand ajuta), `claw` (ghearele lui Boon, de la 0 la 1 cat se invart). Un erou care asteapta ajutor e desenat ametit (`dizzy`).
 - `iconSq(c, x, y, r)`: butonul □, desenat ca pe controller (un patrat roz pe un disc crem). Apare deasupra eroului lovit, in sageata prietenului si in Setari.
+
+## Update 22 noiembrie 2026 (T6.10): capturile finale
+
+Boon, Killer si George, repictati cu lumina si materialele stilului nou, se vad in `capturi/24-final-ro-3.jpg`, `24-final-ro-6.jpg`, `24-final-en-3.jpg`, `24-final-en-6.jpg`. Intrebarea daca un copil isi recunoaste desenul ramane deschisa (`19-limitari.md`).

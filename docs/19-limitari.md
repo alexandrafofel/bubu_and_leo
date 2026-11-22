@@ -167,3 +167,10 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - **Mecanismele nu exista inca** (T7): `mechMove` si `mechClick` sunt verificate pe functii pure si pe un clic, nu pe un pod sau o poarta adevarata. Poarta care se deschide si bolovanul care cade nu cheama inca `bigHit` (nu exista).
 - **Anticiparea lui George** e doar in lupta de pe arena (si in cea din copac); paznicii din mini-lupte nu se trag inapoi (S7.6 cere asta doar pentru George si pentru mecanisme).
 - **Zguduirea** a ramas cum era, deci la o lovitura mare se aduna: oprire, zoom si zguduire. Daca pare prea mult, se opreste una din ele din `CONFIG.look`.
+
+## T6.10 (22 noiembrie 2026): ce nu s-a putut verifica
+
+- **Intrebarea 8 din S7.8** (copilul isi recunoaste desenul in Boon, Killer, George): numai copiii pot raspunde. De aratat lor `capturi/24-personaje-comparatie.jpg` si `capturi/24-final-ro-3.jpg`.
+- **Timpul pe un Mac si pe televizorul familiei.** Bugetul de +20% e masurat sub SwiftShader (procesor, fara placa video), cu zgomot de ±2 ms. Valorile reale pe Chrome/macOS pot sa difere; raportul ar trebui sa fie mai mic acolo, dar nu s-a masurat.
+- **Gradientii vechi.** Codul vechi de desen (nivelurile 1 - 6 fara `preview`, `drawBubu`, `drawLeo`) are inca in jur de 40 de `createRadialGradient` pe cadru. Lista din `stil-grafic.js` acopera doar functiile stilului nou.
+- **Pixelii gri** se cauta doar cu R = G = B. Un gri cu o nuanta usoara de culoare nu e prins (vezi `17-testare.md`, "Limita cunoscuta").

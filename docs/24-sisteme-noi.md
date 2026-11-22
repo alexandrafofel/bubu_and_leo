@@ -313,6 +313,8 @@ look: {
 },
 ```
 
+*Sectiunile S7.1 - S7.8 sunt implementate (T6.1 - T6.10, noiembrie 2026); textul de mai jos e specificatia, ramasa ca istoric. Starea reala: `docs/16-decizii.md`, `docs/17-testare.md`, `docs/19-limitari.md`.*
+
 ### S7.8 Lista de verificare pentru capturi
 
 Dupa sarcina T6, pentru fiecare captura a unui nivel nou, raspunsul trebuie sa fie "da" la toate:
