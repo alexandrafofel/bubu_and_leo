@@ -52,11 +52,18 @@ const { chromium } = require('./pw.js');
         if (P.levelEggs !== lastE) { lastE = P.levelEggs; lastChange = P.time; }
         if (P.time - lastChange > 90 && !P.nestOpen) { stuck = { pos: [P.heroes[0].x | 0, P.heroes[0].y | 0], tgt: bot.tgt, wave: P.wave, left: P.eggs.filter(e => e.req).length }; break; }
       }
-      const P = G.P; return { duelT: Math.round(bot.duelT || 0), duelOver: !!(P.duel && P.duel.over), medals: (G.Game.results[i] || {}).med, level: i, state: G.Game.state, time: Math.round(P.time), eggs: P.levelEggs, total: P.L.totalEggs, waveT, hits: bot.hits, stuck, leo: [P.heroes[1].x | 0, P.heroes[1].y | 0] };
+      const P = G.P; return { duelT: Math.round(bot.duelT || 0), duelOver: !!(P.duel && P.duel.over), medals: (G.Game.results[i] || {}).med, level: i, state: G.Game.state, time: Math.round(P.time), eggs: P.levelEggs, total: P.L.totalEggs, waveT, hits: bot.hits, stuck, found: P.found[0], q: P.q, leo: [P.heroes[1].x | 0, P.heroes[1].y | 0] };
     };
   }, require('./pw.js').game);
   console.log('joc:', require('./pw.js').game);
-  for (let i = 0; i < 6; i++) console.log(JSON.stringify(await page.evaluate((i) => runLevel(i, 900), i)));
+  const bad = [];
+  for (let i = 0; i < 6; i++) {
+    const r = await page.evaluate((i) => runLevel(i, 900), i);
+    console.log(JSON.stringify(r));
+    // the level really ended, the bot did not get stuck, and alone the hero reached his own quota (T14.10)
+    if (r.state !== 'levelEnd' || r.stuck || (r.q && r.found < r.q)) bad.push(i + 1);
+  }
+  console.log(bad.length ? 'NEREUSIT: nivelurile ' + bad.join(', ') + ' nu s-au terminat' : 'nivele-bot-mers OK (' + require('./pw.js').game + ')');
   console.log('errors', errs.length); errs.slice(0, 6).forEach(e => console.log(e));
   await browser.close();
 })();

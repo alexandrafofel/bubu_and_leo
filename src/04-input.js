@@ -14,6 +14,7 @@ const Input = (() => {
     h: false, hP: false,                      // ○: help the friend
     c: false, cP: false, cR: false,           // □: the second power
     run: false, runP: false,                  // L3: run
+    g: false, gP: false,                      // L1: give an egg to the friend (second game)
     start: false, tri: false, back: false, up: false, down: false, left: false, right: false, _p: {}, _rep: 0 });
   const slots = [mk(), mk()];
   const menu = { up: false, down: false, left: false, right: false, ok: false, back: false, pause: false, _p: {}, _rep: 0 };
@@ -67,7 +68,7 @@ const Input = (() => {
     for (let k = 0; k < 2; k++) {
       const s = slots[k], kb = Opt.keys[k];
       let x = 0, y = 0, a = false, start = false, tri = false, back = false, sq = false, hp = false, l3 = false;
-      let dU = false, dD = false, dL = false, dR = false;
+      let dU = false, dD = false, dL = false, dR = false, l1 = false;
       s.lost = false;
       if (s.pad != null) {
         const g = gp[s.pad];
@@ -79,6 +80,7 @@ const Input = (() => {
           if (m > dz) { const f = Math.min(1, (m - dz) / (1 - dz)) / m; x = ax * f; y = ay * f; }
           if (b(12)) y = -1; if (b(13)) y = 1; if (b(14)) x = -1; if (b(15)) x = 1;
           a = b(0); start = b(9); tri = b(3); back = b(1); hp = b(1); sq = b(2); l3 = b(10);      // ○ is "back" in the menus and "help the friend" in the game
+          l1 = b(4);                                   // L1: give an egg to the friend
           dU = y < -0.55; dD = y > 0.55; dL = x < -0.55; dR = x > 0.55;
           s.joined = true;
         }
@@ -90,7 +92,7 @@ const Input = (() => {
         if (kd(kb.left)) kx -= 1; if (kd(kb.right)) kx += 1; if (kd(kb.up)) ky -= 1; if (kd(kb.down)) ky += 1;
         if (kx || ky || kd(kb.a)) { s.usedKb = true; s.joined = true; }
         if (kx || ky) { x = kx; y = ky; dU = ky < 0; dD = ky > 0; dL = kx < 0; dR = kx > 0; }
-        a = kd(kb.a); hp = kd(kb.b); sq = kd(kb.c); l3 = kd(kb.r);
+        a = kd(kb.a); hp = kd(kb.b); sq = kd(kb.c); l3 = kd(kb.r); l1 = kd(kb.g);
         mU = mU || dU; mD = mD || dD; mL = mL || dL; mR = mR || dR; mOk = mOk || a;
       }
       const m = Math.hypot(x, y); if (m > 1) { x /= m; y /= m; }
@@ -100,6 +102,7 @@ const Input = (() => {
       s.hP = hp && !p.hp; s.h = hp;                 // ○ (or the help key): help the friend who was hit
       s.cP = sq && !p.sq; s.cR = !sq && !!p.sq; s.c = sq;      // □ (or its key): the second power
       s.runP = l3 && !p.l3; s.run = l3;             // L3 (or its key): run
+      s.gP = l1 && !p.g; s.g = l1;                  // L1 (or its key): give an egg
       s.start = start && !p.start; s.tri = tri && !p.tri; s.back = back && !p.back;
       s.up = dU && !p.dU; s.down = dD && !p.dD;
       // left/right repeat while held (for the volume sliders)
@@ -109,7 +112,7 @@ const Input = (() => {
         if (p.lr !== lr) { s._rep = 0.4; s.left = lr < 0; s.right = lr > 0; }
         else { s._rep -= dt; if (s._rep <= 0) { s._rep = 0.16; s.left = lr < 0; s.right = lr > 0; } }
       }
-      p.a = a; p.sq = sq; p.hp = hp; p.l3 = l3; p.start = start; p.tri = tri; p.back = back; p.dU = dU; p.dD = dD; p.lr = lr;
+      p.a = a; p.sq = sq; p.hp = hp; p.l3 = l3; p.g = l1; p.start = start; p.tri = tri; p.back = back; p.dU = dU; p.dD = dD; p.lr = lr;
     }
     // menus: fixed keys always work
     mU = mU || kd('ArrowUp'); mD = mD || kd('ArrowDown'); mL = mL || kd('ArrowLeft'); mR = mR || kd('ArrowRight');
