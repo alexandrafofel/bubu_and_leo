@@ -509,7 +509,7 @@ function drawRetry(c, t) {
 }
 function drawLevelEnd(c, t) {
   drawWorld(c); drawDim(c, 0.5);
-  const r = Game.lastRun || emptyResult(), cw = 1100, ch = 860, x = (W - cw) / 2, y = 110;      // what was gathered this time (the save keeps the best)
+  const r = Game.lastRun || emptyResult(), cw = 1100, ch = 900, x = (W - cw) / 2, y = 90;      // what was gathered this time (the save keeps the best)
   card(c, x, y, cw, ch, '#FFF6E2', 71);
   text(c, T('end.bravo'), W / 2, y + 104, 112, '#C4573D', { title: true, halo: 0 });
   text(c, lvlName(P.L.def), W / 2, y + 188, 40, '#B9802E', { halo: 0, shadow: 0 });
@@ -530,7 +530,13 @@ function drawLevelEnd(c, t) {
   }
   const te = Game.team.eggs, ts = Game.team.stars;
   text(c, T('end.team') + '   ' + te + ' ' + eggWord(te) + '   ·   ' + ts + ' ' + starWord(ts), W / 2, y + 716, 40, '#6A4250', { halo: 0, shadow: 0 });
-  if (UI.lvlT > 1.5) prompt(c, pressText(), W / 2, y + ch - 62, 50, t);
+  if (P.q > 0 && !P.L.boss && UI.lvlT > 0.6) for (let k = 0; k < 2; k++) {      // what each hero found of his quota (only read, nothing to press)
+    const qs = quotaState(k), gx = W / 2 + (k ? 1 : -1) * 240, col = qs.ok ? QUOTA_GREEN : QUOTA_RED;
+    drawPort(c, k, gx - 118, y + 772, 30, false);
+    fitText(c, qs.found + ' / ' + qs.q, gx - 70, y + 772, 44, 150, col, { align: 'left', halo: 0.12, haloCol: shade(col, -0.35), shadow: 0, weight: 'bold' });
+    if (qs.ok) drawTick(c, gx + 112, y + 772, 20);
+  }
+  if (UI.lvlT > 1.5) prompt(c, pressText(), W / 2, y + ch - 52, 50, t);
 }
 
 /* ---------- menus: pause and settings ----------

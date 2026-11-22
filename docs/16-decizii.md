@@ -365,3 +365,14 @@ Cererea proprietarei: "scoate jocul Bubu si Leo, lasa doar Cea mai grea lupta. M
 | Ajutorul si L1 trec prin aceeasi functie, `sendEgg` | Un singur loc pentru ou, zbor, sunet si vibratie. |
 | Mutarea la intrarea unui jucator se face in `updatePlay` (`updateJoinQuota`), nu in `Input` | `P` si ouale in zbor se vad de aici; `Input` nu stie de nivel. Specificatia spunea `Input`; efectul e acelasi. |
 | Numele noului camp e `tooFarT`, nu `farT` | `farT` era deja timerul "sunt departe unul de altul" din `updatePlay`. Vezi limitarile. |
+
+### T14.7, T14.8 si T14.9: insigna, bannerele si testul cotei (22 noiembrie 2026)
+
+| Decizie | De ce |
+|---|---|
+| Insigna are 300 x 108 (era mai mica), cu portret rotund, ou / cristal mic si "gasite / cota" | Cota trebuie citita dintr-o privire de un copil; ramane in banda de sus (`HUD_TOP`), verificat cu `hud-acoperire.js`. |
+| Verde `#3E9A5A` cand e gata, rosu `#D6503F` cand lipseste, plus bifa (verde) sau clatinare de 1 grad (rosu) | Culoarea nu e singurul semn (contrast 3,2:1 si 3,8:1 pe crem). |
+| `quotaDone` o data pe erou, doar cu doi jucatori; daca amandoi termina odata apare `quotaBoth` | Mesajul "da-i prietenului" are sens doar cand prietenul inca are nevoie. |
+| Eroul plin este ghidat spre prietenul care are nevoie (`kind: 'give'`) sau spre cuib | Copilul vede ce are de facut cu L1. |
+| `tests/cota.js` verifica 14 din cele 16 puncte din C10; 15 si 16 raman la boti si `toate.sh` | Botii ruleaza jocul intreg; un duplicat ar fi doar mai lent. |
+| Fiecare verificare a fost pusa sa pice cu `MUTA=1..13` | Un test care nu poate pica nu dovedeste nimic. |

@@ -414,3 +414,7 @@ Dupa `CONFIG.rescue.retryMercy` (3) reinceperi ale aceluiasi capitol, limita dev
 | La boss | La fel: lupta reincepe de la inceput. |
 | Ce se pierde | Cristalele si stelele adunate in nivelul acesta. Totalul echipei revine la suma rezultatelor salvate (`startPlay` il reface). Rezultatele nivelurilor dinainte raman. |
 | Medalia "Fără nicio lovitură" | Ramane legata de `P.hits`, care porneste de la 0 la fiecare reincepere. |
+
+## Update 22 noiembrie 2026: mesajele cotei (T14.8)
+
+`updateQuotaMsg` (in `updatePlay`) ridica `quotaDone` o data pe erou cand isi termina cota si prietenul inca nu, doar cu doi jucatori; daca amandoi termina odata ridica `quotaBoth`. Textul numeste prietenul si butonul (L1 sau tasta). Testele: `tests/cota.js`.

@@ -400,3 +400,9 @@ Verificare (scripturi scurte; `tests/cota.js` vine in T14.9; verificarile 9, 11 
 Fiecare verificare a fost pusa sa pice (`autoGive` 0, fara intrarea jucatorului).
 
 `tests/joc-complet-bot.js`: cand primul erou e la limita (`found >= cap`), prietenul lui merge dupa ouale ramase pe jos. Fara asta botul se blocase pe nivelul 3 cu 30 / 13 din cota 20 si doua oua `req` pe jos, pe care eroul plin nu le mai putea lua, deci cuibul nu se deschidea. Pe un copil nu-l blocheaza (specificatia garanteaza `E <= 2 * cap`, deci impreuna pot lua tot), dar botul mergea doar cu primul erou dupa oua.
+
+## Update 22 noiembrie 2026: `tests/cota.js` (T14.9)
+
+Ruleaza verificarile 1 - 14 din `27-cota-de-oua.md` (C10) pe controllere false (butonul 4 = L1) si pe tastatura (tasta R). Iese cu `cota OK` sau `NEREUSIT: <numere>`, apoi `errors N`. Verificarile 15 si 16 le fac `joc-complet-bot.js`, `nivele-bot-mers.js` si `toate.sh`. Verificarea 14 porneste `hud-acoperire.js` cu `STRICT=1`. Culorile insignei se citesc din pixelii canvasului, dupa nuanta (hartia schimba putin culoarea).
+
+Dovada ca pot pica: `MUTA=n node ../cota.js` strica o regula (cota de nivel, `quotaOk`, `canTake`, `giveEgg`, raza L1, `quotaState`, bannerul, `bothJoined`, `hitHero`, intrarea la mijloc, `goal` pe oua, `autoGive`). Fiecare `n` din 1 - 13 da `NEREUSIT`.
