@@ -233,11 +233,13 @@ function drawWorld(c) {
   drawDecor(c, l, tp, vw, vh);
   drawNestShelter(c);
   if (P.duel) drawDuelGround(c);
+  for (const g of P.gifts) { c.fillStyle = rgba(SHADOW, 0.18); c.beginPath(); c.ellipse(g.x, g.y + 50, 12, 5, 0, 0, TAU); c.fill(); }        // eggs in flight (L1)
   // eggs and stars lie on the ground
   for (const e of P.eggs) if (e.delay <= 0) {
     if (e.big && L.cave) { if (L.cave.reveal < 0.05) continue; c.globalAlpha = L.cave.reveal; }   // the secret stays a secret
     drawEgg(c, e.x, e.y, e.r, t, e.seed, e.z, e.hue, e.big); c.globalAlpha = 1;
   }
+  for (const g of P.gifts) drawEgg(c, g.x, g.y + 50, 17, t, g.seed, 50 + g.z, (g.seed | 0) % 7, false);      // the same painted egg, in the air
   for (const s of P.stars) if (!s.got && !s.hidden) drawStar(c, s.x, s.y, 26, t, s.z);
   drawGuides(c);
   // everything that stands up, sorted by depth
@@ -458,6 +460,13 @@ function drawHints(c, v) {
     const sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 30, (h.y - v.tp) * v.z - (h.tagT > 0 ? 200 : 160) * v.z) + Math.sin(t * 5) * 5;
     iconSq(c, sx, sy, 24, Math.sin(t * 6));
   }
+  for (const h of P.heroes) if (h.farT > 0 && !h.down) {          // L1 pressed but the friend is too far: "come closer"
+    const sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 40, (h.y - v.tp) * v.z - 190 * v.z);
+    c.globalAlpha = Math.min(1, h.farT / 0.3);
+    card(c, sx - 170, sy - 26, 340, 52, '#FFF6E2', 44 + h.k);
+    fitText(c, T('quota.far', CONFIG.heroes[1 - h.k].name), sx, sy + 2, 28, 320, '#B9802E', { halo: 0, shadow: 0, weight: 'bold' });
+    c.globalAlpha = 1;
+  }
   for (const h of P.heroes) if (h.fullT > 0 && !h.down) {          // "Plin!": the hero cannot hold more quota eggs
     const sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 40, (h.y - v.tp) * v.z - 190 * v.z) - (1.2 - h.fullT) * 14;
     c.globalAlpha = Math.min(1, h.fullT / 0.3);
@@ -543,6 +552,10 @@ function waitBanner() {
   const L = P.L;
   if (!P.nestOpen || P.done || L.boss || !Input.slots[0].joined || !Input.slots[1].joined) return null;
   const nr = P.heroes.map(h => dist(h.x, h.y, L.nest.x, L.nest.y) < 185);
+  if (nr[0] && nr[1] && quotaOn() && !(quotaOk(0) && quotaOk(1))) {      // both wait in the nest but a quota is missing: who needs how many
+    const k = quotaOk(0) ? 1 : (quotaOk(1) ? 0 : (P.q - P.found[0] >= P.q - P.found[1] ? 0 : 1)), n = P.q - P.found[k];
+    return { kind: 'need', t: 2, name: CONFIG.heroes[k].name, n };
+  }
   return nr[0] === nr[1] ? null : { kind: 'wait', t: 2, name: CONFIG.heroes[nr[0] ? 1 : 0].name };
 }
 /* The card in the middle, with what a banner says when there is one. A banner never comes down over the world. */
@@ -563,7 +576,7 @@ function drawMidCard(c, ban) {
       c.globalAlpha = 1; c.restore();
       return;
     }
-    const label = T('ban.' + ban.kind, ban.kind === 'wait' ? ban.name : isLupta() ? CONFIG.lupta.rainbowBonus : '');
+    const label = ban.kind === 'need' ? T('quota.need', ban.name, ban.n === 1 ? T('quota.one') : T('quota.many', ban.n)) : T('ban.' + ban.kind, ban.kind === 'wait' ? ban.name : isLupta() ? CONFIG.lupta.rainbowBonus : '');
     if (ban.kind === 'duel') {
       text(c, label, W / 2, y0 + 30, 40, '#C4573D', { title: true, halo: 0 });
       text(c, T(ban.mid ? 'duel.mid' : 'duel.guard', T('duel.' + ban.id)), W / 2, y0 + 66, 26, '#7A4A52', { halo: 0, shadow: 0, weight: 'bold' });

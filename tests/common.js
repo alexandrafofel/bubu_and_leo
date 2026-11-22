@@ -15,7 +15,7 @@ module.exports = async function boot(opts = {}) {
     await page.mouse.click(900, 500); await page.waitForTimeout(300);
     await page.evaluate((game) => {
       const G = __game, I = G.Input, orig = I.poll; window.inp = [{}, {}]; window.joined = [true, true];
-      I.poll = function (dt) { orig(dt); const S = I.slots; for (let k = 0; k < 2; k++) { const s = S[k], b = inp[k]; s.joined = joined[k]; if (b.x != null) { s.x = b.x; s.y = b.y; } if (b.aP) { s.aP = true; b.aP = false; } if (b.a) s.a = true; if (b.aR) { s.aR = true; b.aR = false; } if (b.hP || b.bP) { s.hP = true; b.hP = false; b.bP = false; } if (b.cP) { s.cP = true; b.cP = false; } if (b.c) s.c = true; if (b.cR) { s.cR = true; b.cR = false; } if (b.runP) { s.runP = true; b.runP = false; } if (b.run) s.run = true; } if (inp.pause) { I.pause = true; inp.pause = false; } };
+      I.poll = function (dt) { orig(dt); const S = I.slots; for (let k = 0; k < 2; k++) { const s = S[k], b = inp[k]; s.joined = joined[k]; if (b.x != null) { s.x = b.x; s.y = b.y; } if (b.aP) { s.aP = true; b.aP = false; } if (b.a) s.a = true; if (b.aR) { s.aR = true; b.aR = false; } if (b.hP || b.bP) { s.hP = true; b.hP = false; b.bP = false; } if (b.cP) { s.cP = true; b.cP = false; } if (b.c) s.c = true; if (b.cR) { s.cR = true; b.cR = false; } if (b.runP) { s.runP = true; b.runP = false; } if (b.run) s.run = true; if (b.gP) { s.gP = true; b.gP = false; } if (b.g) s.g = true; } if (inp.pause) { I.pause = true; inp.pause = false; } };
       window.step = (n) => { for (let i = 0; i < n; i++) { I.poll(1 / 60); G.update(1 / 60); } G.draw(); };
       step(2);                                   // boot -> the title screen
       G.setGame(game); G.Game.toTitle(); step(2);

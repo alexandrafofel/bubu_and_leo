@@ -347,3 +347,12 @@ Cererea proprietarei: "scoate jocul Bubu si Leo, lasa doar Cea mai grea lupta. M
 | L1 = indicele 4 in gamepad, tastele `KeyR` si `Period` | Cererea din C6. Tastele nu se ciocnesc cu cele existente sau cu `RESERVED`. |
 | L1 se adauga in `KEY_FIELDS`, deci apare ca rand in "Alege tastele" | Jucatorii il pot muta ca pe celelalte butoane. |
 | O salvare veche fara `g` pastreaza valoarea implicita | `apply()` copiaza doar campurile care exista in salvare. |
+
+### T14.4 si T14.5: dat cu L1 si sfarsitul nivelului (22 noiembrie 2026)
+
+| Decizie | De ce |
+|---|---|
+| Oul in zbor urmareste prietenul, nu un punct fix | Prietenul se misca; oul nu trebuie sa se piarda. |
+| Oul in zbor se numara la limita prietenului (`flying`) | Altfel doua apasari rapide ar trece peste `cap`. |
+| Cand lipsesc oua la amandoi, bannerul `need` il numeste pe cel care are mai mult de gasit | Un singur mesaj clar. |
+| `tests/common.js` primeste `inp[k].gP` si `inp[k].g` | Testele pot apasa L1 fara controller. |

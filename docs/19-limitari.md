@@ -151,3 +151,10 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 
 - L1 se aprinde la apasare (`gP`), dar nu face nimic inca: actiunea (ouul pentru prieten) e in T14.4.
 - Desenul lui L1 in testerul de controller e o pastila simpla cu litere, nu o iconita pictata. Se poate schimba daca proprietara vrea.
+
+## T14.4 si T14.5 (22 noiembrie 2026)
+
+- Oul in zbor, balonul "Apropie-te de {0}!" si bannerul `need` nu au fost vazute pe un ecran real, nici cu controllere si copii.
+- Numarul eroului nu se clatina inca (insigna e in T14.7); `h.numT` e pregatit.
+- Nu exista ajutor automat: daca nimeni nu da oua, jocul asteapta in cuib pana intervine un copil (T14.6).
+- Cand un jucator intra in mijlocul nivelului, oul in plus nu se muta inca (C14, T14.6).

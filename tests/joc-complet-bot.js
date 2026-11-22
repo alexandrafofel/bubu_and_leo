@@ -38,7 +38,11 @@ const GAME = process.argv[2] === 'lupta' || process.argv[2] === 'bubu' ? process
       if (h.down || l.down) return;
       if (f % 90 === 0) S[1].aP = true; if (f % 90 < 12) S[1].a = true; if (f % 90 === 12) S[1].aR = true;
       S[1].x = Math.sin(f / 50); S[1].y = Math.cos(f / 70);
-      if (P.nestOpen) { h.x = L.nest.x - 40; h.y = L.nest.y; l.x = L.nest.x + 40; l.y = L.nest.y; return; }
+      if (P.nestOpen) {
+        h.x = L.nest.x - 40; h.y = L.nest.y; l.x = L.nest.x + 40; l.y = L.nest.y;
+        if (f % 8 === 0 && P.q && !P.gifts.length && !(G.quotaState(0).ok && G.quotaState(1).ok)) S[P.found[0] >= P.found[1] ? 0 : 1].gP = true;      // the quota (T14.4): the one with more gives to the one with less, with L1, one egg at a time (the next after the last has landed)
+        return;
+      }
       if (f % 6) return;
       let best = null, bd = 1e9;
       for (const e of P.eggs) if (e.delay <= 0 && e.state === 'idle' && !(e.wait > 0)) { const d = Math.hypot(e.x - h.x, e.y - h.y); if (d < bd) { bd = d; best = e; } }
@@ -56,7 +60,7 @@ const GAME = process.argv[2] === 'lupta' || process.argv[2] === 'bubu' ? process
       for (; n < 600; n++) { G.Input.poll(1 / 60); G.update(1 / 60); if (G.Game.state + ':' + G.Game.levelIdx !== st0) break; }
       G.draw();
       const P = G.P;
-      return { st: G.Game.state + ':' + G.Game.levelIdx, t: P ? Math.round(P.time) : 0, eggs: G.Game.team.eggs, stars: G.Game.team.stars, wave: P ? P.wave : -1, left: P ? P.eggs.filter(e => e.req).length : 0, nest: P ? P.nestOpen : 0, boss: P && P.boss ? P.boss.state + P.boss.phase : '', parts: P ? P.parts.length : 0 };
+      return { st: G.Game.state + ':' + G.Game.levelIdx, t: P ? Math.round(P.time) : 0, eggs: G.Game.team.eggs, stars: G.Game.team.stars, wave: P ? P.wave : -1, left: P ? P.eggs.filter(e => e.req).length : 0, found: P ? P.found.join('/') + ' q' + P.q + ' g' + P.gifts.length : '', nest: P ? P.nestOpen : 0, boss: P && P.boss ? P.boss.state + P.boss.phase : '', parts: P ? P.parts.length : 0 };
     });
     seen[r.st.split(':')[0]] = true;
     if (r.st !== last) { console.log(JSON.stringify(r)); last = r.st; if (/^(intro|levelEnd|ending)/.test(r.st)) { await page.evaluate(() => { for (let i = 0; i < 70; i++) { __game.Game.t += 1 / 60; if (__game.Game.state === 'intro') __game.UI.introT += 0; } __game.draw(); }); } }

@@ -380,3 +380,9 @@ Sapte defectiuni, toate prinse: ochi fara `flip` (lucirea trece in dreapta), `li
 ## Update 22 noiembrie 2026: butonul L1 (sarcina T14.3)
 
 Verificare T14.3: `tests/setari-ui.js` si `tests/tastatura-reala.js` trec (`errors 0`). Tasta `KeyR` (jucatorul 1) si `Period` (jucatorul 2) sunt in `CONFIG.keys` si in `KEY_FIELDS`, deci apar in pagina "Alege tastele". Testerul de controller din Setari arata L1 in coltul de sus, stanga. Un script scurt a verificat ca tasta R si valoarea implicita a salvarilor vechi merg. Pagina "Alege tastele" are acum 11 randuri (9 taste si 2 butoane); `tests/control-nou.js` si-a schimbat asteptarea de la 10 la 11 si verifica ca incape (1046 din 1048 unitati). Verificarea cu tasta R: `Input.slots[0].g` ramane adevarat cat tasta e tinuta si se intoarce la fals cand e lasata. `gP` e un front de un singur cadru, deci nu se citeste dupa o apasare lunga. Nu s-a verificat un apasat real de L1 pe un controller DualShock.
+
+## Update 22 noiembrie 2026: dat cu L1 si sfarsitul nivelului (T14.4, T14.5)
+
+Verificare (script scurt; `tests/cota.js` vine in T14.9; verificarile 4, 5 si 6 din `27-cota-de-oua.md`): prea departe nu da, fara oua nu da, un ou dat ajunge la prieten chiar daca cel care a dat e lovit, prietenul plin nu primeste, cota 10 cu 15 si 7 in cuib nu termina nivelul si `needT` creste, dupa trei oua date nivelul se termina. Cu `CONFIG.quota.on = false` verificarile pica. Harness-ul (`tests/common.js`) a primit `inp[k].gP` si `inp[k].g`.
+
+Testele vechi adaptate: `tests/cuib-amandoi.js` da fiecarui erou cota (`P.found = [q, q]`) inainte de verificarea cuibului. `tests/joc-complet-bot.js`: in cuib, cel cu mai multe oua da cu L1 celui cu mai putine, **un ou odata** (urmatorul dupa ce precedentul a ajuns), altfel ouale in zbor nu se numara si se plimba intre eroi fara sfarsit. Linia de stare a botului arata acum `found`.

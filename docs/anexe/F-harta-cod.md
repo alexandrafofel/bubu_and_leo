@@ -71,7 +71,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 690-691 | A painted card (panel) used by menus and story screens. |
 | 692-725 | Things that never change are painted once and then stamped: much faster per frame. |
 
-## 03-audio.js (550 linii)
+## 03-audio.js (551 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -86,13 +86,13 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 353-366 | Talk(k, word): hero k says one of its words. Routed like the hero's other sounds (own speaker when one was chosen). |
 | 367-368 | sound effects |
 | 369-370 | Every effect gets: b = the bus to play on, t = the time now on that bus, x = an optional value. |
-| 371-385 | the heroes' own sounds (volume "Sunete personaje"; they can play in the controller) |
-| 386-461 | the world (volume "Sunete ambientale") |
-| 462-464 | Running (L3) in the first game too: the same short soft whoosh. |
-| 465-475 | play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. |
-| 476-477 | the controller's own speaker (only when the system shows it as an audio output) |
-| 478-518 | Chrome only tells the names of the speakers after the microphone permission was given (ask = true asks for it). |
-| 519-550 | Voice-over with a system voice in the chosen language, when one is installed. |
+| 371-386 | the heroes' own sounds (volume "Sunete personaje"; they can play in the controller) |
+| 387-462 | the world (volume "Sunete ambientale") |
+| 463-465 | Running (L3) in the first game too: the same short soft whoosh. |
+| 466-476 | play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. |
+| 477-478 | the controller's own speaker (only when the system shows it as an audio output) |
+| 479-519 | Chrome only tells the names of the speakers after the microphone permission was given (ask = true asks for it). |
+| 520-551 | Voice-over with a system voice in the chosen language, when one is installed. |
 
 ## 04-input.js (166 linii)
 
@@ -168,35 +168,36 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 880-891 | Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). |
 | 892-985 | The boss arena: one screen, the tallest tree in the valley. |
 
-## 07-play.js (969 linii)
+## 07-play.js (999 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 2-18 | GAMEPLAY: heroes, powers, eggs, stars, enemies, wind, butterfly, boss |
 | 19-22 | Which button an ability sits on for this hero: 1 = ✕ (the first power), 2 = □ (the second). Decides the word and the hint. |
 | 23-43 | Builds chapter idx: a level (its number inside the game is ch.n) or a big fight. L.ch remembers the chapter. |
-| 44-90 | the egg quota (docs/27-cota-de-oua.md) |
-| 91-112 | particles |
-| 113-137 | collisions |
-| 138-157 | eggs and stars |
-| 158-171 | Second game only: crystals come in seven colors. One of each color = a rainbow: a few bonus crystals for the team. |
-| 172-199 | The order on a level: wave 1, wave 2, MIDDLE FIGHT (after the second-to-last wave), wave 3, NEST FIGHT, then the nest opens. |
-| 200-249 | How many seconds the friend has. After a few restarts of the same chapter the children get more time (the safety net). |
-| 250-265 | rescue: the friend helps a hero who was hit |
-| 266-289 | □ pressed. The first hero must stand close (a hug, healing hands). The second one may stand far: he sends a magic ball. |
-| 290-297 | A small enemy loses one of its hits. true = that was the last one: it disappears, another one comes later. |
-| 298-340 | powers |
-| 341-342 | The gloves shake the controller in three short beats (0, 0.28 and 0.56 s), so they feel different in the hand. |
-| 343-358 | A stomp (or the claws) next to the big tree, or next to George's throne, shakes it. |
-| 359-381 | This hero can throw again: everything of his is home, or his cooldown is over. |
-| 382-511 | A second press while his things are still out (inside the cooldown) calls back everything of HIS. The friend's stay out. |
-| 512-532 | The spin (claws, gloves, or Bubu's stomp) of one hero, on its own button. |
-| 533-561 | The throw (balls or bones) of one hero, on its own button. |
-| 562-693 | One ball in the air. Returns false when the ball has come home to Leo and can go. |
-| 694-694 | boss: Ciori in the tallest tree (first game), George on his stone throne (second game) |
-| 695-765 | Where the ball must land. Ciori: the nest in the tree. George: George himself, while he lies dizzy on the ground. |
-| 766-803 | second game: big birds that pick a hero up and carry him a little way (it does not hurt) |
-| 804-969 | Thrown things (pinecones, mud balls) fly in an arc and land on a marked spot. |
+| 44-51 | the egg quota (docs/27-cota-de-oua.md) |
+| 52-116 | L1: the hero gives one of his quota eggs to the friend. Returns true when an egg left. |
+| 117-138 | particles |
+| 139-163 | collisions |
+| 164-183 | eggs and stars |
+| 184-197 | Second game only: crystals come in seven colors. One of each color = a rainbow: a few bonus crystals for the team. |
+| 198-225 | The order on a level: wave 1, wave 2, MIDDLE FIGHT (after the second-to-last wave), wave 3, NEST FIGHT, then the nest opens. |
+| 226-275 | How many seconds the friend has. After a few restarts of the same chapter the children get more time (the safety net). |
+| 276-291 | rescue: the friend helps a hero who was hit |
+| 292-315 | □ pressed. The first hero must stand close (a hug, healing hands). The second one may stand far: he sends a magic ball. |
+| 316-323 | A small enemy loses one of its hits. true = that was the last one: it disappears, another one comes later. |
+| 324-366 | powers |
+| 367-368 | The gloves shake the controller in three short beats (0, 0.28 and 0.56 s), so they feel different in the hand. |
+| 369-384 | A stomp (or the claws) next to the big tree, or next to George's throne, shakes it. |
+| 385-407 | This hero can throw again: everything of his is home, or his cooldown is over. |
+| 408-538 | A second press while his things are still out (inside the cooldown) calls back everything of HIS. The friend's stay out. |
+| 539-559 | The spin (claws, gloves, or Bubu's stomp) of one hero, on its own button. |
+| 560-588 | The throw (balls or bones) of one hero, on its own button. |
+| 589-720 | One ball in the air. Returns false when the ball has come home to Leo and can go. |
+| 721-721 | boss: Ciori in the tallest tree (first game), George on his stone throne (second game) |
+| 722-792 | Where the ball must land. Ciori: the nest in the tree. George: George himself, while he lies dizzy on the ground. |
+| 793-830 | second game: big birds that pick a hero up and carry him a little way (it does not hurt) |
+| 831-999 | Thrown things (pinecones, mud balls) fly in an arc and land on a marked spot. |
 
 ## 075-duel.js (378 linii)
 
@@ -213,23 +214,23 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 341-354 | Things on the ground during a mini-fight: where the next attack will land, shadows. (The shelter ring is in drawNestShelter.) |
 | 355-378 | Things above everything: flying guardians, thrown pinecones, leaves, hearts. |
 
-## 08-draw.js (676 linii)
+## 08-draw.js (689 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 2-42 | DRAWING THE GAME: world, heroes, effects, HUD |
 | 43-91 | Boon's claws while they spin: rainbow slashes that run around him, on a soft shield. |
 | 92-162 | The trail of a running hero: three fading copies of him, and six speed lines behind. |
-| 163-379 | Small enemies show how many hits they still take, once they were hit. |
-| 380-477 | The helper arrow: a soft arrow next to a hero that shows where to go and, in a small bubble, what waits there. |
-| 478-535 | How far the level is: eggs in groups, then the guardian, then the nest. |
-| 536-536 | "We wait for X in the nest": it used to be written in the world, over the nest. Now it is a banner in the band. |
-| 537-547 | "Ajută-l pe Boon! ○" while a friend is down and the seconds are running. It comes before any other banner. |
-| 548-618 | The card in the middle, with what a banner says when there is one. A banner never comes down over the world. |
-| 619-628 | The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. |
-| 629-636 | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
-| 637-652 | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
-| 653-676 | George's arena (the last level of the second game) |
+| 163-381 | Small enemies show how many hits they still take, once they were hit. |
+| 382-486 | The helper arrow: a soft arrow next to a hero that shows where to go and, in a small bubble, what waits there. |
+| 487-544 | How far the level is: eggs in groups, then the guardian, then the nest. |
+| 545-545 | "We wait for X in the nest": it used to be written in the world, over the nest. Now it is a banner in the band. |
+| 546-560 | "Ajută-l pe Boon! ○" while a friend is down and the seconds are running. It comes before any other banner. |
+| 561-631 | The card in the middle, with what a banner says when there is one. A banner never comes down over the world. |
+| 632-641 | The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. |
+| 642-649 | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
+| 650-665 | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
+| 666-689 | George's arena (the last level of the second game) |
 
 ## 09-screens.js (957 linii)
 
