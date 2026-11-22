@@ -118,6 +118,25 @@ function spline(pts, stepLen) {          // Catmull-Rom through points, resample
   return out;
 }
 
+/* The quota of level idx (0-based), or 0 when the quota is off or the numbers do not fit (then the old rule is used: 60 eggs, no quota).
+   The numbers fit when the map has between 2q and 2 x cap eggs to give: fewer and the level cannot be finished, more and both heroes could be full. */
+let _quotaBad = false;
+function quotaOf(idx) {
+  const Qc = CONFIG.quota;
+  if (!Qc || !Qc.on) return 0;
+  const q = Qc.perLevel && Qc.perLevel[idx];
+  if (!(q > 0) || !(Qc.extra >= 2 && Qc.extra <= 2 * Qc.cap)) {
+    if (!_quotaBad) { _quotaBad = true; console.error('CONFIG.quota: extra must be between 2 and 2 * cap, and perLevel needs a value for every level'); }
+    return 0;
+  }
+  return q;
+}
+/* How long a level lasts (seconds): the sun, the medal and the help in updatePlay read this, not CONFIG.levelDuration. */
+function levelDurationOf(L) {
+  const E = L && L.totalEggs || 0;
+  return Math.max(CONFIG.levelDuration, L && L.q ? E / CONFIG.eggsPerMinute * 60 : 0);
+}
+for (let i = 0; i < CONFIG.levels; i++) quotaOf(i);      // a wrong CONFIG.quota is reported once, when the game starts
 function genLevel(idx, seed) {
   const def = levelDef(idx), r = rng(seed), WW = 3200, WH = 1800, cols = WW / CS, rows = WH / CS;
   const NW = clamp(CONFIG.wavesPerLevel | 0, 1, 5);
@@ -392,8 +411,8 @@ function genLevel(idx, seed) {
   L.dynTrees = L.trees.filter(t => t.dyn);
 
   // ---- golden eggs, in waves from left to right ------------------------------
-  const total = Math.max(NW, Math.round(CONFIG.levelDuration / 60 * CONFIG.eggsPerMinute)), quota = Math.round(total / NW);
-  L.totalEggs = 0;
+  const Q = quotaOf(idx), total = Math.max(NW, Q ? Math.ceil(CONFIG.quota.extra * Q) : Math.round(CONFIG.levelDuration / 60 * CONFIG.eggsPerMinute)), quota = Math.round(total / NW);
+  L.q = Q; L.totalEggs = 0;
   for (let k = 0; k < NW; k++) {
     const [x0, x1] = region(k), pts = [];
     const sparkN = L.trees.reduce((a, t) => a + (t.spark && t.spark.wave === k ? t.spark.n : 0), 0);
@@ -412,6 +431,7 @@ function genLevel(idx, seed) {
     if (pts.length < Math.min(4, ground)) return null;
     L.waves.push(pts); L.totalEggs += pts.length + sparkN;
   }
+  if (Q && (L.totalEggs < 2 * Q || L.totalEggs > 2 * Math.ceil(CONFIG.quota.cap * Q))) return null;      // buildLevel tries the next seed: both heroes must be able to finish, and nobody may block the other
 
   // ---- lanterns along the path (sunset level) --------------------------------
   if (def.lanterns) {

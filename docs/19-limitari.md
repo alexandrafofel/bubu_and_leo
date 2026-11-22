@@ -101,6 +101,18 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - Cum se simt vibratiile de fiecare secunda pe un controller adevarat, mai ales cele dese din ultimele 3 secunde: pot deveni suparatoare.
 - Daca lumina de pe margini se vede destul pe televizorul familiei, peste jungla de noapte.
 
+## T14.1 (22 noiembrie 2026)
+
+- Nivelurile 7 - 12 nu exista inca; `perLevel` are deja cifrele lor.
+- Nimic din joc nu se schimba pentru erou: luarea ouului cu cota e T14.2.
+- Numarul de oua pe nivel difera cu 1 - 2 de tabelul din `27-cota-de-oua.md` (rotunjire pe val). Daca proprietara vrea cifre exacte, valurile trebuie sa imparta restul.
+
+## T14.2 (22 noiembrie 2026)
+
+- Balonul "Plin!" e un cartonas mic (`drawHints`), verificat doar prin test, nu cu ochii pe un ecran real. Nu e verificat pe un Mac cu controllere si copii.
+- Nu exista inca modul de a da oua prietenului (L1, T14.4): un erou plin trebuie sa lase oul pe jos, iar celalalt sa vina dupa el.
+- Nivelul inca se termina ca inainte (T14.5 muta sfarsitul pe cota).
+
 ## T6.1 (21 noiembrie 2026): ce nu s-a putut verifica
 
 - **Cum arata `lit()` pe personaje adevarate.** A fost verificat pe trei forme rotunde de proba. Boon, Killer si George au forme compuse din multe bucati; abia la T6.4 se vede daca lumina sta bine pe ele.
@@ -135,6 +147,38 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - **George cazand in arena** se roteste: lumina se roteste cu el. Dureaza o clipa.
 - **Bubu si Leo** folosesc inca `drawEye` vechi (neschimbat). Nu se mai joaca.
 
+## T14.3 (22 noiembrie 2026)
+
+- L1 se aprinde la apasare (`gP`), dar nu face nimic inca: actiunea (ouul pentru prieten) e in T14.4.
+- Desenul lui L1 in testerul de controller e o pastila simpla cu litere, nu o iconita pictata. Se poate schimba daca proprietara vrea.
+
+## T14.4 si T14.5 (22 noiembrie 2026)
+
+- Oul in zbor, balonul "Apropie-te de {0}!" si bannerul `need` nu au fost vazute pe un ecran real, nici cu controllere si copii.
+- Numarul eroului nu se clatina inca (insigna e in T14.7); `h.numT` e pregatit.
+- Nu exista ajutor automat: daca nimeni nu da oua, jocul asteapta in cuib pana intervine un copil (T14.6).
+- Cand un jucator intra in mijlocul nivelului, oul in plus nu se muta inca (C14, T14.6).
+
+## T14.6 (22 noiembrie 2026)
+
+- **Greseala reparata din T14.4**: balonul "Apropie-te de {0}!" folosea `h.farT`, care era deja timerul "sunt departe unul de altul" din `updatePlay` (cel care face eroul sa-si strige prietenul). `updatePlay` il punea pe 0 la fiecare cadru cat eroii erau mai aproape de 1200 de unitati, deci balonul se stergea imediat si nu se vedea niciodata, iar strigatul "unde esti?" se amana. Campul nou se numeste `tooFarT`. Lectia pentru orice camp nou pe erou: `grep` intai, cum cere `CLAUDE.md`.
+- Ajutorul automat n-a fost vazut la viteza adevarata (120 de secunde); testul a folosit 3 secunde.
+- Bannerul `quota.auto` nu are inca o imagine langa text (celelalte bannere au).
+- Nu s-a verificat nimic pe un Mac cu controllere si copii. In special: daca un copil de 6 ani intelege ca prietenul i-a trimis un ou.
+
+## T14.7 - T14.9 (22 noiembrie 2026)
+
+- Insigna, bannerele si ecranul de sfarsit nu au fost vazute pe un Mac, cu controllere si cu copii; doar in capturi de ecran.
+- Butonul L1 al unui controller adevarat (butonul 4) a fost incercat doar cu controllere false.
+- Interactia dintre oul dat cu L1 si mingile aruncate nu a fost incercata cu copii.
+- Numarul de oua pe nivel urmeaza valurile (ex. 21 pe nivelul 1, nu 22): intrebare deschisa pentru proprietara.
+
+## T14.10 (22 noiembrie 2026)
+
+- Botii joaca, dar nu joaca *ca niste copii*: `balanseaza()` cheama `giveEgg` direct, nu apasa L1 la momentul potrivit. Daca butonul L1 al unui controller adevarat nu ajunge la joc, testele nu prind asta.
+- `nivele-bot-mers.js` joaca singur, deci drumul in care doi copii isi impart diamantele pe un nivel intreg nu e mers cu adevarat de nimeni; `joc-complet-bot.js` il face, dar mutand eroii direct.
+- Numarul de diamante pe nivel urmeaza valurile (21 pe nivelul 1, nu 22): intrebare deschisa pentru proprietara, vezi `28-t15-george-de-doua-ori.md`, G3.
+- Nimic din cota nu a fost incercat pe un Mac, cu controllere, cu copii. Lucrurile pe care nu le poate spune niciun test sunt in `27-cota-de-oua.md`, C11: daca cel de 6 ani intelege ca a primit un diamant, daca cel de 8 ani da din proprie initiativa, si daca cele doua minute pana la ajutorul automat sunt prea multe.
 ## T6.5 (22 noiembrie 2026): ce nu s-a putut verifica
 
 - **Cum se simte miscarea pe ecranul mare, la 60 de cadre reale.** S-a vazut pe GIF (15 cadre pe secunda) si pe capturi.

@@ -85,7 +85,7 @@ const Save = {
   /* the furthest chapter open on the Chapters screen (-1: no chapter was ever finished, the button is not shown) */
   maxOpen(id) { const s = this.slot(id); return s && (s.max | 0) > 0 ? Math.min(s.max | 0, chapters(id).length - 1) : -1; }
 };
-const KEY_FIELDS = ['up', 'down', 'left', 'right', 'a', 'b', 'c', 'r'];      // a = first power (✕), b = help (○), c = second power (□), r = run (L3)
+const KEY_FIELDS = ['up', 'down', 'left', 'right', 'a', 'b', 'c', 'r', 'g'];      // a = first power (✕), b = help (○), c = second power (□), r = run (L3), g = give an egg (L1)
 
 /* Mouse: every clickable thing adds a rectangle while it is drawn. */
 function hitAdd(x, y, w, h, id, v, act, val) { UI.hits.push({ x, y, w, h, id, v, act, val }); }
@@ -468,7 +468,7 @@ function drawLoading(c, t) {
 
 /* ---------- level end ---------- */
 /* Three little medals give the bigger player something extra to aim for. */
-function levelMedals() { return [P.stars.length > 0 && P.levelStars >= P.stars.length, P.hits === 0, P.time <= CONFIG.levelDuration]; }
+function levelMedals() { return [P.stars.length > 0 && P.levelStars >= P.stars.length, P.hits === 0, P.time <= levelDurationOf(P.L)]; }
 function drawMedal(c, i, x, y, got, t) {
   const pop = got ? 1 + Math.sin(t * 3 + i) * 0.04 : 1;
   c.save(); c.translate(x, y); c.scale(pop, pop);
@@ -509,7 +509,7 @@ function drawRetry(c, t) {
 }
 function drawLevelEnd(c, t) {
   drawWorld(c); drawDim(c, 0.5);
-  const r = Game.lastRun || emptyResult(), cw = 1100, ch = 860, x = (W - cw) / 2, y = 110;      // what was gathered this time (the save keeps the best)
+  const r = Game.lastRun || emptyResult(), cw = 1100, ch = 900, x = (W - cw) / 2, y = 90;      // what was gathered this time (the save keeps the best)
   card(c, x, y, cw, ch, '#FFF6E2', 71);
   text(c, T('end.bravo'), W / 2, y + 104, 112, '#C4573D', { title: true, halo: 0 });
   text(c, lvlName(P.L.def), W / 2, y + 188, 40, '#B9802E', { halo: 0, shadow: 0 });
@@ -530,7 +530,13 @@ function drawLevelEnd(c, t) {
   }
   const te = Game.team.eggs, ts = Game.team.stars;
   text(c, T('end.team') + '   ' + te + ' ' + eggWord(te) + '   ·   ' + ts + ' ' + starWord(ts), W / 2, y + 716, 40, '#6A4250', { halo: 0, shadow: 0 });
-  if (UI.lvlT > 1.5) prompt(c, pressText(), W / 2, y + ch - 62, 50, t);
+  if (P.q > 0 && !P.L.boss && UI.lvlT > 0.6) for (let k = 0; k < 2; k++) {      // what each hero found of his quota (only read, nothing to press)
+    const qs = quotaState(k), gx = W / 2 + (k ? 1 : -1) * 240, col = qs.ok ? QUOTA_GREEN : QUOTA_RED;
+    drawPort(c, k, gx - 118, y + 772, 30, false);
+    fitText(c, qs.found + ' / ' + qs.q, gx - 70, y + 772, 44, 150, col, { align: 'left', halo: 0.12, haloCol: shade(col, -0.35), shadow: 0, weight: 'bold' });
+    if (qs.ok) drawTick(c, gx + 112, y + 772, 20);
+  }
+  if (UI.lvlT > 1.5) prompt(c, pressText(), W / 2, y + ch - 52, 50, t);
 }
 
 /* ---------- menus: pause and settings ----------
@@ -751,6 +757,9 @@ function drawPadTester(c, x, y, g, t) {
   c.fillStyle = b(10) ? '#3F5A9A' : live ? '#6D8FD0' : 'rgba(109,143,208,0.45)'; c.beginPath(); c.arc(sx + ax * 24, sy + ay * 24, 16, 0, TAU); c.fill();      // L3: the cap goes darker when the stick is pressed
   // OPTIONS
   c.fillStyle = b(9) ? '#C4573D' : off; c.beginPath(); c.ellipse(x + 190, y + 40, 22, 9, 0, 0, TAU); c.fill();
+  // L1 (top left shoulder): gives an egg to the friend
+  c.fillStyle = b(4) ? '#F8C24E' : off; c.beginPath(); c.ellipse(x + 62, y + 22, 30, 12, 0, 0, TAU); c.fill();
+  text(c, 'L1', x + 62, y + 24, 20, b(4) ? '#FFF8E8' : '#6A3A30', { halo: 0, shadow: 0, weight: 'bold' });
   // △ ○ ✕ □
   const fx = x + 276, fy = y + 86, shapes = [[3, 0, -1, '#6FB58A'], [1, 1, 0, '#E2574C'], [0, 0, 1, '#6D8FD0'], [2, -1, 0, '#D98AC0']];
   for (const sI of shapes) {

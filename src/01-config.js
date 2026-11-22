@@ -45,7 +45,17 @@ const CONFIG = {
   levels: 6,                   // levels before the boss (1 to 6)
   decorPerLevel: 1700,         // small meadow things per level (grass, daisies, pebbles...). 6 x 1700 = 10,200 with the rest
   levelDuration: 360,          // target seconds per level. Egg count scales with it.
-  eggsPerMinute: 10,           // eggs per level = levelDuration / 60 * eggsPerMinute
+  eggsPerMinute: 10,           // pace used for the level time: a level lasts max(levelDuration, eggs / eggsPerMinute * 60) seconds (levelDurationOf)
+  // The egg quota: every hero has to find `perLevel[level]` eggs, and may hold at most `cap` x that (the rest stays on the ground for the friend).
+  quota: {
+    on: true,                                              // false = the old rule (60 eggs, no quota)
+    perLevel: [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65],   // eggs each hero must find, level 1 .. 12
+    cap: 1.5,                                              // how much a hero may hold, as a part of the quota (1.5 = 150%)
+    extra: 2.2,                                            // eggs on the map = quota * extra (between 2 and 2 * cap)
+    giveRange: 420, giveEvery: 0.3, flyTime: 0.45,         // giving with L1 (later tasks): how near, how fast, how long an egg flies
+    autoGive: 120,                                         // seconds in the nest after which the game moves eggs by itself (0 = never)
+    autoEvery: 2                                           // seconds between two automatic moves
+  },
   wavesPerLevel: 3,            // eggs appear in this many groups, left to right
   starsPerLevel: 3,
   giantEggValue: 20,           // the secret egg in the cave (level 5)
@@ -136,8 +146,8 @@ const CONFIG = {
   deadzone: 0.25,              // stick deadzone (0.25 or more)
   vibration: true,
   keys: [                      // starting keys: player 1, player 2 (KeyboardEvent.code names)
-    { up: 'KeyW', down: 'KeyS', left: 'KeyA', right: 'KeyD', a: 'Space', b: 'KeyE', c: 'KeyQ', r: 'ShiftLeft' },   // a = first power (✕), b = help the friend (○), c = second power (□), r = run (L3)
-    { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', a: 'Enter', b: 'ShiftRight', c: 'Slash', r: 'AltRight' }
+    { up: 'KeyW', down: 'KeyS', left: 'KeyA', right: 'KeyD', a: 'Space', b: 'KeyE', c: 'KeyQ', r: 'ShiftLeft', g: 'KeyR' },   // a = first power (✕), b = help the friend (○), c = second power (□), r = run (L3), g = give an egg (L1)
+    { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', a: 'Enter', b: 'ShiftRight', c: 'Slash', r: 'AltRight', g: 'Period' }
   ],
 
   // ---- Run: press the left stick (L3) ----

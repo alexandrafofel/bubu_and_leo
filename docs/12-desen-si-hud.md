@@ -194,6 +194,13 @@ Trei copii ale eroului in spate (0.28, 0.18, 0.09), apoi sase linii subtiri de v
 
 Atentie la `text(...)`: `halo` este **grosimea conturului ca parte din marimea fontului** (0.2 implicit), nu un numar de pixeli. `halo: 5` deseneaza un cerc crem imens peste jumatate de ecran.
 
+## Update 22 noiembrie 2026: insigna cu cota (T14.7, T14.8)
+
+- `drawBadge` are 300 x 108: portret rotund (`drawPort`, inel in culoarea eroului), nume, dificultate sus in dreapta si, cand nivelul are cota, un ou / cristal mic si `gasite / cota`.
+- Numarul e verde (`QUOTA_GREEN`) cand e gata, cu bifa (`drawTick`), si rosu (`QUOTA_RED`) cand lipseste, cu o clatinare de 1 grad la 3 secunde. Creste la 1,25 cand soseste un ou (`numT`) si se scutura cand L1 nu are ce da (`noT`).
+- `drawMidCard` are bannerele `quotaDone` (portret, text pe 2 randuri, `iconL1` care pulseaza, sageata spre prieten) si `quotaBoth`; `waitBanner` intoarce `need` cand cota lipseste.
+- `guideTarget` trimite eroul plin spre prietenul care are nevoie (`give`) sau spre cuib. `drawHints` deseneaza balonul "Apropie-te" si "Plin!".
+- Banda de sus ramane liber de eroi: `STRICT=1 node ../hud-acoperire.js` da 0%.
 ## Update 22 noiembrie 2026 (T6.6, T6.7): planul din fata si harta de lumina
 
 Amandoua sunt doar pe nivelurile cu `look: 'diorama'` (7 - 12, cand vor exista) sau pe toate, cu `CONFIG.look.preview: true`. Nivelurile 1 - 6 raman cum erau. Se pun la incarcarea nivelului in `finishLook(L)` (`06-level.js`) si se desenează in `drawPlay`, dupa lume: intai harta de lumina, apoi planul din fata, apoi indicatiile si banda de sus.

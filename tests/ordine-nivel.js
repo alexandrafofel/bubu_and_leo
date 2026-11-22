@@ -15,7 +15,7 @@ const boot = require('./common.js');
         if (d && !d.over) { if (d.state !== 'enter' && d.state !== 'hurt' && d.state !== 'flee' && f % 20 === 0) duelHit(1); }
         else {
           for (const t of L.trees) if (t.spark && t.spark.active && !t.spark.done) shakeTree(t, 1, true);
-          for (const e of P.eggs.slice()) if (e.state === 'idle' && e.delay <= 0 && !(e.wait > 0)) collectEgg(e, 0);
+          for (const e of P.eggs.slice()) if (e.state === 'idle' && e.delay <= 0 && !(e.wait > 0)) collectEgg(e, P.found[0] < P.cap ? 0 : 1);   // the first hero is full after his share (T14.2): the friend takes the rest
         }
         step(1); f++;
       }

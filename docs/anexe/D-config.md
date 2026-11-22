@@ -52,6 +52,15 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `decorPerLevel` | `1700` |  |
 | `levelDuration` | `360` |  |
 | `eggsPerMinute` | `10` |  |
+| `quota.on` | `true` |  |
+| `quota.perLevel` | `[10,15,20,25,30,35,40,45,50,55,60,65]` |  |
+| `quota.cap` | `1.5` |  |
+| `quota.extra` | `2.2` |  |
+| `quota.giveRange` | `420` |  |
+| `quota.giveEvery` | `0.3` |  |
+| `quota.flyTime` | `0.45` |  |
+| `quota.autoGive` | `120` |  |
+| `quota.autoEvery` | `2` |  |
 | `wavesPerLevel` | `3` |  |
 | `starsPerLevel` | `3` |  |
 | `giantEggValue` | `20` |  |
@@ -138,6 +147,7 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `keys.0.b` | `"KeyE"` |  |
 | `keys.0.c` | `"KeyQ"` |  |
 | `keys.0.r` | `"ShiftLeft"` |  |
+| `keys.0.g` | `"KeyR"` |  |
 | `keys.1.up` | `"ArrowUp"` |  |
 | `keys.1.down` | `"ArrowDown"` |  |
 | `keys.1.left` | `"ArrowLeft"` |  |
@@ -146,6 +156,7 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `keys.1.b` | `"ShiftRight"` |  |
 | `keys.1.c` | `"Slash"` |  |
 | `keys.1.r` | `"AltRight"` |  |
+| `keys.1.g` | `"Period"` |  |
 | `sprint.enabled` | `true` |  |
 | `sprint.mult` | `3` |  |
 | `sprint.maxSpeed` | `1100` |  |
