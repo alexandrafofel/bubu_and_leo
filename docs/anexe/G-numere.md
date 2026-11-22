@@ -5,22 +5,22 @@
 | Ce | Cate |
 |---|---|
 | Fisiere sursa | 14 |
-| Linii de cod | 6409 |
-| Functii si metode | 510 |
-| Culori hex diferite | 541 |
+| Linii de cod | 6736 |
+| Functii si metode | 531 |
+| Culori hex diferite | 544 |
 | Texte (romana) | 201 |
 | Texte (engleza) | 201 |
 | Efecte sonore | 39 |
-| Valori in CONFIG | 226 |
+| Valori in CONFIG | 231 |
 
 ## Linii pe fisier
 
 | Fisier | Linii |
 |---|---|
 | 00-head.html | 16 |
-| 01-config.js | 241 |
+| 01-config.js | 251 |
 | 015-lang.js | 233 |
-| 02-core.js | 385 |
+| 02-core.js | 702 |
 | 03-audio.js | 550 |
 | 04-input.js | 163 |
 | 05-chars.js | 338 |

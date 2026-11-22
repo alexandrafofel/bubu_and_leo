@@ -4,7 +4,7 @@
 
 Fiecare functie, functie sageata si metoda din cod, in ordinea din fisier. Coloana "Comentariul din cod" este textul scris chiar langa functie. Explicatiile pe larg sunt in capitolele din docs/.
 
-Total: 510 intrari.
+Total: 531 intrari.
 
 ## 01-config.js
 
@@ -38,34 +38,55 @@ Nicio functie.
 | 31 | `rgba(h, a)` | functie |  |
 | 32 | `mix(h1, h2, t)` | functie |  |
 | 37 | `shade(h, t)` | functie sageata | darker = toward warm violet, lighter = toward cream. Never gray or black. |
-| 43 | `blobPath(c, x, y, rx, ry, seed, wob, n)` | functie |  |
-| 59 | `wash(c, x, y, rx, ry, col, o)` | functie | Watercolor wash: a few translucent layers plus a soft darker rim where pigment pools. |
-| 78 | `puff(c, x, y, rx, ry, fill, seed, edge, wob)` | functie | Opaque painted shape for characters: solid fill with a soft colored rim. |
-| 83 | `soft(c, x, y, rx, ry, col, alpha, seed)` | functie |  |
-| 89 | `brushLine(c, pts, width, col, alpha, seed)` | functie | A wobbly brush line through points. |
-| 103 | `makeCanvas(w, h)` | functie |  |
-| 106 | `topColor(cv)` | functie | The colour of the very first pixel of a painting: the sky at the top. Used to fill the strip above the world when the camera looks a little higher than the painting goes (docs/24-sisteme-noi.md, S6). |
-| 113 | `makePaper()` | functie |  |
-| 120 | `samp(arr, w, u, v)` | functie sageata |  |
-| 145 | `makeOverlay(tint, tintA, vig, night)` | functie | Per-scene overlay = paper + warm light tint + soft violet-brown vignette. |
-| 161 | `skyCols(t)` | functie |  |
-| 169 | `paintSky(c, x, y, w, h, t, seed, o)` | functie |  |
-| 195 | `paintNightSky(c, x, y, w, h, seed, o)` | functie | The sky of the second game: night, a big moon, stars and northern lights in the seven rainbow colors. |
-| 220 | `paintMountains(c, x, yBase, w, hgt, seed)` | functie | Two rows of pointed mountains with pale snow on top, for George's arena. |
-| 236 | `paintHills(c, x, yBase, w, hgt, t, seed, cols, night)` | functie | Layered distant hills along a horizon line. night = the colors are used as they are (no afternoon haze). |
-| 255 | `setFont(c, size, title, weight)` | functie | Text. No black outlines: a soft cream halo and a warm shadow instead. |
-| 258 | `text(c, str, x, y, size, col, o)` | functie |  |
-| 271 | `wrapLines(c, str, maxW, size, title)` | functie |  |
-| 283 | `iconX(c, x, y, r, pulse)` | functie | The ✕ button as a painted icon (blue cross on a cream disc). |
-| 293 | `iconSq(c, x, y, r, pulse)` | functie | The □ button as a painted icon (pink square on a cream disc): help the friend. |
-| 304 | `iconO(c, x, y, r, pulse)` | functie | ○: help the friend. Same shape as ✕ and □, in the warm coral of the ○ button. |
-| 314 | `iconL3(c, x, y, r, t)` | functie | L3: the cap of the left stick with the letter L and a little arrow pressing it down. |
-| 328 | `richText(c, str, x, y, size, col, o)` | functie |  |
-| 342 | `starPath(c, x, y, r, rot)` | functie |  |
-| 353 | `sprite(key, w, h, paint)` | functie | Things that never change are painted once and then stamped: much faster per frame. |
-| 358 | `card(c, x, y, w, h, col, seed)` | functie |  |
-| 363 | `paintCard(c, x, y, w, h, col, seed)` | functie |  |
-| 366 | `p(dx, dy, sc, fill, a)` | functie sageata |  |
+| 48 | `blobPath(c, x, y, rx, ry, seed, wob, n)` | functie |  |
+| 64 | `wash(c, x, y, rx, ry, col, o)` | functie | Watercolor wash: a few translucent layers plus a soft darker rim where pigment pools. |
+| 83 | `puff(c, x, y, rx, ry, fill, seed, edge, wob)` | functie | Opaque painted shape for characters: solid fill with a soft colored rim. |
+| 88 | `soft(c, x, y, rx, ry, col, alpha, seed)` | functie |  |
+| 112 | `lit(c, path, col, o)` | functie | ---- One object with volume, in the new look (docs/24-sisteme-noi.md, S7.1) ---- Five layers, always in this order: the cast shadow that glues the object to the ground, the dark contact line under it, the shape itself with a gradient, the rim light that lifts it off the background, and a gloss spot on shiny materials. Every painter of the new look goes through here, so the one light (KEY from the upper left, FILL from the lower right) falls the same way on everything. c the context path a function (c) that builds the contour: one closed path. It is called a few times col the color of the object o x, y where the object stands on the ground: the middle of its base w, h how wide and how tall it is. The shadow and the gradient are built from these gloss 0 to 1, how shiny the material is. 0 = no gloss spot at all. Left out: the gloss of the material mat the name of a material (see MATERIALS below), or a painter (c, o, path) of your own. It is called inside the shape, over the gradient, and cut to the contour seed for the hand-painted wobble of the gloss spot shadow false = no cast shadow (things that do not stand on the ground: a thrown bone, a cloud) The rim light is painted by stroking the same path a little moved, inside the clip of the shape: moved down-right it shows along the upper-left edge (KEY), moved up-left along the lower-right one (FILL). No createRadialGradient, no createPattern, no shadowBlur: this runs on every frame (S7.7). |
+| 161 | `matOf(m)` | functie |  |
+| 169 | `matPattern(key, w, h, paint)` | functie | The pattern of a tile of w x h units. sprite() paints at double size, so the pattern is shrunk by half to be w x h again. |
+| 182 | `matFill(c, pat, o, alpha, part)` | functie | Fills the box of the shape with a pattern. part 'back' = only its left half: the back of a hero, who faces right (the painters flip the whole hero, so "left" is always the back). |
+| 190 | `paintScaleTile(c)` | functie | scale: little half circles in rows that are shifted by half a scale. The tile repeats without a seam (every scale is also drawn one tile away) |
+| 199 | `paint(c, o)` | metoda |  |
+| 207 | `paintWeaveTile(c)` | functie | fabric: a very fine weave (lines that cross) and, 4 units inside the edge, a line of stitches |
+| 213 | `paint(c, o, path)` | metoda |  |
+| 229 | `paint(c, o)` | metoda |  |
+| 240 | `paintPoreTile(c)` | functie | bone: almost smooth. A few small pores, and one crack with a pale edge beside it. The tile is big (64 x 64) and the pores sit at random, in lone ones and in little groups: a small tile repeats like a grid |
+| 251 | `paint(c, o)` | metoda |  |
+| 267 | `paintGrainTile(c)` | functie | wood: long grain lines that wiggle a little, a couple of knots, and lighter plank ends |
+| 278 | `paint(c, o)` | metoda |  |
+| 295 | `paintScratchTile(c)` | functie | metal: bands of light (light, dark, light), little rivets with a shadow, and fine pale scratches |
+| 304 | `paint(c, o)` | metoda |  |
+| 321 | `paintBlotchTile(c)` | functie | stone: big irregular blotches in two tones, cracks, and moss low down |
+| 331 | `paint(c, o)` | metoda |  |
+| 351 | `paint(c, o)` | metoda |  |
+| 353 | `pt(i)` | functie sageata |  |
+| 369 | `paint(c, o, path)` | metoda |  |
+| 387 | `paint(c, o)` | metoda |  |
+| 406 | `brushLine(c, pts, width, col, alpha, seed)` | functie | A wobbly brush line through points. |
+| 420 | `makeCanvas(w, h)` | functie |  |
+| 423 | `topColor(cv)` | functie | The colour of the very first pixel of a painting: the sky at the top. Used to fill the strip above the world when the camera looks a little higher than the painting goes (docs/24-sisteme-noi.md, S6). |
+| 430 | `makePaper()` | functie |  |
+| 437 | `samp(arr, w, u, v)` | functie sageata |  |
+| 462 | `makeOverlay(tint, tintA, vig, night)` | functie | Per-scene overlay = paper + warm light tint + soft violet-brown vignette. |
+| 478 | `skyCols(t)` | functie |  |
+| 486 | `paintSky(c, x, y, w, h, t, seed, o)` | functie |  |
+| 512 | `paintNightSky(c, x, y, w, h, seed, o)` | functie | The sky of the second game: night, a big moon, stars and northern lights in the seven rainbow colors. |
+| 537 | `paintMountains(c, x, yBase, w, hgt, seed)` | functie | Two rows of pointed mountains with pale snow on top, for George's arena. |
+| 553 | `paintHills(c, x, yBase, w, hgt, t, seed, cols, night)` | functie | Layered distant hills along a horizon line. night = the colors are used as they are (no afternoon haze). |
+| 572 | `setFont(c, size, title, weight)` | functie | Text. No black outlines: a soft cream halo and a warm shadow instead. |
+| 575 | `text(c, str, x, y, size, col, o)` | functie |  |
+| 588 | `wrapLines(c, str, maxW, size, title)` | functie |  |
+| 600 | `iconX(c, x, y, r, pulse)` | functie | The ✕ button as a painted icon (blue cross on a cream disc). |
+| 610 | `iconSq(c, x, y, r, pulse)` | functie | The □ button as a painted icon (pink square on a cream disc): help the friend. |
+| 621 | `iconO(c, x, y, r, pulse)` | functie | ○: help the friend. Same shape as ✕ and □, in the warm coral of the ○ button. |
+| 631 | `iconL3(c, x, y, r, t)` | functie | L3: the cap of the left stick with the letter L and a little arrow pressing it down. |
+| 645 | `richText(c, str, x, y, size, col, o)` | functie |  |
+| 659 | `starPath(c, x, y, r, rot)` | functie |  |
+| 670 | `sprite(key, w, h, paint)` | functie | Things that never change are painted once and then stamped: much faster per frame. |
+| 675 | `card(c, x, y, w, h, col, seed)` | functie |  |
+| 680 | `paintCard(c, x, y, w, h, col, seed)` | functie |  |
+| 683 | `p(dx, dy, sc, fill, a)` | functie sageata |  |
 
 ## 03-audio.js
 
@@ -309,7 +330,7 @@ Nicio functie.
 | 601 | `paintCrystalRock(c, x, y, R, col, seed)` | functie | Second game: a rock with little crystals growing on it, a big glowing mushroom, a torch, a totem with a rainbow pinwheel. |
 | 606 | `paintShroom(c, x, y, R, seed)` | functie |  |
 | 615 | `paintTorch(c, x, y)` | functie |  |
-| 620 | `drawFlame(c, x, y, t, s, lit)` | functie | a torch flame that flickers (lit: 0 to 1) |
+| 620 | `drawFlame(c, x, y, t, s, glow)` | functie | a torch flame that flickers (glow: 0 to 1). Not "lit": that is the painter in 02-core.js |
 | 629 | `paintTotem(c, x, y)` | functie | x,y = base center. The totem rises about 200 px; the pinwheel turns on top. |
 | 641 | `drawPinwheel(c, x, y, ang)` | functie | the rainbow pinwheel on top of a totem: it turns faster when the wind blows |
 | 647 | `paintRock(c, x, y, R, col, seed)` | functie |  |

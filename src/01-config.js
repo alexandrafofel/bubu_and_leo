@@ -177,6 +177,16 @@ const CONFIG = {
   maxRenderWidth: 1920,        // lower to 1600 or 1280 if the Mac struggles
   saveKey: 'bubu-leo-oua-de-aur-v1',
 
+  // ---- The look of levels 7 - 12 and of the heroes (docs/24-sisteme-noi.md, S7) ----
+  // Every switch here can be turned off on its own, so an older Mac can still play well.
+  look: {
+    lights: true,          // the moving light map (S7.5). false = the old night vignette
+    front: true,           // big blurred things at the edges of the screen (S7.4)
+    motes: 40,             // tiny specks floating in the light. 0 = none
+    freeze: 0.06,          // seconds the game holds its breath at a big hit (S7.6). 0 = off
+    maxLights: 24          // lights drawn in one frame. The ones nearest the middle of the screen win
+  },
+
   // ---- The second game, "Cea mai grea luptă" (invented by the children) ---------------------
   // villainName, heroes and boss take the place of the values with the same name above while that game is played.
   // Everything else in CONFIG (difficulty, nest, rescue, mini-fights, sound...) is shared by the two games.

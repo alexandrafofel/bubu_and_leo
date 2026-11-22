@@ -617,10 +617,10 @@ function paintTorch(c, x, y) {
   c.strokeStyle = '#E0A04A'; c.lineWidth = 3; for (const yy of [y - 22, y - 46]) { c.beginPath(); c.moveTo(x - 5, yy); c.lineTo(x + 5, yy - 3); c.stroke(); }
   wash(c, x, y - 82, 15, 9, '#C8784A', { a: 1.1, seed: 8, wob: 0.06 });
 }
-function drawFlame(c, x, y, t, s, lit) {    // a torch flame that flickers (lit: 0 to 1)
-  if (lit <= 0) return;
-  const fl = 0.85 + Math.sin(t * 11 + x) * 0.1 + Math.sin(t * 23 + x * 2) * 0.06, h = 46 * s * fl * lit;
-  const g = c.createRadialGradient(x, y - h * 0.4, 4, x, y - h * 0.4, 150 * s); g.addColorStop(0, 'rgba(255,214,140,' + 0.7 * lit + ')'); g.addColorStop(0.35, 'rgba(255,170,90,' + 0.25 * lit + ')'); g.addColorStop(1, 'rgba(255,150,80,0)');
+function drawFlame(c, x, y, t, s, glow) {    // a torch flame that flickers (glow: 0 to 1). Not "lit": that is the painter in 02-core.js
+  if (glow <= 0) return;
+  const fl = 0.85 + Math.sin(t * 11 + x) * 0.1 + Math.sin(t * 23 + x * 2) * 0.06, h = 46 * s * fl * glow;
+  const g = c.createRadialGradient(x, y - h * 0.4, 4, x, y - h * 0.4, 150 * s); g.addColorStop(0, 'rgba(255,214,140,' + 0.7 * glow + ')'); g.addColorStop(0.35, 'rgba(255,170,90,' + 0.25 * glow + ')'); g.addColorStop(1, 'rgba(255,150,80,0)');
   c.fillStyle = g; c.beginPath(); c.arc(x, y - h * 0.4, 150 * s, 0, TAU); c.fill();
   const sway = Math.sin(t * 7 + x) * 5 * s;
   c.fillStyle = '#F58A3C'; c.beginPath(); c.moveTo(x - 13 * s, y); c.quadraticCurveTo(x - 16 * s, y - h * 0.5, x + sway, y - h); c.quadraticCurveTo(x + 16 * s, y - h * 0.5, x + 13 * s, y); c.closePath(); c.fill();

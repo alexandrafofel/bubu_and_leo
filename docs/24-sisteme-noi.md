@@ -180,7 +180,11 @@ Unde se aplica: nivelurile 7 - 12, Sala Tronului, eroii si George in tot al doil
 
 Regulile care raman din `CLAUDE.md`, regula 4: **fara contururi negre, fara gri, fara negru.** Intunericul e indigo, violet sau maro cald. Cea mai inchisa culoare permisa: `#241A3A`.
 
-### S7.1 O singura lumina
+### S7.1 O singura lumina - **facuta (T6.1, 21 noiembrie 2026)**
+
+E in joc. Descrierea ei, la timpul prezent: `05-pictura.md`, "Update 21 noiembrie 2026 (T6.1)". `CONFIG.look`: `03-config.md`. Hotararile: `16-decizii.md`. Ce n-a putut fi verificat: `19-limitari.md`.
+
+Ce s-a facut altfel decat scria mai jos: `shadow: false` scoate amandoua umbrele, nu doar cea aruncata; pata de stralucire creste cu `gloss`, nu doar se aprinde.
 
 Tot ce e pictat in stilul nou e luminat din **stanga-sus**, cu o lumina calda (`KEY = '#FFE2B0'`). Din dreapta-jos vine o lumina de umplere rece (`FILL = '#8FA8FF'`). Fiecare obiect cu volum are cinci straturi, in ordinea aceasta:
 
@@ -194,7 +198,11 @@ Tot ce e pictat in stilul nou e luminat din **stanga-sus**, cu o lumina calda (`
 
 Functie noua in `02-core.js`: `lit(c, path, col, o)`. `path` e o functie care construieste conturul. `o` are `h` (inaltimea, pentru umbra), `gloss` (0 - 1), `mat` (materialul, mai jos). Toti pictorii noi o folosesc, ca lumina sa fie aceeasi peste tot.
 
-### S7.2 Materiale
+### S7.2 Materiale - **zece din unsprezece facute (`scale`, `fabric`, `rubber`, `bone`: T6.2; `wood`, `metal`, `stone`, `crystal`, `leaf`, `lava`: T6.3, 21 noiembrie 2026)**
+
+Cadrul (`MATERIALS`, `matPattern`, `matFill`) si cele patru materiale ale eroilor sunt in joc. Descrierea lor, la timpul prezent: `05-pictura.md`, "Update 21 noiembrie 2026 (T6.2)". Hotararile: `16-decizii.md`. Ce n-a putut fi verificat: `19-limitari.md`. Cele sase ale lumii (T6.3) sunt descrise in acelasi capitol. `water` vine cu T6.8. Lava pulseaza dupa `o.t`; luminarea din jurul ei ramane pentru T6.4.
+
+Ce s-a facut altfel decat scrie mai jos: placa de pori are 64 x 64, nu e o placa mica; solzii "mai desi spre spate" sunt un al doilea strat pe jumatatea stanga; cusaturile sunt conturul micsorat in jurul mijlocului, nu o linie la distanta fixa.
 
 Fiecare material e o functie care adauga textura peste forma (stratul 3), taiata la contur (`clip`). Texturile sunt mici canvasuri pictate o data (`sprite('mat-...')`) si repetate cu `createPattern`.
 

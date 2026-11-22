@@ -281,3 +281,37 @@ Cererea proprietarei: "scoate jocul Bubu si Leo, lasa doar Cea mai grea lupta. M
 | Daca numarul real iese din interval, se incearca alta samanta | Sub `2q` nivelul nu s-ar putea termina; peste `2 * cap` ar putea ramane oua blocate. |
 | Un `CONFIG.quota` gresit scrie o eroare o data si se intoarce la 60 de oua | Jocul nu trebuie sa se strice din cauza unei cifre. |
 | Numarul real de oua poate fi cu 1 - 2 mai mare sau mai mic decat `ceil(2.2 * q)` | Valurile se impart ca inainte, rotunjit. Ramane in interval, deci nu e o problema. Specificatia (C3) da cifre exacte; nu s-a cerut exactitatea. |
+
+## Stilul grafic nou, partea 1 (sarcina T6.1, 21 noiembrie 2026)
+
+| Hotarare | De ce |
+|---|---|
+| Lumina e un singur nume de sus (`KEY`, `FILL`) si o singura functie (`lit()`), prin care trec toti pictorii noi. | Daca fiecare pictor isi alege singur lumina, dupa zece pictori lumina vine din zece directii. Cerinta S7.8 e ca un copil sa vada dintr-o privire de unde vine lumina. |
+| `lit()` primeste conturul ca functie, nu ca lista de puncte. | Fiecare pictor isi stie forma lui. Asa `lit()` nu trebuie sa inteleaga forme, doar sa le traseze de cateva ori. |
+| Lumina de margine se face taind la forma si trasand conturul mutat putin. | `shadowBlur` e interzis in desenul de la fiecare cadru (S7.7). Mutarea conturului da aceeasi banda subtire, aproape gratis. |
+| `shadow: false` scoate **amandoua** umbrele, si cea aruncata, si cea de contact. | Umbra de contact exista ca obiectul sa nu para ca pluteste. Pentru un lucru care chiar pluteste (un os aruncat) ar fi o greseala. Prima varianta scotea doar umbra aruncata; s-a vazut pe captura. |
+| Pata de stralucire creste cu `gloss`, nu doar se aprinde. | Materialele merg de la 0.05 (panza) la 1 (cristal). Daca pata ar avea aceeasi marime, panza ar luci ca sticla. |
+| Trei nume locale `lit` din cod au fost redenumite (`onN`, `onN`, `glow`). | Numele de sus sunt globale si unice (regula din `CLAUDE.md`). Un `lit` local ar fi ascuns functia exact in fisierele care vor avea nevoie de ea. Nicio schimbare de comportament. |
+
+## Materialele eroilor (sarcina T6.2, 21 noiembrie 2026)
+
+| Hotarare | De ce |
+|---|---|
+| Un material se alege dupa nume (`mat: 'scale'`) si aduce cu el luciul lui. Luciul dat de apelant il bate. | Tabelul din S7.2 leaga fiecare material de un luciu (solzi 0.3, panza 0.05...). Daca fiecare pictor ar scrie luciul de mana, panza ar ajunge sa lucesca ca sticla la primul copy-paste. |
+| Texturile sunt placi pictate o data, facute model o data, umplute cu `fillRect`. | S7.7 interzice `createPattern` la fiecare cadru. Modelul se face la prima folosire si se pastreaza. Un test numara apelurile pe 60 de cadre: zero noi. |
+| Placile sunt opace, in violet-umbra sau crem, iar materialul alege cat se vad. | Aceeasi placa merge pe orice culoare de baza (turcoaz, albastru, rosu, crem), pentru ca nu are o culoare a ei. Si e usor de verificat: nicio placa nu are gri sau negru. |
+| Solzii mai dese spre spate se fac cu un al doilea strat pe jumatatea stanga. | O placa nu poate fi mai deasa intr-o parte. Eroii se deseneaza intorsi (`c.scale(s * f, s)`), deci spatele e mereu la stanga, oricare ar fi directia. |
+| Cusaturile sunt conturul micsorat in jurul mijlocului, nu o linie la distanta fixa de margine. | Un contur interior real ar cere un algoritm de decupare a drumului. Aceasta aproximare da ~4 unitati la forme rotunde. Eroii au forme rotunde. Limita e scrisa in `19-limitari.md`. |
+| Placa de pori are 64 x 64, nu 36 x 36. | Prima varianta repeta aceleasi grupuri de pori intr-o grila vizibila. Gasit pe captura. |
+| `lit()` da materialului si conturul (`paint(c, o, path)`). | Cusaturile au nevoie de contur. Un material care nu-l foloseste il ignora. |
+
+## Materialele lumii (sarcina T6.3, 21 noiembrie 2026)
+
+| Hotarare | De ce |
+|---|---|
+| Lava pulseaza dupa `o.t`, nu dupa un ceas global. Fara `o.t` sta pe loc. | Niciun ceas global nu exista in cod (pictorii isi iau timpul din `P.time` sau din parametri). Cine deseneaza vulcanul da timpul, ca in testul care il fixeaza. |
+| Crapaturile de lava sunt defazate cu 0.45 rad, nu cu 1.3. | Cu 1.3 se anulau intre ele: vulcanul parea fix si un test pe media culorii nu vedea nicio schimbare. |
+| Crusta de lava e aproape opaca (0.92 - 0.95), nu 1. | Sa se vada gradientul de lumina de dedesubt: o crusta plata ar rupe stilul. |
+| Lava nu lumineaza in jur. | `lit()` taie totul la contur. Strălucirea din spec ar cere un strat desenat in afara formei, de facut la T6.4 odata cu pictorul vulcanului. |
+| Fiecare pata de piatra se deseneaza si la o placa distanta (9 copii). | Cu o singura copie, petele taiate la marginea placii lasau margini drepte vizibile (gasit pe captura). |
+| Muschiul e verde (`122,174,94`), nu un ton al pietrei. | Paleta cere culoare, nu gri; muschiul e singurul lucru viu pe piatra. |
