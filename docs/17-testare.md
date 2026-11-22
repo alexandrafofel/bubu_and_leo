@@ -372,3 +372,26 @@ Sapte defectiuni, toate prinse: ochi fara `flip` (lucirea trece in dreapta), `li
 - **Masuratoarea ochiului pica din cauza testului:** uitase privirea (`look`) si respiratia (scara 1.02). Testul deseneaza acum la un moment cu respiratia 0.
 - **Costul:** prima varianta (toate partile prin `lit()` complet) era 7,2 ms pentru cei trei, fata de 2 ms. Gasit cu o masuratoare a pictorilor singuri, inainte de `performanta.js`.
 - Pe foaia de personaje: luciu pe fiecare parte, margini de lumina care pareau contururi, cusaturi pe pantaloni si maneci (prea mici), umbra langa erou in loc de sub el. Toate reparate.
+
+## Update 22 noiembrie 2026: miscarea eroilor (sarcina T6.5)
+
+Un script de o singura data, `tests/tmp/miscare-proba.js`, misca eroul in joc (pe un loc liber, stick-ul simulat) si masoara starea. GIF-ul il face `tests/tmp/miscare-gif.js`.
+
+| Ce verifica | Rezultat |
+|---|---|
+| Pornire: intindere; oprire: turtire; aterizare: turtire; pornirea fugii: intindere. | OK: -0.1, 0.12, 0.18, -0.16 |
+| Coada se ridica la mers (0.18) si mai mult la fuga (0.53). | OK |
+| La oprire coada trece de repaus (se leagana: -0.051) si a doua articulatie se misca (0.153). | OK |
+| Nemiscat: dupa 6 s, in urmatoarele 5 s nu se schimba nimic (loc, coada, turtire, la amandoi). | OK |
+| Clipit, 300 s, trei personaje: intre 3.15 si 5.92 s, diferit pentru fiecare. | OK |
+| Respiratia: varful capului lui Boon urca cu 8 pixeli la scara 3 (~2%); la mers nu se misca. | OK |
+| Bratele lui Killer: mana se muta cu 60 de pixeli intre pasi la mers, 83 la fuga. | OK |
+| Urmele din fuga: 3; in 30 de cadre cu doi eroi care fug, eroul se picteaza de 70 de ori (inainte: 150). | OK |
+| Coada lui George se ridica cand se misca si revine exact la 0. | OK |
+| `performanta.js`: 23,82 ms (T6.4: 23,59). `performanta-lupta.js`: 23,62 (T6.4: 23,47). Doi eroi care fug: 26,2 ms fata de 29,1 pe main. `fuga.js`: OK. | OK |
+
+### Verificat ca poate sa pice
+
+Sapte defectiuni, toate prinse: arcul fara oprirea la 0 (doua verificari), respiratie si la mers, clipit la interval fix (patru verificari; a trebuit adaugata conditia "la intamplare", altfel un interval fix de 4,5 s trecea), urmele pictate la fiecare cadru (150), bratele fixe, fara intindere la fuga, coada fara a doua articulatie.
+
+`tests/tmp/eroi-proba.js` (T6.4) a picat o data dupa T6.5: respiratia mutase capul lui Killer cu 5 pixeli fata de fereastra de masura. Nu era o greseala de lumina (masura pe orizontala trecea); scriptul deseneaza acum la un moment cu respiratia 0.

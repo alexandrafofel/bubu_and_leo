@@ -174,7 +174,20 @@ const CONFIG = {
     front: true,           // big blurred things at the edges of the screen (S7.4)
     motes: 40,             // tiny specks floating in the light. 0 = none
     freeze: 0.06,          // seconds the game holds its breath at a big hit (S7.6). 0 = off
-    maxLights: 24          // lights drawn in one frame. The ones nearest the middle of the screen win
+    maxLights: 24,         // lights drawn in one frame. The ones nearest the middle of the screen win
+    // how the heroes and George move (S7.3, second part)
+    tailLift: 0.18,        // how high the tail lifts at walking speed (radians). Running lifts it more, up to tailMax
+    tailMax: 0.5,
+    tailSpring: 70,        // how stiff the tail is: higher = it follows the body sooner, with less swing
+    armSwing: 0.45,        // how far Killer's arms swing when he walks (radians); running: armSwingRun
+    armSwingRun: 0.8,
+    breath: 0.02,          // breathing while standing still: the body grows from 1 to 1 + breath
+    blinkMin: 3,           // a blink every blinkMin to blinkMax seconds, at random
+    blinkMax: 6,
+    squashStart: -0.1,     // stretch when a hero starts to walk (negative = taller), squash when he stops
+    squashStop: 0.12,
+    squashLand: 0.18,      // landing after a jump or a drop
+    squashRun: -0.16       // stretch when the run (L3) starts
   },
 
   // ---- The second game, "Cea mai grea luptă" (invented by the children) ---------------------

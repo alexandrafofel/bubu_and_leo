@@ -287,5 +287,15 @@ Stilul grafic nou (`docs/24-sisteme-noi.md`, S7) are reglajele lui. Fiecare se p
 | `look.motes` | `40` | Cate fire de praf plutesc in lumina. `0` = niciunul. De la T6.8. |
 | `look.freeze` | `0.06` | Cate secunde sta jocul la o lovitura mare (S7.6). `0` = nu sta deloc. De la T6.9. |
 | `look.maxLights` | `24` | Cate lumini se deseneaza intr-un cadru. Daca sunt mai multe, raman cele mai apropiate de mijlocul ecranului. De la T6.7. |
+| `look.tailLift` | `0.18` | Cat se ridica coada lui Boon si a lui George la viteza de mers (radiani). La fuga mai mult, pana la `tailMax`. T6.5. |
+| `look.tailMax` | `0.5` | Cel mai sus pana unde se ridica coada. |
+| `look.tailSpring` | `70` | Cat de tare e arcul cozii: mai mare = urmeaza corpul mai repede, cu mai putina leganare. |
+| `look.armSwing` | `0.45` | Cat se balanseaza bratele lui Killer la mers (radiani). |
+| `look.armSwingRun` | `0.8` | La fuga. |
+| `look.breath` | `0.02` | Respiratia cand stau: corpul creste de la 1 la 1.02. `0` = nu respira. |
+| `look.blinkMin`, `look.blinkMax` | `3`, `6` | Clipit la intamplare, la 3 - 6 secunde, pentru fiecare personaj altfel. |
+| `look.squashStart`, `look.squashStop` | `-0.1`, `0.12` | Intindere cand porneste (negativ = mai inalt), turtire cand se opreste. |
+| `look.squashLand` | `0.18` | Turtire la aterizare (dupa o saritura sau cand il lasa pasarea jos). |
+| `look.squashRun` | `-0.16` | Intindere cand porneste fuga (L3). |
 
 La T6.1 valorile sunt doar scrise, nu si citite: `lit()` nu are nevoie de ele. Sarcinile T6.6 - T6.9 le folosesc pe rand.

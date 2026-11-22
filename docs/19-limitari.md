@@ -134,3 +134,11 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - **Umbrele din fuga** deseneaza tot eroul de trei ori (cu `lit()`). S7.7 cere cate 3 `drawImage` pe erou: se rezolva la T6.5, odata cu miscarea.
 - **George cazand in arena** se roteste: lumina se roteste cu el. Dureaza o clipa.
 - **Bubu si Leo** folosesc inca `drawEye` vechi (neschimbat). Nu se mai joaca.
+
+## T6.5 (22 noiembrie 2026): ce nu s-a putut verifica
+
+- **Cum se simte miscarea pe ecranul mare, la 60 de cadre reale.** S-a vazut pe GIF (15 cadre pe secunda) si pe capturi.
+- **Coada cand eroul merge in sus sau in jos pe ecran:** se ridica dupa viteza, oricare ar fi directia. Nu s-a vazut daca arata ciudat la mers vertical.
+- **George in arena:** arcul cozii e pas cu pas in desen; daca desenul se sare (pauza, alt ecran), primul pas e limitat la 0,05 s.
+- **Urmele din fuga** au rezolutia 1,25: pe un ecran 4K pot parea putin moi. Sunt transparente si dureaza 0,12 s.
+- Ecranele de meniu (start, final) nu dau coada: acolo coada sta, doar leganatul vechi o misca.

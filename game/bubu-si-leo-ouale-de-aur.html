@@ -189,7 +189,20 @@ const CONFIG = {
     front: true,           // big blurred things at the edges of the screen (S7.4)
     motes: 40,             // tiny specks floating in the light. 0 = none
     freeze: 0.06,          // seconds the game holds its breath at a big hit (S7.6). 0 = off
-    maxLights: 24          // lights drawn in one frame. The ones nearest the middle of the screen win
+    maxLights: 24,         // lights drawn in one frame. The ones nearest the middle of the screen win
+    // how the heroes and George move (S7.3, second part)
+    tailLift: 0.18,        // how high the tail lifts at walking speed (radians). Running lifts it more, up to tailMax
+    tailMax: 0.5,
+    tailSpring: 70,        // how stiff the tail is: higher = it follows the body sooner, with less swing
+    armSwing: 0.45,        // how far Killer's arms swing when he walks (radians); running: armSwingRun
+    armSwingRun: 0.8,
+    breath: 0.02,          // breathing while standing still: the body grows from 1 to 1 + breath
+    blinkMin: 3,           // a blink every blinkMin to blinkMax seconds, at random
+    blinkMax: 6,
+    squashStart: -0.1,     // stretch when a hero starts to walk (negative = taller), squash when he stops
+    squashStop: 0.12,
+    squashLand: 0.18,      // landing after a jump or a drop
+    squashRun: -0.16       // stretch when the run (L3) starts
   },
 
   // ---- The second game, "Cea mai grea luptă" (invented by the children) ---------------------
@@ -2371,11 +2384,49 @@ function litTeeth(c, pts, col) {          // pts: [x0, base y, tip y, width] for
   for (const q of pts) { x0 = Math.min(x0, q[0]); x1 = Math.max(x1, q[0] + q[3]); y0 = Math.min(y0, q[1], q[2]); y1 = Math.max(y1, q[1], q[2]); }
   lit(c, path, col || '#FFFDF4', { x: (x0 + x1) / 2, y: y1, w: x1 - x0, h: y1 - y0 || 1, shadow: false, flip: _fl, mat: 'bone', rim: 1.2, rimA: PART_RIM_A, gloss: 0 });
 }
+/* The tail: a spring with two joints (docs/24-sisteme-noi.md, S7.3). T = [a1, v1, a2, v2]: a1 = how much the whole tail
+   is lifted (radians, + = up), a2 = how much its second half bends on top of that. a1 goes to the target with a little
+   swing; a2 is pushed the other way by a1's speeding up, so the tip comes after the base. Small substeps keep it steady
+   at 30 frames a second. When the target is 0 and everything is tiny, it is set to exactly 0: a hero standing still
+   does not tremble. */
+function tailStep(T, target, dt) {
+  const k1 = CONFIG.look.tailSpring, d1 = 2 * Math.sqrt(k1) * 0.55, k2 = k1 * 0.8, d2 = 2 * Math.sqrt(k2) * 0.5;
+  const n = Math.max(1, Math.ceil(dt / 0.008)), h = dt / n;
+  for (let i = 0; i < n; i++) {
+    const acc1 = k1 * (target - T[0]) - d1 * T[1];
+    T[1] += acc1 * h; T[0] += T[1] * h;
+    const acc2 = -k2 * T[2] - d2 * T[3] - 0.6 * acc1;
+    T[3] += acc2 * h; T[2] = clamp(T[2] + T[3] * h, -0.6, 0.6);
+  }
+  if (target === 0 && Math.abs(T[0]) + Math.abs(T[1]) + Math.abs(T[2]) + Math.abs(T[3]) < 1e-4) T[0] = T[1] = T[2] = T[3] = 0;
+}
+/* The same spring for George, who has no update of his own for it: it is stepped while he is drawn, from how far
+   he moved since the last frame. obj = the boss or the duel, where the spring is kept. */
+function tailFollow(obj, x, t, speed) {
+  if (!obj._tail) { obj._tail = [0, 0, 0, 0]; obj._tx = x; obj._tt = t; }
+  const dt = clamp(t - obj._tt, 0, 0.05);
+  if (dt > 0) { const v = Math.abs(x - obj._tx) / dt; tailStep(obj._tail, v > 30 ? Math.min(CONFIG.look.tailMax, v / speed * CONFIG.look.tailLift) : 0, dt); }
+  obj._tx = x; obj._tt = t;
+  return obj._tail;
+}
+/* Rotates the point (x, y) around (cx, cy) by a, into out[i], out[i + 1]. */
+function rotPt(out, i, x, y, cx, cy, a) { const cs = Math.cos(a), sn = Math.sin(a), dx = x - cx, dy = y - cy; out[i] = cx + dx * cs - dy * sn; out[i + 1] = cy + dx * sn + dy * cs; }
+/* A blink every blinkMin to blinkMax seconds, at random, without keeping any state: time is cut into windows of
+   (min + max) / 2 seconds and every window has its blink at a random moment of its first (max - min) / 2 seconds,
+   so two blinks are always between min and max apart. seed: each character blinks on his own. */
+function blinkOn(t, seed) {
+  const LK = CONFIG.look, win = (LK.blinkMin + LK.blinkMax) / 2, span = (LK.blinkMax - LK.blinkMin) / 2, n = Math.floor(t / win);
+  const at = n * win + hash(seed, n) * span;
+  return t >= at && t < at + 0.13;
+}
 /* An eye in the new look: two gleams that follow the light (a big one up-left, a small one down-right, on the screen,
    whichever way the hero looks) and a soft shadow under the upper lid. Closed, happy or dizzy: the old eye. */
-function eyeLit(c, x, y, r, o, look) {
+function eyeLit(c, x, y, r, o, look, seed) {
   const t = o.t || 0;
-  if (o.dizzy || o.happy || ((t + (o.blinkOff || 0)) % 3.7) < 0.13) { drawEye(c, x, y, r, o, look); return; }
+  if (o.dizzy || o.happy) { drawEye(c, x, y, r, o, look); return; }
+  if (seed != null ? blinkOn(t, seed) : ((t + (o.blinkOff || 0)) % 3.7) < 0.13) {          // closed: the lid line of the old eye
+    c.strokeStyle = '#5A3838'; c.lineWidth = r * 0.34; c.lineCap = 'round'; c.beginPath(); c.arc(x, y - r * 0.3, r * 0.75, Math.PI * 0.12, Math.PI * 0.88); c.stroke(); return;
+  }
   const fl = _fl;
   c.beginPath(); c.ellipse(x, y, r, r * 1.08, 0, 0, TAU); c.fillStyle = '#FFFDF4'; c.fill();
   const g = c.createLinearGradient(0, y - r * 1.08, 0, y - r * 0.15);              // the lid shadow: the upper half of the eye, fading down
@@ -2398,25 +2449,30 @@ function sewNumber(c, str, x, y, size, ink, patch) {
   c.fillStyle = ink; c.fillText(str, x, y);
 }
 
+const TAIL0 = [0, 0, 0, 0], _tailPts = new Float32Array(8);
+
 /* BOON: the little one's hero. Round teal body, a dome of blue spikes on the back, long tan neck, small blue head,
    lime legs and a long lime tail. o.claw (0 to 1) = the claws are out and spinning. */
 function drawBoon(c, x, y, o) {
   const s = o.scale || 1, f = o.face || 1, t = o.t || 0;
   _fl = f;
   const step = o.moving ? Math.sin(o.walk || 0) : 0, hop = o.moving ? Math.abs(step) * 6 : 0;
-  const br = Math.sin(t * 2.4) * 0.025 * (o.moving ? 0.3 : 1), sq = o.squash || 0, claw = o.claw != null && o.claw >= 0;
+  const br = o.moving ? 0 : (0.5 + 0.5 * Math.sin(t * 2.4)) * CONFIG.look.breath, sq = o.squash || 0, claw = o.claw != null && o.claw >= 0;
   const teal = '#3DBDB4', tealD = '#2B9A9E', lime = '#B7D645', limeD = '#8FB436', tan = '#CFA052', blue = '#3F78D8', navy = '#56609E', lilac = '#C4BEDC';
   c.save(); c.translate(x, y - (o.z || 0) * s); c.scale(s * f, s);
   // tail: thick at the body, down to the ground, long. One contour, lime turning darker toward the tip
-  const wag = Math.sin(t * 3.1) * 4;
-  litTube(c, [-30, -30, -52, -30, -58, -10 + wag * 0.3, 11, 8, -62, 2, -92, -4 + wag, 4.5], lime, { mat: 'scale', col2: limeD, seed: 3, gloss: 0.15 });
+  // tail: lifted by the speed and bent at its middle by the spring (o.tail), so it comes after the body
+  const wag = Math.sin(t * 3.1) * 4 * (o.moving ? 0.4 : 1), ta = o.tail || TAIL0, tp = _tailPts;
+  rotPt(tp, 0, -52, -30, -30, -30, ta[0]); rotPt(tp, 2, -58, -10 + wag * 0.3, -30, -30, ta[0]); rotPt(tp, 4, -62, 2, -30, -30, ta[0]); rotPt(tp, 6, -92, -4 + wag, -30, -30, ta[0]);
+  rotPt(tp, 4, tp[4], tp[5], tp[2], tp[3], ta[2]); rotPt(tp, 6, tp[6], tp[7], tp[2], tp[3], ta[2]);
+  litTube(c, [-30, -30, tp[0], tp[1], tp[2], tp[3], 11, 8, tp[4], tp[5], tp[6], tp[7], 4.5], lime, { mat: 'scale', col2: limeD, seed: 3, gloss: 0.15 });
   // legs with little claws
   const leg = (lx, lift, fwd, sd) => {
     litTube(c, [lx, -26, lx + fwd * 0.4, -16 - lift * 0.5, lx + fwd, -6 - lift, 6.5, 5.5], lime, { col2: limeD, seed: sd });
     litClaws(c, lx + fwd + 4, -4 - lift, 0.15, 9, 3, '#FFF3D6');
   };
   leg(-14, Math.max(0, step) * 6, step * 7, 5); leg(12, Math.max(0, -step) * 6, -step * 7, 6);
-  c.translate(0, -hop); c.scale(1 + br + sq, 1 - br - sq);
+  c.translate(0, -hop); c.scale(1 + sq - br * 0.25, 1 + br - sq);
   // the dome on the back with three blue spikes ("mountains") and their pale tips
   lit(c, cc => { cc.beginPath(); cc.moveTo(-40, -40); cc.bezierCurveTo(-40, -124, 30, -128, 32, -40); cc.closePath(); }, tealD, { x: -4, y: -40, w: 72, h: 66, shadow: false, flip: _fl, mat: 'scale', seed: 4, rimA: PART_RIM_A, gloss: 0 });
   const spikes = [[-35, -9, -21, -91], [-13, 15, 1, -99], [9, 29, 19, -88]];
@@ -2438,7 +2494,7 @@ function drawBoon(c, x, y, o) {
   c.translate(0, -16);
   litPuff(c, 30, -110, 14, 13, 6, blue, { mat: 'scale', gloss: 0.3 });
   litPuff(c, 47, -107, 14, 9, 7, navy);
-  eyeLit(c, 36, -112, 6.5, o, 1);
+  eyeLit(c, 36, -112, 6.5, o, 1, 11);
   c.strokeStyle = '#2F3566'; c.lineWidth = 2; c.lineCap = 'round'; c.beginPath();
   if (o.dizzy) { c.moveTo(44, -101); c.quadraticCurveTo(48, -104, 52, -101); c.quadraticCurveTo(55, -98, 58, -101); } else c.arc(50, -105, 6, 0.25, Math.PI * 0.8);
   c.stroke();
@@ -2451,7 +2507,7 @@ function drawKiller(c, x, y, o) {
   const s = o.scale || 1, f = o.face || 1, t = o.t || 0;
   _fl = f;
   const step = o.moving ? Math.sin(o.walk || 0) : 0, hop = o.moving ? Math.abs(step) * 6 : 0;
-  const br = Math.sin(t * 2.6 + 1) * 0.022 * (o.moving ? 0.3 : 1), sq = o.squash || 0, kick = o.kick || 0;
+  const br = o.moving ? 0 : (0.5 + 0.5 * Math.sin(t * 2.6 + 1)) * CONFIG.look.breath, sq = o.squash || 0, kick = o.kick || 0;
   const skin = '#F6D2AE', kit = '#2F6FD0', kitD = '#2456A8', boot = '#E4583C', ink = '#243A7A', up = o.happy || o.hug > 0;
   c.save(); c.translate(x, y - (o.z || 0) * s); c.scale(s * f, s);
   // legs in blue, big red rubber boots
@@ -2462,7 +2518,7 @@ function drawKiller(c, x, y, o) {
   };
   leg(-10, Math.max(0, step) * 6, step * 7, 40);
   leg(10, Math.max(0, -step) * 6 + kick * 8, -step * 7 + kick * 16, 44);
-  c.translate(0, -hop); c.scale(1 + br + sq, 1 - br - sq);
+  c.translate(0, -hop); c.scale(1 + sq - br * 0.25, 1 + br - sq);
   // long arms, like in the drawing (up in the air when happy)
   const gl = o.glove > 0 ? o.glove : 0;                                // the whirl gloves: both arms stretch out, 2.4 times longer
   const arm = (sd, sw) => {
@@ -2471,7 +2527,11 @@ function drawKiller(c, x, y, o) {
       litTube(c, [sd * 17, -62, sd * (26 * ext), -58 + wob * 0.4, sd * (34 * ext), -52 + wob, 6.5, 5.5], skin, { gloss: 0.1, seed: 47 + sd });
       drawGlove(c, sd * (36 * ext), -50 + wob, 13, sd, t);
     } else if (up) litTube(c, [sd * 17, -62, sd * 30, -74, sd * 34, -92 + Math.sin(t * 9 + sd) * 4, 6.5, 6], skin, { gloss: 0.1, seed: 47 + sd });
-    else litTube(c, [sd * 17, -62, sd * 32, -56 + sw * 3, sd * 36, -38 + sw * 5, 6.5, 6.5], skin, { gloss: 0.1, seed: 47 + sd });
+    else {                                                             // hanging from the shoulder, swinging like a pendulum, against the legs
+      const a = sw * (o.run ? CONFIG.look.armSwingRun : CONFIG.look.armSwing), ap = _tailPts;
+      rotPt(ap, 0, sd * 32, -56, sd * 17, -62, a); rotPt(ap, 2, sd * 36, -38, sd * 17, -62, a);
+      litTube(c, [sd * 17, -62, ap[0], ap[1], ap[2], ap[3], 6.5, 6.5], skin, { gloss: 0.1, seed: 47 + sd });
+    }
     litPuff(c, sd * 17, -62, 8, 6, 50 + sd, kit);                      // sleeve (too small for stitches)
   };
   arm(-1, step);
@@ -2483,7 +2543,7 @@ function drawKiller(c, x, y, o) {
   // head: round, no hair, big eyes, wide grin with teeth
   litPuff(c, 0, -92, 25, 24, 28, skin, { gloss: 0.15 });
   soft(c, -22, -92, 4.5, 6.5, skin, 1, 29);
-  eyeLit(c, -5, -99, 7.5, o, 1); eyeLit(c, 11, -99, 7.5, o, 1);
+  eyeLit(c, -5, -99, 7.5, o, 1, 12); eyeLit(c, 11, -99, 7.5, o, 1, 12);
   soft(c, 19, -86, 5, 3.5, '#F29C8E', 0.5, 30); soft(c, -13, -85, 5, 3.5, '#F29C8E', 0.4, 31);
   if (o.dizzy) { c.strokeStyle = '#9A5440'; c.lineWidth = 2.3; c.lineCap = 'round'; c.beginPath(); c.moveTo(-6, -79); c.quadraticCurveTo(-1, -83, 3, -79); c.quadraticCurveTo(7, -75, 12, -79); c.stroke(); }
   else {
@@ -2520,18 +2580,24 @@ function drawGeorge(c, x, y, o) {
   const step = o.moving ? Math.sin(o.walk || 0) : 0, hop = o.moving ? Math.abs(step) * 5 : 0, sq = o.squash || 0;
   const pink = '#E45AA0', brown = '#9A6B3C', eo = { t: t, dizzy: mood === 'dizzy', blinkOff: 0.9 };
   c.save(); c.translate(x, y); c.scale(s * f, s);
-  // tail: green at the body, then blue, curling up. One contour, the colour changes along it
-  const wag = Math.sin(t * 3.4) * 5;
-  litTube(c, [-36, -40, -70, -34, -84, -52 + wag * 0.4, 12, 9, -98, -74 + wag, -78, -94 + wag, 4.5], '#6FC96A',
+  // tail: green at the body, then blue, curling up. One contour, the colour changes along it. Lifted and bent by the spring
+  const wag = Math.sin(t * 3.4) * 5 * (o.moving ? 0.4 : 1), ta = o.tail || TAIL0, tp = _tailPts;
+  rotPt(tp, 0, -70, -34, -36, -40, ta[0]); rotPt(tp, 2, -84, -52 + wag * 0.4, -36, -40, ta[0]); rotPt(tp, 4, -98, -74 + wag, -36, -40, ta[0]); rotPt(tp, 6, -78, -94 + wag, -36, -40, ta[0]);
+  rotPt(tp, 4, tp[4], tp[5], tp[2], tp[3], ta[2]); rotPt(tp, 6, tp[6], tp[7], tp[2], tp[3], ta[2]);
+  const jx = tp[2], jy = tp[3], ja = ta[0] + ta[2];
+  litTube(c, [-36, -40, tp[0], tp[1], tp[2], tp[3], 12, 9, tp[4], tp[5], tp[6], tp[7], 4.5], '#6FC96A',
     { mat: 'scale', seed: 9, grad: [[0, '#A8D645'], [0.5, '#6FC96A'], [0.62, '#46A8D8'], [1, '#3F78D8']] });
+  c.save(); c.translate(jx, jy); c.rotate(ja); c.translate(84, 52 - wag * 0.4);          // the stripes ride on the second half of the tail
   c.strokeStyle = 'rgba(40,60,120,0.45)'; c.lineWidth = 2; c.lineCap = 'round';
   for (let i = 0; i < 3; i++) { const yy = -70 - i * 8 + wag * 0.8; c.beginPath(); c.moveTo(-96 + i * 4, yy); c.lineTo(-88 + i * 4, yy - 3); c.stroke(); }
+  c.restore();
   // thin brown legs: a pink foot behind, a pale claw foot in front
   litTube(c, [-14 + step * 5, -26, -14 + step * 6, -14, -14 + step * 8, -5 - Math.max(0, step) * 5, 4.5, 4], brown, { seed: 10 });
   litPuff(c, -11 + step * 8, -3 - Math.max(0, step) * 5, 10, 6, 61, '#E77AB4');
   litTube(c, [14 - step * 5, -26, 14 - step * 6, -14, 15 - step * 8, -5 - Math.max(0, -step) * 5, 4.5, 4], brown, { seed: 11 });
   litClaws(c, 18 - step * 8, -3 - Math.max(0, -step) * 5, 0.2, 15, 3, '#DCD6EC');
-  c.translate(0, -hop); c.scale(1 + sq, 1 - sq);
+  const br = o.moving ? 0 : (0.5 + 0.5 * Math.sin(t * 2.2 + 2)) * CONFIG.look.breath;
+  c.translate(0, -hop); c.scale(1 + sq - br * 0.25, 1 + br - sq);
   // body
   litPuff(c, 0, -46, 46, 31, 60, pink, { mat: 'scale', gloss: 0.3 });
   c.strokeStyle = 'rgba(255,220,236,0.4)'; c.lineWidth = 5; c.lineCap = 'round';
@@ -2554,7 +2620,7 @@ function drawGeorge(c, x, y, o) {
   litPuff(c, 74, -104, 24, 12, 65, '#4C89E0', { gloss: 0.3 });                                                 // upper jaw, the blue snout
   litTeeth(c, [[60, -95, -86, 8], [69, -95, -85, 8], [78, -95, -86, 8], [87, -95, -85, 8]]);
   c.fillStyle = 'rgba(30,40,100,0.6)'; c.beginPath(); c.arc(92, -109, 1.8, 0, TAU); c.fill();
-  eyeLit(c, 38, -108, 7.5, eo, 1); eyeLit(c, 55, -108, 7, eo, 1);
+  eyeLit(c, 38, -108, 7.5, eo, 1, 13); eyeLit(c, 55, -108, 7, eo, 1, 13);
   c.strokeStyle = '#7A2A3A'; c.lineWidth = 3.2; c.lineCap = 'round'; c.beginPath();
   if (mood === 'angry' || mood === 'calm') { c.moveTo(29, -120); c.lineTo(43, -115); c.moveTo(50, -115); c.lineTo(63, -119); }
   else if (mood === 'scared') { c.moveTo(29, -115); c.lineTo(43, -120); c.moveTo(50, -120); c.lineTo(63, -116); }
@@ -3769,7 +3835,8 @@ function makeHero(k, x, y) {
     down: false, downT: 0, downLeft: 0, downTick: null, hurried: false, callT: 0, small: 1, spinT: -1, spinNo: 0, shield: false, carried: null, hugT: 0, reachHint: 0,
     run: false, runIdle: 0, runT: 0, runRest: 0, runWord: -99, ghosts: [], ghostT: 0,         // run (L3): ghosts = the trail left behind
     throwCd: 0, homeState: 'held', home: { x, y, z: 0, spin: 0 }, chargeHold: 0,               // the thrown things (balls or bones): cooldown, whether they are all home, and the one kept at hand
-    spinBeat: 0, spinLook: null, duelSweep: 0, bossSweep: 0 };                                 // the spin (claws or gloves)
+    spinBeat: 0, spinLook: null, duelSweep: 0, bossSweep: 0,                                    // the spin (claws or gloves)
+    tail: [0, 0, 0, 0], wasMoving: false, pz: 0, ghostCv: [], ghostNo: 0 };                    // the tail spring (two joints), squash on start / stop / landing, the ghosts' pictures
 }
 function makeEgg(x, y, o) {
   return Object.assign({ x, y, r: 17, seed: Math.random() * 10, req: true, value: 1, state: 'idle', t: 0, delay: 0, z: 0, pull: null, pullT: 0, big: false, hue: Math.random() * 7 | 0 }, o || {});   // hue: the color of a rainbow crystal (second game)
@@ -4102,6 +4169,17 @@ function recallBalls(k) {
 
 /* Running (L3). One press with the stick tilted starts it; it lasts until the stick is let go.
    canRun says when a hero is allowed to run at all; everything that stops a run is in one place, below. */
+/* The weight of a hero (docs/24-sisteme-noi.md, S7.3, second part): a squash or a stretch when he starts, stops
+   and lands, and the tail that lifts with the speed and comes after the body with a lag. Only numbers here:
+   the painters read them (heroOpts). */
+function heroMotion(h, v, dt) {
+  const LK = CONFIG.look;
+  if (h.moving !== h.wasMoving) { if (h.z <= 0 && !h.down) h.squash = h.moving ? LK.squashStart : LK.squashStop; h.wasMoving = h.moving; }
+  if (h.pz > 2 && h.z <= 0) h.squash = Math.max(h.squash, LK.squashLand);
+  h.pz = h.z;
+  if (Math.abs(h.squash) < 1e-4) h.squash = 0;                              // no endless tiny wobble while he stands still
+  tailStep(h.tail, h.moving ? Math.min(LK.tailMax, v / CONFIG.heroes[h.k].speed * LK.tailLift) : 0, dt);
+}
 function canRun(h) {
   const S = CONFIG.sprint;
   return S.enabled && !h.down && h.dizzy <= 0 && !h.carried && !h.charging && !P.done && h.runRest <= 0
@@ -4110,6 +4188,7 @@ function canRun(h) {
 function startRun(h) {
   const S = CONFIG.sprint;
   h.run = true; h.runIdle = 0; h.runT = 0;
+  h.squash = CONFIG.look.squashRun;                                            // the body stretches as the run starts
   Snd.play('dash', 0, h.k);
   if (P.time - h.runWord > S.wordGap) { h.runWord = P.time; Snd.talk(h.k, 'run'); }
   Input.rumble(h.k, 0, 0.35, 70);
@@ -4202,10 +4281,11 @@ function updateHero(h, dt) {
   }
   if (h.run && h.moving) {               // the trail of three ghosts, and a little dust at every step
     h.ghostT -= dt;
-    if (h.ghostT <= 0) { h.ghostT = 0.04; h.ghosts.unshift({ x: h.x, y: h.y, face: h.face, walk: h.walk, z: h.z }); if (h.ghosts.length > 3) h.ghosts.length = 3; }
+    if (h.ghostT <= 0) { h.ghostT = 0.04; h.ghosts.unshift({ x: h.x, y: h.y, face: h.face, walk: h.walk, z: h.z, cv: null }); if (h.ghosts.length > 3) h.ghosts.length = 3; }   // cv: its picture, painted once (drawRunTrail)
   } else if (h.ghosts.length) h.ghosts.length = 0;
   const v = Math.hypot(h.vx, h.vy);
   h.moving = v > 35;
+  heroMotion(h, v, dt);
   if (h.moving) {
     const w0 = h.walk; h.walk += dt * (7 + v / 55); if (Math.abs(h.vx) > 25) h.face = Math.sign(h.vx);
     // footsteps: one soft sound each time a foot lands
@@ -5000,7 +5080,7 @@ const DUEL_PAINT = {
     drawCiori(c, 0, 0, { scale: 1.25, t: t, fly: d.z > 30, mood: mood === 'dizzy' ? 'dizzy' : 'cheeky', body: '#4F7387', dark: '#3B596B', light: '#86AEBE', belly: '#A9C7D2' });
   },
   george(c, d, t, mood) {                                    // George cel Rău (second game): the same painter as the boss, the size comes from the level
-    drawGeorge(c, 0, 0, { scale: 1.15, t: t, mood: mood, moving: d.state === 'move' || d.state === 'dash', walk: t * 12, squash: d.state === 'aim' ? 0.12 : d.z > 20 ? -0.12 : 0 });
+    drawGeorge(c, 0, 0, { tail: tailFollow(d, d.x, t, 260), scale: 1.15, t: t, mood: mood, moving: d.state === 'move' || d.state === 'dash', walk: t * 12, squash: d.state === 'aim' ? 0.12 : d.z > 20 ? -0.12 : 0 });
   }
 };
 function drawDuelBoss(c) {
@@ -5060,7 +5140,7 @@ function drawDuelTop(c) {
 const _sorted = [];
 function heroOpts(h) {
   return { face: h.face, walk: h.walk, moving: h.moving, t: h.t, z: h.z, squash: h.squash, dizzy: h.dizzy > 0, kick: h.kickT > 0 ? h.kickT / 0.28 : 0,
-    happy: P.done || (P.boss && P.boss.state === 'won'), scale: h.small, hug: h.hugT > 0 ? h.hugT / 0.7 : 0,
+    happy: P.done || (P.boss && P.boss.state === 'won'), scale: h.small, hug: h.hugT > 0 ? h.hugT / 0.7 : 0, tail: h.tail, run: h.run,
     claw: h.spinT >= 0 && h.spinLook !== 'gloves' ? clamp(h.spinT / (abil(h.k, 'spin').time || 1), 0, 1) : -1,
     glove: h.spinT >= 0 && h.spinLook === 'gloves' ? clamp(h.spinT / (abil(h.k, 'spin').time || 1), 0, 1) : -1 };
 }
@@ -5144,14 +5224,25 @@ function drawGloveRing(c, h) {
     drawGlove(c, h.x + Math.cos(a0) * rr, h.y - 6 + Math.sin(a0) * rr * 0.52, 20 * grow, Math.cos(a0) >= 0 ? 1 : -1, t);
   }
 }
-/* The trail of a running hero: three fading copies of him, and six speed lines behind. */
+/* The trail of a running hero: three fading copies of him, and six speed lines behind.
+   Every copy is painted ONCE, into a small canvas of its own, when it appears (every 0.04 s), and then only
+   drawn with drawImage: 3 drawImage per hero (S7.7), not three more heroes painted on every frame. */
+const GHOST_W = 300, GHOST_H = 230, GHOST_OX = 150, GHOST_OY = 190, GHOST_RES = 1.25;   // the box of a hero around his feet, and how sharp
+function ghostCanvas(h, g) {
+  if (!h.ghostCv.length) for (let i = 0; i < 4; i++) h.ghostCv.push(makeCanvas(GHOST_W * GHOST_RES, GHOST_H * GHOST_RES));   // 4: one more than can be on screen
+  const cv = h.ghostCv[h.ghostNo++ % 4], c = cv.getContext('2d');
+  c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height); c.setTransform(GHOST_RES, 0, 0, GHOST_RES, 0, 0);
+  drawHero(c, h.k, GHOST_OX, GHOST_OY, Object.assign(heroOpts(h), { face: g.face, walk: g.walk, z: g.z }));
+  return cv;
+}
 function drawRunTrail(c, h) {
   const cfg = CONFIG.heroes[h.k], al = [0.28, 0.18, 0.09];
   for (let i = 0; i < h.ghosts.length; i++) {
     const g = h.ghosts[i];
+    if (!g.cv) g.cv = ghostCanvas(h, g);
     c.globalAlpha = al[i] || 0.08;
-    c.save(); c.translate(g.x, g.y); c.rotate(0.14 * g.face); c.translate(-g.x, -g.y);
-    drawHero(c, h.k, g.x, g.y, Object.assign(heroOpts(h), { face: g.face, walk: g.walk, z: g.z }));
+    c.save(); c.translate(g.x, g.y); c.rotate(0.14 * g.face);
+    c.drawImage(g.cv, -GHOST_OX, -GHOST_OY, GHOST_W, GHOST_H);
     c.restore();
   }
   c.globalAlpha = 1;
@@ -5716,7 +5807,7 @@ function drawGeorgeBoss(c, o, t) {
   if (!up) castShadow(c, o.x, (st === 'down' || st === 'won') ? o.y + 4 : 660, 100 * S, 70 * S, 21, 1);   // the cast shadow of S7.1
   c.save(); c.translate(o.x + (up ? Math.sin(t * 38) * o.treeShake * 9 : 0), o.y + (up ? 34 + Math.sin(t * 3) * 3 : 0));
   if (st === 'falling') c.rotate(o.t * 9);
-  drawGeorge(c, 0, st === 'falling' ? 40 : 0, { scale: S, t: t, face: st === 'won' ? 1 : (P.heroes[0].x + P.heroes[1].x < o.x * 2 ? -1 : 1), mood, moving: st === 'won' && o.t > 1.2, walk: t * 18, noCrown: st === 'won' });
+  drawGeorge(c, 0, st === 'falling' ? 40 : 0, { tail: tailFollow(o, o.x, t, 260), scale: S, t: t, face: st === 'won' ? 1 : (P.heroes[0].x + P.heroes[1].x < o.x * 2 ? -1 : 1), mood, moving: st === 'won' && o.t > 1.2, walk: t * 18, noCrown: st === 'won' });
   c.restore();
   if (st === 'down') drawDizzyStars(c, o.x + 30, o.y - 190, t);
   if (st === 'won' && o.wy != null) drawGeorgeCrown(c, o.cx, o.wy - 8, 1.5, 1.25);          // his crown stays behind on the sand

@@ -220,7 +220,9 @@ Fiecare material e o functie care adauga textura peste forma (stratul 3), taiata
 | `lava` | vulcanul | Crusta inchisa (`#5A2A3A`) cu crapaturi luminoase care pulseaza (galben -> portocaliu). | 0, dar lumineaza |
 | `water` | lac, sant | Vezi S7.5. | - |
 
-### S7.3 Eroii si George, repictati - **prima parte facuta (T6.4, 22 noiembrie 2026)**
+### S7.3 Eroii si George, repictati - **facuta (T6.4 pictura, T6.5 miscarea, 22 noiembrie 2026)**
+
+Miscarea (coada pe arc, bratele, clipitul, respiratia, turtirea, urmele din fuga ca imagini) e descrisa in `21-cea-mai-grea-lupta.md`, "Update 22 noiembrie 2026 (T6.5)". Ce s-a facut altfel: coada lui George isi face arcul in desen (`tailFollow`), nu intr-un `update`.
 
 Pictura (lumina, materialele, ochii, cusaturile, numarul 10, umbra aruncata) e in joc; descrierea: `21-cea-mai-grea-lupta.md`, "Update 22 noiembrie 2026 (T6.4)". Miscarea (coada, bratele, clipitul, respiratia, turtirea) vine cu T6.5. Ce s-a facut altfel: partile mici trec prin `lit()` doar cu gradientul, fara margine si textura (costul); materialele stau pe partile mari; coroana lui George nu s-a schimbat.
 
