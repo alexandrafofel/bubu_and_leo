@@ -44,7 +44,7 @@ Unitatile: distantele sunt in unitati logice (ecranul are 1920 x 1080, un nivel 
 |---|---|---|---|
 | `levels` | 6 | Cate niveluri sunt inainte de boss (1 pana la 12). Peste 6, definitiile se repeta. | Cerere: 6 niveluri plus boss. |
 | `levelDuration` | 360 | Durata tinta a unui nivel. Numarul de oua se calculeaza din ea. Soarele din HUD apune in acest timp. Dupa ea indiciile apar mereu si raza de adunare creste x 1.5. | Cerere: 5 pana la 7 minute pe nivel. |
-| `eggsPerMinute` | 10 | Oua pe nivel = `levelDuration / 60 * eggsPerMinute` = 60. | La prima versiune era 8. Am crescut la 10 ca nivelul sa fie mai plin. |
+| `eggsPerMinute` | 10 | Ritmul pentru durata nivelului: `levelDurationOf(L) = max(levelDuration, oua / eggsPerMinute * 60)`. Nu mai da numarul de oua (il da `quota`). | La prima versiune era 8. Am crescut la 10 ca nivelul sa fie mai plin. |
 | `wavesPerLevel` | 3 | Ouale apar in atatea valuri, de la stanga la dreapta. Fiecare val e o treime din harta. | Copiii vad mereu un tinta apropiata, nu 60 de oua imprastiate. Le da si un ritm: val, Ciori trece pe cer, val nou. |
 | `starsPerLevel` | 3 | Stele bonus pe nivel (0 pana la 3). | Din cerere. |
 | `giantEggValue` | 20 | Cat valoreaza oul urias din pestera. | Destul ca sa merite cautat, nu atat incat sa conteze mai mult decat restul nivelului. |
@@ -275,3 +275,15 @@ Un erou fara bloc propriu foloseste numele vechi de pe el (`stompRadius`, `kickS
 | `retryScreen` | 2.2 | Cat sta pe ecran cartonasul "Încă o dată!". |
 
 `autoAfter` ramane in `CONFIG`, dar nu se mai foloseste cat timp `limit` e mai mare ca 0.
+
+## `CONFIG.quota` (T14.1, 22 noiembrie 2026)
+
+| Cheie | Valoare | Ce face |
+|---|---|---|
+| `on` | `true` | `false` = regula veche: 60 de oua, nicio cota. |
+| `perLevel` | `[10, 15, 20, 25, 30, 35, 40, ...65]` | Cate oua trebuie sa gaseasca fiecare erou, nivelurile 1 - 12. |
+| `cap` | 1.5 | Cat poate tine un erou, din cota. Se foloseste din T14.2. |
+| `extra` | 2.2 | Ouale de pe harta = `ceil(extra * cota)`. Trebuie sa fie intre 2 si `2 * cap`. |
+| `giveRange`, `giveEvery`, `flyTime`, `autoGive`, `autoEvery` | | Pentru L1 si ajutorul automat (T14.3 - T14.6). Nefolosite inca. |
+
+Daca `extra` e in afara intervalului sau lipseste o cota, jocul scrie o singura data `console.error` la pornire si foloseste 60 de oua pe nivel, ca inainte.

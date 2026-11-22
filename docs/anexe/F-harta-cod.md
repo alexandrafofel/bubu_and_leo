@@ -10,28 +10,28 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 |---|---|
 | 1-16 | tot fisierul |
 
-## 01-config.js (231 linii)
+## 01-config.js (241 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 2-7 | BUBU ȘI LEO: OUĂLE DE AUR |
 | 8-11 | Names (all other texts, Romanian and English, are in the STR table below CONFIG) |
 | 12-43 | Heroes (index 0 = Player 1, index 1 = Player 2) |
-| 44-52 | Game length |
-| 53-61 | Difficulty, chosen per player on the start screen |
-| 62-66 | Nest: a hero in it is hidden on every level, the wind does not move it, nothing can hit it |
-| 67-76 | Rescue: a hero who was hit cannot walk until the friend comes and presses □ (both games) |
-| 77-85 | The ten seconds: a hit hero waits for his friend, and if nobody comes the level starts again |
-| 86-91 | Small enemies: beetles and pinecones (robots, snails and birds in the second game) |
-| 92-100 | Obstacles |
-| 101-106 | Helpers |
-| 107-114 | Boss |
-| 115-133 | Two mini-fights per level: one in the middle of the path, one at the nest |
-| 134-142 | Controls (keys and controller/keyboard are chosen in Setări). |
-| 143-156 | Run: press the left stick (L3) |
-| 157-163 | Sound |
-| 164-169 | Look |
-| 170-231 | The second game, "Cea mai grea luptă" (invented by the children) |
+| 44-62 | Game length |
+| 63-71 | Difficulty, chosen per player on the start screen |
+| 72-76 | Nest: a hero in it is hidden on every level, the wind does not move it, nothing can hit it |
+| 77-86 | Rescue: a hero who was hit cannot walk until the friend comes and presses □ (both games) |
+| 87-95 | The ten seconds: a hit hero waits for his friend, and if nobody comes the level starts again |
+| 96-101 | Small enemies: beetles and pinecones (robots, snails and birds in the second game) |
+| 102-110 | Obstacles |
+| 111-116 | Helpers |
+| 117-124 | Boss |
+| 125-143 | Two mini-fights per level: one in the middle of the path, one at the nest |
+| 144-152 | Controls (keys and controller/keyboard are chosen in Setări). |
+| 153-166 | Run: press the left stick (L3) |
+| 167-173 | Sound |
+| 174-179 | Look |
+| 180-241 | The second game, "Cea mai grea luptă" (invented by the children) |
 
 ## 015-lang.js (233 linii)
 
@@ -136,31 +136,32 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 389-401 | Boon's boomerang bone: two round ends and a shaft, cream amber, with a small crack. |
 | 402-406 | What a thrown thing looks like: Killer's and Leo's ball, or Boon's bone. |
 
-## 06-level.js (965 linii)
+## 06-level.js (985 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 2-72 | LEVELS: definitions, generator (with a reachability check so every egg can |
-| 73-140 | What the slow ground looks like: mud in the first game; slime, quicksand or tangled vines in the second. [dark rim, body, light, blotch 1, blotch 2, shine] |
-| 141-157 | the path from the start to the nest |
-| 158-208 | water |
-| 209-261 | bonus stars: one per third of the map |
-| 262-289 | mud, pinecone lanes, windmills |
-| 290-315 | trees, rocks, haystacks |
-| 316-350 | reachability (flood fill from the start) |
-| 351-367 | beetles |
-| 368-393 | sparkling trees (hide eggs) and the treetop star |
-| 394-415 | golden eggs, in waves from left to right |
-| 416-430 | lanterns along the path (sunset level) |
-| 431-439 | painting |
-| 440-458 | The decor of the second game: as many kinds, with the same ways of reacting, but the things of a jungle at night. |
-| 459-504 | One picture of a kind of decor, drawn once and cached. v = which of the 4 looks it has. |
-| 505-579 | The decor of the second game (the jungle at night). Glowing things get a soft halo of their own color. |
-| 580-836 | Second game: a rock with little crystals growing on it, a big glowing mushroom, a torch, a totem with a rainbow pinwheel. |
-| 837-848 | A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). |
-| 849-859 | The door of the hideout: an arched wooden door with a rainbow knob. x = middle, y = the ground line. |
-| 860-871 | Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). |
-| 872-965 | The boss arena: one screen, the tallest tree in the valley. |
+| 73-133 | What the slow ground looks like: mud in the first game; slime, quicksand or tangled vines in the second. [dark rim, body, light, blotch 1, blotch 2, shine] |
+| 134-159 | How long a level lasts (seconds): the sun, the medal and the help in updatePlay read this, not CONFIG.levelDuration. |
+| 160-176 | the path from the start to the nest |
+| 177-227 | water |
+| 228-280 | bonus stars: one per third of the map |
+| 281-308 | mud, pinecone lanes, windmills |
+| 309-334 | trees, rocks, haystacks |
+| 335-369 | reachability (flood fill from the start) |
+| 370-386 | beetles |
+| 387-412 | sparkling trees (hide eggs) and the treetop star |
+| 413-435 | golden eggs, in waves from left to right |
+| 436-450 | lanterns along the path (sunset level) |
+| 451-459 | painting |
+| 460-478 | The decor of the second game: as many kinds, with the same ways of reacting, but the things of a jungle at night. |
+| 479-524 | One picture of a kind of decor, drawn once and cached. v = which of the 4 looks it has. |
+| 525-599 | The decor of the second game (the jungle at night). Glowing things get a soft halo of their own color. |
+| 600-856 | Second game: a rock with little crystals growing on it, a big glowing mushroom, a torch, a totem with a rainbow pinwheel. |
+| 857-868 | A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). |
+| 869-879 | The door of the hideout: an arched wooden door with a rainbow knob. x = middle, y = the ground line. |
+| 880-891 | Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). |
+| 892-985 | The boss arena: one screen, the tallest tree in the valley. |
 
 ## 07-play.js (944 linii)
 

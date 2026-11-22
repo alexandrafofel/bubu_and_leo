@@ -272,3 +272,12 @@ Cererea proprietarei: "scoate jocul Bubu si Leo, lasa doar Cea mai grea lupta. M
 | Un singur jucator nu are numaratoare. | Regula 6: nimeni nu ramane blocat. Un copil care joaca singur n-are cine sa-l ajute. |
 | Povestea nivelului nu se mai spune la reincepere. | A treia oara, povestea de 15 secunde devine o pedeapsa. |
 | Reincepe tot capitolul, nu valul. | Cel mai usor de inteles pentru copii, si singurul care nu lasa jocul intr-o stare pe jumatate. `CONFIG.rescue.restart` pastreaza locul pentru alta alegere. |
+
+### T14.1: cota, cifrele (22 noiembrie 2026)
+
+| Decizie | De ce |
+|---|---|
+| Ouale de pe harta vin din cota: `ceil(2.2 * cota)`, nu din durata | Cererea: fiecare erou are o cota, iar oul peste limita ramane pentru prieten. Cu `2.2`, `2q <= E <= 2 * cap`. |
+| Daca numarul real iese din interval, se incearca alta samanta | Sub `2q` nivelul nu s-ar putea termina; peste `2 * cap` ar putea ramane oua blocate. |
+| Un `CONFIG.quota` gresit scrie o eroare o data si se intoarce la 60 de oua | Jocul nu trebuie sa se strice din cauza unei cifre. |
+| Numarul real de oua poate fi cu 1 - 2 mai mare sau mai mic decat `ceil(2.2 * q)` | Valurile se impart ca inainte, rotunjit. Ramane in interval, deci nu e o problema. Specificatia (C3) da cifre exacte; nu s-a cerut exactitatea. |

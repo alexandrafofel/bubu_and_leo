@@ -100,3 +100,9 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - **Daca ecranul "Încă o dată!" e inteles** ca "mai incercam", nu ca o pedeapsa.
 - Cum se simt vibratiile de fiecare secunda pe un controller adevarat, mai ales cele dese din ultimele 3 secunde: pot deveni suparatoare.
 - Daca lumina de pe margini se vede destul pe televizorul familiei, peste jungla de noapte.
+
+## T14.1 (22 noiembrie 2026)
+
+- Nivelurile 7 - 12 nu exista inca; `perLevel` are deja cifrele lor.
+- Nimic din joc nu se schimba pentru erou: luarea ouului cu cota e T14.2.
+- Numarul de oua pe nivel difera cu 1 - 2 de tabelul din `27-cota-de-oua.md` (rotunjire pe val). Daca proprietara vrea cifre exacte, valurile trebuie sa imparta restul.

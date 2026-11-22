@@ -591,7 +591,7 @@ function stepFlyBall(b, dt) {
 }
 
 function updateEggs(dt) {
-  const L = P.L, help = P.time > CONFIG.levelDuration ? 1.5 : 1;
+  const L = P.L, help = P.time > levelDurationOf(L) ? 1.5 : 1;
   for (let i = P.eggs.length - 1; i >= 0; i--) {
     const e = P.eggs[i];
     if (e.delay > 0) { e.delay -= dt; if (e.delay <= 0 && e.state === 'pop') Snd.play('pop'); continue; }

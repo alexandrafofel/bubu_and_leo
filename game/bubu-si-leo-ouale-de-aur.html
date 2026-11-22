@@ -60,7 +60,17 @@ const CONFIG = {
   levels: 6,                   // levels before the boss (1 to 6)
   decorPerLevel: 1700,         // small meadow things per level (grass, daisies, pebbles...). 6 x 1700 = 10,200 with the rest
   levelDuration: 360,          // target seconds per level. Egg count scales with it.
-  eggsPerMinute: 10,           // eggs per level = levelDuration / 60 * eggsPerMinute
+  eggsPerMinute: 10,           // pace used for the level time: a level lasts max(levelDuration, eggs / eggsPerMinute * 60) seconds (levelDurationOf)
+  // The egg quota: every hero has to find `perLevel[level]` eggs, and may hold at most `cap` x that (the rest stays on the ground for the friend).
+  quota: {
+    on: true,                                              // false = the old rule (60 eggs, no quota)
+    perLevel: [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65],   // eggs each hero must find, level 1 .. 12
+    cap: 1.5,                                              // how much a hero may hold, as a part of the quota (1.5 = 150%)
+    extra: 2.2,                                            // eggs on the map = quota * extra (between 2 and 2 * cap)
+    giveRange: 420, giveEvery: 0.3, flyTime: 0.45,         // giving with L1 (later tasks): how near, how fast, how long an egg flies
+    autoGive: 120,                                         // seconds in the nest after which the game moves eggs by itself (0 = never)
+    autoEvery: 2                                           // seconds between two automatic moves
+  },
   wavesPerLevel: 3,            // eggs appear in this many groups, left to right
   starsPerLevel: 3,
   giantEggValue: 20,           // the secret egg in the cave (level 5)
@@ -2432,6 +2442,25 @@ function spline(pts, stepLen) {          // Catmull-Rom through points, resample
   return out;
 }
 
+/* The quota of level idx (0-based), or 0 when the quota is off or the numbers do not fit (then the old rule is used: 60 eggs, no quota).
+   The numbers fit when the map has between 2q and 2 x cap eggs to give: fewer and the level cannot be finished, more and both heroes could be full. */
+let _quotaBad = false;
+function quotaOf(idx) {
+  const Qc = CONFIG.quota;
+  if (!Qc || !Qc.on) return 0;
+  const q = Qc.perLevel && Qc.perLevel[idx];
+  if (!(q > 0) || !(Qc.extra >= 2 && Qc.extra <= 2 * Qc.cap)) {
+    if (!_quotaBad) { _quotaBad = true; console.error('CONFIG.quota: extra must be between 2 and 2 * cap, and perLevel needs a value for every level'); }
+    return 0;
+  }
+  return q;
+}
+/* How long a level lasts (seconds): the sun, the medal and the help in updatePlay read this, not CONFIG.levelDuration. */
+function levelDurationOf(L) {
+  const E = L && L.totalEggs || 0;
+  return Math.max(CONFIG.levelDuration, L && L.q ? E / CONFIG.eggsPerMinute * 60 : 0);
+}
+for (let i = 0; i < CONFIG.levels; i++) quotaOf(i);      // a wrong CONFIG.quota is reported once, when the game starts
 function genLevel(idx, seed) {
   const def = levelDef(idx), r = rng(seed), WW = 3200, WH = 1800, cols = WW / CS, rows = WH / CS;
   const NW = clamp(CONFIG.wavesPerLevel | 0, 1, 5);
@@ -2706,8 +2735,8 @@ function genLevel(idx, seed) {
   L.dynTrees = L.trees.filter(t => t.dyn);
 
   // ---- golden eggs, in waves from left to right ------------------------------
-  const total = Math.max(NW, Math.round(CONFIG.levelDuration / 60 * CONFIG.eggsPerMinute)), quota = Math.round(total / NW);
-  L.totalEggs = 0;
+  const Q = quotaOf(idx), total = Math.max(NW, Q ? Math.ceil(CONFIG.quota.extra * Q) : Math.round(CONFIG.levelDuration / 60 * CONFIG.eggsPerMinute)), quota = Math.round(total / NW);
+  L.q = Q; L.totalEggs = 0;
   for (let k = 0; k < NW; k++) {
     const [x0, x1] = region(k), pts = [];
     const sparkN = L.trees.reduce((a, t) => a + (t.spark && t.spark.wave === k ? t.spark.n : 0), 0);
@@ -2726,6 +2755,7 @@ function genLevel(idx, seed) {
     if (pts.length < Math.min(4, ground)) return null;
     L.waves.push(pts); L.totalEggs += pts.length + sparkN;
   }
+  if (Q && (L.totalEggs < 2 * Q || L.totalEggs > 2 * Math.ceil(CONFIG.quota.cap * Q))) return null;      // buildLevel tries the next seed: both heroes must be able to finish, and nobody may block the other
 
   // ---- lanterns along the path (sunset level) --------------------------------
   if (def.lanterns) {
@@ -3869,7 +3899,7 @@ function stepFlyBall(b, dt) {
 }
 
 function updateEggs(dt) {
-  const L = P.L, help = P.time > CONFIG.levelDuration ? 1.5 : 1;
+  const L = P.L, help = P.time > levelDurationOf(L) ? 1.5 : 1;
   for (let i = P.eggs.length - 1; i >= 0; i--) {
     const e = P.eggs[i];
     if (e.delay > 0) { e.delay -= dt; if (e.delay <= 0 && e.state === 'pop') Snd.play('pop'); continue; }
@@ -4969,7 +4999,7 @@ function drawWorld(c) {
 function hintTarget() {
   const L = P.L; if (P.done || L.boss || (P.duel && !P.duel.over)) return null;
   if (P.nestOpen) return { x: L.nest.x, y: L.nest.y - 60 };
-  if (P.sinceEgg < CONFIG.hintAfter && P.time < CONFIG.levelDuration) return null;
+  if (P.sinceEgg < CONFIG.hintAfter && P.time < levelDurationOf(L)) return null;
   const mx = (P.heroes[0].x + P.heroes[1].x) / 2, my = (P.heroes[0].y + P.heroes[1].y) / 2; let best = null, bd = 1e9;
   for (const e of P.eggs) if (e.req && e.delay <= 0) { const d = dist(mx, my, e.x, e.y); if (d < bd) { bd = d; best = { x: e.x, y: e.y - 50 }; } }
   for (const t of L.dynTrees) if (t.spark && t.spark.active && !t.spark.done) { const d = dist(mx, my, t.x, t.y); if (d < bd) { bd = d; best = { x: t.x, y: t.y - t.R - 30 }; } }
@@ -5190,7 +5220,7 @@ function drawMidCard(c, ban) {
     if (s.got) { c.fillStyle = '#FFE7A0'; c.strokeStyle = '#F4B08E'; c.lineWidth = 5; c.stroke(); c.fill(); } else { c.fillStyle = 'rgba(190,150,130,0.28)'; c.fill(); }
   }
   // sun timer: the sun travels toward the hill while the level lasts (second game: the moon travels toward sunrise)
-  const u = clamp(t / CONFIG.levelDuration, 0, 1), x0 = cx + 496, yy = y0 + 72;
+  const u = clamp(t / levelDurationOf(P.L), 0, 1), x0 = cx + 496, yy = y0 + 72;
   c.strokeStyle = 'rgba(160,120,110,0.4)'; c.lineWidth = 3.5; c.lineCap = 'round'; c.beginPath(); c.arc(x0, yy, 34, Math.PI, TAU); c.stroke();
   const a = Math.PI + u * Math.PI; soft(c, x0 + Math.cos(a) * 34, yy + Math.sin(a) * 34, 10, 10, isLupta() ? mix('#E8ECFF', '#FFD86A', u) : mix('#FFD86A', '#EE8A5A', u), 1, 3);
   if (isLupta()) soft(c, x0 + Math.cos(a) * 34 + 4, yy + Math.sin(a) * 34 - 2, 8, 8, '#FFF3DC', 1 - u, 4);      // a crescent moon that grows into a sun
@@ -5734,7 +5764,7 @@ function drawLoading(c, t) {
 
 /* ---------- level end ---------- */
 /* Three little medals give the bigger player something extra to aim for. */
-function levelMedals() { return [P.stars.length > 0 && P.levelStars >= P.stars.length, P.hits === 0, P.time <= CONFIG.levelDuration]; }
+function levelMedals() { return [P.stars.length > 0 && P.levelStars >= P.stars.length, P.hits === 0, P.time <= levelDurationOf(P.L)]; }
 function drawMedal(c, i, x, y, got, t) {
   const pop = got ? 1 + Math.sin(t * 3 + i) * 0.04 : 1;
   c.save(); c.translate(x, y); c.scale(pop, pop);

@@ -468,7 +468,7 @@ function drawLoading(c, t) {
 
 /* ---------- level end ---------- */
 /* Three little medals give the bigger player something extra to aim for. */
-function levelMedals() { return [P.stars.length > 0 && P.levelStars >= P.stars.length, P.hits === 0, P.time <= CONFIG.levelDuration]; }
+function levelMedals() { return [P.stars.length > 0 && P.levelStars >= P.stars.length, P.hits === 0, P.time <= levelDurationOf(P.L)]; }
 function drawMedal(c, i, x, y, got, t) {
   const pop = got ? 1 + Math.sin(t * 3 + i) * 0.04 : 1;
   c.save(); c.translate(x, y); c.scale(pop, pop);

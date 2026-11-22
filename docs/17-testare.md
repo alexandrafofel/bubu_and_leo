@@ -276,3 +276,5 @@ In `control-nou.js` (testul butoanelor, de la T2) a fost nevoie de o linie in pl
 Verificat ca poate sa pice: cu vibratia prietenului scoasa si cu `Game.failLevel()` inlocuit de "se ridica singur", testul scrie `NEREUSIT` la 8 din 9 puncte.
 
 `tests/toate.sh` il ruleaza la fiecare rulare completa.
+
+Verificare T14.1 (script scurt, fara test nou; `tests/cota.js` vine in T14.9): pentru nivelurile 1 - 6, 10 seminte pe nivel, toate in `[2q, 2 * cap]`. Oua pe nivel: 21, 33, 45, 57, 66, 78. Cu `extra` 1.2 jocul scrie o eroare si cade pe 60 de oua.

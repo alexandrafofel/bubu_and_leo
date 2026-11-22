@@ -5,27 +5,27 @@
 | Ce | Cate |
 |---|---|
 | Fisiere sursa | 14 |
-| Linii de cod | 6379 |
-| Functii si metode | 508 |
+| Linii de cod | 6409 |
+| Functii si metode | 510 |
 | Culori hex diferite | 541 |
 | Texte (romana) | 201 |
 | Texte (engleza) | 201 |
 | Efecte sonore | 39 |
-| Valori in CONFIG | 217 |
+| Valori in CONFIG | 226 |
 
 ## Linii pe fisier
 
 | Fisier | Linii |
 |---|---|
 | 00-head.html | 16 |
-| 01-config.js | 231 |
+| 01-config.js | 241 |
 | 015-lang.js | 233 |
 | 02-core.js | 385 |
 | 03-audio.js | 550 |
 | 04-input.js | 163 |
 | 05-chars.js | 338 |
 | 055-lupta.js | 406 |
-| 06-level.js | 965 |
+| 06-level.js | 985 |
 | 07-play.js | 944 |
 | 075-duel.js | 378 |
 | 08-draw.js | 669 |

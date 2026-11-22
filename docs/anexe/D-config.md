@@ -52,6 +52,15 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `decorPerLevel` | `1700` |  |
 | `levelDuration` | `360` |  |
 | `eggsPerMinute` | `10` |  |
+| `quota.on` | `true` |  |
+| `quota.perLevel` | `[10,15,20,25,30,35,40,45,50,55,60,65]` |  |
+| `quota.cap` | `1.5` |  |
+| `quota.extra` | `2.2` |  |
+| `quota.giveRange` | `420` |  |
+| `quota.giveEvery` | `0.3` |  |
+| `quota.flyTime` | `0.45` |  |
+| `quota.autoGive` | `120` |  |
+| `quota.autoEvery` | `2` |  |
 | `wavesPerLevel` | `3` |  |
 | `starsPerLevel` | `3` |  |
 | `giantEggValue` | `20` |  |

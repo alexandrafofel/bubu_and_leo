@@ -180,7 +180,7 @@ Starea e cea din `main` la 21 noiembrie 2026 (PR-urile #5 - #12 mergeate). **Mod
 | T11 | De facut | T10 | Sonnet | 2 - 3 h |
 | T12 | De facut | T11 | Sonnet | 3 - 5 h |
 | T13 | De facut | T12, T1 | Sonnet | 2 - 4 h |
-| T14.1 | De facut | T1, T2 | Sonnet | 45 - 90 min |
+| T14.1 | Facut (22 noiembrie 2026) | T1, T2 | Sonnet | 45 - 90 min |
 | T14.2 | De facut | T14.1 | Opus | 1 - 2 h |
 | T14.3 | De facut | T2 | Haiku | 30 - 60 min |
 | T14.4 | De facut | T14.2, T14.3 | Sonnet | 1 - 2 h |

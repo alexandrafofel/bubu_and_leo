@@ -4,7 +4,7 @@
 
 Fiecare functie, functie sageata si metoda din cod, in ordinea din fisier. Coloana "Comentariul din cod" este textul scris chiar langa functie. Explicatiile pe larg sunt in capitolele din docs/.
 
-Total: 508 intrari.
+Total: 510 intrari.
 
 ## 01-config.js
 
@@ -277,55 +277,57 @@ Nicio functie.
 | 94 | `chapterLabel(i, id)` | functie | how a chapter is named in "Continue: ...": "Level 3", or the name of the big fight |
 | 99 | `levelsBefore(i, id)` | functie sageata | how many levels (not fights) come before chapter i: used for "stars found / stars there are" |
 | 101 | `spline(pts, stepLen)` | functie | Catmull-Rom through points, resampled evenly |
-| 121 | `genLevel(idx, seed)` | functie |  |
-| 130 | `inW(cx, cy)` | functie sageata |  |
-| 131 | `ci(x, y)` | functie sageata |  |
-| 132 | `mark(x, y, rad, bits)` | functie sageata |  |
-| 136 | `region(k)` | functie sageata |  |
-| 137 | `dv(arr, k)` | functie sageata |  |
-| 138 | `starRegion(i)` | functie sageata |  |
-| 154 | `pathDist(x, y)` | functie sageata |  |
-| 159 | `setWater(cx, cy)` | functie sageata | ---- water ---------------------------------------------------------------- |
-| 181 | `crossing(by, list)` | functie sageata |  |
-| 192 | `pathFar(x, y, d)` | functie sageata |  |
-| 193 | `areaClear(x, y, rad)` | functie sageata |  |
-| 200 | `addSolid(x, y, rad, kind, extra)` | functie sageata |  |
-| 201 | `mudEllipse(x, y, rx, ry)` | functie sageata |  |
-| 291 | `spotFree(x, y, rad)` | functie sageata | ---- trees, rocks, haystacks ---------------------------------------------- |
-| 299 | `scatter(count, rmin, rmax, kind, gap)` | functie sageata |  |
-| 341 | `reachCells(x, y, r0, r1, bits)` | functie sageata |  |
-| 349 | `shuffle(a)` | functie sageata |  |
-| 352 | `addBeetle(x, y)` | functie sageata | ---- beetles --------------------------------------------------------------- |
-| 401 | `far(x, y, d)` | functie sageata |  |
-| 443 | `makeDecor(L, seed)` | functie |  |
-| 446 | `pickType()` | functie sageata |  |
-| 460 | `paintDecor(cc, type, v, seed)` | functie | One picture of a kind of decor, drawn once and cached. v = which of the 4 looks it has. |
-| 506 | `paintDecorL(cc, type, v, r, pick)` | functie | The decor of the second game (the jungle at night). Glowing things get a soft halo of their own color. |
-| 555 | `decorSprite(type, v)` | functie sageata |  |
-| 556 | `paintDecorStill(c, L)` | functie | all the decor that stays put goes into the level picture, once |
-| 560 | `paintTree(c, t, P, ox, oy)` | functie |  |
-| 581 | `paintCrystalRock(c, x, y, R, col, seed)` | functie | Second game: a rock with little crystals growing on it, a big glowing mushroom, a torch, a totem with a rainbow pinwheel. |
-| 586 | `paintShroom(c, x, y, R, seed)` | functie |  |
-| 595 | `paintTorch(c, x, y)` | functie |  |
-| 600 | `drawFlame(c, x, y, t, s, lit)` | functie | a torch flame that flickers (lit: 0 to 1) |
-| 609 | `paintTotem(c, x, y)` | functie | x,y = base center. The totem rises about 200 px; the pinwheel turns on top. |
-| 621 | `drawPinwheel(c, x, y, ang)` | functie | the rainbow pinwheel on top of a totem: it turns faster when the wind blows |
-| 627 | `paintRock(c, x, y, R, col, seed)` | functie |  |
-| 634 | `paintHay(c, x, y, R, seed)` | functie |  |
-| 646 | `paintMillTower(c, x, y)` | functie | x,y = base center. Tower rises 250 px. |
-| 648 | `body(inset, col, a)` | functie sageata |  |
-| 657 | `drawMillBlades(c, x, y, ang)` | functie |  |
-| 669 | `paintLantern(c, x, y)` | functie |  |
-| 675 | `cellBlobs(c, L, type, rad, col, alpha, seed, jit)` | functie |  |
-| 686 | `paintLevel(L)` | functie |  |
-| 688 | `typeAt(x, y)` | functie sageata |  |
-| 807 | `room(grow, col, al)` | functie sageata | rounded cave room plus the short tunnel to the waterfall |
-| 838 | `paintVines(c, x, y, w, len, seed, sway, P)` | functie | A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). |
-| 850 | `paintDoor(c, x, y)` | functie | The door of the hideout: an arched wooden door with a rainbow knob. x = middle, y = the ground line. |
-| 861 | `finishPaint(c, w, h, skyT, r, night)` | functie | Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). |
-| 873 | `genBoss()` | functie | The boss arena: one screen, the tallest tree in the valley. |
-| 915 | `genArena()` | functie | The last level of the second game: George's arena. A clearing with mountains behind it, torches of fire all around, soldiers with spears, and in the middle the stone throne on which George sits. |
-| 952 | `slab(w, y0, h, col)` | functie sageata |  |
+| 124 | `quotaOf(idx)` | functie |  |
+| 135 | `levelDurationOf(L)` | functie | How long a level lasts (seconds): the sun, the medal and the help in updatePlay read this, not CONFIG.levelDuration. |
+| 140 | `genLevel(idx, seed)` | functie |  |
+| 149 | `inW(cx, cy)` | functie sageata |  |
+| 150 | `ci(x, y)` | functie sageata |  |
+| 151 | `mark(x, y, rad, bits)` | functie sageata |  |
+| 155 | `region(k)` | functie sageata |  |
+| 156 | `dv(arr, k)` | functie sageata |  |
+| 157 | `starRegion(i)` | functie sageata |  |
+| 173 | `pathDist(x, y)` | functie sageata |  |
+| 178 | `setWater(cx, cy)` | functie sageata | ---- water ---------------------------------------------------------------- |
+| 200 | `crossing(by, list)` | functie sageata |  |
+| 211 | `pathFar(x, y, d)` | functie sageata |  |
+| 212 | `areaClear(x, y, rad)` | functie sageata |  |
+| 219 | `addSolid(x, y, rad, kind, extra)` | functie sageata |  |
+| 220 | `mudEllipse(x, y, rx, ry)` | functie sageata |  |
+| 310 | `spotFree(x, y, rad)` | functie sageata | ---- trees, rocks, haystacks ---------------------------------------------- |
+| 318 | `scatter(count, rmin, rmax, kind, gap)` | functie sageata |  |
+| 360 | `reachCells(x, y, r0, r1, bits)` | functie sageata |  |
+| 368 | `shuffle(a)` | functie sageata |  |
+| 371 | `addBeetle(x, y)` | functie sageata | ---- beetles --------------------------------------------------------------- |
+| 420 | `far(x, y, d)` | functie sageata |  |
+| 463 | `makeDecor(L, seed)` | functie |  |
+| 466 | `pickType()` | functie sageata |  |
+| 480 | `paintDecor(cc, type, v, seed)` | functie | One picture of a kind of decor, drawn once and cached. v = which of the 4 looks it has. |
+| 526 | `paintDecorL(cc, type, v, r, pick)` | functie | The decor of the second game (the jungle at night). Glowing things get a soft halo of their own color. |
+| 575 | `decorSprite(type, v)` | functie sageata |  |
+| 576 | `paintDecorStill(c, L)` | functie | all the decor that stays put goes into the level picture, once |
+| 580 | `paintTree(c, t, P, ox, oy)` | functie |  |
+| 601 | `paintCrystalRock(c, x, y, R, col, seed)` | functie | Second game: a rock with little crystals growing on it, a big glowing mushroom, a torch, a totem with a rainbow pinwheel. |
+| 606 | `paintShroom(c, x, y, R, seed)` | functie |  |
+| 615 | `paintTorch(c, x, y)` | functie |  |
+| 620 | `drawFlame(c, x, y, t, s, lit)` | functie | a torch flame that flickers (lit: 0 to 1) |
+| 629 | `paintTotem(c, x, y)` | functie | x,y = base center. The totem rises about 200 px; the pinwheel turns on top. |
+| 641 | `drawPinwheel(c, x, y, ang)` | functie | the rainbow pinwheel on top of a totem: it turns faster when the wind blows |
+| 647 | `paintRock(c, x, y, R, col, seed)` | functie |  |
+| 654 | `paintHay(c, x, y, R, seed)` | functie |  |
+| 666 | `paintMillTower(c, x, y)` | functie | x,y = base center. Tower rises 250 px. |
+| 668 | `body(inset, col, a)` | functie sageata |  |
+| 677 | `drawMillBlades(c, x, y, ang)` | functie |  |
+| 689 | `paintLantern(c, x, y)` | functie |  |
+| 695 | `cellBlobs(c, L, type, rad, col, alpha, seed, jit)` | functie |  |
+| 706 | `paintLevel(L)` | functie |  |
+| 708 | `typeAt(x, y)` | functie sageata |  |
+| 827 | `room(grow, col, al)` | functie sageata | rounded cave room plus the short tunnel to the waterfall |
+| 858 | `paintVines(c, x, y, w, len, seed, sway, P)` | functie | A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). |
+| 870 | `paintDoor(c, x, y)` | functie | The door of the hideout: an arched wooden door with a rainbow knob. x = middle, y = the ground line. |
+| 881 | `finishPaint(c, w, h, skyT, r, night)` | functie | Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). |
+| 893 | `genBoss()` | functie | The boss arena: one screen, the tallest tree in the valley. |
+| 935 | `genArena()` | functie | The last level of the second game: George's arena. A clearing with mountains behind it, torches of fire all around, soldiers with spears, and in the middle the stone throne on which George sits. |
+| 972 | `slab(w, y0, h, col)` | functie sageata |  |
 
 ## 07-play.js
 

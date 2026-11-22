@@ -371,7 +371,7 @@ function drawWorld(c) {
 function hintTarget() {
   const L = P.L; if (P.done || L.boss || (P.duel && !P.duel.over)) return null;
   if (P.nestOpen) return { x: L.nest.x, y: L.nest.y - 60 };
-  if (P.sinceEgg < CONFIG.hintAfter && P.time < CONFIG.levelDuration) return null;
+  if (P.sinceEgg < CONFIG.hintAfter && P.time < levelDurationOf(L)) return null;
   const mx = (P.heroes[0].x + P.heroes[1].x) / 2, my = (P.heroes[0].y + P.heroes[1].y) / 2; let best = null, bd = 1e9;
   for (const e of P.eggs) if (e.req && e.delay <= 0) { const d = dist(mx, my, e.x, e.y); if (d < bd) { bd = d; best = { x: e.x, y: e.y - 50 }; } }
   for (const t of L.dynTrees) if (t.spark && t.spark.active && !t.spark.done) { const d = dist(mx, my, t.x, t.y); if (d < bd) { bd = d; best = { x: t.x, y: t.y - t.R - 30 }; } }
@@ -592,7 +592,7 @@ function drawMidCard(c, ban) {
     if (s.got) { c.fillStyle = '#FFE7A0'; c.strokeStyle = '#F4B08E'; c.lineWidth = 5; c.stroke(); c.fill(); } else { c.fillStyle = 'rgba(190,150,130,0.28)'; c.fill(); }
   }
   // sun timer: the sun travels toward the hill while the level lasts (second game: the moon travels toward sunrise)
-  const u = clamp(t / CONFIG.levelDuration, 0, 1), x0 = cx + 496, yy = y0 + 72;
+  const u = clamp(t / levelDurationOf(P.L), 0, 1), x0 = cx + 496, yy = y0 + 72;
   c.strokeStyle = 'rgba(160,120,110,0.4)'; c.lineWidth = 3.5; c.lineCap = 'round'; c.beginPath(); c.arc(x0, yy, 34, Math.PI, TAU); c.stroke();
   const a = Math.PI + u * Math.PI; soft(c, x0 + Math.cos(a) * 34, yy + Math.sin(a) * 34, 10, 10, isLupta() ? mix('#E8ECFF', '#FFD86A', u) : mix('#FFD86A', '#EE8A5A', u), 1, 3);
   if (isLupta()) soft(c, x0 + Math.cos(a) * 34 + 4, yy + Math.sin(a) * 34 - 2, 8, 8, '#FFF3DC', 1 - u, 4);      // a crescent moon that grows into a sun

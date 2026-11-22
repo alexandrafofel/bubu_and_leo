@@ -176,3 +176,9 @@ Greutatea fiecarui fel este in `DECOR_WEIGHT`. Cele care reactioneaza (`DECOR_RE
 - `chapters(id)`: nivelurile si luptele mari, in ordine. `chapterLabel(i, id)`, `levelsBefore(i, id)`. Vezi `13-ecrane-si-meniuri.md`, "Capitole".
 - `skyTOf(idx)`: in al doilea joc cerul se socoteste mereu pe 6 niveluri. Nivelurile Partii a doua vor avea culorile lor.
 - `buildLevel(idx)` primeste indicele unui capitol si pune `L.ch`. `L.idx` ramane numarul nivelului.
+
+## Numarul de oua si cota (T14.1)
+
+`genLevel` ia cota nivelului din `quotaOf(idx)` si pune pe harta `ceil(extra * cota)` oua, impartite pe valuri ca inainte (`round(total / NW)` pe val). Din cauza rotunjirii pe val, numarul real (`L.totalEggs`) poate diferi cu 1 - 2 de cifra ideala: nivelul 1 are 21, nu 22. Dupa generare, daca `L.totalEggs` nu e intre `2q` si `2 * ceil(cap * q)`, `genLevel` intoarce `null`, iar `buildLevel` incearca urmatoarea samanta (pana la 80).
+
+`levelDurationOf(L) = max(levelDuration, L.totalEggs / eggsPerMinute * 60)`. Soarele din HUD, medalia "soare", indiciile si raza de adunare citesc aceasta durata. Nivelurile 1 - 4 raman la 360 s; nivelul 5 are 396 s, nivelul 6 are 468 s.
