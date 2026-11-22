@@ -147,6 +147,12 @@ Inainte de orice sarcina si dupa fiecare: `./build.sh`, `node tools/gen-docs.js`
 | T14.8 | Mesajele si ghidul: bannerele `quotaDone` si `quotaBoth`, `quota.full`, `quota.far`, `quota.auto`; textele in `STR`, romana si engleza, cu varianta `L:`; sageata `kind: 'give'`; sunetul `give` ramane pe T14.4. | 27, C5 (texte si sageata), C11 | Verificarea 8 din `cota.js` trece, in ambele limbi. |
 | T14.9 | `tests/cota.js` cu cele 16 verificari din C10, fiecare verificat ca poate sa pice (strica regula, vezi `NEREUSIT`, apoi pune la loc). | 27, C10 | Toate cele 16 verificari trec si fiecare pica atunci cand regula e stricata. |
 | T14.10 | Boti, teste complete, documentatie: `balanseaza()` in `tests/common.js`, `joc-complet-bot.js` si `nivele-bot-mers.js` termina jocul, `tests/toate.sh` intreg, timpul pe nivel in `17-testare.md`, toate capitolele, `27` devine istoric. | 27, C8 (9), C10 (15 - 16) | `tests/toate.sh` trece intreg, cu `errors 0`. Planul marcheaza T14.1 - T14.10 facute. |
+| T15.1 | Fara maxim de diamante: `cap` scos din `canTake`, `quotaState`, L1, insigna si `CONFIG`; balonul "Plin!" dispare, insigna arata `+n`. | 28, G8 | `07-play.js`, `08-draw.js`, `01-config.js` |
+| T15.2 | Cote noi (minim 15 pe nivelul 1) si `2.5 x Q` diamante pe nivel. | 28, G3 | `01-config.js`, `06-level.js` |
+| T15.3 | `keepEnough()`: padurea mai da diamante cand cineva e sub minim si nu mai e nimic pe jos. | 28, G4 | `07-play.js` |
+| T15.4 | George vine dupa diamante, nu dupa valuri: `P.teamFound`, jumatate de cota si cota intreaga, bannerele `george.half` si `george.final`. | 28, G4 | `07-play.js`, `015-lang.js` |
+| T15.5 | Inamicii aruncati in lupta de la cuib: `throws` pe nivel, 3 inimi, un diamant lasat, cercurile pe pamant. | 28, G3 si G4 | `075-duel.js`, `08-draw.js` |
+| T15.6 | Sfarsitul nivelului cu cele trei conditii, `tests/george.js`, documentatia si `CLAUDE.md`. | 28, G9 si G10 | `07-play.js`, `tests/`, `docs/` |
 
 **Verificare la 21 noiembrie 2026 (dupa PR-urile #5 - #14).** `tests/salvare-prieten.js` era rosu pe `main` dupa T4: testul astepta 12 s de la lovitura, dar limita de ajutor e 10 s (`CONFIG.rescue.limit`), deci nivelul reincepea inainte de verificare. Jocul era bine; testul nu fusese actualizat. Testul a fost corectat: asteapta 5 s (inca in limita) si verifica reinceperea dupa `bothDown` (3 s) in loc de "se ridica singuri". Dupa aceea `tests/toate.sh` a trecut cu toate cele 26 de teste.
 
@@ -186,10 +192,16 @@ Starea e cea din `main` la 21 noiembrie 2026 (PR-urile #5 - #12 mergeate). **Mod
 | T14.4 | Facut (22 noiembrie 2026) | T14.2, T14.3 | Sonnet | 1 - 2 h |
 | T14.5 | Facut (22 noiembrie 2026) | T14.2 (ideal si T14.4) | Sonnet | 45 - 90 min |
 | T14.6 | Facut (22 noiembrie 2026) | T14.4, T14.5 | Opus | 1,5 - 3 h |
-| T14.7 | De facut | T14.2 | Sonnet | 1,5 - 2,5 h |
-| T14.8 | De facut | T14.4, T14.7 | Sonnet | 1 - 2 h |
-| T14.9 | De facut | T14.1 - T14.8 | Sonnet | 1,5 - 2,5 h |
-| T14.10 | De facut | T14.9 | Sonnet | 1,5 - 3 h |
+| T14.7 | Facut (22 noiembrie 2026) | T14.2 | Sonnet | 1,5 - 2,5 h |
+| T14.8 | Facut (22 noiembrie 2026) | T14.4, T14.7 | Sonnet | 1 - 2 h |
+| T14.9 | Facut (22 noiembrie 2026) | T14.1 - T14.8 | Sonnet | 1,5 - 2,5 h |
+| T14.10 | Facut (22 noiembrie 2026) | T14.9 | Sonnet | 1,5 - 3 h |
+| T15.1 | De facut | T14.9 | Sonnet | 1 - 2 h |
+| T15.2 | De facut | T15.1 | Haiku | 45 - 90 min |
+| T15.3 | De facut | T15.2 | Sonnet | 1 - 2 h |
+| T15.4 | De facut | T15.2 | Sonnet | 1,5 - 2,5 h |
+| T15.5 | De facut | T15.4 | Opus | 2 - 3 h |
+| T15.6 | De facut | T15.1 - T15.5 | Sonnet | 2 - 3 h |
 
 Totaluri: T6.1 - T6.10 cam 12 - 22 h, T6 - T13 cam 29 - 53 h, T14.1 - T14.10 cam 11 - 21 h, in total cam 40 - 74 h.
 
@@ -209,9 +221,9 @@ Se rescriu in `CLAUDE.md` in sarcina in care devin adevarate, nu inainte.
 |---|---|---|---|
 | 4 | "Stilul vizual: pictura in acuarela dintr-o carte pentru copii." | Se adauga: "Nivelurile 7 - 12 ale celui de-al doilea joc sunt pictate ca o diorama cu lumina (vezi `docs/24`, S7). Ramane valabil peste tot: fara contururi negre, fara gri, fara negru." | T6 |
 | 6 | "Un erou lovit (...) asteapta pe loc pana il ajuta prietenul cu □. (...) daca amandoi sunt loviti se ridica amandoi dupa cateva secunde." | "Jocul nu spune niciodata 'Game Over'. Un erou lovit asteapta pe loc. Prietenul are 10 secunde sa il ajute cu ○. Daca nu, nivelul reincepe de la inceput, cu mesajul 'Încă o dată!'. Un copil care joaca singur se ridica singur." | **T4 facuta** |
-| 8 | "✕ pentru putere, □ pentru a ajuta prietenul" | "✕ prima putere, □ a doua putere, ○ ajuta prietenul, L3 (apasarea stick-ului) fuga, L1 da un ou / cristal prietenului, OPTIONS pauza." | **T2 facuta** (fara L1), T14 (L1) |
+| 8 **(rescrisa, 22 noiembrie 2026)** | "✕ pentru putere, □ pentru a ajuta prietenul" | "✕ prima putere, □ a doua putere, ○ ajuta prietenul, L3 (apasarea stick-ului) fuga, L1 da un ou / cristal prietenului, OPTIONS pauza." | **T2 facuta** (fara L1), T14 (L1) |
 | 9 | "6 niveluri + lupta finala" | "Primul joc: 6 niveluri si o lupta finala. Al doilea: 12 niveluri si doua lupte mari. Minimum 10.000 de elemente pentru fiecare 6 niveluri." | T11 (cand exista toate nivelurile si a doua lupta mare), T12 (elementele) |
-| 10 | "Nivelul se termina doar cand amandoi jucatorii sunt in cuib." | "Nivelul se termina doar cand amandoi jucatorii sunt in cuib si fiecare si-a gasit cota de oua / cristale (`docs/27`)." | T14 |
+| 10 **(rescrisa, 22 noiembrie 2026)** | "Nivelul se termina doar cand amandoi jucatorii sunt in cuib." | "Nivelul se termina doar cand amandoi jucatorii sunt in cuib si fiecare si-a gasit cota de oua / cristale (`docs/27`)." | T14 |
 | noua, 11 | - | "In nivelurile 7 - 12 fiecare poarta are nevoie de amandoi eroii. Cu un singur jucator, jocul face singur partea celuilalt." | T7 |
 | 9 (a doua schimbare) | "minimum 30 de cuvinte pe erou, niciunul la fel cu ale primului joc" | "Fiecare erou are propria limba, cu cel putin 950 de cuvinte generate (`docs/26`). Niciun cuvant nu e la fel cu al altui erou." | T13 |
 

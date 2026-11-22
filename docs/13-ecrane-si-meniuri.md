@@ -285,3 +285,7 @@ Stare noua: `Game.state = 'retry'`, intre `play` si `loading`. Tine `CONFIG.resc
 Dupa cele 2.2 secunde: `Game.goLevel(Game.levelIdx)` si `UI.skipIntro = true`, deci nivelul porneste direct, fara povestea lui.
 
 Rezultatul salvat al unui capitol are si `tries`: de cate ori a fost reinceput inainte sa fie terminat (se pastreaza cel mai mic numar). Salvarea ramane la versiunea 4: o salvare veche, fara campul acesta, se incarca la fel.
+
+## Update 22 noiembrie 2026: sfarsitul nivelului cu cota (T14.7)
+
+Cartonasul `drawLevelEnd` are 900 de inaltime. Sub rezultate are cate un rand pentru fiecare erou: portret, `gasite / cota` (verde sau rosu) si bifa. Randul se citeste doar. Textul de jos a coborat. Pagina "Alege tastele" are si L1 (`key.g`).

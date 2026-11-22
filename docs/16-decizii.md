@@ -365,3 +365,39 @@ Cererea proprietarei: "scoate jocul Bubu si Leo, lasa doar Cea mai grea lupta. M
 | Ajutorul si L1 trec prin aceeasi functie, `sendEgg` | Un singur loc pentru ou, zbor, sunet si vibratie. |
 | Mutarea la intrarea unui jucator se face in `updatePlay` (`updateJoinQuota`), nu in `Input` | `P` si ouale in zbor se vad de aici; `Input` nu stie de nivel. Specificatia spunea `Input`; efectul e acelasi. |
 | Numele noului camp e `tooFarT`, nu `farT` | `farT` era deja timerul "sunt departe unul de altul" din `updatePlay`. Vezi limitarile. |
+
+### T14.7, T14.8 si T14.9: insigna, bannerele si testul cotei (22 noiembrie 2026)
+
+| Decizie | De ce |
+|---|---|
+| Insigna are 300 x 108 (era mai mica), cu portret rotund, ou / cristal mic si "gasite / cota" | Cota trebuie citita dintr-o privire de un copil; ramane in banda de sus (`HUD_TOP`), verificat cu `hud-acoperire.js`. |
+| Verde `#3E9A5A` cand e gata, rosu `#D6503F` cand lipseste, plus bifa (verde) sau clatinare de 1 grad (rosu) | Culoarea nu e singurul semn (contrast 3,2:1 si 3,8:1 pe crem). |
+| `quotaDone` o data pe erou, doar cu doi jucatori; daca amandoi termina odata apare `quotaBoth` | Mesajul "da-i prietenului" are sens doar cand prietenul inca are nevoie. |
+| Eroul plin este ghidat spre prietenul care are nevoie (`kind: 'give'`) sau spre cuib | Copilul vede ce are de facut cu L1. |
+| `tests/cota.js` verifica 14 din cele 16 puncte din C10; 15 si 16 raman la boti si `toate.sh` | Botii ruleaza jocul intreg; un duplicat ar fi doar mai lent. |
+| Fiecare verificare a fost pusa sa pice cu `MUTA=1..13` | Un test care nu poate pica nu dovedeste nimic. |
+
+### T14.10: cota de diamante, bilantul celor 16 hotarari (22 noiembrie 2026)
+
+Cele 16 hotarari din specificatie (`27-cota-de-oua.md`, C2) au fost implementate intre 22 noiembrie 2026, sarcinile T14.1 - T14.10. Tabelul de mai jos spune ce a iesit in cod si unde codul se abate de la hartie.
+
+| Nr | Ce s-a facut | Cum e in cod |
+|---|---|---|
+| C1 | Fiecare nivel are o cota pe erou. | `CONFIG.quota.perLevel`, `P.q`. Ca ieri. |
+| C2 | Nivelul se termina cu amandoi in cuib si fiecare cu cota lui. | `updatePlay`; regula 10 din `CLAUDE.md` rescrisa. Ca pe hartie. |
+| C3 | Maximum 150% din cota; ce e peste rama**ne** pe jos, cu "Plin!". | `P.cap`, `canTake`, `h.fullT`. Ca pe hartie. **Se scoate in T15**, la cererea proprietarei. |
+| C4 | L1 da un diamant prietenului, in arc de 0.45 s. | `giveEgg`, `sendEgg`, `P.gifts`, `updateGifts`. Ca pe hartie. |
+| C5 | Dai doar de aproape si doar daca prietenul are loc. | `CONFIG.quota.giveRange` 420; balonul "Apropie-te de {0}!" (`h.tooFarT`). |
+| C6 | Numarul de diamante pe harta se potriveste cu cota. | `06-level.js`. **Abatere**: numarul urmeaza valurile, deci iese 21 in loc de 22 pe nivelul 1. Tot in `2q .. 2 cap`, deci nivelul se poate termina. Intrebare deschisa. |
+| C7 | Cota creste cu 5 pe nivel, de la 10. | `perLevel: [10, 15, ... 65]`. **Se schimba in T15** (de la 15), ca sa se potriveasca exemplul proprietarei. |
+| C8 | Numara doar diamantele din valuri si din copaci, plus cele scapate. | Campul `goal` pe fiecare diamant. Oul uriaș, cele din paznic si bonusul curcubeului nu se numara. |
+| C9 | Eroul lovit scapa un diamant **al lui**. | `hitHero`: `P.found[k]--`. Fara diamante nu scapa nimic. |
+| C10 | Verde / rosu, plus bifa si clatinare pentru cine nu deosebeste culorile. | `QUOTA_GREEN`, `QUOTA_RED`, `drawTick`, clatinarea de 1 grad la 3 secunde. Contrastul pe crem: 3,2:1 si 3,8:1. |
+| C11 | Mesaj cand unul termina si celalalt nu. | `updateQuotaMsg`, bannerul `quotaDone`. **In plus**: `quotaBoth`, cand termina amandoi odata, ca mesajul "da-i prietenului" sa nu apara degeaba. |
+| C12 | Nimeni nu ramane blocat: ajutor automat dupa 120 de secunde in cuib. | `updateAutoGive`, din 2 in 2 secunde, doar din surplusul celui care da. |
+| C13 | Un singur jucator: cota celuilalt e indeplinita, fara limita. | `quotaState`, `isJoined`. |
+| C14 | Al doilea jucator intra la mijloc: surplusul primului trece la el. | `updateJoinQuota`. **Abatere**: se face in `updatePlay`, nu in `Input`, pentru ca acolo se vede `P`. Efectul e acelasi. |
+| C15 | Se aplica in ambele jocuri. | **Nu mai are obiect**: exista un singur joc din 18 noiembrie 2026. |
+| C16 | Portretul din insigna e cel pictat de joc. | `drawPort`, inel in culoarea eroului. Fara imagini in fisier (regula 1). |
+
+Hotararea de proces: `balanseaza()` sta in `tests/common.js` si cheama `giveEgg` direct, nu apasa L1. Motivul: un bot care apasa butoane la momentul potrivit ar testa botul, nu jocul; drumul diamantului e acelasi. Ce nu prinde asa, scris in `19-limitari.md`.
