@@ -151,3 +151,12 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - **Planul din fata e subtil**: lucrurile sunt doar la margini (150 de unitati pe laturi, 100 jos), iar pe o noapte inchisa se vad mai ales prin margine.
 - **Banda de cartonase** nu mai are hartia peste ea pe nivelurile cu harta: e putin mai alba.
 - Ecranele dintre niveluri (intrare, "Încă o dată!", final de nivel) pastreaza vinieta veche.
+
+## T6.8 (22 noiembrie 2026): ce nu s-a putut verifica
+
+- **Ochii robotilor, lava, cristalele din pereti**: nu exista inca (T9 - T11). Mecanismul exista (`L.lights` cu `glow`), dar nu s-a vazut pe ele. Halourile s-au vazut pe torte, felinare, stele si cristalele tronului.
+- **Scanteile vulcanului si sporii pesterii** s-au verificat doar ca miscare (directie si viteza), nu pe nivelurile lor: `volcano` si `cave` nu exista.
+- **Apa s-a vazut doar pe nivelurile 1 - 6** (lac, rau), cu `preview`. Lacul din T8 are alte forme si o pluta.
+- **Costul e la limita**: tot cadrul nou (T6.6 - T6.8) e cam 20% peste cel vechi in SwiftShader, cu zgomot de 2 ms intre rulari. Pe un Mac cu placa video nu s-a masurat.
+- **Oglindirea** se face din pictura de la incarcare: lucrurile care se misca (eroi, copaci care se leagana) nu se oglindesc.
+- Apa veche (nivelurile 1 - 6 fara `preview`) a ramas cu clipirea veche, nemodificata.

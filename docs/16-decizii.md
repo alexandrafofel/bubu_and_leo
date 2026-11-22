@@ -346,3 +346,16 @@ Cererea proprietarei: "scoate jocul Bubu si Leo, lasa doar Cea mai grea lupta. M
 | Paralaxa limitata la 60 de unitati, dreptunghiul din mijloc cu o marja de 60. | Altfel paralaxa (1.15 x camera, pe un nivel de 3200) ar fi mutat lucrurile cu sute de unitati, pana in mijloc. |
 | Un lucru se stinge cand un erou e la 220 de unitati de el, nu doar cand e sub el; si pe loc daca eroul e deja sub el. | Fuga merge cu 1100 pe secunda: in 0,2 s (cat dureaza stingerea) un erou trece 220. Iar cand camera sare (inceputul nivelului, un erou pus in alt loc), nu e timp de stins. Primul test a gasit 31 de eroi acoperiti din cauza asta. |
 | Marginea luminoasa a lucrurilor din fata are nuanta lor. | O margine calda (`KEY`) peste violet si verde, stearsa, dadea pixeli gri. |
+
+## Stralucire, apa si praf (sarcina T6.8, 22 noiembrie 2026)
+
+| Hotarare | De ce |
+|---|---|
+| Halourile se marcheaza (`glow`) doar la lucrurile care lumineaza ele insele, nu la orice lumina. | Eroii, ouale si bilele dau lumina, dar nu "ard". Un halou pe fiecare ou ar fi acoperit ce e important (S7.8, intrebarea 5). |
+| Halourile sunt in plus fata de cele 24 de lumini, cel mult 12. | S7.7 limiteaza luminile, nu stralucirile; limita din `haloMax` pastreaza costul. |
+| Apa: o placa de valuri, desenata de doua ori cu deplasari diferite, prin `setTransform` pe pattern-ul facut o data. | Asa cere S7.5 ("un pattern desenat de doua ori") si S7.7 (niciun `createPattern` pe cadru). |
+| Valurile se opresc inainte de malul apei (dreptunghiurile sunt mai mici cu 6 unitati). | Altfel liniile ies in iarba, in patratele de 40. |
+| Oglindirea se face la un sfert din marime, taiata cu cercuri moi. | Un sfert o face stearsa fara filtru; cercurile moi o opresc sa iasa patrata la maluri. |
+| Praful e in spatiul ecranului, dupa `P.time`, cel mult 0,1 s pe cadru. | Cerut de S7.5. Cu pauza se opreste; la un cadru lung nu sare. |
+| Felul prafului (scantei, spori, praf) vine din `L.def.key`. | Vulcanul si pestera (T10, T11) nu exista inca; cheile lor vin din `docs/25`. |
+| Testul verifica si directia verticala a punctelor, nu doar ca "se misca". | Prima versiune a testului nu prindea un praf care se leagana doar pe orizontala (`m.y += 0`): defectul pus intentionat a trecut. |

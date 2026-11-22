@@ -221,3 +221,43 @@ Peste partea de sus a picturii nivelului (departarea, pana la 45% din inaltime, 
 - **Hartia intra in pictura nivelului** (`L.paperBaked`, o data, in `finishLook`), iar peste nivel nu se mai pune deloc stratul de hartie si vinieta (`levelOverlay` intoarce `null`): harta de lumina ii ia locul. O trecere pe tot ecranul in loc de doua. Banda de cartonase nu mai e inmultita cu hartia (cartonasele sunt deja pictate pe hartie).
 - `CONFIG.look.lights: false`: harta nu se deseneaza si ramane stratul vechi, cu vinieta. (Daca harta era pornita la incarcarea nivelului, hartia e deja in pictura si se vede putin mai tare.)
 - `LightCount` si `FrontCount` spun ce a facut ultimul cadru (pentru teste).
+
+## Update 22 noiembrie 2026 (T6.8): stralucire, apa si praf in lumina
+
+Ca si harta (T6.7), doar pe nivelurile cu `look: 'diorama'` sau cu `CONFIG.look.preview`. Nivelurile 1 - 6 fara `preview` raman cum erau (apa lor are vechea clipire).
+
+### Stralucirea (halourile)
+
+- Un `addLight(..., glow)` marcheaza luminile care vin de la un lucru care chiar lumineaza: tortele din arena, felinarele aprinse, stelele, cuibul deschis, cristalele de la picioarele tronului lui George, `L.lights` (lava, cristale, tinte aprinse; de la T7). Eroii, ouale si bilele dau lumina, dar nu stralucesc.
+- Dupa lumini, in `drawLightMap`, fiecare lucru marcat primeste un halou: acelasi sprite rotund (`lightSprite`), mai mic (raza luminii x 0,34, cel putin 24), spre alb, cu `lighter`. Alpha 0.35 - 0.6 in jurul lui `look.halo` (0.5), cu o mica respiratie in timp.
+- Cel mult `look.haloMax` (12) pe cadru, in plus fata de cele 24 de lumini. `look.halo: 0` = niciunul. `LightCount.halo`, `LightCount.haloLo` si `haloHi` spun ce a facut ultimul cadru.
+- **Nu exista inca:** ochii robotilor (robotii vin la T9); lava (la T10). Cand vor exista, isi pun lumina in `L.lights`.
+
+### Apa (`paintWater`, `drawWater`, `MATERIALS.water`)
+
+- **O data, la incarcarea nivelului** (`finishLook` -> `paintWater`, `06-level.js`): `L.water.path` (un `Path2D` cu cate un dreptunghi pentru fiecare sir de celule de apa, putin mai mic decat celulele, ca valurile sa se opreasca inainte de mal) si `L.water.spark` (24 de locuri de sclipit).
+- **Oglindirea**, pictata o data in fundal: malul de deasupra fiecarei coloane de apa, rasturnat, pana la patru celule adancime, mai slab cu adancimea. Se face la un sfert din marime (de aici e stearsa), se taie cu o masca de cercuri moi (malul apei nu e patrat) si se pune peste apa cu alpha 0.3. Media culorilor apei difera cu ea cu 6 din 255.
+- **Valurile**, la fiecare cadru, in `fillWaves` (`02-core.js`): o singura placa pictata o data (`paintWaveTile`, 160 x 48, doua linii subtiri cu capete care se sting, se repeta fara cusatura), desenata de doua ori peste `L.water.path` cu deplasari diferite: primul rand merge spre dreapta cu `look.waveSpeedA` (14 unitati pe secunda), al doilea spre stanga cu `waveSpeedB` (9), mutat cu jumatate de placa pe verticala, cu alpha 0.5 si 0.38. Deplasarea e `setTransform` pe pattern-ul deja facut: **niciun `createPattern` pe cadru**.
+- **Sclipiri**: pana la 24, fiecare cu timpul lui (`sin(t*2,2 + faza) > 0,45`: cea mai mare parte a timpului sunt stinse), un sprite mic cu `lighter`.
+- `MATERIALS.water` (`02-core.js`) e acelasi lucru pentru `lit()`: baza albastra si cele doua randuri de valuri, dupa `o.t`. Pe lumea pictata a nivelurilor noi se foloseste calea de mai sus; materialul e pentru ce se va picta cu `lit()` (pluta, lacuri la T8).
+- `look.waves: false`: nu se mai picteaza apa noua (ramane vechea clipire). `WaterCount` spune ce a facut ultimul cadru.
+
+### Praful in lumina (`drawMotes`)
+
+- `look.motes` (40) puncte mici in **spatiul ecranului**, nu al lumii: nu raman in urma cand camera merge. Fiecare un `drawImage` din sprite-ul lui (`moteSprite`, o culoare pe sprite), cu `lighter`, 1,6 - 3,8 unitati x 2,4.
+- Alpha 0.15 - 0.4: 0.15 + o respiratie de 0.1 + pana la 0.15 langa o lumina (`_lights` din cadrul in care s-a desenat harta, in raza x 0,9).
+- Felul, dupa `L.def.key`: `volcano` - scantei portocalii care urca repede (40 - 90 pe secunda); `cave` - spori violet-albastri care coboara (10 - 28); restul - praf crem care urca incet (5 - 15). Cand iese din ecran pe verticala, punctul reapare de partea cealalta.
+- Se misca dupa `P.time` (cu pauza se opreste), cel mult 0,1 s pe cadru. `look.motes: 0` = niciunul. `MoteCount.draw`.
+
+### Cost
+
+`tests/tmp/perf-cadru4.js` (mediana a cinci rulari, in aceeasi rulare, SwiftShader):
+
+| | nivelul 3 (apa) | nivelul 6 |
+|---|---|---|
+| fara cadrul nou | 19,5 ms | 19,8 ms |
+| cu T6.6 si T6.7 | 23,4 | 21,2 |
+| doar valuri / doar praf / doar halou | 25,1 / 24,0 / 22,0 | 22,4 / 22,8 / 23,7 |
+| cu tot (T6.8) | 23,2 | 24,1 |
+
+T6.8 adauga cam 1,3 ms (cam 6%) peste T6.7; tot cadrul nou e cam 20% peste cel vechi, **chiar la limita din S7.7** (20%). Masuratoarea are un zgomot de aproape 2 ms intre rulari. Reglaje daca un Mac se chinuie: `motes`, `halo`, `waves`.

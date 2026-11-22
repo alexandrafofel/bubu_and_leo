@@ -222,6 +222,8 @@ Aceleasi cadru si aceleasi reguli ca la eroi (placa pictata o data, model facut 
 
 **Lava pulseaza dupa `o.t`** (secunde, dat de cel care deseneaza; fara el sta pe loc). Culoarea crapaturii e `mix(#F58A3C, #F6CE46, puls)`, puls = 0.5 + 0.5 sin(2.4 t + 0.45 k). Defazajul dintre crapaturi e mic dinadins: la 1.3 pulsau in faze opuse, iar vulcanul parea ca sta nemiscat. Doua straturi: o dunga larga si moale (alpha 0.3) si crapatura insasi (alpha 0.95). Galben si portocaliu raman in paleta: nicio culoare de pe drum nu e gri sau negru.
 
+> **Apa (T6.8):** al unsprezecelea material, `water`, e descris in `12-desen-si-hud.md`, "Update 22 noiembrie 2026 (T6.8)": baza albastra si doua randuri de valuri care merg in sens opus (`paintWaveTile`, `fillWaves`).
+
 ## Update 22 noiembrie 2026 (T6.4): `lit()` pentru eroi, `castShadow()`
 
 `lit()` a primit patru optiuni noi, pentru eroii facuti din multe parti:

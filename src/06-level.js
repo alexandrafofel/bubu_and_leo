@@ -874,6 +874,7 @@ function finishLook(L) {
   const g = c.createLinearGradient(0, 0, 0, hz);                         // the haze: strongest at the top (the farthest), gone by the middle
   g.addColorStop(0, 'rgba(176,196,240,0.34)'); g.addColorStop(1, 'rgba(176,196,240,0)');
   c.fillStyle = g; c.fillRect(0, 0, L.W, hz);
+  if (CONFIG.look.waves && L.waterCells.length) L.water = paintWater(L, c);
   L.front = paintFront(L);
   if (CONFIG.look.lights) {        // the paper goes into the picture once: the light map then replaces the whole overlay (one full-screen pass, not two)
     if (!PAPER) PAPER = makePaper();
@@ -883,6 +884,45 @@ function finishLook(L) {
     L.paperBaked = true;
   }
   return L;
+}
+/* The water of the new levels (T6.8). Once, at loading:
+   - L.water.path: the water cells as one Path2D (a rectangle for every run of cells on a row, a little smaller than the cells,
+     so the waves stop before the bank); every frame fills it twice with the wave pattern (drawWater);
+   - the reflection: the bank above every column of water, upside down, faint and out of focus, painted into the picture.
+     It is made at a quarter of the size (that is what makes it soft), faded with depth, cut with a mask of soft discs
+     (the shore of the water is not square), then laid over the water with a low alpha;
+   - L.water.spark: the places where it sparkles. */
+function paintWater(L, c) {
+  const path = new Path2D(), G = L.grid, cols = L.cols, rows = L.rows, spark = [];
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols;) {
+      if (G[y * cols + x] !== 2) { x++; continue; }
+      let x1 = x; while (x1 < cols && G[y * cols + x1] === 2) x1++;
+      path.rect(x * CS + 6, y * CS + 6, (x1 - x) * CS - 12, CS - 12); x = x1;
+    }
+  }
+  const Q = 4, rf = makeCanvas(Math.ceil(L.W / Q), Math.ceil(L.H / Q)), rc = rf.getContext('2d'), mk = makeCanvas(rf.width, rf.height), mc = mk.getContext('2d');
+  rc.imageSmoothingEnabled = true;
+  const disc = makeCanvas(64, 64), dc = disc.getContext('2d'), gg = dc.createRadialGradient(32, 32, 10, 32, 32, 32);
+  gg.addColorStop(0, 'rgba(0,0,0,1)'); gg.addColorStop(1, 'rgba(0,0,0,0)'); dc.fillStyle = gg; dc.fillRect(0, 0, 64, 64);
+  for (let x = 0; x < cols; x++) {
+    let y = 0;
+    while (y < rows) {
+      if (G[y * cols + x] !== 2) { y++; continue; }
+      const y0 = y; while (y < rows && G[y * cols + x] === 2) y++;       // one column of water: from y0 to y
+      for (let d = 0; d < Math.min(y - y0, 4); d++) {
+        const sy = y0 * CS - (d + 1) * CS; if (sy < 0) break;                      // the bank above the water, mirrored about its top edge
+        rc.save(); rc.globalAlpha = 1 - d * 0.22; rc.translate(0, (y0 * CS + d * CS) / Q + CS / Q); rc.scale(1, -1);
+        rc.drawImage(L.bg, x * CS, sy, CS, CS, x * CS / Q, 0, CS / Q, CS / Q); rc.restore();
+      }
+      for (let k = y0; k < y; k++) mc.drawImage(disc, x * CS / Q - CS / Q * 0.45, k * CS / Q - CS / Q * 0.45, CS / Q * 1.9, CS / Q * 1.9);
+    }
+  }
+  rc.globalCompositeOperation = 'destination-in'; rc.drawImage(mk, 0, 0);
+  c.save(); c.globalAlpha = 0.3; c.imageSmoothingEnabled = true; c.drawImage(rf, 0, 0, L.W, L.H); c.restore();
+  const wc = L.waterCells, n = Math.min(24, wc.length);
+  for (let i = 0; i < n; i++) { const k = wc[(i * 53 + 7) % wc.length]; spark.push({ x: (k % cols + 0.5) * CS + (hash(81, i) - 0.5) * CS * 0.8, y: ((k / cols | 0) + 0.5) * CS + (hash(82, i) - 0.5) * CS * 0.8, ph: hash(83, i) * TAU, s: 9 + hash(84, i) * 9 }); }
+  return { path, spark };
 }
 /* The front plane: painted once at half resolution (960 x 540), blurred, then blown up once to a canvas the size of the screen.
    items: a rectangle on the screen for each thing (x, y, w, h in screen units), and its alpha.
