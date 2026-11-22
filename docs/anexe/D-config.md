@@ -172,6 +172,18 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `look.motes` | `40` |  |
 | `look.freeze` | `0.06` |  |
 | `look.maxLights` | `24` |  |
+| `look.tailLift` | `0.18` |  |
+| `look.tailMax` | `0.5` |  |
+| `look.tailSpring` | `70` |  |
+| `look.armSwing` | `0.45` |  |
+| `look.armSwingRun` | `0.8` |  |
+| `look.breath` | `0.02` |  |
+| `look.blinkMin` | `3` |  |
+| `look.blinkMax` | `6` |  |
+| `look.squashStart` | `-0.1` |  |
+| `look.squashStop` | `0.12` |  |
+| `look.squashLand` | `0.18` |  |
+| `look.squashRun` | `-0.16` |  |
 | `lupta.villainName` | `"George cel Rău"` |  |
 | `lupta.heroes.0.name` | `"Boon"` |  |
 | `lupta.heroes.0.power` | `"spin"` |  |

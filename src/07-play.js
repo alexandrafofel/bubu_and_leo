@@ -34,7 +34,8 @@ function makeHero(k, x, y) {
     down: false, downT: 0, downLeft: 0, downTick: null, hurried: false, callT: 0, small: 1, spinT: -1, spinNo: 0, shield: false, carried: null, hugT: 0, reachHint: 0,
     run: false, runIdle: 0, runT: 0, runRest: 0, runWord: -99, ghosts: [], ghostT: 0,         // run (L3): ghosts = the trail left behind
     throwCd: 0, homeState: 'held', home: { x, y, z: 0, spin: 0 }, chargeHold: 0,               // the thrown things (balls or bones): cooldown, whether they are all home, and the one kept at hand
-    spinBeat: 0, spinLook: null, duelSweep: 0, bossSweep: 0 };                                 // the spin (claws or gloves)
+    spinBeat: 0, spinLook: null, duelSweep: 0, bossSweep: 0,                                    // the spin (claws or gloves)
+    tail: [0, 0, 0, 0], wasMoving: false, pz: 0, ghostCv: [], ghostNo: 0 };                    // the tail spring (two joints), squash on start / stop / landing, the ghosts' pictures
 }
 function makeEgg(x, y, o) {
   return Object.assign({ x, y, r: 17, seed: Math.random() * 10, req: true, value: 1, state: 'idle', t: 0, delay: 0, z: 0, pull: null, pullT: 0, big: false, hue: Math.random() * 7 | 0 }, o || {});   // hue: the color of a rainbow crystal (second game)
@@ -367,6 +368,17 @@ function recallBalls(k) {
 
 /* Running (L3). One press with the stick tilted starts it; it lasts until the stick is let go.
    canRun says when a hero is allowed to run at all; everything that stops a run is in one place, below. */
+/* The weight of a hero (docs/24-sisteme-noi.md, S7.3, second part): a squash or a stretch when he starts, stops
+   and lands, and the tail that lifts with the speed and comes after the body with a lag. Only numbers here:
+   the painters read them (heroOpts). */
+function heroMotion(h, v, dt) {
+  const LK = CONFIG.look;
+  if (h.moving !== h.wasMoving) { if (h.z <= 0 && !h.down) h.squash = h.moving ? LK.squashStart : LK.squashStop; h.wasMoving = h.moving; }
+  if (h.pz > 2 && h.z <= 0) h.squash = Math.max(h.squash, LK.squashLand);
+  h.pz = h.z;
+  if (Math.abs(h.squash) < 1e-4) h.squash = 0;                              // no endless tiny wobble while he stands still
+  tailStep(h.tail, h.moving ? Math.min(LK.tailMax, v / CONFIG.heroes[h.k].speed * LK.tailLift) : 0, dt);
+}
 function canRun(h) {
   const S = CONFIG.sprint;
   return S.enabled && !h.down && h.dizzy <= 0 && !h.carried && !h.charging && !P.done && h.runRest <= 0
@@ -375,6 +387,7 @@ function canRun(h) {
 function startRun(h) {
   const S = CONFIG.sprint;
   h.run = true; h.runIdle = 0; h.runT = 0;
+  h.squash = CONFIG.look.squashRun;                                            // the body stretches as the run starts
   Snd.play('dash', 0, h.k);
   if (P.time - h.runWord > S.wordGap) { h.runWord = P.time; Snd.talk(h.k, 'run'); }
   Input.rumble(h.k, 0, 0.35, 70);
@@ -467,10 +480,11 @@ function updateHero(h, dt) {
   }
   if (h.run && h.moving) {               // the trail of three ghosts, and a little dust at every step
     h.ghostT -= dt;
-    if (h.ghostT <= 0) { h.ghostT = 0.04; h.ghosts.unshift({ x: h.x, y: h.y, face: h.face, walk: h.walk, z: h.z }); if (h.ghosts.length > 3) h.ghosts.length = 3; }
+    if (h.ghostT <= 0) { h.ghostT = 0.04; h.ghosts.unshift({ x: h.x, y: h.y, face: h.face, walk: h.walk, z: h.z, cv: null }); if (h.ghosts.length > 3) h.ghosts.length = 3; }   // cv: its picture, painted once (drawRunTrail)
   } else if (h.ghosts.length) h.ghosts.length = 0;
   const v = Math.hypot(h.vx, h.vy);
   h.moving = v > 35;
+  heroMotion(h, v, dt);
   if (h.moving) {
     const w0 = h.walk; h.walk += dt * (7 + v / 55); if (Math.abs(h.vx) > 25) h.face = Math.sign(h.vx);
     // footsteps: one soft sound each time a foot lands

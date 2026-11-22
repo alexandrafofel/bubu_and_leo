@@ -5,7 +5,7 @@
 const _sorted = [];
 function heroOpts(h) {
   return { face: h.face, walk: h.walk, moving: h.moving, t: h.t, z: h.z, squash: h.squash, dizzy: h.dizzy > 0, kick: h.kickT > 0 ? h.kickT / 0.28 : 0,
-    happy: P.done || (P.boss && P.boss.state === 'won'), scale: h.small, hug: h.hugT > 0 ? h.hugT / 0.7 : 0,
+    happy: P.done || (P.boss && P.boss.state === 'won'), scale: h.small, hug: h.hugT > 0 ? h.hugT / 0.7 : 0, tail: h.tail, run: h.run,
     claw: h.spinT >= 0 && h.spinLook !== 'gloves' ? clamp(h.spinT / (abil(h.k, 'spin').time || 1), 0, 1) : -1,
     glove: h.spinT >= 0 && h.spinLook === 'gloves' ? clamp(h.spinT / (abil(h.k, 'spin').time || 1), 0, 1) : -1 };
 }
@@ -89,14 +89,25 @@ function drawGloveRing(c, h) {
     drawGlove(c, h.x + Math.cos(a0) * rr, h.y - 6 + Math.sin(a0) * rr * 0.52, 20 * grow, Math.cos(a0) >= 0 ? 1 : -1, t);
   }
 }
-/* The trail of a running hero: three fading copies of him, and six speed lines behind. */
+/* The trail of a running hero: three fading copies of him, and six speed lines behind.
+   Every copy is painted ONCE, into a small canvas of its own, when it appears (every 0.04 s), and then only
+   drawn with drawImage: 3 drawImage per hero (S7.7), not three more heroes painted on every frame. */
+const GHOST_W = 300, GHOST_H = 230, GHOST_OX = 150, GHOST_OY = 190, GHOST_RES = 1.25;   // the box of a hero around his feet, and how sharp
+function ghostCanvas(h, g) {
+  if (!h.ghostCv.length) for (let i = 0; i < 4; i++) h.ghostCv.push(makeCanvas(GHOST_W * GHOST_RES, GHOST_H * GHOST_RES));   // 4: one more than can be on screen
+  const cv = h.ghostCv[h.ghostNo++ % 4], c = cv.getContext('2d');
+  c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height); c.setTransform(GHOST_RES, 0, 0, GHOST_RES, 0, 0);
+  drawHero(c, h.k, GHOST_OX, GHOST_OY, Object.assign(heroOpts(h), { face: g.face, walk: g.walk, z: g.z }));
+  return cv;
+}
 function drawRunTrail(c, h) {
   const cfg = CONFIG.heroes[h.k], al = [0.28, 0.18, 0.09];
   for (let i = 0; i < h.ghosts.length; i++) {
     const g = h.ghosts[i];
+    if (!g.cv) g.cv = ghostCanvas(h, g);
     c.globalAlpha = al[i] || 0.08;
-    c.save(); c.translate(g.x, g.y); c.rotate(0.14 * g.face); c.translate(-g.x, -g.y);
-    drawHero(c, h.k, g.x, g.y, Object.assign(heroOpts(h), { face: g.face, walk: g.walk, z: g.z }));
+    c.save(); c.translate(g.x, g.y); c.rotate(0.14 * g.face);
+    c.drawImage(g.cv, -GHOST_OX, -GHOST_OY, GHOST_W, GHOST_H);
     c.restore();
   }
   c.globalAlpha = 1;
@@ -661,7 +672,7 @@ function drawGeorgeBoss(c, o, t) {
   if (!up) castShadow(c, o.x, (st === 'down' || st === 'won') ? o.y + 4 : 660, 100 * S, 70 * S, 21, 1);   // the cast shadow of S7.1
   c.save(); c.translate(o.x + (up ? Math.sin(t * 38) * o.treeShake * 9 : 0), o.y + (up ? 34 + Math.sin(t * 3) * 3 : 0));
   if (st === 'falling') c.rotate(o.t * 9);
-  drawGeorge(c, 0, st === 'falling' ? 40 : 0, { scale: S, t: t, face: st === 'won' ? 1 : (P.heroes[0].x + P.heroes[1].x < o.x * 2 ? -1 : 1), mood, moving: st === 'won' && o.t > 1.2, walk: t * 18, noCrown: st === 'won' });
+  drawGeorge(c, 0, st === 'falling' ? 40 : 0, { tail: tailFollow(o, o.x, t, 260), scale: S, t: t, face: st === 'won' ? 1 : (P.heroes[0].x + P.heroes[1].x < o.x * 2 ? -1 : 1), mood, moving: st === 'won' && o.t > 1.2, walk: t * 18, noCrown: st === 'won' });
   c.restore();
   if (st === 'down') drawDizzyStars(c, o.x + 30, o.y - 190, t);
   if (st === 'won' && o.wy != null) drawGeorgeCrown(c, o.cx, o.wy - 8, 1.5, 1.25);          // his crown stays behind on the sand

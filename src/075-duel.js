@@ -322,7 +322,7 @@ const DUEL_PAINT = {
     drawCiori(c, 0, 0, { scale: 1.25, t: t, fly: d.z > 30, mood: mood === 'dizzy' ? 'dizzy' : 'cheeky', body: '#4F7387', dark: '#3B596B', light: '#86AEBE', belly: '#A9C7D2' });
   },
   george(c, d, t, mood) {                                    // George cel Rău (second game): the same painter as the boss, the size comes from the level
-    drawGeorge(c, 0, 0, { scale: 1.15, t: t, mood: mood, moving: d.state === 'move' || d.state === 'dash', walk: t * 12, squash: d.state === 'aim' ? 0.12 : d.z > 20 ? -0.12 : 0 });
+    drawGeorge(c, 0, 0, { tail: tailFollow(d, d.x, t, 260), scale: 1.15, t: t, mood: mood, moving: d.state === 'move' || d.state === 'dash', walk: t * 12, squash: d.state === 'aim' ? 0.12 : d.z > 20 ? -0.12 : 0 });
   }
 };
 function drawDuelBoss(c) {

@@ -292,7 +292,7 @@ Cat timp macar un erou fuge, camera merge mai repede spre tinta: x 9 pe secunda 
 | Ce | Cum |
 |---|---|
 | Corpul | Aplecat inainte cu 0.14 radiani, in jurul picioarelor. |
-| Urma | Trei copii ale eroului in spate, cu 0.28, 0.18 si 0.09 transparenta, la 0.04 s una de alta (`h.ghosts`, `drawRunTrail`). |
+| Urma | Trei copii ale eroului in spate, cu 0.28, 0.18 si 0.09 transparenta, la 0.04 s una de alta (`h.ghosts`, `drawRunTrail`). Din T6.5 fiecare copie e pictata o singura data, cand apare, intr-un canvas mic al ei (`ghostCanvas`, 4 pe erou, refolosite), si apoi doar pusa cu `drawImage`: 3 `drawImage` pe erou, cum cere S7.7. |
 | Praf | Un norisor la fiecare pas, in culoarea pamantului nivelului. |
 | Linii de viteza | Sase linii subtiri in spatele eroului, lungi de 60 - 120. |
 | Pornire | Sunetul `dash` (un "fiu" scurt care urca), cuvantul `run` al eroului (cel mult o data la 6 secunde), vibratie `rumble(k, 0, 0.35, 70)`. |

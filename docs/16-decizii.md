@@ -321,3 +321,15 @@ Cererea proprietarei: "scoate jocul Bubu si Leo, lasa doar Cea mai grea lupta. M
 | Ochii vechi raman pentru clipit, fericit, ametit. | Acolo nu se vede nicio lucire. |
 | Coroana lui George nu s-a schimbat. | E "cornul-coroana" din desen, cu dungi; promptul cere sa nu se atinga. |
 | Varful mai inchis al picioarelor lui Boon si al pantalonilor lui Killer s-a pierdut (`lite` nu are suprapunere de culoare). | Diferenta e de cateva procente de culoare pe o parte mica; costa un `clip`. |
+
+## Miscarea eroilor (sarcina T6.5, 22 noiembrie 2026)
+
+| Hotarare | De ce |
+|---|---|
+| Coada e un arc numeric in `update` (`h.tail`), nu o animatie dupa timp. | Promptul cere ca coada sa "urmeze viteza": trebuie sa stie cum s-a miscat eroul, nu doar cat e ceasul. Pictorul doar citeste doua unghiuri. |
+| La George arcul e pas cu pas in desen. | Arena si mini-luptele isi misca George in locuri diferite; o singura functie in desen (`tailFollow`) le acopera pe amandoua fara sa se atinga regulile lor. |
+| Arcul se pune exact pe 0 cand totul e foarte mic. | Altfel ramane la numere de 1e-20 care se schimba la fiecare cadru: nu se vad, dar promptul cere "nimic nu tremura" si un test pe stare nu ar putea spune ca s-a oprit. |
+| Clipitul fara stare (ferestre de 4,5 s). | Aceeasi functie merge pentru eroi, George, insignele din banda si ecranele de meniu, fara camp nou in vreun obiect. |
+| Respiratia doar cand stau, numai in sus (1 -> 1.02). | Asa scrie promptul. Cea veche respira si la mers si se micsora sub 1. |
+| Urmele din fuga sunt canvasuri pictate o data. | S7.7: 3 `drawImage` pe erou. Dupa T6.4 fiecare urma era un erou intreg cu `lit()`: fuga devenise cea mai scumpa clipa din joc. 4 canvasuri pe erou: unul mai mult decat se vad, ca cel refolosit sa nu fie inca pe ecran. |
+| Urmele au rezolutia 1,25. | Sunt transparente si in miscare; la 2 ar costa de 2,5 ori mai mult de pictat. |
