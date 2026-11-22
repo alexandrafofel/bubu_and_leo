@@ -109,6 +109,9 @@ function update(dt) {
   const hide = Game.state === 'play' && !Game.paused;
   if (hide !== UI.hidden) { UI.hidden = hide; document.body.classList.toggle('playing', hide); }
 }
+/* The paper and the vignette over the level. None while the light map is drawn on a level that has its paper in the
+   picture (finishLook): the light map takes the vignette's place. */
+function levelOverlay(L) { return L.paperBaked && CONFIG.look.lights && Game.state === 'play' ? null : L.overlay; }
 function draw() {
   const c = ctx, t = Game.t, st = Game.state;
   c.setTransform(renderScale, 0, 0, renderScale, 0, 0);
@@ -119,14 +122,14 @@ function draw() {
   else if (st === 'title') drawTitle(c, t);
   else if (st === 'chapters') drawChapters(c, t);
   else if (st === 'loading') drawLoading(c, t);
-  else if (st === 'intro') { drawIntro(c, t); ov = P.L.overlay; }
-  else if (st === 'play') { drawPlay(c); if (Game.paused && !UI.set) drawPause(c, t); ov = P.L.overlay; }
-  else if (st === 'retry') { drawRetry(c, t); ov = P.L.overlay; }
-  else if (st === 'levelEnd') { drawLevelEnd(c, t); ov = P.L.overlay; }
+  else if (st === 'intro') { drawIntro(c, t); ov = levelOverlay(P.L); }
+  else if (st === 'play') { drawPlay(c); if (Game.paused && !UI.set) drawPause(c, t); ov = levelOverlay(P.L); }
+  else if (st === 'retry') { drawRetry(c, t); ov = levelOverlay(P.L); }
+  else if (st === 'levelEnd') { drawLevelEnd(c, t); ov = levelOverlay(P.L); }
   else if (st === 'ending') { drawEnding(c, t); ov = UI.endOv; }
   if (UI.set && (st === 'title' || st === 'play')) { UI.hits.length = 0; drawSettings(c, t); }
   // the paper texture, the warm light and the vignette lie over everything
-  c.globalCompositeOperation = 'multiply'; c.drawImage(ov, 0, 0, W, H); c.globalCompositeOperation = 'source-over';
+  if (ov) { c.globalCompositeOperation = 'multiply'; c.drawImage(ov, 0, 0, W, H); c.globalCompositeOperation = 'source-over'; }
 }
 let _last = 0;
 const Perf = { ms: 0, n: 0, max: 0 };

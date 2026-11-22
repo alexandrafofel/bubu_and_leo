@@ -198,9 +198,9 @@ Tot ce e pictat in stilul nou e luminat din **stanga-sus**, cu o lumina calda (`
 
 Functie noua in `02-core.js`: `lit(c, path, col, o)`. `path` e o functie care construieste conturul. `o` are `h` (inaltimea, pentru umbra), `gloss` (0 - 1), `mat` (materialul, mai jos). Toti pictorii noi o folosesc, ca lumina sa fie aceeasi peste tot.
 
-### S7.2 Materiale - **zece din unsprezece facute (`scale`, `fabric`, `rubber`, `bone`: T6.2; `wood`, `metal`, `stone`, `crystal`, `leaf`, `lava`: T6.3, 21 noiembrie 2026)**
+### S7.2 Materiale - **toate unsprezece facute (`scale`, `fabric`, `rubber`, `bone`: T6.2; `wood`, `metal`, `stone`, `crystal`, `leaf`, `lava`: T6.3, 21 noiembrie 2026; `water`: T6.8, 22 noiembrie 2026)**
 
-Cadrul (`MATERIALS`, `matPattern`, `matFill`) si cele patru materiale ale eroilor sunt in joc. Descrierea lor, la timpul prezent: `05-pictura.md`, "Update 21 noiembrie 2026 (T6.2)". Hotararile: `16-decizii.md`. Ce n-a putut fi verificat: `19-limitari.md`. Cele sase ale lumii (T6.3) sunt descrise in acelasi capitol. `water` vine cu T6.8. Lava pulseaza dupa `o.t`; luminarea din jurul ei ramane pentru T6.4.
+Cadrul (`MATERIALS`, `matPattern`, `matFill`) si cele patru materiale ale eroilor sunt in joc. Descrierea lor, la timpul prezent: `05-pictura.md`, "Update 21 noiembrie 2026 (T6.2)". Hotararile: `16-decizii.md`. Ce n-a putut fi verificat: `19-limitari.md`. Cele sase ale lumii (T6.3) sunt descrise in acelasi capitol. `water` (T6.8) e descris in `12-desen-si-hud.md`. Lava pulseaza dupa `o.t`; luminarea din jurul ei ramane pentru T6.4.
 
 Ce s-a facut altfel decat scrie mai jos: placa de pori are 64 x 64, nu e o placa mica; solzii "mai desi spre spate" sunt un al doilea strat pe jumatatea stanga; cusaturile sunt conturul micsorat in jurul mijlocului, nu o linie la distanta fixa.
 
@@ -218,9 +218,11 @@ Fiecare material e o functie care adauga textura peste forma (stratul 3), taiata
 | `crystal` | cristalele, Cristalul-Soare, lumini | Fatete: triunghiuri in trei tonuri ale aceleiasi culori. Miezul mai deschis. | 1 |
 | `leaf` | frunze uriase, nuferi | O nervura centrala si nervuri laterale, deschise. Margine putin mai inchisa. | 0.35 |
 | `lava` | vulcanul | Crusta inchisa (`#5A2A3A`) cu crapaturi luminoase care pulseaza (galben -> portocaliu). | 0, dar lumineaza |
-| `water` | lac, sant | Vezi S7.5. | - |
+| `water` | lac, sant | Vezi S7.5. | **Facut (T6.8).** `MATERIALS.water`: baza albastra si doua randuri de valuri, dupa `o.t`. |
 
-### S7.3 Eroii si George, repictati - **prima parte facuta (T6.4, 22 noiembrie 2026)**
+### S7.3 Eroii si George, repictati - **facuta (T6.4 pictura, T6.5 miscarea, 22 noiembrie 2026)**
+
+Miscarea (coada pe arc, bratele, clipitul, respiratia, turtirea, urmele din fuga ca imagini) e descrisa in `21-cea-mai-grea-lupta.md`, "Update 22 noiembrie 2026 (T6.5)". Ce s-a facut altfel: coada lui George isi face arcul in desen (`tailFollow`), nu intr-un `update`.
 
 Pictura (lumina, materialele, ochii, cusaturile, numarul 10, umbra aruncata) e in joc; descrierea: `21-cea-mai-grea-lupta.md`, "Update 22 noiembrie 2026 (T6.4)". Miscarea (coada, bratele, clipitul, respiratia, turtirea) vine cu T6.5. Ce s-a facut altfel: partile mici trec prin `lit()` doar cu gradientul, fara margine si textura (costul); materialele stau pe partile mari; coroana lui George nu s-a schimbat.
 
@@ -237,7 +239,9 @@ Pictorii sunt `drawBoon`, `drawKiller`, `drawGeorge` din `src/055-lupta.js`. Sem
 
 Verificare: foaia de personaje (`docs/capturi/24-personaje.jpg`) refacuta si pusa langa cea veche. Un copil trebuie sa isi recunoasca desenul.
 
-### S7.4 Adancime: trei planuri
+### S7.4 Adancime: trei planuri - **facuta (T6.6, 22 noiembrie 2026)**
+
+Descrierea, la timpul prezent: `12-desen-si-hud.md`, "Update 22 noiembrie 2026 (T6.6, T6.7)". Ce s-a facut altfel: sase lucruri pe nivel, nimic sus-mijloc (sub banda de cartonase); paralaxa e limitata la 60 de unitati, iar dreptunghiul din mijloc are o marja de 60, ca un lucru sa nu ajunga niciodata in mijloc; un erou deja sub un lucru il stinge pe loc. Fundalul inca nu e pictat cu `lit()` (vine cu nivelurile 7 - 12); ceata de aer e un gradient peste partea de sus a picturii.
 
 | Plan | Ce contine | Cum |
 |---|---|---|
@@ -247,7 +251,11 @@ Verificare: foaia de personaje (`docs/capturi/24-personaje.jpg`) refacuta si pus
 
 **Regula care nu se incalca:** planul din fata nu acopera niciodata un erou. Fiecare element din fata are un dreptunghi. Daca un erou (pe ecran) intra in el, elementul devine transparent (alpha spre 0.15 in 0.2 s). Elementele se pun doar in afara unui dreptunghi central de 1500 x 760. E aceeasi grija ca la S6.
 
-### S7.5 Lumina care se misca
+### S7.5 Lumina care se misca - **facuta (harta: T6.7; stralucirea, apa si praful: T6.8; 22 noiembrie 2026)**
+
+Descrierea hartii: `12-desen-si-hud.md`, "Update 22 noiembrie 2026 (T6.6, T6.7)". **Ce s-a facut altfel:** nu exista canvasul mic `LM` marit peste ecran (costa 10 ms pe masina de test); ecranul e inmultit direct cu ambianta si luminile se pun direct, cu aceleasi sprite-uri si aceeasi limita de 24. Hartia e in pictura nivelului, iar stratul de hartie si vinieta nu se mai pun peste nivel cand harta e pornita.
+
+Stralucirea, apa si praful: `12-desen-si-hud.md`, "Update 22 noiembrie 2026 (T6.8)". **Ce s-a facut altfel:** halourile sunt in plus fata de cele 24 de lumini (cel mult 12, `look.haloMax`); apa nu are cod in `lit()` pe lumea pictata, ci `L.water` (un `Path2D` + oglindirea pictata o data) si valuri desenate la fiecare cadru; ochii robotilor si lava nu exista inca, mecanismul lor e `L.lights` cu `glow`. Pe vulcan sunt scantei, in pestera spori (dupa `def.key`).
 
 **Harta de lumina.** Un canvas mic, `LM`, de 480 x 270 (un sfert din ecran). La fiecare cadru:
 

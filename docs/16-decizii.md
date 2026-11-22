@@ -340,6 +340,44 @@ Cererea proprietarei: "scoate jocul Bubu si Leo, lasa doar Cea mai grea lupta. M
 | Coroana lui George nu s-a schimbat. | E "cornul-coroana" din desen, cu dungi; promptul cere sa nu se atinga. |
 | Varful mai inchis al picioarelor lui Boon si al pantalonilor lui Killer s-a pierdut (`lite` nu are suprapunere de culoare). | Diferenta e de cateva procente de culoare pe o parte mica; costa un `clip`. |
 
+## Miscarea eroilor (sarcina T6.5, 22 noiembrie 2026)
+
+| Hotarare | De ce |
+|---|---|
+| Coada e un arc numeric in `update` (`h.tail`), nu o animatie dupa timp. | Promptul cere ca coada sa "urmeze viteza": trebuie sa stie cum s-a miscat eroul, nu doar cat e ceasul. Pictorul doar citeste doua unghiuri. |
+| La George arcul e pas cu pas in desen. | Arena si mini-luptele isi misca George in locuri diferite; o singura functie in desen (`tailFollow`) le acopera pe amandoua fara sa se atinga regulile lor. |
+| Arcul se pune exact pe 0 cand totul e foarte mic. | Altfel ramane la numere de 1e-20 care se schimba la fiecare cadru: nu se vad, dar promptul cere "nimic nu tremura" si un test pe stare nu ar putea spune ca s-a oprit. |
+| Clipitul fara stare (ferestre de 4,5 s). | Aceeasi functie merge pentru eroi, George, insignele din banda si ecranele de meniu, fara camp nou in vreun obiect. |
+| Respiratia doar cand stau, numai in sus (1 -> 1.02). | Asa scrie promptul. Cea veche respira si la mers si se micsora sub 1. |
+| Urmele din fuga sunt canvasuri pictate o data. | S7.7: 3 `drawImage` pe erou. Dupa T6.4 fiecare urma era un erou intreg cu `lit()`: fuga devenise cea mai scumpa clipa din joc. 4 canvasuri pe erou: unul mai mult decat se vad, ca cel refolosit sa nu fie inca pe ecran. |
+| Urmele au rezolutia 1,25. | Sunt transparente si in miscare; la 2 ar costa de 2,5 ori mai mult de pictat. |
+
+## Planul din fata si harta de lumina (sarcinile T6.6 si T6.7, 22 noiembrie 2026)
+
+| Hotarare | De ce |
+|---|---|
+| Cadrul nou (plan din fata, harta, ceata) e doar pe nivelurile cu `look: 'diorama'`, plus `CONFIG.look.preview`. | Promptul: nivelurile 1 - 6 raman cum sunt. Nivelurile 7 - 12 inca nu exista; `preview` lasa cadrul sa se vada si sa se testeze pe 1 - 6 inainte. Implicit `false`: jocul de acum nu se schimba. |
+| Luminile se pun direct pe ecran, nu intr-un canvas mic marit. | Marirea unui canvas mic pe tot ecranul: 10 ms cu netezire, 4 ms fara (si lumina in patratele). Direct: 3 ms. Cu canvasul mic, nivelul era cu 56% peste cel vechi; bugetul din S7.7 e 20%. |
+| Hartia se pune o data in pictura nivelului; peste nivel nu mai e strat de hartie si vinieta cand harta e pornita. | Harta e deja o trecere pe tot ecranul; doua treceri costau prea mult. Promptul cere ca textura de hartie sa ramana: ramane, in pictura. |
+| Planul din fata e marit o data, nu la fiecare cadru. | 1,2 ms in loc de 2,2 ms pe cadru, pentru 8 MB in plus pe nivel (S7.7 vorbea de jumatate de rezolutie pentru memorie). |
+| Sase lucruri, nimic sus-mijloc. | Sus-mijloc e banda de cartonase (132 de unitati): un lucru acolo nu s-ar vedea. |
+| Paralaxa limitata la 60 de unitati, dreptunghiul din mijloc cu o marja de 60. | Altfel paralaxa (1.15 x camera, pe un nivel de 3200) ar fi mutat lucrurile cu sute de unitati, pana in mijloc. |
+| Un lucru se stinge cand un erou e la 220 de unitati de el, nu doar cand e sub el; si pe loc daca eroul e deja sub el. | Fuga merge cu 1100 pe secunda: in 0,2 s (cat dureaza stingerea) un erou trece 220. Iar cand camera sare (inceputul nivelului, un erou pus in alt loc), nu e timp de stins. Primul test a gasit 31 de eroi acoperiti din cauza asta. |
+| Marginea luminoasa a lucrurilor din fata are nuanta lor. | O margine calda (`KEY`) peste violet si verde, stearsa, dadea pixeli gri. |
+
+## Stralucire, apa si praf (sarcina T6.8, 22 noiembrie 2026)
+
+| Hotarare | De ce |
+|---|---|
+| Halourile se marcheaza (`glow`) doar la lucrurile care lumineaza ele insele, nu la orice lumina. | Eroii, ouale si bilele dau lumina, dar nu "ard". Un halou pe fiecare ou ar fi acoperit ce e important (S7.8, intrebarea 5). |
+| Halourile sunt in plus fata de cele 24 de lumini, cel mult 12. | S7.7 limiteaza luminile, nu stralucirile; limita din `haloMax` pastreaza costul. |
+| Apa: o placa de valuri, desenata de doua ori cu deplasari diferite, prin `setTransform` pe pattern-ul facut o data. | Asa cere S7.5 ("un pattern desenat de doua ori") si S7.7 (niciun `createPattern` pe cadru). |
+| Valurile se opresc inainte de malul apei (dreptunghiurile sunt mai mici cu 6 unitati). | Altfel liniile ies in iarba, in patratele de 40. |
+| Oglindirea se face la un sfert din marime, taiata cu cercuri moi. | Un sfert o face stearsa fara filtru; cercurile moi o opresc sa iasa patrata la maluri. |
+| Praful e in spatiul ecranului, dupa `P.time`, cel mult 0,1 s pe cadru. | Cerut de S7.5. Cu pauza se opreste; la un cadru lung nu sare. |
+| Felul prafului (scantei, spori, praf) vine din `L.def.key`. | Vulcanul si pestera (T10, T11) nu exista inca; cheile lor vin din `docs/25`. |
+| Testul verifica si directia verticala a punctelor, nu doar ca "se misca". | Prima versiune a testului nu prindea un praf care se leagana doar pe orizontala (`m.y += 0`): defectul pus intentionat a trecut. |
+
 ### T14.3: butonul L1 (22 noiembrie 2026)
 
 | Decizie | De ce |
