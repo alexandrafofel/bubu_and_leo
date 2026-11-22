@@ -295,7 +295,10 @@ Stilul grafic nou (`docs/24-sisteme-noi.md`, S7) are reglajele lui. Fiecare se p
 | `look.haloMax` | `12` | Cel mult atatea halouri pe cadru, in plus fata de cele `maxLights` lumini. T6.8. |
 | `look.waves` | `true` | Apa nivelurilor noi: doua randuri de valuri, oglindire, sclipiri. `false` = vechea clipire. T6.8. |
 | `look.waveSpeedA`, `look.waveSpeedB` | `14`, `9` | Unitati pe secunda: primul rand de valuri merge spre dreapta, al doilea spre stanga. T6.8. |
-| `look.freeze` | `0.06` | Cate secunde sta jocul la o lovitura mare (S7.6). `0` = nu sta deloc. De la T6.9. |
+| `look.freeze` | `0.06` | Cate secunde sta jocul la o lovitura mare (S7.6): `updatePlay` nu ruleaza, desenul da. `0` = nu sta deloc. T6.9. |
+| `look.kick` | `0.04` | Cu cat se apropie camera la o lovitura mare (4%). `0` = nu se apropie. T6.9. |
+| `look.kickIn`, `look.kickOut` | `0.15`, `0.4` | In cate secunde se apropie camera si in cate revine. T6.9. |
+| `look.anticipate` | `0.15` | Cate secunde se trage inapoi un mecanism (`mechMove`) sau George inainte sa arunce. `0` = deloc. T6.9. |
 | `look.maxLights` | `24` | Cate lumini se deseneaza intr-un cadru. Daca sunt mai multe, raman cele mai apropiate de mijlocul ecranului. De la T6.7. |
 | `look.tailLift` | `0.18` | Cat se ridica coada lui Boon si a lui George la viteza de mers (radiani). La fuga mai mult, pana la `tailMax`. T6.5. |
 | `look.tailMax` | `0.5` | Cel mai sus pana unde se ridica coada. |

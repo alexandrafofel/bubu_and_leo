@@ -10,7 +10,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 |---|---|
 | 1-16 | tot fisierul |
 
-## 01-config.js (265 linii)
+## 01-config.js (269 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -31,8 +31,8 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 143-156 | Run: press the left stick (L3) |
 | 157-163 | Sound |
 | 164-169 | Look |
-| 170-203 | The look of levels 7 - 12 and of the heroes (docs/24-sisteme-noi.md, S7) |
-| 204-265 | The second game, "Cea mai grea luptă" (invented by the children) |
+| 170-207 | The look of levels 7 - 12 and of the heroes (docs/24-sisteme-noi.md, S7) |
+| 208-269 | The second game, "Cea mai grea luptă" (invented by the children) |
 
 ## 015-lang.js (233 linii)
 
@@ -44,34 +44,34 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 99-224 | the second game, "Cea mai grea luptă". A key that starts with L: takes the place of the same key without it. |
 | 225-233 | Readable name of a keyboard key, for the "choose the keys" screen. |
 
-## 02-core.js (760 linii)
+## 02-core.js (772 linii)
 
 | Liniile | Sectiunea |
 |---|---|
-| 2-45 | CORE: math, colors, watercolor painting helpers, paper texture, text |
-| 46-62 | A closed blob with slightly irregular, hand-painted edges. |
-| 63-81 | Watercolor wash: a few translucent layers plus a soft darker rim where pigment pools. |
-| 82-190 | Opaque painted shape for characters: solid fill with a soft colored rim. |
-| 191-286 | The pattern of a tile of w x h units. sprite() paints at double size, so the pattern is shrunk by half to be w x h again. |
-| 287-462 | The materials of the world (T6.3): wood, metal, stone, crystal, leaf, lava |
-| 463-485 | A wobbly brush line through points. |
-| 486-518 | Paper: noise-generated grain, soft blotches and a few fibers. Multiplied over the whole screen. |
-| 519-530 | Per-scene overlay = paper + warm light tint + soft violet-brown vignette. |
-| 531-568 | Sky colors drift from afternoon (t=0) to sunset (t=1) to dusk (t=1.3). |
-| 569-593 | The sky of the second game: night, a big moon, stars and northern lights in the seven rainbow colors. |
-| 594-609 | Two rows of pointed mountains with pale snow on top, for George's arena. |
-| 610-628 | Layered distant hills along a horizon line. night = the colors are used as they are (no afternoon haze). |
-| 629-656 | Text. No black outlines: a soft cream halo and a warm shadow instead. |
-| 657-666 | The ✕ button as a painted icon (blue cross on a cream disc). |
-| 667-676 | The □ button as a painted icon (pink square on a cream disc): help the friend. |
-| 677-677 | Text that may contain ✕ or □, drawn with the painted icons. Returns nothing. |
-| 678-687 | ○: help the friend. Same shape as ✕ and □, in the warm coral of the ○ button. |
-| 688-700 | L3: the cap of the left stick with the letter L and a little arrow pressing it down. |
-| 701-724 | The four button signs that can stand inside a text: ✕ □ ○ and ◉ (= L3, pressing the left stick). |
-| 725-726 | A painted card (panel) used by menus and story screens. |
-| 727-760 | Things that never change are painted once and then stamped: much faster per frame. |
+| 2-57 | CORE: math, colors, watercolor painting helpers, paper texture, text |
+| 58-74 | A closed blob with slightly irregular, hand-painted edges. |
+| 75-93 | Watercolor wash: a few translucent layers plus a soft darker rim where pigment pools. |
+| 94-202 | Opaque painted shape for characters: solid fill with a soft colored rim. |
+| 203-298 | The pattern of a tile of w x h units. sprite() paints at double size, so the pattern is shrunk by half to be w x h again. |
+| 299-474 | The materials of the world (T6.3): wood, metal, stone, crystal, leaf, lava |
+| 475-497 | A wobbly brush line through points. |
+| 498-530 | Paper: noise-generated grain, soft blotches and a few fibers. Multiplied over the whole screen. |
+| 531-542 | Per-scene overlay = paper + warm light tint + soft violet-brown vignette. |
+| 543-580 | Sky colors drift from afternoon (t=0) to sunset (t=1) to dusk (t=1.3). |
+| 581-605 | The sky of the second game: night, a big moon, stars and northern lights in the seven rainbow colors. |
+| 606-621 | Two rows of pointed mountains with pale snow on top, for George's arena. |
+| 622-640 | Layered distant hills along a horizon line. night = the colors are used as they are (no afternoon haze). |
+| 641-668 | Text. No black outlines: a soft cream halo and a warm shadow instead. |
+| 669-678 | The ✕ button as a painted icon (blue cross on a cream disc). |
+| 679-688 | The □ button as a painted icon (pink square on a cream disc): help the friend. |
+| 689-689 | Text that may contain ✕ or □, drawn with the painted icons. Returns nothing. |
+| 690-699 | ○: help the friend. Same shape as ✕ and □, in the warm coral of the ○ button. |
+| 700-712 | L3: the cap of the left stick with the letter L and a little arrow pressing it down. |
+| 713-736 | The four button signs that can stand inside a text: ✕ □ ○ and ◉ (= L3, pressing the left stick). |
+| 737-738 | A painted card (panel) used by menus and story screens. |
+| 739-772 | Things that never change are painted once and then stamped: much faster per frame. |
 
-## 03-audio.js (550 linii)
+## 03-audio.js (552 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -87,12 +87,12 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 367-368 | sound effects |
 | 369-370 | Every effect gets: b = the bus to play on, t = the time now on that bus, x = an optional value. |
 | 371-385 | the heroes' own sounds (volume "Sunete personaje"; they can play in the controller) |
-| 386-461 | the world (volume "Sunete ambientale") |
-| 462-464 | Running (L3) in the first game too: the same short soft whoosh. |
-| 465-475 | play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. |
-| 476-477 | the controller's own speaker (only when the system shows it as an audio output) |
-| 478-518 | Chrome only tells the names of the speakers after the microphone permission was given (ask = true asks for it). |
-| 519-550 | Voice-over with a system voice in the chosen language, when one is installed. |
+| 386-463 | the world (volume "Sunete ambientale") |
+| 464-466 | Running (L3) in the first game too: the same short soft whoosh. |
+| 467-477 | play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. |
+| 478-479 | the controller's own speaker (only when the system shows it as an audio output) |
+| 480-520 | Chrome only tells the names of the speakers after the microphone permission was given (ask = true asks for it). |
+| 521-552 | Voice-over with a system voice in the chosen language, when one is installed. |
 
 ## 04-input.js (163 linii)
 
@@ -168,34 +168,36 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 860-1021 | Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). |
 | 1022-1115 | The boss arena: one screen, the tallest tree in the valley. |
 
-## 07-play.js (958 linii)
+## 07-play.js (993 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 2-18 | GAMEPLAY: heroes, powers, eggs, stars, enemies, wind, butterfly, boss |
 | 19-22 | Which button an ability sits on for this hero: 1 = ✕ (the first power), 2 = □ (the second). Decides the word and the hint. |
 | 23-76 | Builds chapter idx: a level (its number inside the game is ch.n) or a big fight. L.ch remembers the chapter. |
-| 77-98 | particles |
-| 99-123 | collisions |
-| 124-141 | eggs and stars |
-| 142-155 | Second game only: crystals come in seven colors. One of each color = a rainbow: a few bonus crystals for the team. |
-| 156-183 | The order on a level: wave 1, wave 2, MIDDLE FIGHT (after the second-to-last wave), wave 3, NEST FIGHT, then the nest opens. |
-| 184-230 | How many seconds the friend has. After a few restarts of the same chapter the children get more time (the safety net). |
-| 231-246 | rescue: the friend helps a hero who was hit |
-| 247-270 | □ pressed. The first hero must stand close (a hug, healing hands). The second one may stand far: he sends a magic ball. |
-| 271-278 | A small enemy loses one of its hits. true = that was the last one: it disappears, another one comes later. |
-| 279-321 | powers |
-| 322-323 | The gloves shake the controller in three short beats (0, 0.28 and 0.56 s), so they feel different in the hand. |
-| 324-339 | A stomp (or the claws) next to the big tree, or next to George's throne, shakes it. |
-| 340-362 | This hero can throw again: everything of his is home, or his cooldown is over. |
-| 363-505 | A second press while his things are still out (inside the cooldown) calls back everything of HIS. The friend's stay out. |
-| 506-526 | The spin (claws, gloves, or Bubu's stomp) of one hero, on its own button. |
-| 527-555 | The throw (balls or bones) of one hero, on its own button. |
-| 556-682 | One ball in the air. Returns false when the ball has come home to Leo and can go. |
-| 683-683 | boss: Ciori in the tallest tree (first game), George on his stone throne (second game) |
-| 684-754 | Where the ball must land. Ciori: the nest in the tree. George: George himself, while he lies dizzy on the ground. |
-| 755-792 | second game: big birds that pick a hero up and carry him a little way (it does not hurt) |
-| 793-958 | Thrown things (pinecones, mud balls) fly in an arc and land on a marked spot. |
+| 77-90 | particles |
+| 91-110 | The zoom of the camera at this moment: 1 + kick while it comes closer (easeOut) and while it goes back (easeOut the other way). |
+| 111-132 | A mechanism clicks and sparks just before it moves (anticipation, S7.6). The pull-back itself is mechMove (02-core.js). |
+| 133-157 | collisions |
+| 158-175 | eggs and stars |
+| 176-189 | Second game only: crystals come in seven colors. One of each color = a rainbow: a few bonus crystals for the team. |
+| 190-217 | The order on a level: wave 1, wave 2, MIDDLE FIGHT (after the second-to-last wave), wave 3, NEST FIGHT, then the nest opens. |
+| 218-264 | How many seconds the friend has. After a few restarts of the same chapter the children get more time (the safety net). |
+| 265-280 | rescue: the friend helps a hero who was hit |
+| 281-304 | □ pressed. The first hero must stand close (a hug, healing hands). The second one may stand far: he sends a magic ball. |
+| 305-312 | A small enemy loses one of its hits. true = that was the last one: it disappears, another one comes later. |
+| 313-355 | powers |
+| 356-357 | The gloves shake the controller in three short beats (0, 0.28 and 0.56 s), so they feel different in the hand. |
+| 358-373 | A stomp (or the claws) next to the big tree, or next to George's throne, shakes it. |
+| 374-396 | This hero can throw again: everything of his is home, or his cooldown is over. |
+| 397-539 | A second press while his things are still out (inside the cooldown) calls back everything of HIS. The friend's stay out. |
+| 540-560 | The spin (claws, gloves, or Bubu's stomp) of one hero, on its own button. |
+| 561-589 | The throw (balls or bones) of one hero, on its own button. |
+| 590-716 | One ball in the air. Returns false when the ball has come home to Leo and can go. |
+| 717-717 | boss: Ciori in the tallest tree (first game), George on his stone throne (second game) |
+| 718-789 | Where the ball must land. Ciori: the nest in the tree. George: George himself, while he lies dizzy on the ground. |
+| 790-827 | second game: big birds that pick a hero up and carry him a little way (it does not hurt) |
+| 828-993 | Thrown things (pinecones, mud balls) fly in an arc and land on a marked spot. |
 
 ## 075-duel.js (378 linii)
 
@@ -212,7 +214,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 341-354 | Things on the ground during a mini-fight: where the next attack will land, shadows. (The shelter ring is in drawNestShelter.) |
 | 355-378 | Things above everything: flying guardians, thrown pinecones, leaves, hearts. |
 
-## 08-draw.js (853 linii)
+## 08-draw.js (854 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -227,7 +229,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 796-805 | The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. |
 | 806-813 | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
 | 814-829 | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
-| 830-853 | George's arena (the last level of the second game) |
+| 830-854 | George's arena (the last level of the second game) |
 
 ## 09-screens.js (954 linii)
 

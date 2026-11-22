@@ -10,6 +10,18 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const dist = (ax, ay, bx, by) => Math.hypot(ax - bx, ay - by);
 const ease = t => t * t * (3 - 2 * t);
 const easeOut = t => 1 - (1 - t) * (1 - t);
+/* easeBack (T6.9): goes to 1, goes past it by 8% and comes back. t in 0..1 -> 0..1.08..1. A bridge, a gate or a raft that stops
+   "with weight" uses it instead of easeOut. (The overshoot of 1 + (c+1)(t-1)^3 + c(t-1)^2 is 1 + c*s^2/3 with s = 2c/(3(c+1)): 8% for c = 1.5.) */
+const easeBack = t => { t = Math.max(0, Math.min(1, t)) - 1; return 1 + 2.5 * t * t * t + 1.5 * t * t; };
+/* The way of a mechanism (a bridge, a gate, a raft) as a fraction: first it pulls back by `pull` (6%) for CONFIG.look.anticipate
+   seconds (0.15), then it goes to 1 in `dur` seconds with easeBack (it passes 1 by 8% and settles). t = seconds since it was told to move.
+   0 at the start, -pull at the end of the pull-back, 1 at the end. */
+function mechMove(t, dur, pull) {
+  const A = CONFIG.look.anticipate, p = pull == null ? 0.06 : pull;
+  if (A <= 0) return easeBack(t / dur);                                  // anticipate: 0 = no pull-back
+  if (t < A) return -p * easeOut(Math.max(0, t) / A);
+  return -p + (1 + p) * easeBack((t - A) / dur);
+}
 
 function rng(seed) {                 // small seeded random generator
   let a = seed >>> 0;

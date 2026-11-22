@@ -445,3 +445,23 @@ Harta de lumina se numara acum ca "luminile (cel mult 24) plus halourile (cel mu
 12 defecte puse pe rand, 12 prinse: alpha prea mare la praf, praf care nu se misca, scantei care coboara, valuri in acelasi sens, `createPattern` pe cadru, fara oglindire, halou prea puternic, `haloMax` ignorat, valuri gri, prea multe sclipiri, praf pe nivelurile vechi, `motes: 0` care tot deseneaza. **Unul a trecut prima data** (praful care nu urca, doar se leagana pe orizontala); testul a fost intarit cu verificarea directiei si defectul prins.
 
 Scripturile de o singura data (`tests/tmp/apa-proba.js`, `perf-cadru3.js`, `perf-cadru4.js`, `capturi-t68.js`) nu intra in depozit. Capturile: `24-apa-nou.jpg`, `24-apa-vechi.jpg`, `24-halouri.jpg`.
+
+## Update 22 noiembrie 2026: greutatea miscarii (sarcina T6.9)
+
+Test permanent nou, **`tests/greutate.js`** (in `toate.sh`, inainte de `performanta.js`):
+
+| Ce verifica | Rezultat |
+|---|---|
+| `easeBack`: 0 -> 0, 1 -> 1, varful 1.08 (nu 1.05, nu 1.12) la t = 0.6, urca o data si coboara o data. | OK |
+| `mechMove`: tragerea inapoi e treptata (la jumatate, 75% din 6%), minimul -0.06 la 0.15 s, varful 1.0848, ajunge la 1; cu `anticipate: 0` nu se trage deloc. | OK |
+| `bigHit`: `P.freeze` = 0.06; `updatePlay` nu ruleaza 4 cadre, apoi ruleaza; **`drawPlay` ruleaza in toate cele 8 cadre**; `freeze: 0` = nimic nu se opreste; `P.shake` nu se schimba. | OK |
+| ✕ apasat in al doilea cadru oprit ajunge la primul cadru care ruleaza. | OK |
+| Apropierea: zoom 1 la 0, 1.04 la 0.15 s, 1 dupa 0.55 s; `kick: 0` = fara; desenul cu zoom nu da erori. | OK |
+| Paznicul lovit si George cazut cheama `bigHit` (oprire 0.06, `kickT` 0). | OK |
+| George: `windup` creste in cele 9 cadre dinaintea aruncarii, 0 inainte si dupa; aruncarea ramane la 30 de cadre cu si fara; cu `anticipate: 0` e exact 0; cat asteapta un erou ajutor, e 0. | OK |
+
+### Verificat ca poate sa pice
+
+15 defecte puse pe rand; **12 prinse din prima, 3 au trecut**: (1) tragerea inapoi inlocuita cu un salt (testul se uita doar la minim: acum verifica ca e treptata); (2) `windup` negativ cu `anticipate: 0` (testul accepta orice sub 0: acum cere exact 0); (3) `kick: 0` fara test de `kick <= 0`: **mutant echivalent** (`kick: 0` da oricum zoom 1), nu e un defect. Dupa intarirea testelor, defectele (1) si (2) sunt prinse: 14 din 14 defecte reale.
+
+Din `toate.sh` nu cade niciun alt test din cauza cadrelor oprite.

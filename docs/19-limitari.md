@@ -160,3 +160,10 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - **Costul e la limita**: tot cadrul nou (T6.6 - T6.8) e cam 20% peste cel vechi in SwiftShader, cu zgomot de 2 ms intre rulari. Pe un Mac cu placa video nu s-a masurat.
 - **Oglindirea** se face din pictura de la incarcare: lucrurile care se misca (eroi, copaci care se leagana) nu se oglindesc.
 - Apa veche (nivelurile 1 - 6 fara `preview`) a ramas cu clipirea veche, nemodificata.
+
+## T6.9 (22 noiembrie 2026): ce nu s-a putut verifica
+
+- **Cum se simte pe controller.** Oprirea de 0.06 s si apropierea de 4% s-au masurat (cadre, zoom), dar daca "se simt" bine cu un DualShock in mana nu se poate sti de aici. Se regleaza din `look.freeze` si `look.kick`.
+- **Mecanismele nu exista inca** (T7): `mechMove` si `mechClick` sunt verificate pe functii pure si pe un clic, nu pe un pod sau o poarta adevarata. Poarta care se deschide si bolovanul care cade nu cheama inca `bigHit` (nu exista).
+- **Anticiparea lui George** e doar in lupta de pe arena (si in cea din copac); paznicii din mini-lupte nu se trag inapoi (S7.6 cere asta doar pentru George si pentru mecanisme).
+- **Zguduirea** a ramas cum era, deci la o lovitura mare se aduna: oprire, zoom si zguduire. Daca pare prea mult, se opreste una din ele din `CONFIG.look`.
