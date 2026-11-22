@@ -395,3 +395,31 @@ Un script de o singura data, `tests/tmp/miscare-proba.js`, misca eroul in joc (p
 Sapte defectiuni, toate prinse: arcul fara oprirea la 0 (doua verificari), respiratie si la mers, clipit la interval fix (patru verificari; a trebuit adaugata conditia "la intamplare", altfel un interval fix de 4,5 s trecea), urmele pictate la fiecare cadru (150), bratele fixe, fara intindere la fuga, coada fara a doua articulatie.
 
 `tests/tmp/eroi-proba.js` (T6.4) a picat o data dupa T6.5: respiratia mutase capul lui Killer cu 5 pixeli fata de fereastra de masura. Nu era o greseala de lumina (masura pe orizontala trecea); scriptul deseneaza acum la un moment cu respiratia 0.
+
+## Update 22 noiembrie 2026: planul din fata si harta de lumina (sarcinile T6.6, T6.7)
+
+Test permanent nou, **`tests/stil-grafic.js`** (in `toate.sh`): inceputul testului stilului grafic, care se completeaza la T6.10. Porneste `CONFIG.look.preview` pe nivelurile 1 - 6.
+
+| Ce verifica | Rezultat |
+|---|---|
+| Planul din fata are cel mult 12 lucruri (sunt 6), niciunul in dreptunghiul din mijloc de 1500 x 760 (plus marja paralaxei). | OK |
+| Planul din fata, pe toate cele 7 niveluri: niciun gri, nimic sub `#241A3A` (pixelii aproape opaci). | OK: 0 din 149 127 |
+| **400 de asezari ale eroilor** pe cele 7 niveluri, 60% langa marginile nivelului: niciun erou acoperit de un lucru din fata care nu e stins. | OK: 0 acoperiti, 410 lucruri stinse |
+| Cel mult 12 `drawImage` pe cadru din planul din fata. | OK: 6 |
+| Harta de lumina, cu 60 de cristale pe ecran: 1 umplere, cel mult 24 `drawImage`, nicio imagine marita pe tot ecranul. | OK: 1, 24, 0 |
+| `createRadialGradient` pe cadru: acelasi numar cu harta pornita si oprita. | OK: 40 si 40 (cele 40 sunt ale jocului de acum: cuibul, felinarele...) |
+| `lights: false`: harta nu se deseneaza, ramane vinieta veche. `lights: true`: hartia e in pictura, fara al doilea strat. | OK |
+| `front: false`: niciun `drawImage` din planul din fata. Fara `preview`, nivelurile 1 - 6 nu au nimic nou. | OK |
+
+**Costul** (`tests/tmp/perf-cadru.js`, nivelul 6, in aceeasi rulare, de doua ori): fara cadrul nou 21,9 si 20,5 ms; cu el 24,5 si 24,4 ms: **+14%** (limita din S7.7: 20%). `performanta.js` (nivelul 2 fara `preview`) ramane cum era.
+
+### Verificat ca poate sa pice
+
+Cinci defectiuni puse pe rand, toate prinse: fara stingere (412 eroi acoperiti), un lucru pus in mijloc, gradientul rotund refacut la fiecare cadru (280 fata de 40), fara limita de 24 (40 de lumini), `lights: false` nerespectat.
+
+### Ce a prins verificarea in timp ce se scria
+
+- **Primul test a gasit 31 de eroi acoperiti.** Unii in starea "Încă o dată!" (testul punea eroii langa inamici; acum nu ii loveste nimic), altii pentru ca un erou pus direct sub un lucru nu lasa timp de stins. Acum un erou deja sub un lucru il stinge pe loc.
+- **Harta de lumina din specificatie costa prea mult**: nivelul cu 56% peste cel vechi. Masurat pe bucati: marirea canvasului mic pe tot ecranul era 10 ms. Acum luminile se pun direct pe ecran.
+- **Pixeli gri in planul din fata**, la margini, unde marginea calda se amesteca cu violet si verde. Marginea are acum nuanta lucrului.
+- Testul insusi a avut o greseala: tinea minte `P` de la nivelul de dinainte (`G.P` e un getter); "fara preview" arata planul nivelului vechi.

@@ -10,7 +10,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 |---|---|
 | 1-16 | tot fisierul |
 
-## 01-config.js (254 linii)
+## 01-config.js (260 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -31,8 +31,8 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 143-156 | Run: press the left stick (L3) |
 | 157-163 | Sound |
 | 164-169 | Look |
-| 170-192 | The look of levels 7 - 12 and of the heroes (docs/24-sisteme-noi.md, S7) |
-| 193-254 | The second game, "Cea mai grea luptă" (invented by the children) |
+| 170-198 | The look of levels 7 - 12 and of the heroes (docs/24-sisteme-noi.md, S7) |
+| 199-260 | The second game, "Cea mai grea luptă" (invented by the children) |
 
 ## 015-lang.js (233 linii)
 
@@ -142,7 +142,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 549-561 | Boon's boomerang bone: two round ends and a shaft, cream amber, with a small crack. |
 | 562-566 | What a thrown thing looks like: Killer's and Leo's ball, or Boon's bone. |
 
-## 06-level.js (965 linii)
+## 06-level.js (1075 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -165,8 +165,8 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 580-836 | Second game: a rock with little crystals growing on it, a big glowing mushroom, a torch, a totem with a rainbow pinwheel. |
 | 837-848 | A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). |
 | 849-859 | The door of the hideout: an arched wooden door with a rainbow knob. x = middle, y = the ground line. |
-| 860-871 | Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). |
-| 872-965 | The boss arena: one screen, the tallest tree in the valley. |
+| 860-981 | Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). |
+| 982-1075 | The boss arena: one screen, the tallest tree in the valley. |
 
 ## 07-play.js (958 linii)
 
@@ -212,7 +212,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 341-354 | Things on the ground during a mini-fight: where the next attack will land, shadows. (The shelter ring is in drawNestShelter.) |
 | 355-378 | Things above everything: flying guardians, thrown pinecones, leaves, hearts. |
 
-## 08-draw.js (680 linii)
+## 08-draw.js (773 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -223,11 +223,11 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 482-539 | How far the level is: eggs in groups, then the guardian, then the nest. |
 | 540-540 | "We wait for X in the nest": it used to be written in the world, over the nest. Now it is a banner in the band. |
 | 541-551 | "Ajută-l pe Boon! ○" while a friend is down and the seconds are running. It comes before any other banner. |
-| 552-622 | The card in the middle, with what a banner says when there is one. A banner never comes down over the world. |
-| 623-632 | The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. |
-| 633-640 | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
-| 641-656 | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
-| 657-680 | George's arena (the last level of the second game) |
+| 552-715 | The card in the middle, with what a banner says when there is one. A banner never comes down over the world. |
+| 716-725 | The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. |
+| 726-733 | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
+| 734-749 | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
+| 750-773 | George's arena (the last level of the second game) |
 
 ## 09-screens.js (954 linii)
 
@@ -259,11 +259,11 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 796-810 | After a restart: send each hero's sounds to the speaker chosen last time, if Chrome still shows it. |
 | 811-954 | the Sunset Festival |
 
-## 10-main.js (147 linii)
+## 10-main.js (150 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 2-34 | MAIN: canvas, game states, main loop |
 | 35-40 | cont: from the chapter "Continue" points at. Otherwise a new game from the first chapter (the progress of this game is erased). |
 | 41-58 | One chapter chosen on the Chapters screen. Nothing is erased. |
-| 59-147 | The chapter that is being played is over: its best result is kept and the team total becomes the sum of all results. |
+| 59-150 | The chapter that is being played is over: its best result is kept and the team total becomes the sum of all results. |

@@ -832,7 +832,7 @@ function paintLevel(L) {
   finishPaint(c, L.W, L.H, L.skyT, r, N);
   L.bg = cv; L.skyTop = topColor(cv);
   L.overlay = N ? makeOverlay('#C8D0FF', 0.1, 0.5, true) : makeOverlay(mix('#FFF4E0', '#FFC08C', L.skyT), 0.1 + L.skyT * 0.16, 0.42);
-  return L;
+  return finishLook(L);
 }
 /* A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). */
 function paintVines(c, x, y, w, len, seed, sway, P) {
@@ -858,6 +858,116 @@ function paintDoor(c, x, y) {
   for (let i = 0; i < 7; i++) { c.fillStyle = RAINBOW[i]; c.beginPath(); c.moveTo(x + 26, y - 44); c.arc(x + 26, y - 44, 8, i / 7 * TAU, (i + 1) / 7 * TAU); c.closePath(); c.fill(); }
 }
 /* Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). */
+/* ---------- The frame of the new levels (docs/24-sisteme-noi.md, S7.4 and S7.5) ----------
+   A level with look: 'diorama' (levels 7 - 12, or every level with CONFIG.look.preview) gets, once, at loading:
+   - haze over its far part (the top of the picture): paler and bluer, like air between the eye and the far away;
+   - the front plane (L.front): big dark blurred things at the edges of the screen;
+   - the paper texture multiplied into the picture itself (L.paperBaked), when the light map is on: the light map then
+     takes the place of the whole overlay (paper + night vignette). On the slow test machine every full-screen pass
+     costs a few ms, and the light map is already one.
+   Levels 1 - 6 stay as they are. */
+function isDiorama(L) { return !!(L && L.def && (L.def.look === 'diorama' || CONFIG.look.preview)); }
+function levelAmbient(L) { return L.def.ambient || (L.night ? '#C4BCEE' : '#F0E4D4'); }
+function finishLook(L) {
+  if (!isDiorama(L)) return L;
+  const c = L.bg.getContext('2d'), hz = Math.min(L.H * 0.45, 800);
+  const g = c.createLinearGradient(0, 0, 0, hz);                         // the haze: strongest at the top (the farthest), gone by the middle
+  g.addColorStop(0, 'rgba(176,196,240,0.34)'); g.addColorStop(1, 'rgba(176,196,240,0)');
+  c.fillStyle = g; c.fillRect(0, 0, L.W, hz);
+  L.front = paintFront(L);
+  if (CONFIG.look.lights) {        // the paper goes into the picture once: the light map then replaces the whole overlay (one full-screen pass, not two)
+    if (!PAPER) PAPER = makePaper();
+    c.globalCompositeOperation = 'multiply';
+    for (let y = 0; y < L.H; y += H) for (let x = 0; x < L.W; x += W) c.drawImage(PAPER, x, y);
+    c.globalCompositeOperation = 'source-over';
+    L.paperBaked = true;
+  }
+  return L;
+}
+/* The front plane: painted once at half resolution (960 x 540), blurred, then blown up once to a canvas the size of the screen.
+   items: a rectangle on the screen for each thing (x, y, w, h in screen units), and its alpha.
+   Nothing is put inside the middle rectangle of 1500 x 760, nor in a margin of FRONT_PAR_MAX around it,
+   so the parallax cannot push a thing into the middle. */
+const FRONT_MID = { x: 210, y: 160, w: 1500, h: 760 }, FRONT_PAR_MAX = 60;
+function frontSlots() {          // where the things can be: two tall corners at the top, the two sides, two places at the bottom
+  const m = FRONT_PAR_MAX, L0 = FRONT_MID.x - m, R0 = FRONT_MID.x + FRONT_MID.w + m, B0 = FRONT_MID.y + FRONT_MID.h + m;
+  return [
+    { at: 'top', x: 0, y: 0, w: L0, h: 640 }, { at: 'top', x: R0, y: 0, w: W - R0, h: 600 },
+    { at: 'side', x: 0, y: 620, w: L0, h: 460 }, { at: 'side', x: R0, y: 560, w: W - R0, h: 520 },
+    { at: 'bottom', x: 330, y: B0, w: 420, h: H - B0 }, { at: 'bottom', x: 1180, y: B0, w: 460, h: H - B0 }
+  ];                             // nothing along the top middle: the band of cards (HUD_TOP) covers it anyway
+}
+function paintFront(L) {
+  const key = L.def.key, r = rng((L.seed || 7) + 911);
+  const kinds = key === 'cave' ? { top: 'stal', side: 'stal', bottom: 'rock' }
+    : (key === 'works' || key === 'castle') ? { top: 'chain', side: 'pillar', bottom: 'rock' }
+    : { top: 'vine', side: 'leaf', bottom: 'leaf' };
+  const tmp = makeCanvas(960, 540), t = tmp.getContext('2d');
+  const base = mix(levelAmbient(L), '#2A2048', 0.7), base2 = mix(base, '#1F7A4A', key === 'cave' || key === 'works' || key === 'castle' ? 0.1 : 0.6);   // leaves: a deep green, never a grey
+  const items = [];
+  for (const sl of frontSlots()) {
+    const kind = kinds[sl.at], x = sl.x / 2, y = sl.y / 2, w = sl.w / 2, h = sl.h / 2;
+    t.save(); t.beginPath(); t.rect(x, y, w, h); t.clip();
+    paintFrontThing(t, kind, sl.at, x, y, w, h, r, base, base2);
+    t.restore();
+    items.push({ x: sl.x, y: sl.y, w: sl.w, h: sl.h, a: 1, kind });
+  }
+  // a thin warm rim on the side the light comes from (upper left), so the dark things still read against a dark night
+  const rim = makeCanvas(960, 540), rc = rim.getContext('2d');
+  rc.drawImage(tmp, 0, 0); rc.globalCompositeOperation = 'source-in'; rc.fillStyle = rgba(mix(base2, KEY, 0.45), 0.6); rc.fillRect(0, 0, 960, 540);   // the rim keeps the hue of the things: warm light over a violet and a green made greys
+  t.globalCompositeOperation = 'destination-over'; t.drawImage(rim, -2, -2); t.globalCompositeOperation = 'source-over';
+  const half = makeCanvas(960, 540), hc = half.getContext('2d');
+  hc.filter = 'blur(2.5px)'; hc.drawImage(tmp, 0, 0); hc.filter = 'none';    // out of focus: painted at half size, blurred...
+  const cv = makeCanvas(W, H); cv.getContext('2d').drawImage(half, 0, 0, W, H);  // ...then blown up once, here: drawn 1:1 on every frame it costs half
+  return { cv, items, t: -1 };
+}
+function paintFrontThing(t, kind, at, x, y, w, h, r, base, base2) {
+  const fromLeft = x < 480 / 1, cx = x + w / 2;
+  t.lineCap = 'round'; t.lineJoin = 'round';
+  if (kind === 'vine') {                                   // two or three lianas hanging from the top, with big leaves
+    for (let i = 0; i < 3; i++) {
+      const x0 = x + w * (0.2 + i * 0.3), sway = (r() - 0.5) * w * 0.6, len = h * (0.6 + r() * 0.4);
+      t.strokeStyle = i % 2 ? base : base2; t.lineWidth = 7 + r() * 5;
+      t.beginPath(); t.moveTo(x0, y - 5); t.bezierCurveTo(x0 + sway, y + len * 0.4, x0 - sway, y + len * 0.7, x0 + sway * 0.5, y + len); t.stroke();
+      for (let j = 0; j < 4; j++) { const u = 0.25 + j * 0.2, lx = x0 + sway * Math.sin(u * 3), ly = y + len * u; frontLeaf(t, lx, ly, 18 + r() * 14, (j % 2 ? 1 : -1) * (0.6 + r() * 0.5), j % 2 ? base2 : base); }
+    }
+  } else if (kind === 'leaf') {                            // one or two giant leaves coming in from the edge
+    const n = at === 'bottom' ? 2 : 1;
+    for (let i = 0; i < n; i++) {
+      const lx = at === 'bottom' ? x + w * (0.3 + i * 0.45) : (fromLeft ? x + w * 0.2 : x + w * 0.8), ly = at === 'bottom' ? y + h * 1.1 : y + h * (0.55 + r() * 0.2);
+      const ang = at === 'bottom' ? -Math.PI / 2 + (i ? 0.5 : -0.5) : (fromLeft ? -0.5 - r() * 0.4 : Math.PI + 0.5 + r() * 0.4);
+      frontLeaf(t, lx, ly, at === 'bottom' ? h * 1.6 : w * 1.5, ang, i % 2 ? base2 : base);
+    }
+  } else if (kind === 'stal') {                            // stalactites from the top, or a stalagmite at a side
+    const n = Math.max(2, w / 34 | 0);
+    for (let i = 0; i < n; i++) {
+      const sx = x + (i + 0.5) * w / n, sw = w / n * (0.7 + r() * 0.5), sh = (at === 'top' ? h : h * 0.8) * (0.4 + r() * 0.6);
+      t.fillStyle = i % 2 ? base : base2; t.beginPath();
+      if (at === 'top') { t.moveTo(sx - sw / 2, y - 4); t.quadraticCurveTo(sx - sw * 0.1, y + sh * 0.7, sx, y + sh); t.quadraticCurveTo(sx + sw * 0.1, y + sh * 0.7, sx + sw / 2, y - 4); }
+      else { t.moveTo(sx - sw / 2, y + h + 4); t.quadraticCurveTo(sx - sw * 0.1, y + h - sh * 0.7, sx, y + h - sh); t.quadraticCurveTo(sx + sw * 0.1, y + h - sh * 0.7, sx + sw / 2, y + h + 4); }
+      t.closePath(); t.fill();
+    }
+  } else if (kind === 'chain') {                           // chains hanging from the top
+    for (let i = 0; i < 2; i++) {
+      const x0 = x + w * (0.3 + i * 0.4), n = (h * (0.6 + r() * 0.4)) / 16 | 0;
+      t.strokeStyle = i ? base2 : base; t.lineWidth = 5;
+      for (let j = 0; j < n; j++) { t.beginPath(); if (j % 2) t.ellipse(x0, y + j * 15, 3, 9, 0, 0, TAU); else t.ellipse(x0, y + j * 15, 7, 9, 0, 0, TAU); t.stroke(); }
+    }
+  } else if (kind === 'pillar') {                          // a big column at the side
+    const pw = w * 0.7, px = fromLeft ? x : x + w - pw;
+    t.fillStyle = base; t.fillRect(px, y - 10, pw, h + 20);
+    t.fillStyle = base2; t.fillRect(px + (fromLeft ? pw * 0.6 : 0), y - 10, pw * 0.4, h + 20);
+    for (let j = 0; j < 4; j++) { t.fillStyle = base2; t.fillRect(px - 6, y + h * (0.2 + j * 0.22), pw + 12, 7); }
+  } else {                                                 // rock: big dark round stones at the bottom
+    for (let i = 0; i < 3; i++) { t.fillStyle = i % 2 ? base : base2; blobPath(t, x + w * (0.2 + i * 0.3), y + h * 1.05, w * 0.22, h * 0.9, i + 3, 0.08, 10); t.fill(); }
+  }
+}
+function frontLeaf(t, x, y, len, ang, col) {               // a long pointed leaf from (x, y) in the direction ang, with a pale midrib
+  t.save(); t.translate(x, y); t.rotate(ang);
+  t.fillStyle = col; t.beginPath(); t.moveTo(0, 0); t.bezierCurveTo(len * 0.3, -len * 0.32, len * 0.75, -len * 0.22, len, 0); t.bezierCurveTo(len * 0.75, len * 0.22, len * 0.3, len * 0.32, 0, 0); t.fill();
+  t.strokeStyle = rgba(shade(col, 0.35), 0.6); t.lineWidth = Math.max(1.5, len * 0.025); t.beginPath(); t.moveTo(0, 0); t.lineTo(len * 0.92, 0); t.stroke();
+  t.restore();
+}
 function finishPaint(c, w, h, skyT, r, night) {
   for (let i = 0; i < 7000; i++) { c.fillStyle = i % 2 ? 'rgba(110,70,90,0.07)' : 'rgba(255,250,235,0.1)'; c.beginPath(); c.arc(r() * w, r() * h, 0.6 + r() * 1.6, 0, TAU); c.fill(); }
   for (let i = 0; i < 260; i++) { blobPath(c, r() * w, r() * h, 14 + r() * 50, 10 + r() * 36, i, 0.3, 11); c.strokeStyle = 'rgba(255,250,232,0.09)'; c.lineWidth = 2 + r() * 3; c.stroke(); }
@@ -907,7 +1017,7 @@ function genBoss() {
   for (let k = 0; k < 150; k++) { const b = blobs[k % blobs.length], a = tr() * TAU, d = 0.3 + tr() * 0.7; wash(t, bx + b[0] + Math.cos(a) * b[2] * d, by + b[1] + Math.sin(a) * b[3] * d, 14 + tr() * 22, 10 + tr() * 14, shade(P.canopy[k % P.canopy.length], (tr() - 0.5) * 0.6), { a: 0.5, seed: k, layers: 1, edge: 0 }); }
   L.treeCv = tc; L.treeOff = { x: 960 - bx, y: 580 - by };
   L.overlay = makeOverlay('#FFBE8C', 0.2, 0.45);
-  return L;
+  return finishLook(L);
 }
 
 /* The last level of the second game: George's arena. A clearing with mountains behind it, torches of fire all around,
@@ -960,5 +1070,5 @@ function genArena() {
   for (let i = 0; i < 16; i++) { t.strokeStyle = 'rgba(60,50,120,0.25)'; t.lineWidth = 2.5; t.lineCap = 'round'; t.beginPath(); const x = bx - 200 + r() * 400, y = by - 20 - r() * 200; t.moveTo(x, y); t.lineTo(x + (r() - 0.5) * 30, y + 14 + r() * 16); t.stroke(); }
   L.treeCv = tc; L.treeOff = { x: 960 - bx, y: 600 - by };
   L.overlay = makeOverlay('#C8D0FF', 0.1, 0.52, true);
-  return L;
+  return finishLook(L);
 }

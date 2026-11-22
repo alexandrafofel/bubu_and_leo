@@ -284,6 +284,12 @@ Stilul grafic nou (`docs/24-sisteme-noi.md`, S7) are reglajele lui. Fiecare se p
 |---|---|---|
 | `look.lights` | `true` | Harta de lumina care se misca (S7.5). `false` lasa vinieta de noapte de acum. Se foloseste de la T6.7. |
 | `look.front` | `true` | Planul din fata, cu lucruri mari si sterse la marginile ecranului (S7.4). Se foloseste de la T6.6. |
+| `look.lightGlow` | `0.6` | Cat de tari sunt luminile hartii peste ambianta (cu cat ambianta e mai inchisa, cu atat mai tari). T6.7. |
+| `look.preview` | `false` | `true` = cadrul nou (harta de lumina, planul din fata, ceata de aer) si pe nivelurile 1 - 6, ca sa se vada inainte sa existe nivelurile 7 - 12. Altfel il au doar nivelurile cu `look: 'diorama'`. T6.6. |
+| `look.frontFade` | `0.2` | In cate secunde se stinge un lucru din planul din fata cand vine un erou langa el. |
+| `look.frontMin` | `0.15` | Cat ramane din el stins. |
+| `look.frontPar` | `1.15` | De cate ori se misca planul din fata fata de camera (paralaxa). |
+| `look.frontNear` | `220` | La ce distanta (pe ecran) de un lucru din fata incepe sa se stinga, ca sa fie deja stins cand eroul ajunge sub el. |
 | `look.motes` | `40` | Cate fire de praf plutesc in lumina. `0` = niciunul. De la T6.8. |
 | `look.freeze` | `0.06` | Cate secunde sta jocul la o lovitura mare (S7.6). `0` = nu sta deloc. De la T6.9. |
 | `look.maxLights` | `24` | Cate lumini se deseneaza intr-un cadru. Daca sunt mai multe, raman cele mai apropiate de mijlocul ecranului. De la T6.7. |
