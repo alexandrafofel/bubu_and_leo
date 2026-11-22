@@ -125,3 +125,12 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - **`leaf`, nervurile** merg pe verticala (varful in sus). O frunza intinsa pe orizontala (nufar) cere un parametru de directie, neadaugat.
 - **Piatra:** muschiul are aceeasi culoare peste orice piatra. Pe o piatra verzuie se pierde.
 - **Costul** a zeci de obiecte cu material pe ecran, la fel ca la T6.2: masurat cand pictorii le folosesc.
+
+## T6.4 (22 noiembrie 2026): ce nu s-a putut verifica
+
+- **Daca un copil isi recunoaste desenul.** Foaia de personaje e alaturi de cea veche (`capturi/24-personaje-comparatie.jpg`). Formele si culorile sunt aceleasi, dar parerea copiilor nu o poate da un test.
+- **Cum se vad in joc, pe televizor.** In jungla de noapte, la marimea din joc (scara 1), solzii si cusaturile se vad slab; umbra aruncata abia se vede pe fundalul inchis. S-au vazut doar pe capturi SwiftShader.
+- **Costul pe un Mac real.** Masurat doar in SwiftShader: 4,6 ms pentru cei trei pictori singuri (2 ms inainte), un nivel intreg cam la fel ca inainte.
+- **Umbrele din fuga** deseneaza tot eroul de trei ori (cu `lit()`). S7.7 cere cate 3 `drawImage` pe erou: se rezolva la T6.5, odata cu miscarea.
+- **George cazand in arena** se roteste: lumina se roteste cu el. Dureaza o clipa.
+- **Bubu si Leo** folosesc inca `drawEye` vechi (neschimbat). Nu se mai joaca.

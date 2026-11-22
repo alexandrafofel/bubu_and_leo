@@ -350,7 +350,7 @@ function drawDuelGround(c) {
   }
   for (const r of d.rings) { const u = r.t / 0.45, rad = r.max * easeOut(u); c.strokeStyle = rgba('#FFF3C0', (1 - u) * 0.8); c.lineWidth = 12 * (1 - u) + 2; c.beginPath(); c.ellipse(r.x, r.y, rad, rad * 0.6, 0, 0, TAU); c.stroke(); }
   drawProjWarn(c, d.proj);
-  if (!d.over) { const k = clamp(1 - d.z / 500, 0.25, 1); c.fillStyle = rgba(SHADOW, 0.24 * k); c.beginPath(); c.ellipse(d.x, d.y + 3, d.R * 1.1 * k, d.R * 0.36 * k, 0, 0, TAU); c.fill(); }
+  if (!d.over) castShadow(c, d.x, d.y + 3, d.R * 2.2, d.R * 1.1, 31, clamp(1 - d.z / 500, 0.25, 1));     // the cast shadow of S7.1
 }
 /* Things above everything: flying guardians, thrown pinecones, leaves, hearts. */
 function drawDuelTop(c) {

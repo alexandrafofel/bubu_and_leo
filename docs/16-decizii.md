@@ -306,3 +306,18 @@ Cererea proprietarei: "scoate jocul Bubu si Leo, lasa doar Cea mai grea lupta. M
 | Lava nu lumineaza in jur. | `lit()` taie totul la contur. Strălucirea din spec ar cere un strat desenat in afara formei, de facut la T6.4 odata cu pictorul vulcanului. |
 | Fiecare pata de piatra se deseneaza si la o placa distanta (9 copii). | Cu o singura copie, petele taiate la marginea placii lasau margini drepte vizibile (gasit pe captura). |
 | Muschiul e verde (`122,174,94`), nu un ton al pietrei. | Paleta cere culoare, nu gri; muschiul e singurul lucru viu pe piatra. |
+
+## Eroii repictati (sarcina T6.4, 22 noiembrie 2026)
+
+| Hotarare | De ce |
+|---|---|
+| Partile mici trec prin `lit()` doar cu gradientul (`lite`). | Toate partile prin `lit()` complet: 7,2 ms pe cadru pentru cei trei, fata de 2 ms la pictorii vechi (SwiftShader). Cu `lite` si fara materiale pe partile mici: 4,6 ms, iar un nivel intreg costa cat inainte (23,6 ms fata de 23,2 ms, `performanta.js`; lupta: 23,5 fata de 22,1). Pe o parte de cativa pixeli, marginea si textura nu se vad. |
+| Materialele stau doar pe partile mari. | Solzii de 22 x 16 pe un picior de 12 nu se vad; textura costa 1,8 ms din cele 4,6. Pe corp, cupola, coada, gat si cap se vad. |
+| Ghearele mici: doar gradientul. Ghearele lungi (cand puterea e pornita) si coltii lui George: `bone`. | Promptul cere `bone` pentru colti. Pe o gheara de 9 unitati porii nu se vad. |
+| Partile nu au luciu decat daca pictorul il cere. | Cu luciul materialului pe fiecare parte, eroii aratau ca niste bile de sticla (prima captura). |
+| Marginea de lumina pe parti: mai subtire (dupa raza) si la jumatate de forta. | Marginea de 5 pe un picior de 12 lasa din culoarea lui doar o dunga. |
+| Lumina se intoarce cand eroul e oglindit (`flip`). | Altfel, cand Boon se uita spre stanga, lumina ar veni din dreapta, iar langa Killer, care se uita spre dreapta, ar parea doua lumini. |
+| O singura umbra pe erou, din `castShadow`, mai aproape de picioare. | Cu umbra de la `lit()` pe fiecare parte ar fi fost zece umbre. Cu inaltimea intreaga a eroului, umbra cadea langa el, nu sub el (prima foaie de personaje). |
+| Ochii vechi raman pentru clipit, fericit, ametit. | Acolo nu se vede nicio lucire. |
+| Coroana lui George nu s-a schimbat. | E "cornul-coroana" din desen, cu dungi; promptul cere sa nu se atinga. |
+| Varful mai inchis al picioarelor lui Boon si al pantalonilor lui Killer s-a pierdut (`lite` nu are suprapunere de culoare). | Diferenta e de cateva procente de culoare pe o parte mica; costa un `clip`. |

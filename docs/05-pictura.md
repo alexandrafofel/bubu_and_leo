@@ -221,3 +221,16 @@ Aceleasi cadru si aceleasi reguli ca la eroi (placa pictata o data, model facut 
 | `lava` | 0 | Crusta `#5A2A3A` (alpha 0.92 - 0.95, ca gradientul de dedesubt sa se mai vada) si cinci crapaturi luminoase care **pulseaza**. |
 
 **Lava pulseaza dupa `o.t`** (secunde, dat de cel care deseneaza; fara el sta pe loc). Culoarea crapaturii e `mix(#F58A3C, #F6CE46, puls)`, puls = 0.5 + 0.5 sin(2.4 t + 0.45 k). Defazajul dintre crapaturi e mic dinadins: la 1.3 pulsau in faze opuse, iar vulcanul parea ca sta nemiscat. Doua straturi: o dunga larga si moale (alpha 0.3) si crapatura insasi (alpha 0.95). Galben si portocaliu raman in paleta: nicio culoare de pe drum nu e gri sau negru.
+
+## Update 22 noiembrie 2026 (T6.4): `lit()` pentru eroi, `castShadow()`
+
+`lit()` a primit patru optiuni noi, pentru eroii facuti din multe parti:
+
+| Optiune | Ce face |
+|---|---|
+| `flip` | -1 cand pictorul a oglindit desenul. Gradientul, marginea de lumina si pata de luciu se intorc, ca lumina sa ramana in stanga-sus a ecranului. Lipsa: se citeste din transformare (`getTransform`). Pictorii eroilor il dau ei, ca sa nu se citeasca transformarea la fiecare parte. |
+| `rim` | Cat de lata e marginea de lumina (5 implicit). |
+| `rimA` | Cat de tare e (1 implicit). Partile eroilor folosesc 0.5. |
+| `lite` | Doar gradientul si luciul: fara `clip`, fara material, fara margine. Pentru partile mici. |
+
+**Umbrele au iesit din `lit()` intr-o functie a lor**, `castShadow(c, x, y, w, h, seed, k)`, pe care `lit()` o cheama la fel ca inainte. Un erou are o singura umbra, desenata de cine il deseneaza (`drawHeroFull`), nu cate una pe fiecare parte. `h` hotaraste doar cat de departe spre dreapta-jos cade umbra: un erou da mai putin decat inaltimea lui, ca umbra sa porneasca de la picioare. `k` (0 - 1): cat de tare; sub 0.95 nu mai e linie de contact (eroul e in aer).

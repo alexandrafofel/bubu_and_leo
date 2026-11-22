@@ -220,7 +220,9 @@ Fiecare material e o functie care adauga textura peste forma (stratul 3), taiata
 | `lava` | vulcanul | Crusta inchisa (`#5A2A3A`) cu crapaturi luminoase care pulseaza (galben -> portocaliu). | 0, dar lumineaza |
 | `water` | lac, sant | Vezi S7.5. | - |
 
-### S7.3 Eroii si George, repictati
+### S7.3 Eroii si George, repictati - **prima parte facuta (T6.4, 22 noiembrie 2026)**
+
+Pictura (lumina, materialele, ochii, cusaturile, numarul 10, umbra aruncata) e in joc; descrierea: `21-cea-mai-grea-lupta.md`, "Update 22 noiembrie 2026 (T6.4)". Miscarea (coada, bratele, clipitul, respiratia, turtirea) vine cu T6.5. Ce s-a facut altfel: partile mici trec prin `lit()` doar cu gradientul, fara margine si textura (costul); materialele stau pe partile mari; coroana lui George nu s-a schimbat.
 
 Formele si culorile din desenele copiilor **nu se schimba**: corpul rotund turcoaz al lui Boon cu cupola si "muntii", gatul auriu, capul mic albastru; Killer cu capul rotund, ochii mari, zambetul cu dinti, tricoul albastru cu 10, ghetele rosii; George roz, cu capul curcubeu si cornul-coroana. Se schimba doar felul in care sunt pictati:
 
