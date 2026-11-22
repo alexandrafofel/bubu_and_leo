@@ -401,3 +401,18 @@ Cele 16 hotarari din specificatie (`27-cota-de-oua.md`, C2) au fost implementate
 | C16 | Portretul din insigna e cel pictat de joc. | `drawPort`, inel in culoarea eroului. Fara imagini in fisier (regula 1). |
 
 Hotararea de proces: `balanseaza()` sta in `tests/common.js` si cheama `giveEgg` direct, nu apasa L1. Motivul: un bot care apasa butoane la momentul potrivit ar testa botul, nu jocul; drumul diamantului e acelasi. Ce nu prinde asa, scris in `19-limitari.md`.
+
+### T15: George cu diamante comune (22 noiembrie 2026)
+
+| Decizie | De ce |
+|---|---|
+| Cota e 15 pe erou la toate nivelurile; dificultatea vine din inamici | Cererea proprietarei. Un numar fix de diamante e usor de inteles pentru copii. |
+| Diamantele vin doar din inamicii omorati | Cererea (raspunsul 7). Diamantele din valuri se scot. Copacii raman si pot straluci, dar ascund melci: melcul omorat lasa diamant (raspunsul 1 din a doua runda). |
+| Inamicii din teren cu 50% mai multi | Cererea (raspunsul 2 din a doua runda): 30 de omoruri per nivel trebuie sa fie posibile in 1 - 2 minute. |
+| Oasele si mingile ameteasca ca conurile | Cererea (raspunsul 4 din a doua runda). Refolosim codul de la conuri. |
+| Diamante comune, cota individuala pentru ajutor | Cererea (raspunsul 4): echipa vede totalul, fiecare vede cota lui. |
+| Fara maxim, fara "padure care nu seaca" | Colaborarea se face prin ajutor (L1, ajutorul automat), nu printr-o regula care lasa un copil fara diamante. |
+| Lupta din mijloc: oase si mingi; lupta de la cuib: inamici dupa inimi | Cererea (raspunsul 6). Proiectilele nu se numara in cota. |
+| Inamicii aruncati care urmaresc ambii eroi la o inima | Cererea: "se tin dupa Killer si Boon". Ultimul atac cere colaborare. |
+| Mini-George: 3 inimioare, urmareste, nu loveste | Cererea (raspunsul 7). Copiii nu sunt atacati; e o tinta, nu un pericol. |
+| Inamici mici reapar (`respawn`), in loc de diamante reincarcate | Fara ei nivelul nu s-ar putea termina cu 30 de diamante doar din omoruri. |
