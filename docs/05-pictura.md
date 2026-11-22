@@ -206,3 +206,18 @@ O textura e o **placa mica**, pictata o singura data (`sprite()`), facuta model 
 | `bone` | 0.25 | oasele lui Boon, coltii | Aproape neted. Pori mici (placa 64 x 64, 11 pori, unii in grupuri de cate trei) si o crapatura cu margine palida alaturi. Crapatura se muta cu `o.seed`. |
 
 Placa de pori e mare dinadins: una de 36 x 36 repeta aceleasi grupuri intr-o grila vizibila. La marimea unui os de erou (30 - 60 de unitati) placa de 64 nu se repeta deloc.
+
+## Update 21 noiembrie 2026 (T6.3): materialele lumii
+
+Aceleasi cadru si aceleasi reguli ca la eroi (placa pictata o data, model facut o data, `fillRect` la fiecare cadru; `lit()` da materialului si conturul). Sase materiale noi in `MATERIALS`:
+
+| Material | Luciu | Cum arata |
+|---|---|---|
+| `wood` | 0.15 | Fibre lungi, usor ondulate (placa 96 x 48, alpha 0.2), trei noduri cu inele la locuri alese dupa `o.seed`, capetele scandurii mai deschise (benzi de `KEY` la ~12% din latime). |
+| `metal` | 0.8 | Benzi de lumina pe orizontala (deschis, inchis, deschis), patru nituri cu umbra lor la un sfert din cutie fata de colturi, zgarieturi fine crem (placa 70 x 70, alpha 0.25). |
+| `stone` | 0.1 | Pete mari in doua tonuri (placa 96 x 96, fiecare pata desenata si la o placa distanta, ca modelul sa nu aiba cusatura dreapta), doua crapaturi, muschi verde (`rgba(122,174,94)`) din treimea de jos. |
+| `crystal` | 1 | Sapte fatete (triunghiuri din centru) in trei tonuri: `KEY`, `SHADOW`, `FILL`; miez crem, mai deschis. |
+| `leaf` | 0.35 | Nervura centrala usor curbata, sase perechi de nervuri laterale, toate crem; marginea mai inchisa (contur lat de 5, taiat la jumatate de `clip`). |
+| `lava` | 0 | Crusta `#5A2A3A` (alpha 0.92 - 0.95, ca gradientul de dedesubt sa se mai vada) si cinci crapaturi luminoase care **pulseaza**. |
+
+**Lava pulseaza dupa `o.t`** (secunde, dat de cel care deseneaza; fara el sta pe loc). Culoarea crapaturii e `mix(#F58A3C, #F6CE46, puls)`, puls = 0.5 + 0.5 sin(2.4 t + 0.45 k). Defazajul dintre crapaturi e mic dinadins: la 1.3 pulsau in faze opuse, iar vulcanul parea ca sta nemiscat. Doua straturi: o dunga larga si moale (alpha 0.3) si crapatura insasi (alpha 0.95). Galben si portocaliu raman in paleta: nicio culoare de pe drum nu e gri sau negru.

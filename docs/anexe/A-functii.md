@@ -4,7 +4,7 @@
 
 Fiecare functie, functie sageata si metoda din cod, in ordinea din fisier. Coloana "Comentariul din cod" este textul scris chiar langa functie. Explicatiile pe larg sunt in capitolele din docs/.
 
-Total: 519 intrari.
+Total: 529 intrari.
 
 ## 01-config.js
 
@@ -53,30 +53,40 @@ Nicio functie.
 | 229 | `paint(c, o)` | metoda |  |
 | 240 | `paintPoreTile(c)` | functie | bone: almost smooth. A few small pores, and one crack with a pale edge beside it. The tile is big (64 x 64) and the pores sit at random, in lone ones and in little groups: a small tile repeats like a grid |
 | 251 | `paint(c, o)` | metoda |  |
-| 265 | `brushLine(c, pts, width, col, alpha, seed)` | functie | A wobbly brush line through points. |
-| 279 | `makeCanvas(w, h)` | functie |  |
-| 282 | `topColor(cv)` | functie | The colour of the very first pixel of a painting: the sky at the top. Used to fill the strip above the world when the camera looks a little higher than the painting goes (docs/24-sisteme-noi.md, S6). |
-| 289 | `makePaper()` | functie |  |
-| 296 | `samp(arr, w, u, v)` | functie sageata |  |
-| 321 | `makeOverlay(tint, tintA, vig, night)` | functie | Per-scene overlay = paper + warm light tint + soft violet-brown vignette. |
-| 337 | `skyCols(t)` | functie |  |
-| 345 | `paintSky(c, x, y, w, h, t, seed, o)` | functie |  |
-| 371 | `paintNightSky(c, x, y, w, h, seed, o)` | functie | The sky of the second game: night, a big moon, stars and northern lights in the seven rainbow colors. |
-| 396 | `paintMountains(c, x, yBase, w, hgt, seed)` | functie | Two rows of pointed mountains with pale snow on top, for George's arena. |
-| 412 | `paintHills(c, x, yBase, w, hgt, t, seed, cols, night)` | functie | Layered distant hills along a horizon line. night = the colors are used as they are (no afternoon haze). |
-| 431 | `setFont(c, size, title, weight)` | functie | Text. No black outlines: a soft cream halo and a warm shadow instead. |
-| 434 | `text(c, str, x, y, size, col, o)` | functie |  |
-| 447 | `wrapLines(c, str, maxW, size, title)` | functie |  |
-| 459 | `iconX(c, x, y, r, pulse)` | functie | The ✕ button as a painted icon (blue cross on a cream disc). |
-| 469 | `iconSq(c, x, y, r, pulse)` | functie | The □ button as a painted icon (pink square on a cream disc): help the friend. |
-| 480 | `iconO(c, x, y, r, pulse)` | functie | ○: help the friend. Same shape as ✕ and □, in the warm coral of the ○ button. |
-| 490 | `iconL3(c, x, y, r, t)` | functie | L3: the cap of the left stick with the letter L and a little arrow pressing it down. |
-| 504 | `richText(c, str, x, y, size, col, o)` | functie |  |
-| 518 | `starPath(c, x, y, r, rot)` | functie |  |
-| 529 | `sprite(key, w, h, paint)` | functie | Things that never change are painted once and then stamped: much faster per frame. |
-| 534 | `card(c, x, y, w, h, col, seed)` | functie |  |
-| 539 | `paintCard(c, x, y, w, h, col, seed)` | functie |  |
-| 542 | `p(dx, dy, sc, fill, a)` | functie sageata |  |
+| 267 | `paintGrainTile(c)` | functie | wood: long grain lines that wiggle a little, a couple of knots, and lighter plank ends |
+| 278 | `paint(c, o)` | metoda |  |
+| 295 | `paintScratchTile(c)` | functie | metal: bands of light (light, dark, light), little rivets with a shadow, and fine pale scratches |
+| 304 | `paint(c, o)` | metoda |  |
+| 321 | `paintBlotchTile(c)` | functie | stone: big irregular blotches in two tones, cracks, and moss low down |
+| 331 | `paint(c, o)` | metoda |  |
+| 351 | `paint(c, o)` | metoda |  |
+| 353 | `pt(i)` | functie sageata |  |
+| 369 | `paint(c, o, path)` | metoda |  |
+| 387 | `paint(c, o)` | metoda |  |
+| 406 | `brushLine(c, pts, width, col, alpha, seed)` | functie | A wobbly brush line through points. |
+| 420 | `makeCanvas(w, h)` | functie |  |
+| 423 | `topColor(cv)` | functie | The colour of the very first pixel of a painting: the sky at the top. Used to fill the strip above the world when the camera looks a little higher than the painting goes (docs/24-sisteme-noi.md, S6). |
+| 430 | `makePaper()` | functie |  |
+| 437 | `samp(arr, w, u, v)` | functie sageata |  |
+| 462 | `makeOverlay(tint, tintA, vig, night)` | functie | Per-scene overlay = paper + warm light tint + soft violet-brown vignette. |
+| 478 | `skyCols(t)` | functie |  |
+| 486 | `paintSky(c, x, y, w, h, t, seed, o)` | functie |  |
+| 512 | `paintNightSky(c, x, y, w, h, seed, o)` | functie | The sky of the second game: night, a big moon, stars and northern lights in the seven rainbow colors. |
+| 537 | `paintMountains(c, x, yBase, w, hgt, seed)` | functie | Two rows of pointed mountains with pale snow on top, for George's arena. |
+| 553 | `paintHills(c, x, yBase, w, hgt, t, seed, cols, night)` | functie | Layered distant hills along a horizon line. night = the colors are used as they are (no afternoon haze). |
+| 572 | `setFont(c, size, title, weight)` | functie | Text. No black outlines: a soft cream halo and a warm shadow instead. |
+| 575 | `text(c, str, x, y, size, col, o)` | functie |  |
+| 588 | `wrapLines(c, str, maxW, size, title)` | functie |  |
+| 600 | `iconX(c, x, y, r, pulse)` | functie | The ✕ button as a painted icon (blue cross on a cream disc). |
+| 610 | `iconSq(c, x, y, r, pulse)` | functie | The □ button as a painted icon (pink square on a cream disc): help the friend. |
+| 621 | `iconO(c, x, y, r, pulse)` | functie | ○: help the friend. Same shape as ✕ and □, in the warm coral of the ○ button. |
+| 631 | `iconL3(c, x, y, r, t)` | functie | L3: the cap of the left stick with the letter L and a little arrow pressing it down. |
+| 645 | `richText(c, str, x, y, size, col, o)` | functie |  |
+| 659 | `starPath(c, x, y, r, rot)` | functie |  |
+| 670 | `sprite(key, w, h, paint)` | functie | Things that never change are painted once and then stamped: much faster per frame. |
+| 675 | `card(c, x, y, w, h, col, seed)` | functie |  |
+| 680 | `paintCard(c, x, y, w, h, col, seed)` | functie |  |
+| 683 | `p(dx, dy, sc, fill, a)` | functie sageata |  |
 
 ## 03-audio.js
 

@@ -117,3 +117,11 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - **Cat costa `fillRect` cu model** cand sunt zeci de obiecte pe ecran. Masurat abia cand pictori adevarati folosesc materialele (T6.4 incolo).
 - **Tesatura de la `fabric`** (alpha 0.08, cum cere S7.2) se vede foarte slab: din ea se vad mai ales cusaturile. Daca nu e destul, se creste alpha-ul.
 - Cum se vad toate pe televizorul familiei, peste jungla de noapte.
+
+## T6.3 (21 noiembrie 2026): ce nu s-a putut verifica
+
+- **Cum arata pe obiectele adevarate** (poduri, usi, robotii, vulcanul). S-au vazut pe forme rotunde de 200 de unitati. Nodurile si niturile sunt pe un cadru fix al cutiei: pe o scandura foarte lunga si subtire pot cadea prea aproape de margine.
+- **Luminarea din jurul lavei** (spec: "lumineaza") nu exista inca: `lit()` taie la contur. Se rezolva cu un strat in afara formei, in pictorul vulcanului (T6.4).
+- **`leaf`, nervurile** merg pe verticala (varful in sus). O frunza intinsa pe orizontala (nufar) cere un parametru de directie, neadaugat.
+- **Piatra:** muschiul are aceeasi culoare peste orice piatra. Pe o piatra verzuie se pierde.
+- **Costul** a zeci de obiecte cu material pe ecran, la fel ca la T6.2: masurat cand pictorii le folosesc.

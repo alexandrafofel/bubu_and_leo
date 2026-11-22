@@ -325,3 +325,22 @@ Sapte defectiuni puse pe rand in `src/02-core.js`, fiecare prinsa de o verificar
 - **Comparatia pe aceeasi culoare dadea 4.92 pentru doua materiale identice.** Cauza: modelul e prins de coordonatele canvasului, iar obiectele erau la x diferit, deci fazele texturii difereau. Nu e o greseala in cod (la erou, `translate` o rezolva), dar scriptul trebuia sa deseneze si el dupa `translate`.
 - Pata de stralucire nu e "aproape alb", e un alb translucid. Primul prag (toate canalele peste 225) dadea 0 la amandoua materialele. Acum se masoara latimea petei pe randul care trece prin ea.
 - Porii de 36 x 36 se vedeau in grila pe captura. Placa a ajuns 64 x 64.
+
+## Update 21 noiembrie 2026: materialele lumii (sarcina T6.3)
+
+Acelasi `tests/tmp/mat-proba.js`, rulat cu toate cele zece materiale (`node ../tmp/mat-proba.js scale,fabric,rubber,bone,wood,metal,stone,crystal,leaf,lava`). Pentru cele sase noi verifica aceleasi lucruri ca la T6.2 (textura se vede, nimic in afara conturului, fara gri sau sub `#241A3A`, placile curate, toate 45 de perechi se deosebesc pe aceeasi culoare de baza, zero `createPattern` in 60 de cadre) si inca doua, pentru lava:
+
+| Ce verifica | Rezultat |
+|---|---|
+| Crapaturile pulseaza: pe opt momente (la 0.4 s), media canalului verde al pixelilor de crapatura variaza cu peste 20. | OK: 51.3 |
+| In niciun moment al pulsului nu apare gri sau pixel mai inchis decat `#241A3A`. | OK: 0 |
+| Texturile se vad: wood 3.17, metal 7.02, stone 5.57, crystal 20.44, leaf 2.18, lava 62.17. | OK |
+
+### Verificat ca poate sa pice
+
+Cinci defectiuni, toate prinse: lava fara puls (span 0.0), crusta `#555555` (16642 pixeli gri), `crystal` care nu picteaza (0.11), `metal` care nu picteaza (0.12), verde crud in loc de galben (27 de pixeli prea inchisi / span 138.7 cu pixeli care apar si dispar).
+
+### Ce a prins in timp ce se scria
+
+- **Lava parea fixa.** Prima varianta defaza crapaturile cu 1.3 rad: sumate, se anulau, iar masuratoarea dadea span 4.2. Nu era doar testul: si pe ecran vulcanul n-ar fi parut sa pulseze. Defazajul e acum 0.45.
+- **Piatra avea dreptunghiuri.** Petele taiate la marginea placii de 96 x 96 lasau margini drepte pe captura. Fiecare pata se deseneaza acum si la o placa distanta.
