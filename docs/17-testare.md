@@ -344,3 +344,31 @@ Cinci defectiuni, toate prinse: lava fara puls (span 0.0), crusta `#555555` (166
 
 - **Lava parea fixa.** Prima varianta defaza crapaturile cu 1.3 rad: sumate, se anulau, iar masuratoarea dadea span 4.2. Nu era doar testul: si pe ecran vulcanul n-ar fi parut sa pulseze. Defazajul e acum 0.45.
 - **Piatra avea dreptunghiuri.** Petele taiate la marginea placii de 96 x 96 lasau margini drepte pe captura. Fiecare pata se deseneaza acum si la o placa distanta.
+
+## Update 22 noiembrie 2026: eroii repictati (sarcina T6.4)
+
+Un script de o singura data, `tests/tmp/eroi-proba.js`, deseneaza Boon, Killer si George, cu fata in ambele parti, pe un canvas al lui. Foaia de personaje o face `tests/tmp/foaie-personaje.js` (aceeasi asezare ca foaia veche).
+
+| Ce verifica | Rezultat |
+|---|---|
+| Fara gri, pe trei momente (deschis, speriat, ametit): cel mult cat aveau pictorii vechi pe aceleasi desene (123 de pixeli) si sub 1 la 2000. | OK: 109 din 636 535 |
+| Nimic mai inchis decat `#241A3A`. | OK: 0 |
+| Capul lui Killer: sus-stanga mai luminos decat jos-dreapta, cu fata in ambele parti. | OK |
+| Capul lui Killer: stanga mai luminoasa decat dreapta la aceeasi inaltime, si cand se uita spre stanga. | OK: 217.8 / 204.6 |
+| Ochiul lui Boon: lucirea mare in stanga-sus a pupilei, in ambele directii. | OK: 255 / 55 |
+| `createPattern`: niciunul in 30 de cadre dupa primul. | OK: 0 |
+| Umbra: sub picioare si spre dreapta-jos, nimic in stanga. | OK |
+| `performanta.js` (nivel) si `performanta-lupta.js`, fata de main in aceeasi zi. | 23,59 / 23,23 ms; 23,47 / 22,14 ms |
+
+**Pixelii gri de margine.** Unde albastrul atinge portocaliul (tricoul langa piele, bratul albastru al lui Boon langa gatul lui), netezirea marginii da cativa pixeli aproape neutri. Pictorii vechi aveau la fel (123). De aceea testul nu cere zero, cere "nu mai mult decat inainte si nicio pata". Acelasi lucru va trebui in `stil-grafic.js` (T6.10).
+
+### Verificat ca poate sa pice
+
+Sapte defectiuni, toate prinse: ochi fara `flip` (lucirea trece in dreapta), `lit()` fara `flip` (capul lui Killer spre stanga e luminat din dreapta; a doua oara, dupa ce testul a primit masuratoarea pe orizontala), pictor care nu da `flip` (doua verificari), umbra in stanga, tricou gri (617 pixeli), modelul refacut la fiecare cadru (1800 de `createPattern`).
+
+### Ce a prins verificarea in timp ce se scria
+
+- **Prima verificare a luminii nu vedea o lumina intoarsa.** Masura sus-stanga fata de jos-dreapta; cu lumina venind din dreapta-sus, sus tot e mai luminos decat jos, si testul trecea. Acum se masoara si pe orizontala.
+- **Masuratoarea ochiului pica din cauza testului:** uitase privirea (`look`) si respiratia (scara 1.02). Testul deseneaza acum la un moment cu respiratia 0.
+- **Costul:** prima varianta (toate partile prin `lit()` complet) era 7,2 ms pentru cei trei, fata de 2 ms. Gasit cu o masuratoare a pictorilor singuri, inainte de `performanta.js`.
+- Pe foaia de personaje: luciu pe fiecare parte, margini de lumina care pareau contururi, cusaturi pe pantaloni si maneci (prea mici), umbra langa erou in loc de sub el. Toate reparate.

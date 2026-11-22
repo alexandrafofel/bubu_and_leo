@@ -105,7 +105,17 @@ function soft(c, x, y, rx, ry, col, alpha, seed) {
          mat     the name of a material (see MATERIALS below), or a painter (c, o, path) of your own. It is
                  called inside the shape, over the gradient, and cut to the contour
          seed    for the hand-painted wobble of the gloss spot
-         shadow  false = no cast shadow (things that do not stand on the ground: a thrown bone, a cloud)
+         shadow  false = no cast shadow (things that do not stand on the ground: a thrown bone, a cloud,
+                 a part of a hero: the hero has one shadow of his own, castShadow())
+         rim     how wide the rim light is (5 when left out). Small parts (a leg, a finger) need a thinner one,
+                 or the two rims cover the whole part
+         rimA    how strong the rim light is, 0 to 1 (1 when left out). The many parts of a hero take less,
+                 or every leg and finger gets a pale outline
+         lite    true = only the gradient (and the gloss): no clip, no material, no rim light. For the many small
+                 parts of a hero (a leg, an arm, a sleeve): the clip and the two rims cost more than the whole old
+                 painter, and on a part a few pixels wide they show nothing
+         flip    -1 when the painter has mirrored the drawing (c.scale(-1, 1)). Left out: read from the transform.
+                 The light must stay on the upper left of the screen, whichever way a hero looks
    The rim light is painted by stroking the same path a little moved, inside the clip of the shape:
    moved down-right it shows along the upper-left edge (KEY), moved up-left along the lower-right one (FILL).
    No createRadialGradient, no createPattern, no shadowBlur: this runs on every frame (S7.7). */
@@ -113,38 +123,51 @@ function lit(c, path, col, o) {
   o = o || {};
   const mat = matOf(o.mat);
   const x = o.x || 0, y = o.y || 0, w = o.w || 60, h = o.h || 60, gloss = o.gloss != null ? o.gloss : (mat && mat.gloss) || 0;
-  if (o.shadow !== false) {                                  // a thing that does not stand on the ground has neither shadow
-    // 1. cast shadow: pushed to the lower right because the light comes from the upper left, and flattened
-    c.save();
-    c.globalCompositeOperation = 'multiply';
-    c.fillStyle = rgba(SHADOW, 0.28);
-    blobPath(c, x + h * 0.35, y + h * 0.12, w * 0.55, w * 0.55 * 0.4, o.seed || 1, 0.05, 9);
-    c.fill();
-    c.restore();
-    // 2. contact shadow: the short dark line right under the base, so the object does not float
-    c.fillStyle = rgba(SHADOW, 0.4);
-    blobPath(c, x, y, w * 0.3, w * 0.3 * 0.26, (o.seed || 1) + 7, 0.05, 9);
-    c.fill();
-  }
+  const fl = o.flip || (c.getTransform().a < 0 ? -1 : 1), rim = o.rim || 5, ro = rim * 0.48, ra = o.rimA == null ? 1 : o.rimA;
+  if (o.shadow !== false) castShadow(c, x, y, w, h, o.seed || 1, 1);   // a thing that does not stand on the ground has neither shadow
   // 3. the shape, with volume: light from the upper left, darker and a little violet to the lower right
-  c.save();
-  const g = c.createLinearGradient(x - w / 2, y - h, x + w / 2, y);
+  const g = c.createLinearGradient(x - fl * w / 2, y - h, x + fl * w / 2, y);
   g.addColorStop(0, shade(col, 0.22));
   g.addColorStop(1, mix(shade(col, -0.28), '#5A3550', 0.1));
+  if (o.lite) { path(c); c.fillStyle = g; c.fill(); litGloss(c, x, y, w, h, gloss, o.seed, fl); return; }
+  c.save();
   path(c); c.fillStyle = g; c.fill(); c.clip();
   if (mat) mat.paint(c, o, path);                              // the material lies over the shape, cut to the contour
   // 4. rim light, inside the shape: warm along the upper-left edge, cool along the lower-right one
-  c.lineWidth = 5;
-  c.save(); c.translate(2.4, 2.4); path(c); c.strokeStyle = rgba(KEY, 0.7); c.stroke(); c.restore();
-  c.save(); c.translate(-2.4, -2.4); path(c); c.strokeStyle = rgba(FILL, 0.55); c.stroke(); c.restore();
+  c.lineWidth = rim;
+  c.save(); c.translate(ro * fl, ro); path(c); c.strokeStyle = rgba(KEY, 0.7 * ra); c.stroke(); c.restore();
+  c.save(); c.translate(-ro * fl, -ro); path(c); c.strokeStyle = rgba(FILL, 0.55 * ra); c.stroke(); c.restore();
   // 5. gloss: only on shiny materials. The shinier, the bigger and the stronger the spot
-  if (gloss > 0) {
-    const grx = w * (0.06 + 0.12 * gloss);
-    blobPath(c, x - w * 0.22, y - h * 0.72, grx, grx * 0.62, (o.seed || 1) + 13, 0.08, 9);
-    c.fillStyle = 'rgba(255,255,255,' + (0.6 + 0.3 * gloss) + ')';
-    c.fill();
-  }
+  litGloss(c, x, y, w, h, gloss, o.seed, fl);
   c.restore();
+}
+function litGloss(c, x, y, w, h, gloss, seed, fl) {
+  if (!(gloss > 0)) return;
+  const grx = w * (0.06 + 0.12 * gloss);
+  blobPath(c, x - fl * w * 0.22, y - h * 0.72, grx, grx * 0.62, (seed || 1) + 13, 0.08, 9);
+  c.fillStyle = 'rgba(255,255,255,' + (0.6 + 0.3 * gloss) + ')';
+  c.fill();
+}
+
+/* The two shadows of S7.1 for anything that stands on the ground (lit() uses them, and so does every hero, who is
+   made of many parts but has one shadow). x, y = the middle of the base, w, h = how wide and tall the thing is.
+   h only decides how far to the lower right the shadow falls: a hero passes less than his height, so his shadow
+   starts at his feet instead of lying beside him.
+   k (0 to 1) = how strong: a hero in the air has a smaller, paler shadow and no contact line.
+   1. cast shadow: pushed to the lower right because the light comes from the upper left, and flattened.
+   2. contact shadow: the short dark line right under the base, so the object does not float. */
+function castShadow(c, x, y, w, h, seed, k) {
+  k = k == null ? 1 : k;
+  c.save();
+  c.globalCompositeOperation = 'multiply';
+  c.fillStyle = rgba(SHADOW, 0.28 * k);
+  blobPath(c, x + h * 0.35 * k, y + h * 0.12 * k, w * 0.55 * k, w * 0.55 * 0.4 * k, seed, 0.05, 9);
+  c.fill();
+  c.restore();
+  if (k < 0.95) return;
+  c.fillStyle = rgba(SHADOW, 0.4);
+  blobPath(c, x, y, w * 0.3, w * 0.3 * 0.26, seed + 7, 0.05, 9);
+  c.fill();
 }
 
 /* ---- Materials of the new look (docs/24-sisteme-noi.md, S7.2) ----
