@@ -34,7 +34,8 @@ function makeHero(k, x, y) {
     down: false, downT: 0, downLeft: 0, downTick: null, hurried: false, callT: 0, small: 1, spinT: -1, spinNo: 0, shield: false, carried: null, hugT: 0, reachHint: 0, fullT: 0, tooFarT: 0, giveT: 0, numT: 0, noT: 0,
     run: false, runIdle: 0, runT: 0, runRest: 0, runWord: -99, ghosts: [], ghostT: 0,         // run (L3): ghosts = the trail left behind
     throwCd: 0, homeState: 'held', home: { x, y, z: 0, spin: 0 }, chargeHold: 0,               // the thrown things (balls or bones): cooldown, whether they are all home, and the one kept at hand
-    spinBeat: 0, spinLook: null, duelSweep: 0, bossSweep: 0 };                                 // the spin (claws or gloves)
+    spinBeat: 0, spinLook: null, duelSweep: 0, bossSweep: 0,                                    // the spin (claws or gloves)
+    tail: [0, 0, 0, 0], wasMoving: false, pz: 0, ghostCv: [], ghostNo: 0 };                    // the tail spring (two joints), squash on start / stop / landing, the ghosts' pictures
 }
 function makeEgg(x, y, o) {
   const e = Object.assign({ x, y, r: 17, seed: Math.random() * 10, req: true, value: 1, state: 'idle', t: 0, delay: 0, z: 0, pull: null, pullT: 0, big: false, hue: Math.random() * 7 | 0 }, o || {});   // hue: the color of a rainbow crystal (second game)
@@ -122,6 +123,8 @@ function startPlay(L) {
   const bs = !!L.boss;
   P = { L, q: L.q || 0, cap: Math.ceil(CONFIG.quota.cap * (L.q || 0)), found: [0, 0], gifts: [], needT: 0, autoT: 0, quotaMsg: [false, false], wasJoined: [isJoined(0), isJoined(1)], eggs: [], stars: L.stars, parts: [], rings: [], wave: -1, time: 0, sinceEgg: 0, levelEggs: 0, levelStars: 0, combo: 0, comboT: 0,
     cam: { x: L.spawn.x, y: L.spawn.y, zoom: 1 }, shake: 0, wind: { t: CONFIG.windEvery * 0.7, state: 'calm', dir: 1, power: 0 },
+  P = { L, eggs: [], stars: L.stars, parts: [], rings: [], wave: -1, time: 0, sinceEgg: 0, levelEggs: 0, levelStars: 0, combo: 0, comboT: 0,
+    cam: { x: L.spawn.x, y: L.spawn.y, zoom: 1 }, shake: 0, freeze: 0, kickT: 99, latch: {}, wind: { t: CONFIG.windEvery * 0.7, state: 'calm', dir: 1, power: 0 },
     bfly: null, bflyT: 20 + Math.random() * 12, bflyCount: 0, crow: null, nestOpen: false, nestT: 0, done: false, doneT: 0, banner: null,
     tut: [{ moved: 0, used: false, used2: false, ran: false }, { moved: 0, used: false, used2: false, ran: false }], runHint: 0, runHintDone: false, nextWaveT: -1, waveNeed: 1, waveGot: 0, duel: null, hits: 0, hintCharge: 0, rumbleT: 0, bounceT: 0, glint: 0,
     heroes: [makeHero(0, bs ? 700 : L.spawn.x - 55, bs ? 830 : L.spawn.y), makeHero(1, bs ? 1220 : L.spawn.x + 55, bs ? 830 : L.spawn.y + 10)],
@@ -156,6 +159,40 @@ function startWave(k) {
 function part(x, y, o) {
   if (P.parts.length > 520) P.parts.splice(0, 40);
   P.parts.push(Object.assign({ x, y, vx: 0, vy: 0, g: 0, life: 1, max: 1, size: 6, col: '#FFE08A', kind: 'dot', rot: Math.random() * TAU, vr: 0, drag: 0 }, o));
+}
+/* ---------- The weight of a hit (T6.9, S7.6) ----------
+   bigHit(): the game holds its breath for CONFIG.look.freeze seconds (updatePlay does not run, the drawing does) and the camera comes
+   closer by look.kick in look.kickIn seconds and goes back in look.kickOut. Called when a guardian is hit and when George falls;
+   a gate that opens or a boulder that falls (T7) calls it too. The shake (P.shake) is separate and unchanged. */
+function bigHit() {
+  const K = CONFIG.look;
+  if (K.freeze > 0) P.freeze = Math.max(P.freeze, K.freeze);
+  if (K.kick > 0) P.kickT = 0;
+}
+/* The zoom of the camera at this moment: 1 + kick while it comes closer (easeOut) and while it goes back (easeOut the other way). */
+function kickZoom() {
+  const K = CONFIG.look, t = P.kickT;
+  if (K.kick <= 0 || t >= K.kickIn + K.kickOut) return 1;
+  return 1 + K.kick * (t < K.kickIn ? easeOut(t / K.kickIn) : 1 - easeOut((t - K.kickIn) / K.kickOut));
+}
+/* Called every frame before updatePlay. True while the game holds its breath: then updatePlay must not run. A button that is pressed or
+   let go in these frames (they last 0.06 s, three or four frames) is not lost: it is kept and given to the first frame that runs. */
+const EDGES = ['aP', 'aR', 'cP', 'cR', 'hP', 'runP'];
+function holdBreath(dt) {
+  P.kickT += dt;
+  const slots = Input.slots;
+  if (P.freeze > 0) {
+    P.freeze -= dt;
+    for (let k = 0; k < 2; k++) for (const e of EDGES) if (slots[k][e]) (P.latch[k] || (P.latch[k] = {}))[e] = true;
+    return true;
+  }
+  for (const k in P.latch) { for (const e in P.latch[k]) slots[k][e] = true; delete P.latch[k]; }
+  return false;
+}
+/* A mechanism clicks and sparks just before it moves (anticipation, S7.6). The pull-back itself is mechMove (02-core.js). */
+function mechClick(x, y) {
+  Snd.play('click');
+  burst(x, y, 5, { speed: 140, life: 0.35, size: 5 });
 }
 function burst(x, y, n, o) {
   o = o || {}; const cols = o.cols || ['#FFE08A', '#FFF3C0', '#F8C24E'];
@@ -451,6 +488,17 @@ function recallBalls(k) {
 
 /* Running (L3). One press with the stick tilted starts it; it lasts until the stick is let go.
    canRun says when a hero is allowed to run at all; everything that stops a run is in one place, below. */
+/* The weight of a hero (docs/24-sisteme-noi.md, S7.3, second part): a squash or a stretch when he starts, stops
+   and lands, and the tail that lifts with the speed and comes after the body with a lag. Only numbers here:
+   the painters read them (heroOpts). */
+function heroMotion(h, v, dt) {
+  const LK = CONFIG.look;
+  if (h.moving !== h.wasMoving) { if (h.z <= 0 && !h.down) h.squash = h.moving ? LK.squashStart : LK.squashStop; h.wasMoving = h.moving; }
+  if (h.pz > 2 && h.z <= 0) h.squash = Math.max(h.squash, LK.squashLand);
+  h.pz = h.z;
+  if (Math.abs(h.squash) < 1e-4) h.squash = 0;                              // no endless tiny wobble while he stands still
+  tailStep(h.tail, h.moving ? Math.min(LK.tailMax, v / CONFIG.heroes[h.k].speed * LK.tailLift) : 0, dt);
+}
 function canRun(h) {
   const S = CONFIG.sprint;
   return S.enabled && !h.down && h.dizzy <= 0 && !h.carried && !h.charging && !P.done && h.runRest <= 0
@@ -459,6 +507,7 @@ function canRun(h) {
 function startRun(h) {
   const S = CONFIG.sprint;
   h.run = true; h.runIdle = 0; h.runT = 0;
+  h.squash = CONFIG.look.squashRun;                                            // the body stretches as the run starts
   Snd.play('dash', 0, h.k);
   if (P.time - h.runWord > S.wordGap) { h.runWord = P.time; Snd.talk(h.k, 'run'); }
   Input.rumble(h.k, 0, 0.35, 70);
@@ -552,10 +601,11 @@ function updateHero(h, dt) {
   }
   if (h.run && h.moving) {               // the trail of three ghosts, and a little dust at every step
     h.ghostT -= dt;
-    if (h.ghostT <= 0) { h.ghostT = 0.04; h.ghosts.unshift({ x: h.x, y: h.y, face: h.face, walk: h.walk, z: h.z }); if (h.ghosts.length > 3) h.ghosts.length = 3; }
+    if (h.ghostT <= 0) { h.ghostT = 0.04; h.ghosts.unshift({ x: h.x, y: h.y, face: h.face, walk: h.walk, z: h.z, cv: null }); if (h.ghosts.length > 3) h.ghosts.length = 3; }   // cv: its picture, painted once (drawRunTrail)
   } else if (h.ghosts.length) h.ghosts.length = 0;
   const v = Math.hypot(h.vx, h.vy);
   h.moving = v > 35;
+  heroMotion(h, v, dt);
   if (h.moving) {
     const w0 = h.walk; h.walk += dt * (7 + v / 55); if (Math.abs(h.vx) > 25) h.face = Math.sign(h.vx);
     // footsteps: one soft sound each time a foot lands
@@ -766,7 +816,7 @@ function bossBall(b) {
   const bs = P.boss, L = P.L, g = bossGoal();
   if (dist(b.x, b.y, g.x, g.y) > g.r) return;
   if (bs.state === 'down') {
-    bs.phase++; Snd.play('goal'); Snd.talk(0, 'bossDown'); Snd.talk(1, 'bossDown'); Input.rumble(0, 0.7, 0.9, 350); Input.rumble(1, 0.7, 0.9, 350); P.shake = 0.3; b.state = 'return';
+    bs.phase++; Snd.play('goal'); Snd.talk(0, 'bossDown'); Snd.talk(1, 'bossDown'); Input.rumble(0, 0.7, 0.9, 350); Input.rumble(1, 0.7, 0.9, 350); P.shake = 0.3; b.state = 'return'; bigHit();
     burst(g.x, g.y, 50, { speed: 380, life: 1.4, size: 11 }); burst(g.x, g.y, 24, { kind: 'petal', cols: PETALS, speed: 260, life: 1.8, g: 80 });
     for (let i = 0; i < 8; i++) P.eggs.push(makeEgg(260 + Math.random() * 1400, 660 + Math.random() * 340, { state: 'pop', sx: g.x, sy: g.y, req: false, delay: i * 0.07 }));
     if (bs.phase >= CONFIG.boss.hits) { bs.state = 'won'; bs.t = 0; Snd.music('ending'); for (const p of bs.proj) p.dead = true; }
@@ -784,6 +834,7 @@ function updateBoss(dt) {
   if (bs.state === 'up') {
     bs.x = L.nest.x; bs.y = L.nest.y + 6;
     if (!P.heroes.some(h => h.down)) bs.throwT -= dt;      // nothing new is thrown while a hero waits for the friend's help
+    bs.windup = bs.throwT > 0 && bs.throwT < CONFIG.look.anticipate && CONFIG.look.anticipate > 0 && !P.heroes.some(h => h.down) ? 1 - bs.throwT / CONFIG.look.anticipate : 0;      // 0 -> 1 in the 0.15 s before a throw: George pulls back (T6.9)
     if (bs.throwT <= 0) {
       bs.throwT = B.throwEvery[Math.min(bs.phase, B.throwEvery.length - 1)] || 2.5;
       // one thing thrown at first, two from the second round, and one more in the last two rounds
@@ -795,7 +846,7 @@ function updateBoss(dt) {
         if (sol) sol.throwT = 0.5;
         bs.proj.push({ sx: sol ? sol.x : bs.x, sy: sol ? sol.y - 60 : bs.y - 40, tx: tx + i * 50 * (Math.random() - 0.5), ty, t: -i * 0.35, dur: [1.9, 1.4, 1.15][rank(h.k)], rot: 0, kind: sol ? 'spear' : L.arena ? 'rock' : 'cone' });
       }
-      bs.throwAnim = 0.4;
+      bs.throwAnim = 0.4; bs.windup = 0;
     }
   } else if (bs.state === 'falling') {
     const u = Math.min(1, bs.t / 0.8); bs.x = lerp(bs.sx, bs.fx, u); bs.y = lerp(bs.sy, bs.fy, u * u);

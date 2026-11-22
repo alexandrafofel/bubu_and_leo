@@ -426,3 +426,121 @@ Timpii masurati in Chrome fara placa video (SwiftShader), deci mai mari decat pe
 | Lupta finala | 46 s | - |
 
 Botul cu doi eroi a dat 49 de diamante cu `giveEgg` intr-un joc intreg si a apasat ○ de 21 de ori pentru 11 eroi loviti. La fiecare nivel a terminat cu surplus la primul erou si exact cota la al doilea (de exemplu 43 si 35 pe nivelul 6), adica impartirea functioneaza.
+## Update 22 noiembrie 2026: miscarea eroilor (sarcina T6.5)
+
+Un script de o singura data, `tests/tmp/miscare-proba.js`, misca eroul in joc (pe un loc liber, stick-ul simulat) si masoara starea. GIF-ul il face `tests/tmp/miscare-gif.js`.
+
+| Ce verifica | Rezultat |
+|---|---|
+| Pornire: intindere; oprire: turtire; aterizare: turtire; pornirea fugii: intindere. | OK: -0.1, 0.12, 0.18, -0.16 |
+| Coada se ridica la mers (0.18) si mai mult la fuga (0.53). | OK |
+| La oprire coada trece de repaus (se leagana: -0.051) si a doua articulatie se misca (0.153). | OK |
+| Nemiscat: dupa 6 s, in urmatoarele 5 s nu se schimba nimic (loc, coada, turtire, la amandoi). | OK |
+| Clipit, 300 s, trei personaje: intre 3.15 si 5.92 s, diferit pentru fiecare. | OK |
+| Respiratia: varful capului lui Boon urca cu 8 pixeli la scara 3 (~2%); la mers nu se misca. | OK |
+| Bratele lui Killer: mana se muta cu 60 de pixeli intre pasi la mers, 83 la fuga. | OK |
+| Urmele din fuga: 3; in 30 de cadre cu doi eroi care fug, eroul se picteaza de 70 de ori (inainte: 150). | OK |
+| Coada lui George se ridica cand se misca si revine exact la 0. | OK |
+| `performanta.js`: 23,82 ms (T6.4: 23,59). `performanta-lupta.js`: 23,62 (T6.4: 23,47). Doi eroi care fug: 26,2 ms fata de 29,1 pe main. `fuga.js`: OK. | OK |
+
+### Verificat ca poate sa pice
+
+Sapte defectiuni, toate prinse: arcul fara oprirea la 0 (doua verificari), respiratie si la mers, clipit la interval fix (patru verificari; a trebuit adaugata conditia "la intamplare", altfel un interval fix de 4,5 s trecea), urmele pictate la fiecare cadru (150), bratele fixe, fara intindere la fuga, coada fara a doua articulatie.
+
+`tests/tmp/eroi-proba.js` (T6.4) a picat o data dupa T6.5: respiratia mutase capul lui Killer cu 5 pixeli fata de fereastra de masura. Nu era o greseala de lumina (masura pe orizontala trecea); scriptul deseneaza acum la un moment cu respiratia 0.
+
+## Update 22 noiembrie 2026: planul din fata si harta de lumina (sarcinile T6.6, T6.7)
+
+Test permanent nou, **`tests/stil-grafic.js`** (in `toate.sh`): inceputul testului stilului grafic, care se completeaza la T6.10. Porneste `CONFIG.look.preview` pe nivelurile 1 - 6.
+
+| Ce verifica | Rezultat |
+|---|---|
+| Planul din fata are cel mult 12 lucruri (sunt 6), niciunul in dreptunghiul din mijloc de 1500 x 760 (plus marja paralaxei). | OK |
+| Planul din fata, pe toate cele 7 niveluri: niciun gri, nimic sub `#241A3A` (pixelii aproape opaci). | OK: 0 din 149 127 |
+| **400 de asezari ale eroilor** pe cele 7 niveluri, 60% langa marginile nivelului: niciun erou acoperit de un lucru din fata care nu e stins. | OK: 0 acoperiti, 410 lucruri stinse |
+| Cel mult 12 `drawImage` pe cadru din planul din fata. | OK: 6 |
+| Harta de lumina, cu 60 de cristale pe ecran: 1 umplere, cel mult 24 `drawImage`, nicio imagine marita pe tot ecranul. | OK: 1, 24, 0 |
+| `createRadialGradient` pe cadru: acelasi numar cu harta pornita si oprita. | OK: 40 si 40 (cele 40 sunt ale jocului de acum: cuibul, felinarele...) |
+| `lights: false`: harta nu se deseneaza, ramane vinieta veche. `lights: true`: hartia e in pictura, fara al doilea strat. | OK |
+| `front: false`: niciun `drawImage` din planul din fata. Fara `preview`, nivelurile 1 - 6 nu au nimic nou. | OK |
+
+**Costul** (`tests/tmp/perf-cadru.js`, nivelul 6, in aceeasi rulare, de doua ori): fara cadrul nou 21,9 si 20,5 ms; cu el 24,5 si 24,4 ms: **+14%** (limita din S7.7: 20%). `performanta.js` (nivelul 2 fara `preview`) ramane cum era.
+
+### Verificat ca poate sa pice
+
+Cinci defectiuni puse pe rand, toate prinse: fara stingere (412 eroi acoperiti), un lucru pus in mijloc, gradientul rotund refacut la fiecare cadru (280 fata de 40), fara limita de 24 (40 de lumini), `lights: false` nerespectat.
+
+### Ce a prins verificarea in timp ce se scria
+
+- **Primul test a gasit 31 de eroi acoperiti.** Unii in starea "Încă o dată!" (testul punea eroii langa inamici; acum nu ii loveste nimic), altii pentru ca un erou pus direct sub un lucru nu lasa timp de stins. Acum un erou deja sub un lucru il stinge pe loc.
+- **Harta de lumina din specificatie costa prea mult**: nivelul cu 56% peste cel vechi. Masurat pe bucati: marirea canvasului mic pe tot ecranul era 10 ms. Acum luminile se pun direct pe ecran.
+- **Pixeli gri in planul din fata**, la margini, unde marginea calda se amesteca cu violet si verde. Marginea are acum nuanta lucrului.
+- Testul insusi a avut o greseala: tinea minte `P` de la nivelul de dinainte (`G.P` e un getter); "fara preview" arata planul nivelului vechi.
+
+## Update 22 noiembrie 2026: stralucire, apa si praf (sarcina T6.8)
+
+`tests/stil-grafic.js` primeste partea a doua (pe nivelul 3, cu `preview`, si pe arena):
+
+| Ce verifica | Rezultat |
+|---|---|
+| Praful: 40 de puncte pe ecran, alpha intre 0.15 si 0.4, fiecare urca sau coboara dupa viteza lui (nu doar se leagana), `motes: 0` = niciunul, nicio culoare gri. | OK |
+| Vulcan: scantei care urca repede; pestera: spori care coboara; altfel praf care urca incet. | OK |
+| Apa: `L.water` exista, doua randuri de valuri pe cadru, cel mult 24 de sclipiri, **cele doua randuri merg in sens opus** (deplasarile primei si a doua au semne diferite). | OK: +7 si -4,5 pe 0,5 s |
+| Niciun `createPattern` pe cadru; niciun `createRadialGradient` in plus cu apa, praful si halourile (40 si 40). | OK |
+| Oglindirea: pictura apei difera cu ea. `waves: false`: nu se mai picteaza apa noua. Placa valurilor: nicio culoare gri. | OK |
+| Halouri: pe arena, doar la lucruri care lumineaza, cel mult `haloMax`, alpha intre 0.35 si 0.6; `halo: 0` = niciunul. | OK |
+| Nivelurile 1 - 6 fara `preview`: fara apa noua si fara praf. | OK |
+
+Harta de lumina se numara acum ca "luminile (cel mult 24) plus halourile (cel mult 12)".
+
+### Verificat ca poate sa pice
+
+12 defecte puse pe rand, 12 prinse: alpha prea mare la praf, praf care nu se misca, scantei care coboara, valuri in acelasi sens, `createPattern` pe cadru, fara oglindire, halou prea puternic, `haloMax` ignorat, valuri gri, prea multe sclipiri, praf pe nivelurile vechi, `motes: 0` care tot deseneaza. **Unul a trecut prima data** (praful care nu urca, doar se leagana pe orizontala); testul a fost intarit cu verificarea directiei si defectul prins.
+
+Scripturile de o singura data (`tests/tmp/apa-proba.js`, `perf-cadru3.js`, `perf-cadru4.js`, `capturi-t68.js`) nu intra in depozit. Capturile: `24-apa-nou.jpg`, `24-apa-vechi.jpg`, `24-halouri.jpg`.
+
+## Update 22 noiembrie 2026: greutatea miscarii (sarcina T6.9)
+
+Test permanent nou, **`tests/greutate.js`** (in `toate.sh`, inainte de `performanta.js`):
+
+| Ce verifica | Rezultat |
+|---|---|
+| `easeBack`: 0 -> 0, 1 -> 1, varful 1.08 (nu 1.05, nu 1.12) la t = 0.6, urca o data si coboara o data. | OK |
+| `mechMove`: tragerea inapoi e treptata (la jumatate, 75% din 6%), minimul -0.06 la 0.15 s, varful 1.0848, ajunge la 1; cu `anticipate: 0` nu se trage deloc. | OK |
+| `bigHit`: `P.freeze` = 0.06; `updatePlay` nu ruleaza 4 cadre, apoi ruleaza; **`drawPlay` ruleaza in toate cele 8 cadre**; `freeze: 0` = nimic nu se opreste; `P.shake` nu se schimba. | OK |
+| ✕ apasat in al doilea cadru oprit ajunge la primul cadru care ruleaza. | OK |
+| Apropierea: zoom 1 la 0, 1.04 la 0.15 s, 1 dupa 0.55 s; `kick: 0` = fara; desenul cu zoom nu da erori. | OK |
+| Paznicul lovit si George cazut cheama `bigHit` (oprire 0.06, `kickT` 0). | OK |
+| George: `windup` creste in cele 9 cadre dinaintea aruncarii, 0 inainte si dupa; aruncarea ramane la 30 de cadre cu si fara; cu `anticipate: 0` e exact 0; cat asteapta un erou ajutor, e 0. | OK |
+
+### Verificat ca poate sa pice
+
+15 defecte puse pe rand; **12 prinse din prima, 3 au trecut**: (1) tragerea inapoi inlocuita cu un salt (testul se uita doar la minim: acum verifica ca e treptata); (2) `windup` negativ cu `anticipate: 0` (testul accepta orice sub 0: acum cere exact 0); (3) `kick: 0` fara test de `kick <= 0`: **mutant echivalent** (`kick: 0` da oricum zoom 1), nu e un defect. Dupa intarirea testelor, defectele (1) si (2) sunt prinse: 14 din 14 defecte reale.
+
+Din `toate.sh` nu cade niciun alt test din cauza cadrelor oprite.
+
+## Update 22 noiembrie 2026: testul stilului grafic intreg si bugetul de timp (sarcina T6.10)
+
+`tests/stil-grafic.js` primeste partea finala:
+
+| Verificare | Cum |
+|---|---|
+| Pixeli negri sau gri | 29 de scene (ro si en, acuarela si diorama, nivelurile 1 - 6 si lupta cu George, mini-lupta). Fractia de pixeli cu R = G = B si sub 200 trebuie sa fie sub 0.1%. Cel mai rau caz masurat: 0.0103% (en, acuarela, nivelul 4). |
+| Nimic interzis la fiecare cadru | 36 de functii ale stilului nou (`lit`, `drawLightMap`, `drawMotes`, `drawWater`, `holdBreath`, pictorii eroilor...) citite cu `toString`, fara comentarii: niciuna nu are `createRadialGradient`, `createPattern`, `shadowBlur`. O functie din lista care lipseste din cod strica testul. |
+
+`tests/performanta.js` primeste **bugetul de timp** (S7.7): nivelul 6 cu tot stilul nou aprins (`preview`, `lights`, `front`, `waves`, `motes`, `halo`) si cu el stins, in cinci runde alternate; se ia cel mai bun cadru din fiecare. Afiseaza `buget OK: cadrul nou e N% peste cel vechi (limita 20%)` sau `buget NEREUSIT`. Valorile din trei rulari: +14%, +4%, +13%. Cu mediana in loc de minim, zgomotul (±2 ms sub SwiftShader) dadea pana la +20%, de aceea e minimul din cinci.
+
+**Verificat ca poate sa pice:** patru defecte puse pe rand in `drawMotes`, toate prinse: un dreptunghi gri #808080 pe tot ecranul, un `createRadialGradient`, un `shadowBlur`, o asteptare de 8 ms pe cadru (aceasta de `performanta.js`).
+
+### Lista S7.8 (capturi `capturi/24-final-ro-3.jpg`, `24-final-ro-6.jpg`, `24-final-en-3.jpg`, `24-final-en-6.jpg`)
+
+| # | Intrebare | Raspuns |
+|---|---|---|
+| 1 | Se vede de unde vine lumina? | da (halouri la torte si cristale, lumina calda langa eroi) |
+| 2 | Obiectele mari au umbra pe pamant, in aceeasi directie? | da |
+| 3 | Se poate spune din ce e facut fiecare lucru? | da (solzi, panza, piatra, lemn, cristal, apa) |
+| 4 | Ceva in fata si ceva in departare? | da (frunze si stanci in fata, munti si luna in spate) |
+| 5 | Eroii sunt cei mai luminosi si limpezi? Se gasesc in sub o secunda? | da (inel colorat la picioare, nume deasupra) |
+| 6 | Planul din fata si scrisul de sus nu ii acopera? | da (400 de asezari testate) |
+| 7 | Niciun pixel negru sau gri curat? | da (script: max 0.0103%) |
+| 8 | Copilul isi recunoaste desenul in Boon, Killer, George? | **nu s-a putut verifica de aici**: formele si culorile din desene nu s-au schimbat, dar numai copiii pot spune (`capturi/24-personaje-comparatie.jpg`) |

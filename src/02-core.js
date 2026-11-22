@@ -10,6 +10,18 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const dist = (ax, ay, bx, by) => Math.hypot(ax - bx, ay - by);
 const ease = t => t * t * (3 - 2 * t);
 const easeOut = t => 1 - (1 - t) * (1 - t);
+/* easeBack (T6.9): goes to 1, goes past it by 8% and comes back. t in 0..1 -> 0..1.08..1. A bridge, a gate or a raft that stops
+   "with weight" uses it instead of easeOut. (The overshoot of 1 + (c+1)(t-1)^3 + c(t-1)^2 is 1 + c*s^2/3 with s = 2c/(3(c+1)): 8% for c = 1.5.) */
+const easeBack = t => { t = Math.max(0, Math.min(1, t)) - 1; return 1 + 2.5 * t * t * t + 1.5 * t * t; };
+/* The way of a mechanism (a bridge, a gate, a raft) as a fraction: first it pulls back by `pull` (6%) for CONFIG.look.anticipate
+   seconds (0.15), then it goes to 1 in `dur` seconds with easeBack (it passes 1 by 8% and settles). t = seconds since it was told to move.
+   0 at the start, -pull at the end of the pull-back, 1 at the end. */
+function mechMove(t, dur, pull) {
+  const A = CONFIG.look.anticipate, p = pull == null ? 0.06 : pull;
+  if (A <= 0) return easeBack(t / dur);                                  // anticipate: 0 = no pull-back
+  if (t < A) return -p * easeOut(Math.max(0, t) / A);
+  return -p + (1 + p) * easeBack((t - A) / dur);
+}
 
 function rng(seed) {                 // small seeded random generator
   let a = seed >>> 0;
@@ -422,6 +434,41 @@ MATERIALS.lava = {
       c.strokeStyle = rgba(col, 0.3); c.lineWidth = 7; c.stroke();         // the soft glow around it
       c.strokeStyle = rgba(col, 0.95); c.lineWidth = 2.4; c.stroke();     // the crack itself
     }
+  }
+};
+
+// water (T6.8): a deep blue base, then two rows of thin pale waves that go in opposite directions. o.t is the time in seconds.
+// The wave tile is one picture, painted once: the two rows are the same pattern, drawn twice with different shifts.
+const WAVE_W = 160, WAVE_H = 48, WAVE_COL = '#E6F6F8', WATER_DEEP = '#2E5FA8', WATER_SHALLOW = '#5FA8D8';
+function paintWaveTile(c) {              // two thin wavy lines; each makes whole turns across the tile, so it repeats without a seam
+  c.lineCap = 'round';
+  for (const [y0, k, ph, a] of [[13, 2, 0.4, 3.2], [37, 3, 2.1, 2.4]]) {
+    for (let x = 0; x < WAVE_W; x += 5) {
+      const u = x / WAVE_W, yy = y0 + Math.sin(u * TAU * k + ph) * a, y2 = y0 + Math.sin((u + 5 / WAVE_W) * TAU * k + ph) * a;
+      c.strokeStyle = rgba(WAVE_COL, 0.45 + 0.55 * (0.5 + 0.5 * Math.sin(u * TAU * 2 + ph * 2)));       // the line fades in and out along its length
+      c.lineWidth = 1.8; c.beginPath(); c.moveTo(x, yy); c.lineTo(x + 5.5, y2); c.stroke();
+    }
+  }
+}
+/* The two rows of waves over the shape `path` (a Path2D in the same coordinates). The pattern is made once (matPattern);
+   a frame only moves it (setTransform): no createPattern while drawing. */
+function fillWaves(c, path, t, sa, sb) {
+  const pat = matPattern('water-wave', WAVE_W, WAVE_H, paintWaveTile);
+  c.save();
+  pat.setTransform(new DOMMatrix([0.5, 0, 0, 0.5, (t * sa) % WAVE_W, 0])); c.globalAlpha = 0.5; c.fillStyle = pat; c.fill(path);
+  pat.setTransform(new DOMMatrix([0.5, 0, 0, 0.5, (WAVE_W * 9 - t * sb + 57) % WAVE_W, WAVE_H / 2])); c.globalAlpha = 0.38; c.fill(path);
+  pat.setTransform(new DOMMatrix([0.5, 0, 0, 0.5, 0, 0]));
+  c.restore();
+}
+MATERIALS.water = {
+  gloss: 0,
+  paint(c, o, path) {
+    const w = o.w || 60, h = o.h || 60, x0 = (o.x || 0) - w / 2, y0 = (o.y || 0) - h;
+    const g = c.createLinearGradient(0, y0, 0, y0 + h);
+    g.addColorStop(0, rgba(WATER_SHALLOW, 0.55)); g.addColorStop(1, rgba(WATER_DEEP, 0.6));
+    c.fillStyle = g; c.fillRect(x0 - 8, y0 - 8, w + 16, h + 16);
+    const box = new Path2D(); box.rect(x0 - 8, y0 - 8, w + 16, h + 16);
+    fillWaves(c, box, o.t || 0, 14, 9);
   }
 };
 

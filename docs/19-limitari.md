@@ -179,3 +179,42 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - `nivele-bot-mers.js` joaca singur, deci drumul in care doi copii isi impart diamantele pe un nivel intreg nu e mers cu adevarat de nimeni; `joc-complet-bot.js` il face, dar mutand eroii direct.
 - Numarul de diamante pe nivel urmeaza valurile (21 pe nivelul 1, nu 22): intrebare deschisa pentru proprietara, vezi `28-t15-george-de-doua-ori.md`, G3.
 - Nimic din cota nu a fost incercat pe un Mac, cu controllere, cu copii. Lucrurile pe care nu le poate spune niciun test sunt in `27-cota-de-oua.md`, C11: daca cel de 6 ani intelege ca a primit un diamant, daca cel de 8 ani da din proprie initiativa, si daca cele doua minute pana la ajutorul automat sunt prea multe.
+## T6.5 (22 noiembrie 2026): ce nu s-a putut verifica
+
+- **Cum se simte miscarea pe ecranul mare, la 60 de cadre reale.** S-a vazut pe GIF (15 cadre pe secunda) si pe capturi.
+- **Coada cand eroul merge in sus sau in jos pe ecran:** se ridica dupa viteza, oricare ar fi directia. Nu s-a vazut daca arata ciudat la mers vertical.
+- **George in arena:** arcul cozii e pas cu pas in desen; daca desenul se sare (pauza, alt ecran), primul pas e limitat la 0,05 s.
+- **Urmele din fuga** au rezolutia 1,25: pe un ecran 4K pot parea putin moi. Sunt transparente si dureaza 0,12 s.
+- Ecranele de meniu (start, final) nu dau coada: acolo coada sta, doar leganatul vechi o misca.
+
+## T6.6, T6.7 (22 noiembrie 2026): ce nu s-a putut verifica
+
+- **Cum arata pe nivelurile 7 - 12.** Nu exista inca. S-au vazut doar pe 1 - 6, cu `preview`, cu ambianta implicita a noptii (`#C4BCEE`). Fiecare nivel nou isi va avea `ambient` si, eventual, lucrurile lui din fata.
+- **Lumina e "adaugata", nu "data inapoi"** (vezi `16-decizii.md`). Pe o ambianta foarte deschisa (zi), luminile se vad putin.
+- **Pe un Mac real** marirea unui canvas mic ar fi probabil ieftina (placa video o face singura); masurat doar in SwiftShader. Daca vreodata se vrea harta din specificatie, se poate incerca acolo.
+- **Planul din fata e subtil**: lucrurile sunt doar la margini (150 de unitati pe laturi, 100 jos), iar pe o noapte inchisa se vad mai ales prin margine.
+- **Banda de cartonase** nu mai are hartia peste ea pe nivelurile cu harta: e putin mai alba.
+- Ecranele dintre niveluri (intrare, "Încă o dată!", final de nivel) pastreaza vinieta veche.
+
+## T6.8 (22 noiembrie 2026): ce nu s-a putut verifica
+
+- **Ochii robotilor, lava, cristalele din pereti**: nu exista inca (T9 - T11). Mecanismul exista (`L.lights` cu `glow`), dar nu s-a vazut pe ele. Halourile s-au vazut pe torte, felinare, stele si cristalele tronului.
+- **Scanteile vulcanului si sporii pesterii** s-au verificat doar ca miscare (directie si viteza), nu pe nivelurile lor: `volcano` si `cave` nu exista.
+- **Apa s-a vazut doar pe nivelurile 1 - 6** (lac, rau), cu `preview`. Lacul din T8 are alte forme si o pluta.
+- **Costul e la limita**: tot cadrul nou (T6.6 - T6.8) e cam 20% peste cel vechi in SwiftShader, cu zgomot de 2 ms intre rulari. Pe un Mac cu placa video nu s-a masurat.
+- **Oglindirea** se face din pictura de la incarcare: lucrurile care se misca (eroi, copaci care se leagana) nu se oglindesc.
+- Apa veche (nivelurile 1 - 6 fara `preview`) a ramas cu clipirea veche, nemodificata.
+
+## T6.9 (22 noiembrie 2026): ce nu s-a putut verifica
+
+- **Cum se simte pe controller.** Oprirea de 0.06 s si apropierea de 4% s-au masurat (cadre, zoom), dar daca "se simt" bine cu un DualShock in mana nu se poate sti de aici. Se regleaza din `look.freeze` si `look.kick`.
+- **Mecanismele nu exista inca** (T7): `mechMove` si `mechClick` sunt verificate pe functii pure si pe un clic, nu pe un pod sau o poarta adevarata. Poarta care se deschide si bolovanul care cade nu cheama inca `bigHit` (nu exista).
+- **Anticiparea lui George** e doar in lupta de pe arena (si in cea din copac); paznicii din mini-lupte nu se trag inapoi (S7.6 cere asta doar pentru George si pentru mecanisme).
+- **Zguduirea** a ramas cum era, deci la o lovitura mare se aduna: oprire, zoom si zguduire. Daca pare prea mult, se opreste una din ele din `CONFIG.look`.
+
+## T6.10 (22 noiembrie 2026): ce nu s-a putut verifica
+
+- **Intrebarea 8 din S7.8** (copilul isi recunoaste desenul in Boon, Killer, George): numai copiii pot raspunde. De aratat lor `capturi/24-personaje-comparatie.jpg` si `capturi/24-final-ro-3.jpg`.
+- **Timpul pe un Mac si pe televizorul familiei.** Bugetul de +20% e masurat sub SwiftShader (procesor, fara placa video), cu zgomot de ±2 ms. Valorile reale pe Chrome/macOS pot sa difere; raportul ar trebui sa fie mai mic acolo, dar nu s-a masurat.
+- **Gradientii vechi.** Codul vechi de desen (nivelurile 1 - 6 fara `preview`, `drawBubu`, `drawLeo`) are inca in jur de 40 de `createRadialGradient` pe cadru. Lista din `stil-grafic.js` acopera doar functiile stilului nou.
+- **Pixelii gri** se cauta doar cu R = G = B. Un gri cu o nuanta usoara de culoare nu e prins (vezi `17-testare.md`, "Limita cunoscuta").

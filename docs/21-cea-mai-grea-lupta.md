@@ -289,3 +289,20 @@ Coroana lui George a ramas cum era.
 - **Numarul 10 "cusut"** (`sewNumber`): un petic putin mai deschis decat tricoul in jurul cifrelor si o cusatura punctata crem chiar in afara lor.
 - **Umbra de pe pamant** e umbra aruncata din S7.1 (`castShadow`, `02-core.js`): impinsa spre dreapta-jos, plus linia de contact sub picioare. In aer e mai mica si mai palida si nu are linie de contact. La fel la George in arena si la paznicii din mini-lupte.
 - Insignele din banda de sus sunt sprite-uri facute din aceiasi pictori: s-au refacut singure.
+
+## Update 22 noiembrie 2026 (T6.5): miscarea eroilor
+
+Eroii au greutate si viata, fara sa isi schimbe desenul. Totul se regleaza din `CONFIG.look` (`03-config.md`). Capturi: `capturi/24-miscare.gif` (stau, merg, fug, se opresc) si `capturi/24-miscare-cadre.jpg`.
+
+| Ce | Cum |
+|---|---|
+| **Coada** lui Boon si a lui George | Un arc cu doua articulatii (`tailStep`, `h.tail`). Prima ridica toata coada dupa viteza (`tailLift` la mers, pana la `tailMax` la fuga) si se leagana putin la oprire; a doua indoaie jumatatea din spate in sens invers cand prima accelereaza, asa ca varful vine dupa baza. Pictorii rotesc punctele cozii in jurul bazei si al articulatiei (`rotPt`); coada ramane un singur contur. Dungile de pe coada lui George merg cu a doua jumatate. Leganatul vechi al cozii (sinus) a ramas, mai mic la mers. |
+| Coada lui George | George nu are un `update` al lui pentru asta: arcul lui e pas cu pas in desen (`tailFollow`), din cat s-a miscat de la cadrul trecut. In arena si in mini-lupte. |
+| **Bratele lui Killer** | Atarna din umar si se balanseaza ca un pendul, invers fata de picioare (`armSwing`, `armSwingRun` la fuga). |
+| **Clipit** | La 3 - 6 secunde, la intamplare, fiecare cand vrea el (`blinkOn`). Fara stare: timpul e taiat in ferestre de 4,5 s si fiecare fereastra isi are clipitul intr-un moment ales din primele 1,5 s, deci doua clipiri sunt mereu la 3 - 6 s una de alta. |
+| **Respiratie** | Doar cand sta: corpul creste de la 1 la 1.02 (`breath`). Inainte respira si la mers, in ambele sensuri (+-2,5%). |
+| **Turtire si intindere** (`h.squash`) | Intindere la pornire, turtire la oprire, turtire la aterizare, intindere la pornirea fugii. La lovitura era deja (0.25). Sub 0.0001 devine exact 0. |
+| **Nimic nu tremura** | Cand eroul sta, coada si turtirea ajung exact la 0 (nu la numere tot mai mici). Verificat: dupa 6 s pe loc, starea nu se mai schimba deloc in urmatoarele 5 s. |
+| **Urmele din fuga** | Fiecare copie e pictata o data, cand apare, si apoi doar pusa cu `drawImage` (`ghostCanvas`). Doi eroi care fug: 26,2 ms pe cadru, fata de 29,1 ms inainte (SwiftShader). |
+
+**T6.10:** stilul nou are acum testul lui complet (`tests/stil-grafic.js`) si un buget de timp (+20 0.000000ata de cadrul vechi, `tests/performanta.js`). Vezi `17-testare.md`.

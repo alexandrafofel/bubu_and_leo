@@ -199,7 +199,35 @@ const CONFIG = {
     front: true,           // big blurred things at the edges of the screen (S7.4)
     motes: 40,             // tiny specks floating in the light. 0 = none
     freeze: 0.06,          // seconds the game holds its breath at a big hit (S7.6). 0 = off
-    maxLights: 24          // lights drawn in one frame. The ones nearest the middle of the screen win
+    maxLights: 24,         // lights drawn in one frame. The ones nearest the middle of the screen win
+    lightGlow: 0.6,        // how strong the lights of the light map are over the ambient (the darker the ambient, the stronger)
+    kick: 0.04,            // at a big hit the camera comes closer by this much (4%) in kickIn seconds and goes back in kickOut (S7.6). 0 = no zoom
+    kickIn: 0.15,
+    kickOut: 0.4,
+    anticipate: 0.15,      // seconds a mechanism, or George before an attack, pulls back before it goes (S7.6). 0 = none
+    halo: 0.5,             // glow over the things that give light (torches, crystals, lava): alpha 0.35 - 0.6 around this value (S7.5). 0 = none
+    haloMax: 12,           // at most this many halos in one frame
+    waves: true,           // the water of the new levels: two rows of waves, a reflection and sparkles. false = the old shimmer
+    waveSpeedA: 14,        // units per second: the first row of waves goes right at this speed, the second goes left (waveSpeedB)
+    waveSpeedB: 9,
+    preview: false,        // true = the new frame (light map, front plane, haze) also on levels 1 - 6, to see it before 7 - 12 exist
+    frontFade: 0.2,        // seconds a thing of the front plane takes to fade when a hero comes near it
+    frontMin: 0.15,        // how much of it stays when it fades
+    frontPar: 1.15,        // the front plane moves this many times more than the camera (parallax)
+    frontNear: 220,        // a hero closer than this (on screen) to a thing of the front plane makes it fade, before he is under it
+    // how the heroes and George move (S7.3, second part)
+    tailLift: 0.18,        // how high the tail lifts at walking speed (radians). Running lifts it more, up to tailMax
+    tailMax: 0.5,
+    tailSpring: 70,        // how stiff the tail is: higher = it follows the body sooner, with less swing
+    armSwing: 0.45,        // how far Killer's arms swing when he walks (radians); running: armSwingRun
+    armSwingRun: 0.8,
+    breath: 0.02,          // breathing while standing still: the body grows from 1 to 1 + breath
+    blinkMin: 3,           // a blink every blinkMin to blinkMax seconds, at random
+    blinkMax: 6,
+    squashStart: -0.1,     // stretch when a hero starts to walk (negative = taller), squash when he stops
+    squashStop: 0.12,
+    squashLand: 0.18,      // landing after a jump or a drop
+    squashRun: -0.16       // stretch when the run (L3) starts
   },
 
   // ---- The second game, "Cea mai grea luptă" (invented by the children) ---------------------
@@ -507,6 +535,18 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const dist = (ax, ay, bx, by) => Math.hypot(ax - bx, ay - by);
 const ease = t => t * t * (3 - 2 * t);
 const easeOut = t => 1 - (1 - t) * (1 - t);
+/* easeBack (T6.9): goes to 1, goes past it by 8% and comes back. t in 0..1 -> 0..1.08..1. A bridge, a gate or a raft that stops
+   "with weight" uses it instead of easeOut. (The overshoot of 1 + (c+1)(t-1)^3 + c(t-1)^2 is 1 + c*s^2/3 with s = 2c/(3(c+1)): 8% for c = 1.5.) */
+const easeBack = t => { t = Math.max(0, Math.min(1, t)) - 1; return 1 + 2.5 * t * t * t + 1.5 * t * t; };
+/* The way of a mechanism (a bridge, a gate, a raft) as a fraction: first it pulls back by `pull` (6%) for CONFIG.look.anticipate
+   seconds (0.15), then it goes to 1 in `dur` seconds with easeBack (it passes 1 by 8% and settles). t = seconds since it was told to move.
+   0 at the start, -pull at the end of the pull-back, 1 at the end. */
+function mechMove(t, dur, pull) {
+  const A = CONFIG.look.anticipate, p = pull == null ? 0.06 : pull;
+  if (A <= 0) return easeBack(t / dur);                                  // anticipate: 0 = no pull-back
+  if (t < A) return -p * easeOut(Math.max(0, t) / A);
+  return -p + (1 + p) * easeBack((t - A) / dur);
+}
 
 function rng(seed) {                 // small seeded random generator
   let a = seed >>> 0;
@@ -919,6 +959,41 @@ MATERIALS.lava = {
       c.strokeStyle = rgba(col, 0.3); c.lineWidth = 7; c.stroke();         // the soft glow around it
       c.strokeStyle = rgba(col, 0.95); c.lineWidth = 2.4; c.stroke();     // the crack itself
     }
+  }
+};
+
+// water (T6.8): a deep blue base, then two rows of thin pale waves that go in opposite directions. o.t is the time in seconds.
+// The wave tile is one picture, painted once: the two rows are the same pattern, drawn twice with different shifts.
+const WAVE_W = 160, WAVE_H = 48, WAVE_COL = '#E6F6F8', WATER_DEEP = '#2E5FA8', WATER_SHALLOW = '#5FA8D8';
+function paintWaveTile(c) {              // two thin wavy lines; each makes whole turns across the tile, so it repeats without a seam
+  c.lineCap = 'round';
+  for (const [y0, k, ph, a] of [[13, 2, 0.4, 3.2], [37, 3, 2.1, 2.4]]) {
+    for (let x = 0; x < WAVE_W; x += 5) {
+      const u = x / WAVE_W, yy = y0 + Math.sin(u * TAU * k + ph) * a, y2 = y0 + Math.sin((u + 5 / WAVE_W) * TAU * k + ph) * a;
+      c.strokeStyle = rgba(WAVE_COL, 0.45 + 0.55 * (0.5 + 0.5 * Math.sin(u * TAU * 2 + ph * 2)));       // the line fades in and out along its length
+      c.lineWidth = 1.8; c.beginPath(); c.moveTo(x, yy); c.lineTo(x + 5.5, y2); c.stroke();
+    }
+  }
+}
+/* The two rows of waves over the shape `path` (a Path2D in the same coordinates). The pattern is made once (matPattern);
+   a frame only moves it (setTransform): no createPattern while drawing. */
+function fillWaves(c, path, t, sa, sb) {
+  const pat = matPattern('water-wave', WAVE_W, WAVE_H, paintWaveTile);
+  c.save();
+  pat.setTransform(new DOMMatrix([0.5, 0, 0, 0.5, (t * sa) % WAVE_W, 0])); c.globalAlpha = 0.5; c.fillStyle = pat; c.fill(path);
+  pat.setTransform(new DOMMatrix([0.5, 0, 0, 0.5, (WAVE_W * 9 - t * sb + 57) % WAVE_W, WAVE_H / 2])); c.globalAlpha = 0.38; c.fill(path);
+  pat.setTransform(new DOMMatrix([0.5, 0, 0, 0.5, 0, 0]));
+  c.restore();
+}
+MATERIALS.water = {
+  gloss: 0,
+  paint(c, o, path) {
+    const w = o.w || 60, h = o.h || 60, x0 = (o.x || 0) - w / 2, y0 = (o.y || 0) - h;
+    const g = c.createLinearGradient(0, y0, 0, y0 + h);
+    g.addColorStop(0, rgba(WATER_SHALLOW, 0.55)); g.addColorStop(1, rgba(WATER_DEEP, 0.6));
+    c.fillStyle = g; c.fillRect(x0 - 8, y0 - 8, w + 16, h + 16);
+    const box = new Path2D(); box.rect(x0 - 8, y0 - 8, w + 16, h + 16);
+    fillWaves(c, box, o.t || 0, 14, 9);
   }
 };
 
@@ -1689,11 +1764,15 @@ const Snd = (() => {
     gloves(b, t) { for (let i = 0; i < 2; i++) noise(b, t + i * 0.12, 0.14, 0.012, 0.13, 'bandpass', 500, 1400, 1.2); osc(b, 'sine', 900, t + 0.1, 0.09, 0.01, 0.08, { f2: 700, gt: 0.07 }); },
     // The ten seconds: a soft wooden knock every second (higher in the last three), and the three kind notes of "Încă o dată!"
     tick(b, t, v) { osc(b, 'sine', v > 0.5 ? 880 : 660, t, 0.14, 0.004, 0.05, { f2: v > 0.5 ? 760 : 580, gt: 0.04 }); },
+    // a mechanism clicks before it moves (T6.9): a short soft wooden "tic" with a spark of air
+    click(b, t) { osc(b, 'triangle', 1250, t, 0.12, 0.002, 0.045, { f2: 900, gt: 0.04 }); noise(b, t, 0.04, 0.001, 0.05, 'bandpass', 2600, 1800, 2.0); },
     retry(b, t) { [72, 67, 64].forEach((n, i) => marimba(b, mtof(n), t + i * 0.16, 0.3)); chime(b, mtof(79), t + 0.42, 0.1); }
   };
   /* Running (L3) in the first game too: the same short soft whoosh. */
   fx.dash = fx2.dash; fx.tick = fx2.tick; fx.retry = fx2.retry;
   const CHR = { give: 1, egg: 1, star: 1, giant: 1, stomp: 1, kick: 1, bounce: 1, bonk: 1, drop: 1, squelch: 1, step: 1, swish: 1, heal: 1, grab: 1, dash: 1, bone: 1, tock: 1, gloves: 1 };
+  fx.dash = fx2.dash; fx.tick = fx2.tick; fx.retry = fx2.retry; fx.click = fx2.click;
+  const CHR = { egg: 1, star: 1, giant: 1, stomp: 1, kick: 1, bounce: 1, bonk: 1, drop: 1, squelch: 1, step: 1, swish: 1, heal: 1, grab: 1, dash: 1, bone: 1, tock: 1, gloves: 1 };
   /* play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. */
   function play(name, arg, k, vol) {
     const f = (GAME === 'lupta' && fx2[name]) || fx[name];
@@ -2395,11 +2474,49 @@ function litTeeth(c, pts, col) {          // pts: [x0, base y, tip y, width] for
   for (const q of pts) { x0 = Math.min(x0, q[0]); x1 = Math.max(x1, q[0] + q[3]); y0 = Math.min(y0, q[1], q[2]); y1 = Math.max(y1, q[1], q[2]); }
   lit(c, path, col || '#FFFDF4', { x: (x0 + x1) / 2, y: y1, w: x1 - x0, h: y1 - y0 || 1, shadow: false, flip: _fl, mat: 'bone', rim: 1.2, rimA: PART_RIM_A, gloss: 0 });
 }
+/* The tail: a spring with two joints (docs/24-sisteme-noi.md, S7.3). T = [a1, v1, a2, v2]: a1 = how much the whole tail
+   is lifted (radians, + = up), a2 = how much its second half bends on top of that. a1 goes to the target with a little
+   swing; a2 is pushed the other way by a1's speeding up, so the tip comes after the base. Small substeps keep it steady
+   at 30 frames a second. When the target is 0 and everything is tiny, it is set to exactly 0: a hero standing still
+   does not tremble. */
+function tailStep(T, target, dt) {
+  const k1 = CONFIG.look.tailSpring, d1 = 2 * Math.sqrt(k1) * 0.55, k2 = k1 * 0.8, d2 = 2 * Math.sqrt(k2) * 0.5;
+  const n = Math.max(1, Math.ceil(dt / 0.008)), h = dt / n;
+  for (let i = 0; i < n; i++) {
+    const acc1 = k1 * (target - T[0]) - d1 * T[1];
+    T[1] += acc1 * h; T[0] += T[1] * h;
+    const acc2 = -k2 * T[2] - d2 * T[3] - 0.6 * acc1;
+    T[3] += acc2 * h; T[2] = clamp(T[2] + T[3] * h, -0.6, 0.6);
+  }
+  if (target === 0 && Math.abs(T[0]) + Math.abs(T[1]) + Math.abs(T[2]) + Math.abs(T[3]) < 1e-4) T[0] = T[1] = T[2] = T[3] = 0;
+}
+/* The same spring for George, who has no update of his own for it: it is stepped while he is drawn, from how far
+   he moved since the last frame. obj = the boss or the duel, where the spring is kept. */
+function tailFollow(obj, x, t, speed) {
+  if (!obj._tail) { obj._tail = [0, 0, 0, 0]; obj._tx = x; obj._tt = t; }
+  const dt = clamp(t - obj._tt, 0, 0.05);
+  if (dt > 0) { const v = Math.abs(x - obj._tx) / dt; tailStep(obj._tail, v > 30 ? Math.min(CONFIG.look.tailMax, v / speed * CONFIG.look.tailLift) : 0, dt); }
+  obj._tx = x; obj._tt = t;
+  return obj._tail;
+}
+/* Rotates the point (x, y) around (cx, cy) by a, into out[i], out[i + 1]. */
+function rotPt(out, i, x, y, cx, cy, a) { const cs = Math.cos(a), sn = Math.sin(a), dx = x - cx, dy = y - cy; out[i] = cx + dx * cs - dy * sn; out[i + 1] = cy + dx * sn + dy * cs; }
+/* A blink every blinkMin to blinkMax seconds, at random, without keeping any state: time is cut into windows of
+   (min + max) / 2 seconds and every window has its blink at a random moment of its first (max - min) / 2 seconds,
+   so two blinks are always between min and max apart. seed: each character blinks on his own. */
+function blinkOn(t, seed) {
+  const LK = CONFIG.look, win = (LK.blinkMin + LK.blinkMax) / 2, span = (LK.blinkMax - LK.blinkMin) / 2, n = Math.floor(t / win);
+  const at = n * win + hash(seed, n) * span;
+  return t >= at && t < at + 0.13;
+}
 /* An eye in the new look: two gleams that follow the light (a big one up-left, a small one down-right, on the screen,
    whichever way the hero looks) and a soft shadow under the upper lid. Closed, happy or dizzy: the old eye. */
-function eyeLit(c, x, y, r, o, look) {
+function eyeLit(c, x, y, r, o, look, seed) {
   const t = o.t || 0;
-  if (o.dizzy || o.happy || ((t + (o.blinkOff || 0)) % 3.7) < 0.13) { drawEye(c, x, y, r, o, look); return; }
+  if (o.dizzy || o.happy) { drawEye(c, x, y, r, o, look); return; }
+  if (seed != null ? blinkOn(t, seed) : ((t + (o.blinkOff || 0)) % 3.7) < 0.13) {          // closed: the lid line of the old eye
+    c.strokeStyle = '#5A3838'; c.lineWidth = r * 0.34; c.lineCap = 'round'; c.beginPath(); c.arc(x, y - r * 0.3, r * 0.75, Math.PI * 0.12, Math.PI * 0.88); c.stroke(); return;
+  }
   const fl = _fl;
   c.beginPath(); c.ellipse(x, y, r, r * 1.08, 0, 0, TAU); c.fillStyle = '#FFFDF4'; c.fill();
   const g = c.createLinearGradient(0, y - r * 1.08, 0, y - r * 0.15);              // the lid shadow: the upper half of the eye, fading down
@@ -2422,25 +2539,30 @@ function sewNumber(c, str, x, y, size, ink, patch) {
   c.fillStyle = ink; c.fillText(str, x, y);
 }
 
+const TAIL0 = [0, 0, 0, 0], _tailPts = new Float32Array(8);
+
 /* BOON: the little one's hero. Round teal body, a dome of blue spikes on the back, long tan neck, small blue head,
    lime legs and a long lime tail. o.claw (0 to 1) = the claws are out and spinning. */
 function drawBoon(c, x, y, o) {
   const s = o.scale || 1, f = o.face || 1, t = o.t || 0;
   _fl = f;
   const step = o.moving ? Math.sin(o.walk || 0) : 0, hop = o.moving ? Math.abs(step) * 6 : 0;
-  const br = Math.sin(t * 2.4) * 0.025 * (o.moving ? 0.3 : 1), sq = o.squash || 0, claw = o.claw != null && o.claw >= 0;
+  const br = o.moving ? 0 : (0.5 + 0.5 * Math.sin(t * 2.4)) * CONFIG.look.breath, sq = o.squash || 0, claw = o.claw != null && o.claw >= 0;
   const teal = '#3DBDB4', tealD = '#2B9A9E', lime = '#B7D645', limeD = '#8FB436', tan = '#CFA052', blue = '#3F78D8', navy = '#56609E', lilac = '#C4BEDC';
   c.save(); c.translate(x, y - (o.z || 0) * s); c.scale(s * f, s);
   // tail: thick at the body, down to the ground, long. One contour, lime turning darker toward the tip
-  const wag = Math.sin(t * 3.1) * 4;
-  litTube(c, [-30, -30, -52, -30, -58, -10 + wag * 0.3, 11, 8, -62, 2, -92, -4 + wag, 4.5], lime, { mat: 'scale', col2: limeD, seed: 3, gloss: 0.15 });
+  // tail: lifted by the speed and bent at its middle by the spring (o.tail), so it comes after the body
+  const wag = Math.sin(t * 3.1) * 4 * (o.moving ? 0.4 : 1), ta = o.tail || TAIL0, tp = _tailPts;
+  rotPt(tp, 0, -52, -30, -30, -30, ta[0]); rotPt(tp, 2, -58, -10 + wag * 0.3, -30, -30, ta[0]); rotPt(tp, 4, -62, 2, -30, -30, ta[0]); rotPt(tp, 6, -92, -4 + wag, -30, -30, ta[0]);
+  rotPt(tp, 4, tp[4], tp[5], tp[2], tp[3], ta[2]); rotPt(tp, 6, tp[6], tp[7], tp[2], tp[3], ta[2]);
+  litTube(c, [-30, -30, tp[0], tp[1], tp[2], tp[3], 11, 8, tp[4], tp[5], tp[6], tp[7], 4.5], lime, { mat: 'scale', col2: limeD, seed: 3, gloss: 0.15 });
   // legs with little claws
   const leg = (lx, lift, fwd, sd) => {
     litTube(c, [lx, -26, lx + fwd * 0.4, -16 - lift * 0.5, lx + fwd, -6 - lift, 6.5, 5.5], lime, { col2: limeD, seed: sd });
     litClaws(c, lx + fwd + 4, -4 - lift, 0.15, 9, 3, '#FFF3D6');
   };
   leg(-14, Math.max(0, step) * 6, step * 7, 5); leg(12, Math.max(0, -step) * 6, -step * 7, 6);
-  c.translate(0, -hop); c.scale(1 + br + sq, 1 - br - sq);
+  c.translate(0, -hop); c.scale(1 + sq - br * 0.25, 1 + br - sq);
   // the dome on the back with three blue spikes ("mountains") and their pale tips
   lit(c, cc => { cc.beginPath(); cc.moveTo(-40, -40); cc.bezierCurveTo(-40, -124, 30, -128, 32, -40); cc.closePath(); }, tealD, { x: -4, y: -40, w: 72, h: 66, shadow: false, flip: _fl, mat: 'scale', seed: 4, rimA: PART_RIM_A, gloss: 0 });
   const spikes = [[-35, -9, -21, -91], [-13, 15, 1, -99], [9, 29, 19, -88]];
@@ -2462,7 +2584,7 @@ function drawBoon(c, x, y, o) {
   c.translate(0, -16);
   litPuff(c, 30, -110, 14, 13, 6, blue, { mat: 'scale', gloss: 0.3 });
   litPuff(c, 47, -107, 14, 9, 7, navy);
-  eyeLit(c, 36, -112, 6.5, o, 1);
+  eyeLit(c, 36, -112, 6.5, o, 1, 11);
   c.strokeStyle = '#2F3566'; c.lineWidth = 2; c.lineCap = 'round'; c.beginPath();
   if (o.dizzy) { c.moveTo(44, -101); c.quadraticCurveTo(48, -104, 52, -101); c.quadraticCurveTo(55, -98, 58, -101); } else c.arc(50, -105, 6, 0.25, Math.PI * 0.8);
   c.stroke();
@@ -2475,7 +2597,7 @@ function drawKiller(c, x, y, o) {
   const s = o.scale || 1, f = o.face || 1, t = o.t || 0;
   _fl = f;
   const step = o.moving ? Math.sin(o.walk || 0) : 0, hop = o.moving ? Math.abs(step) * 6 : 0;
-  const br = Math.sin(t * 2.6 + 1) * 0.022 * (o.moving ? 0.3 : 1), sq = o.squash || 0, kick = o.kick || 0;
+  const br = o.moving ? 0 : (0.5 + 0.5 * Math.sin(t * 2.6 + 1)) * CONFIG.look.breath, sq = o.squash || 0, kick = o.kick || 0;
   const skin = '#F6D2AE', kit = '#2F6FD0', kitD = '#2456A8', boot = '#E4583C', ink = '#243A7A', up = o.happy || o.hug > 0;
   c.save(); c.translate(x, y - (o.z || 0) * s); c.scale(s * f, s);
   // legs in blue, big red rubber boots
@@ -2486,7 +2608,7 @@ function drawKiller(c, x, y, o) {
   };
   leg(-10, Math.max(0, step) * 6, step * 7, 40);
   leg(10, Math.max(0, -step) * 6 + kick * 8, -step * 7 + kick * 16, 44);
-  c.translate(0, -hop); c.scale(1 + br + sq, 1 - br - sq);
+  c.translate(0, -hop); c.scale(1 + sq - br * 0.25, 1 + br - sq);
   // long arms, like in the drawing (up in the air when happy)
   const gl = o.glove > 0 ? o.glove : 0;                                // the whirl gloves: both arms stretch out, 2.4 times longer
   const arm = (sd, sw) => {
@@ -2495,7 +2617,11 @@ function drawKiller(c, x, y, o) {
       litTube(c, [sd * 17, -62, sd * (26 * ext), -58 + wob * 0.4, sd * (34 * ext), -52 + wob, 6.5, 5.5], skin, { gloss: 0.1, seed: 47 + sd });
       drawGlove(c, sd * (36 * ext), -50 + wob, 13, sd, t);
     } else if (up) litTube(c, [sd * 17, -62, sd * 30, -74, sd * 34, -92 + Math.sin(t * 9 + sd) * 4, 6.5, 6], skin, { gloss: 0.1, seed: 47 + sd });
-    else litTube(c, [sd * 17, -62, sd * 32, -56 + sw * 3, sd * 36, -38 + sw * 5, 6.5, 6.5], skin, { gloss: 0.1, seed: 47 + sd });
+    else {                                                             // hanging from the shoulder, swinging like a pendulum, against the legs
+      const a = sw * (o.run ? CONFIG.look.armSwingRun : CONFIG.look.armSwing), ap = _tailPts;
+      rotPt(ap, 0, sd * 32, -56, sd * 17, -62, a); rotPt(ap, 2, sd * 36, -38, sd * 17, -62, a);
+      litTube(c, [sd * 17, -62, ap[0], ap[1], ap[2], ap[3], 6.5, 6.5], skin, { gloss: 0.1, seed: 47 + sd });
+    }
     litPuff(c, sd * 17, -62, 8, 6, 50 + sd, kit);                      // sleeve (too small for stitches)
   };
   arm(-1, step);
@@ -2507,7 +2633,7 @@ function drawKiller(c, x, y, o) {
   // head: round, no hair, big eyes, wide grin with teeth
   litPuff(c, 0, -92, 25, 24, 28, skin, { gloss: 0.15 });
   soft(c, -22, -92, 4.5, 6.5, skin, 1, 29);
-  eyeLit(c, -5, -99, 7.5, o, 1); eyeLit(c, 11, -99, 7.5, o, 1);
+  eyeLit(c, -5, -99, 7.5, o, 1, 12); eyeLit(c, 11, -99, 7.5, o, 1, 12);
   soft(c, 19, -86, 5, 3.5, '#F29C8E', 0.5, 30); soft(c, -13, -85, 5, 3.5, '#F29C8E', 0.4, 31);
   if (o.dizzy) { c.strokeStyle = '#9A5440'; c.lineWidth = 2.3; c.lineCap = 'round'; c.beginPath(); c.moveTo(-6, -79); c.quadraticCurveTo(-1, -83, 3, -79); c.quadraticCurveTo(7, -75, 12, -79); c.stroke(); }
   else {
@@ -2544,18 +2670,24 @@ function drawGeorge(c, x, y, o) {
   const step = o.moving ? Math.sin(o.walk || 0) : 0, hop = o.moving ? Math.abs(step) * 5 : 0, sq = o.squash || 0;
   const pink = '#E45AA0', brown = '#9A6B3C', eo = { t: t, dizzy: mood === 'dizzy', blinkOff: 0.9 };
   c.save(); c.translate(x, y); c.scale(s * f, s);
-  // tail: green at the body, then blue, curling up. One contour, the colour changes along it
-  const wag = Math.sin(t * 3.4) * 5;
-  litTube(c, [-36, -40, -70, -34, -84, -52 + wag * 0.4, 12, 9, -98, -74 + wag, -78, -94 + wag, 4.5], '#6FC96A',
+  // tail: green at the body, then blue, curling up. One contour, the colour changes along it. Lifted and bent by the spring
+  const wag = Math.sin(t * 3.4) * 5 * (o.moving ? 0.4 : 1), ta = o.tail || TAIL0, tp = _tailPts;
+  rotPt(tp, 0, -70, -34, -36, -40, ta[0]); rotPt(tp, 2, -84, -52 + wag * 0.4, -36, -40, ta[0]); rotPt(tp, 4, -98, -74 + wag, -36, -40, ta[0]); rotPt(tp, 6, -78, -94 + wag, -36, -40, ta[0]);
+  rotPt(tp, 4, tp[4], tp[5], tp[2], tp[3], ta[2]); rotPt(tp, 6, tp[6], tp[7], tp[2], tp[3], ta[2]);
+  const jx = tp[2], jy = tp[3], ja = ta[0] + ta[2];
+  litTube(c, [-36, -40, tp[0], tp[1], tp[2], tp[3], 12, 9, tp[4], tp[5], tp[6], tp[7], 4.5], '#6FC96A',
     { mat: 'scale', seed: 9, grad: [[0, '#A8D645'], [0.5, '#6FC96A'], [0.62, '#46A8D8'], [1, '#3F78D8']] });
+  c.save(); c.translate(jx, jy); c.rotate(ja); c.translate(84, 52 - wag * 0.4);          // the stripes ride on the second half of the tail
   c.strokeStyle = 'rgba(40,60,120,0.45)'; c.lineWidth = 2; c.lineCap = 'round';
   for (let i = 0; i < 3; i++) { const yy = -70 - i * 8 + wag * 0.8; c.beginPath(); c.moveTo(-96 + i * 4, yy); c.lineTo(-88 + i * 4, yy - 3); c.stroke(); }
+  c.restore();
   // thin brown legs: a pink foot behind, a pale claw foot in front
   litTube(c, [-14 + step * 5, -26, -14 + step * 6, -14, -14 + step * 8, -5 - Math.max(0, step) * 5, 4.5, 4], brown, { seed: 10 });
   litPuff(c, -11 + step * 8, -3 - Math.max(0, step) * 5, 10, 6, 61, '#E77AB4');
   litTube(c, [14 - step * 5, -26, 14 - step * 6, -14, 15 - step * 8, -5 - Math.max(0, -step) * 5, 4.5, 4], brown, { seed: 11 });
   litClaws(c, 18 - step * 8, -3 - Math.max(0, -step) * 5, 0.2, 15, 3, '#DCD6EC');
-  c.translate(0, -hop); c.scale(1 + sq, 1 - sq);
+  const br = o.moving ? 0 : (0.5 + 0.5 * Math.sin(t * 2.2 + 2)) * CONFIG.look.breath;
+  c.translate(0, -hop); c.scale(1 + sq - br * 0.25, 1 + br - sq);
   // body
   litPuff(c, 0, -46, 46, 31, 60, pink, { mat: 'scale', gloss: 0.3 });
   c.strokeStyle = 'rgba(255,220,236,0.4)'; c.lineWidth = 5; c.lineCap = 'round';
@@ -2578,7 +2710,7 @@ function drawGeorge(c, x, y, o) {
   litPuff(c, 74, -104, 24, 12, 65, '#4C89E0', { gloss: 0.3 });                                                 // upper jaw, the blue snout
   litTeeth(c, [[60, -95, -86, 8], [69, -95, -85, 8], [78, -95, -86, 8], [87, -95, -85, 8]]);
   c.fillStyle = 'rgba(30,40,100,0.6)'; c.beginPath(); c.arc(92, -109, 1.8, 0, TAU); c.fill();
-  eyeLit(c, 38, -108, 7.5, eo, 1); eyeLit(c, 55, -108, 7, eo, 1);
+  eyeLit(c, 38, -108, 7.5, eo, 1, 13); eyeLit(c, 55, -108, 7, eo, 1, 13);
   c.strokeStyle = '#7A2A3A'; c.lineWidth = 3.2; c.lineCap = 'round'; c.beginPath();
   if (mood === 'angry' || mood === 'calm') { c.moveTo(29, -120); c.lineTo(43, -115); c.moveTo(50, -115); c.lineTo(63, -119); }
   else if (mood === 'scared') { c.moveTo(29, -115); c.lineTo(43, -120); c.moveTo(50, -120); c.lineTo(63, -116); }
@@ -3647,7 +3779,7 @@ function paintLevel(L) {
   finishPaint(c, L.W, L.H, L.skyT, r, N);
   L.bg = cv; L.skyTop = topColor(cv);
   L.overlay = N ? makeOverlay('#C8D0FF', 0.1, 0.5, true) : makeOverlay(mix('#FFF4E0', '#FFC08C', L.skyT), 0.1 + L.skyT * 0.16, 0.42);
-  return L;
+  return finishLook(L);
 }
 /* A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). */
 function paintVines(c, x, y, w, len, seed, sway, P) {
@@ -3673,6 +3805,156 @@ function paintDoor(c, x, y) {
   for (let i = 0; i < 7; i++) { c.fillStyle = RAINBOW[i]; c.beginPath(); c.moveTo(x + 26, y - 44); c.arc(x + 26, y - 44, 8, i / 7 * TAU, (i + 1) / 7 * TAU); c.closePath(); c.fill(); }
 }
 /* Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). */
+/* ---------- The frame of the new levels (docs/24-sisteme-noi.md, S7.4 and S7.5) ----------
+   A level with look: 'diorama' (levels 7 - 12, or every level with CONFIG.look.preview) gets, once, at loading:
+   - haze over its far part (the top of the picture): paler and bluer, like air between the eye and the far away;
+   - the front plane (L.front): big dark blurred things at the edges of the screen;
+   - the paper texture multiplied into the picture itself (L.paperBaked), when the light map is on: the light map then
+     takes the place of the whole overlay (paper + night vignette). On the slow test machine every full-screen pass
+     costs a few ms, and the light map is already one.
+   Levels 1 - 6 stay as they are. */
+function isDiorama(L) { return !!(L && L.def && (L.def.look === 'diorama' || CONFIG.look.preview)); }
+function levelAmbient(L) { return L.def.ambient || (L.night ? '#C4BCEE' : '#F0E4D4'); }
+function finishLook(L) {
+  if (!isDiorama(L)) return L;
+  const c = L.bg.getContext('2d'), hz = Math.min(L.H * 0.45, 800);
+  const g = c.createLinearGradient(0, 0, 0, hz);                         // the haze: strongest at the top (the farthest), gone by the middle
+  g.addColorStop(0, 'rgba(176,196,240,0.34)'); g.addColorStop(1, 'rgba(176,196,240,0)');
+  c.fillStyle = g; c.fillRect(0, 0, L.W, hz);
+  if (CONFIG.look.waves && L.waterCells.length) L.water = paintWater(L, c);
+  L.front = paintFront(L);
+  if (CONFIG.look.lights) {        // the paper goes into the picture once: the light map then replaces the whole overlay (one full-screen pass, not two)
+    if (!PAPER) PAPER = makePaper();
+    c.globalCompositeOperation = 'multiply';
+    for (let y = 0; y < L.H; y += H) for (let x = 0; x < L.W; x += W) c.drawImage(PAPER, x, y);
+    c.globalCompositeOperation = 'source-over';
+    L.paperBaked = true;
+  }
+  return L;
+}
+/* The water of the new levels (T6.8). Once, at loading:
+   - L.water.path: the water cells as one Path2D (a rectangle for every run of cells on a row, a little smaller than the cells,
+     so the waves stop before the bank); every frame fills it twice with the wave pattern (drawWater);
+   - the reflection: the bank above every column of water, upside down, faint and out of focus, painted into the picture.
+     It is made at a quarter of the size (that is what makes it soft), faded with depth, cut with a mask of soft discs
+     (the shore of the water is not square), then laid over the water with a low alpha;
+   - L.water.spark: the places where it sparkles. */
+function paintWater(L, c) {
+  const path = new Path2D(), G = L.grid, cols = L.cols, rows = L.rows, spark = [];
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols;) {
+      if (G[y * cols + x] !== 2) { x++; continue; }
+      let x1 = x; while (x1 < cols && G[y * cols + x1] === 2) x1++;
+      path.rect(x * CS + 6, y * CS + 6, (x1 - x) * CS - 12, CS - 12); x = x1;
+    }
+  }
+  const Q = 4, rf = makeCanvas(Math.ceil(L.W / Q), Math.ceil(L.H / Q)), rc = rf.getContext('2d'), mk = makeCanvas(rf.width, rf.height), mc = mk.getContext('2d');
+  rc.imageSmoothingEnabled = true;
+  const disc = makeCanvas(64, 64), dc = disc.getContext('2d'), gg = dc.createRadialGradient(32, 32, 10, 32, 32, 32);
+  gg.addColorStop(0, 'rgba(0,0,0,1)'); gg.addColorStop(1, 'rgba(0,0,0,0)'); dc.fillStyle = gg; dc.fillRect(0, 0, 64, 64);
+  for (let x = 0; x < cols; x++) {
+    let y = 0;
+    while (y < rows) {
+      if (G[y * cols + x] !== 2) { y++; continue; }
+      const y0 = y; while (y < rows && G[y * cols + x] === 2) y++;       // one column of water: from y0 to y
+      for (let d = 0; d < Math.min(y - y0, 4); d++) {
+        const sy = y0 * CS - (d + 1) * CS; if (sy < 0) break;                      // the bank above the water, mirrored about its top edge
+        rc.save(); rc.globalAlpha = 1 - d * 0.22; rc.translate(0, (y0 * CS + d * CS) / Q + CS / Q); rc.scale(1, -1);
+        rc.drawImage(L.bg, x * CS, sy, CS, CS, x * CS / Q, 0, CS / Q, CS / Q); rc.restore();
+      }
+      for (let k = y0; k < y; k++) mc.drawImage(disc, x * CS / Q - CS / Q * 0.45, k * CS / Q - CS / Q * 0.45, CS / Q * 1.9, CS / Q * 1.9);
+    }
+  }
+  rc.globalCompositeOperation = 'destination-in'; rc.drawImage(mk, 0, 0);
+  c.save(); c.globalAlpha = 0.3; c.imageSmoothingEnabled = true; c.drawImage(rf, 0, 0, L.W, L.H); c.restore();
+  const wc = L.waterCells, n = Math.min(24, wc.length);
+  for (let i = 0; i < n; i++) { const k = wc[(i * 53 + 7) % wc.length]; spark.push({ x: (k % cols + 0.5) * CS + (hash(81, i) - 0.5) * CS * 0.8, y: ((k / cols | 0) + 0.5) * CS + (hash(82, i) - 0.5) * CS * 0.8, ph: hash(83, i) * TAU, s: 9 + hash(84, i) * 9 }); }
+  return { path, spark };
+}
+/* The front plane: painted once at half resolution (960 x 540), blurred, then blown up once to a canvas the size of the screen.
+   items: a rectangle on the screen for each thing (x, y, w, h in screen units), and its alpha.
+   Nothing is put inside the middle rectangle of 1500 x 760, nor in a margin of FRONT_PAR_MAX around it,
+   so the parallax cannot push a thing into the middle. */
+const FRONT_MID = { x: 210, y: 160, w: 1500, h: 760 }, FRONT_PAR_MAX = 60;
+function frontSlots() {          // where the things can be: two tall corners at the top, the two sides, two places at the bottom
+  const m = FRONT_PAR_MAX, L0 = FRONT_MID.x - m, R0 = FRONT_MID.x + FRONT_MID.w + m, B0 = FRONT_MID.y + FRONT_MID.h + m;
+  return [
+    { at: 'top', x: 0, y: 0, w: L0, h: 640 }, { at: 'top', x: R0, y: 0, w: W - R0, h: 600 },
+    { at: 'side', x: 0, y: 620, w: L0, h: 460 }, { at: 'side', x: R0, y: 560, w: W - R0, h: 520 },
+    { at: 'bottom', x: 330, y: B0, w: 420, h: H - B0 }, { at: 'bottom', x: 1180, y: B0, w: 460, h: H - B0 }
+  ];                             // nothing along the top middle: the band of cards (HUD_TOP) covers it anyway
+}
+function paintFront(L) {
+  const key = L.def.key, r = rng((L.seed || 7) + 911);
+  const kinds = key === 'cave' ? { top: 'stal', side: 'stal', bottom: 'rock' }
+    : (key === 'works' || key === 'castle') ? { top: 'chain', side: 'pillar', bottom: 'rock' }
+    : { top: 'vine', side: 'leaf', bottom: 'leaf' };
+  const tmp = makeCanvas(960, 540), t = tmp.getContext('2d');
+  const base = mix(levelAmbient(L), '#2A2048', 0.7), base2 = mix(base, '#1F7A4A', key === 'cave' || key === 'works' || key === 'castle' ? 0.1 : 0.6);   // leaves: a deep green, never a grey
+  const items = [];
+  for (const sl of frontSlots()) {
+    const kind = kinds[sl.at], x = sl.x / 2, y = sl.y / 2, w = sl.w / 2, h = sl.h / 2;
+    t.save(); t.beginPath(); t.rect(x, y, w, h); t.clip();
+    paintFrontThing(t, kind, sl.at, x, y, w, h, r, base, base2);
+    t.restore();
+    items.push({ x: sl.x, y: sl.y, w: sl.w, h: sl.h, a: 1, kind });
+  }
+  // a thin warm rim on the side the light comes from (upper left), so the dark things still read against a dark night
+  const rim = makeCanvas(960, 540), rc = rim.getContext('2d');
+  rc.drawImage(tmp, 0, 0); rc.globalCompositeOperation = 'source-in'; rc.fillStyle = rgba(mix(base2, KEY, 0.45), 0.6); rc.fillRect(0, 0, 960, 540);   // the rim keeps the hue of the things: warm light over a violet and a green made greys
+  t.globalCompositeOperation = 'destination-over'; t.drawImage(rim, -2, -2); t.globalCompositeOperation = 'source-over';
+  const half = makeCanvas(960, 540), hc = half.getContext('2d');
+  hc.filter = 'blur(2.5px)'; hc.drawImage(tmp, 0, 0); hc.filter = 'none';    // out of focus: painted at half size, blurred...
+  const cv = makeCanvas(W, H); cv.getContext('2d').drawImage(half, 0, 0, W, H);  // ...then blown up once, here: drawn 1:1 on every frame it costs half
+  return { cv, items, t: -1 };
+}
+function paintFrontThing(t, kind, at, x, y, w, h, r, base, base2) {
+  const fromLeft = x < 480 / 1, cx = x + w / 2;
+  t.lineCap = 'round'; t.lineJoin = 'round';
+  if (kind === 'vine') {                                   // two or three lianas hanging from the top, with big leaves
+    for (let i = 0; i < 3; i++) {
+      const x0 = x + w * (0.2 + i * 0.3), sway = (r() - 0.5) * w * 0.6, len = h * (0.6 + r() * 0.4);
+      t.strokeStyle = i % 2 ? base : base2; t.lineWidth = 7 + r() * 5;
+      t.beginPath(); t.moveTo(x0, y - 5); t.bezierCurveTo(x0 + sway, y + len * 0.4, x0 - sway, y + len * 0.7, x0 + sway * 0.5, y + len); t.stroke();
+      for (let j = 0; j < 4; j++) { const u = 0.25 + j * 0.2, lx = x0 + sway * Math.sin(u * 3), ly = y + len * u; frontLeaf(t, lx, ly, 18 + r() * 14, (j % 2 ? 1 : -1) * (0.6 + r() * 0.5), j % 2 ? base2 : base); }
+    }
+  } else if (kind === 'leaf') {                            // one or two giant leaves coming in from the edge
+    const n = at === 'bottom' ? 2 : 1;
+    for (let i = 0; i < n; i++) {
+      const lx = at === 'bottom' ? x + w * (0.3 + i * 0.45) : (fromLeft ? x + w * 0.2 : x + w * 0.8), ly = at === 'bottom' ? y + h * 1.1 : y + h * (0.55 + r() * 0.2);
+      const ang = at === 'bottom' ? -Math.PI / 2 + (i ? 0.5 : -0.5) : (fromLeft ? -0.5 - r() * 0.4 : Math.PI + 0.5 + r() * 0.4);
+      frontLeaf(t, lx, ly, at === 'bottom' ? h * 1.6 : w * 1.5, ang, i % 2 ? base2 : base);
+    }
+  } else if (kind === 'stal') {                            // stalactites from the top, or a stalagmite at a side
+    const n = Math.max(2, w / 34 | 0);
+    for (let i = 0; i < n; i++) {
+      const sx = x + (i + 0.5) * w / n, sw = w / n * (0.7 + r() * 0.5), sh = (at === 'top' ? h : h * 0.8) * (0.4 + r() * 0.6);
+      t.fillStyle = i % 2 ? base : base2; t.beginPath();
+      if (at === 'top') { t.moveTo(sx - sw / 2, y - 4); t.quadraticCurveTo(sx - sw * 0.1, y + sh * 0.7, sx, y + sh); t.quadraticCurveTo(sx + sw * 0.1, y + sh * 0.7, sx + sw / 2, y - 4); }
+      else { t.moveTo(sx - sw / 2, y + h + 4); t.quadraticCurveTo(sx - sw * 0.1, y + h - sh * 0.7, sx, y + h - sh); t.quadraticCurveTo(sx + sw * 0.1, y + h - sh * 0.7, sx + sw / 2, y + h + 4); }
+      t.closePath(); t.fill();
+    }
+  } else if (kind === 'chain') {                           // chains hanging from the top
+    for (let i = 0; i < 2; i++) {
+      const x0 = x + w * (0.3 + i * 0.4), n = (h * (0.6 + r() * 0.4)) / 16 | 0;
+      t.strokeStyle = i ? base2 : base; t.lineWidth = 5;
+      for (let j = 0; j < n; j++) { t.beginPath(); if (j % 2) t.ellipse(x0, y + j * 15, 3, 9, 0, 0, TAU); else t.ellipse(x0, y + j * 15, 7, 9, 0, 0, TAU); t.stroke(); }
+    }
+  } else if (kind === 'pillar') {                          // a big column at the side
+    const pw = w * 0.7, px = fromLeft ? x : x + w - pw;
+    t.fillStyle = base; t.fillRect(px, y - 10, pw, h + 20);
+    t.fillStyle = base2; t.fillRect(px + (fromLeft ? pw * 0.6 : 0), y - 10, pw * 0.4, h + 20);
+    for (let j = 0; j < 4; j++) { t.fillStyle = base2; t.fillRect(px - 6, y + h * (0.2 + j * 0.22), pw + 12, 7); }
+  } else {                                                 // rock: big dark round stones at the bottom
+    for (let i = 0; i < 3; i++) { t.fillStyle = i % 2 ? base : base2; blobPath(t, x + w * (0.2 + i * 0.3), y + h * 1.05, w * 0.22, h * 0.9, i + 3, 0.08, 10); t.fill(); }
+  }
+}
+function frontLeaf(t, x, y, len, ang, col) {               // a long pointed leaf from (x, y) in the direction ang, with a pale midrib
+  t.save(); t.translate(x, y); t.rotate(ang);
+  t.fillStyle = col; t.beginPath(); t.moveTo(0, 0); t.bezierCurveTo(len * 0.3, -len * 0.32, len * 0.75, -len * 0.22, len, 0); t.bezierCurveTo(len * 0.75, len * 0.22, len * 0.3, len * 0.32, 0, 0); t.fill();
+  t.strokeStyle = rgba(shade(col, 0.35), 0.6); t.lineWidth = Math.max(1.5, len * 0.025); t.beginPath(); t.moveTo(0, 0); t.lineTo(len * 0.92, 0); t.stroke();
+  t.restore();
+}
 function finishPaint(c, w, h, skyT, r, night) {
   for (let i = 0; i < 7000; i++) { c.fillStyle = i % 2 ? 'rgba(110,70,90,0.07)' : 'rgba(255,250,235,0.1)'; c.beginPath(); c.arc(r() * w, r() * h, 0.6 + r() * 1.6, 0, TAU); c.fill(); }
   for (let i = 0; i < 260; i++) { blobPath(c, r() * w, r() * h, 14 + r() * 50, 10 + r() * 36, i, 0.3, 11); c.strokeStyle = 'rgba(255,250,232,0.09)'; c.lineWidth = 2 + r() * 3; c.stroke(); }
@@ -3722,7 +4004,7 @@ function genBoss() {
   for (let k = 0; k < 150; k++) { const b = blobs[k % blobs.length], a = tr() * TAU, d = 0.3 + tr() * 0.7; wash(t, bx + b[0] + Math.cos(a) * b[2] * d, by + b[1] + Math.sin(a) * b[3] * d, 14 + tr() * 22, 10 + tr() * 14, shade(P.canopy[k % P.canopy.length], (tr() - 0.5) * 0.6), { a: 0.5, seed: k, layers: 1, edge: 0 }); }
   L.treeCv = tc; L.treeOff = { x: 960 - bx, y: 580 - by };
   L.overlay = makeOverlay('#FFBE8C', 0.2, 0.45);
-  return L;
+  return finishLook(L);
 }
 
 /* The last level of the second game: George's arena. A clearing with mountains behind it, torches of fire all around,
@@ -3775,7 +4057,7 @@ function genArena() {
   for (let i = 0; i < 16; i++) { t.strokeStyle = 'rgba(60,50,120,0.25)'; t.lineWidth = 2.5; t.lineCap = 'round'; t.beginPath(); const x = bx - 200 + r() * 400, y = by - 20 - r() * 200; t.moveTo(x, y); t.lineTo(x + (r() - 0.5) * 30, y + 14 + r() * 16); t.stroke(); }
   L.treeCv = tc; L.treeOff = { x: 960 - bx, y: 600 - by };
   L.overlay = makeOverlay('#C8D0FF', 0.1, 0.52, true);
-  return L;
+  return finishLook(L);
 }
 
 /* ==========================================================================
@@ -3813,7 +4095,8 @@ function makeHero(k, x, y) {
     down: false, downT: 0, downLeft: 0, downTick: null, hurried: false, callT: 0, small: 1, spinT: -1, spinNo: 0, shield: false, carried: null, hugT: 0, reachHint: 0, fullT: 0, tooFarT: 0, giveT: 0, numT: 0, noT: 0,
     run: false, runIdle: 0, runT: 0, runRest: 0, runWord: -99, ghosts: [], ghostT: 0,         // run (L3): ghosts = the trail left behind
     throwCd: 0, homeState: 'held', home: { x, y, z: 0, spin: 0 }, chargeHold: 0,               // the thrown things (balls or bones): cooldown, whether they are all home, and the one kept at hand
-    spinBeat: 0, spinLook: null, duelSweep: 0, bossSweep: 0 };                                 // the spin (claws or gloves)
+    spinBeat: 0, spinLook: null, duelSweep: 0, bossSweep: 0,                                    // the spin (claws or gloves)
+    tail: [0, 0, 0, 0], wasMoving: false, pz: 0, ghostCv: [], ghostNo: 0 };                    // the tail spring (two joints), squash on start / stop / landing, the ghosts' pictures
 }
 function makeEgg(x, y, o) {
   const e = Object.assign({ x, y, r: 17, seed: Math.random() * 10, req: true, value: 1, state: 'idle', t: 0, delay: 0, z: 0, pull: null, pullT: 0, big: false, hue: Math.random() * 7 | 0 }, o || {});   // hue: the color of a rainbow crystal (second game)
@@ -3901,6 +4184,8 @@ function startPlay(L) {
   const bs = !!L.boss;
   P = { L, q: L.q || 0, cap: Math.ceil(CONFIG.quota.cap * (L.q || 0)), found: [0, 0], gifts: [], needT: 0, autoT: 0, quotaMsg: [false, false], wasJoined: [isJoined(0), isJoined(1)], eggs: [], stars: L.stars, parts: [], rings: [], wave: -1, time: 0, sinceEgg: 0, levelEggs: 0, levelStars: 0, combo: 0, comboT: 0,
     cam: { x: L.spawn.x, y: L.spawn.y, zoom: 1 }, shake: 0, wind: { t: CONFIG.windEvery * 0.7, state: 'calm', dir: 1, power: 0 },
+  P = { L, eggs: [], stars: L.stars, parts: [], rings: [], wave: -1, time: 0, sinceEgg: 0, levelEggs: 0, levelStars: 0, combo: 0, comboT: 0,
+    cam: { x: L.spawn.x, y: L.spawn.y, zoom: 1 }, shake: 0, freeze: 0, kickT: 99, latch: {}, wind: { t: CONFIG.windEvery * 0.7, state: 'calm', dir: 1, power: 0 },
     bfly: null, bflyT: 20 + Math.random() * 12, bflyCount: 0, crow: null, nestOpen: false, nestT: 0, done: false, doneT: 0, banner: null,
     tut: [{ moved: 0, used: false, used2: false, ran: false }, { moved: 0, used: false, used2: false, ran: false }], runHint: 0, runHintDone: false, nextWaveT: -1, waveNeed: 1, waveGot: 0, duel: null, hits: 0, hintCharge: 0, rumbleT: 0, bounceT: 0, glint: 0,
     heroes: [makeHero(0, bs ? 700 : L.spawn.x - 55, bs ? 830 : L.spawn.y), makeHero(1, bs ? 1220 : L.spawn.x + 55, bs ? 830 : L.spawn.y + 10)],
@@ -3935,6 +4220,40 @@ function startWave(k) {
 function part(x, y, o) {
   if (P.parts.length > 520) P.parts.splice(0, 40);
   P.parts.push(Object.assign({ x, y, vx: 0, vy: 0, g: 0, life: 1, max: 1, size: 6, col: '#FFE08A', kind: 'dot', rot: Math.random() * TAU, vr: 0, drag: 0 }, o));
+}
+/* ---------- The weight of a hit (T6.9, S7.6) ----------
+   bigHit(): the game holds its breath for CONFIG.look.freeze seconds (updatePlay does not run, the drawing does) and the camera comes
+   closer by look.kick in look.kickIn seconds and goes back in look.kickOut. Called when a guardian is hit and when George falls;
+   a gate that opens or a boulder that falls (T7) calls it too. The shake (P.shake) is separate and unchanged. */
+function bigHit() {
+  const K = CONFIG.look;
+  if (K.freeze > 0) P.freeze = Math.max(P.freeze, K.freeze);
+  if (K.kick > 0) P.kickT = 0;
+}
+/* The zoom of the camera at this moment: 1 + kick while it comes closer (easeOut) and while it goes back (easeOut the other way). */
+function kickZoom() {
+  const K = CONFIG.look, t = P.kickT;
+  if (K.kick <= 0 || t >= K.kickIn + K.kickOut) return 1;
+  return 1 + K.kick * (t < K.kickIn ? easeOut(t / K.kickIn) : 1 - easeOut((t - K.kickIn) / K.kickOut));
+}
+/* Called every frame before updatePlay. True while the game holds its breath: then updatePlay must not run. A button that is pressed or
+   let go in these frames (they last 0.06 s, three or four frames) is not lost: it is kept and given to the first frame that runs. */
+const EDGES = ['aP', 'aR', 'cP', 'cR', 'hP', 'runP'];
+function holdBreath(dt) {
+  P.kickT += dt;
+  const slots = Input.slots;
+  if (P.freeze > 0) {
+    P.freeze -= dt;
+    for (let k = 0; k < 2; k++) for (const e of EDGES) if (slots[k][e]) (P.latch[k] || (P.latch[k] = {}))[e] = true;
+    return true;
+  }
+  for (const k in P.latch) { for (const e in P.latch[k]) slots[k][e] = true; delete P.latch[k]; }
+  return false;
+}
+/* A mechanism clicks and sparks just before it moves (anticipation, S7.6). The pull-back itself is mechMove (02-core.js). */
+function mechClick(x, y) {
+  Snd.play('click');
+  burst(x, y, 5, { speed: 140, life: 0.35, size: 5 });
 }
 function burst(x, y, n, o) {
   o = o || {}; const cols = o.cols || ['#FFE08A', '#FFF3C0', '#F8C24E'];
@@ -4230,6 +4549,17 @@ function recallBalls(k) {
 
 /* Running (L3). One press with the stick tilted starts it; it lasts until the stick is let go.
    canRun says when a hero is allowed to run at all; everything that stops a run is in one place, below. */
+/* The weight of a hero (docs/24-sisteme-noi.md, S7.3, second part): a squash or a stretch when he starts, stops
+   and lands, and the tail that lifts with the speed and comes after the body with a lag. Only numbers here:
+   the painters read them (heroOpts). */
+function heroMotion(h, v, dt) {
+  const LK = CONFIG.look;
+  if (h.moving !== h.wasMoving) { if (h.z <= 0 && !h.down) h.squash = h.moving ? LK.squashStart : LK.squashStop; h.wasMoving = h.moving; }
+  if (h.pz > 2 && h.z <= 0) h.squash = Math.max(h.squash, LK.squashLand);
+  h.pz = h.z;
+  if (Math.abs(h.squash) < 1e-4) h.squash = 0;                              // no endless tiny wobble while he stands still
+  tailStep(h.tail, h.moving ? Math.min(LK.tailMax, v / CONFIG.heroes[h.k].speed * LK.tailLift) : 0, dt);
+}
 function canRun(h) {
   const S = CONFIG.sprint;
   return S.enabled && !h.down && h.dizzy <= 0 && !h.carried && !h.charging && !P.done && h.runRest <= 0
@@ -4238,6 +4568,7 @@ function canRun(h) {
 function startRun(h) {
   const S = CONFIG.sprint;
   h.run = true; h.runIdle = 0; h.runT = 0;
+  h.squash = CONFIG.look.squashRun;                                            // the body stretches as the run starts
   Snd.play('dash', 0, h.k);
   if (P.time - h.runWord > S.wordGap) { h.runWord = P.time; Snd.talk(h.k, 'run'); }
   Input.rumble(h.k, 0, 0.35, 70);
@@ -4331,10 +4662,11 @@ function updateHero(h, dt) {
   }
   if (h.run && h.moving) {               // the trail of three ghosts, and a little dust at every step
     h.ghostT -= dt;
-    if (h.ghostT <= 0) { h.ghostT = 0.04; h.ghosts.unshift({ x: h.x, y: h.y, face: h.face, walk: h.walk, z: h.z }); if (h.ghosts.length > 3) h.ghosts.length = 3; }
+    if (h.ghostT <= 0) { h.ghostT = 0.04; h.ghosts.unshift({ x: h.x, y: h.y, face: h.face, walk: h.walk, z: h.z, cv: null }); if (h.ghosts.length > 3) h.ghosts.length = 3; }   // cv: its picture, painted once (drawRunTrail)
   } else if (h.ghosts.length) h.ghosts.length = 0;
   const v = Math.hypot(h.vx, h.vy);
   h.moving = v > 35;
+  heroMotion(h, v, dt);
   if (h.moving) {
     const w0 = h.walk; h.walk += dt * (7 + v / 55); if (Math.abs(h.vx) > 25) h.face = Math.sign(h.vx);
     // footsteps: one soft sound each time a foot lands
@@ -4545,7 +4877,7 @@ function bossBall(b) {
   const bs = P.boss, L = P.L, g = bossGoal();
   if (dist(b.x, b.y, g.x, g.y) > g.r) return;
   if (bs.state === 'down') {
-    bs.phase++; Snd.play('goal'); Snd.talk(0, 'bossDown'); Snd.talk(1, 'bossDown'); Input.rumble(0, 0.7, 0.9, 350); Input.rumble(1, 0.7, 0.9, 350); P.shake = 0.3; b.state = 'return';
+    bs.phase++; Snd.play('goal'); Snd.talk(0, 'bossDown'); Snd.talk(1, 'bossDown'); Input.rumble(0, 0.7, 0.9, 350); Input.rumble(1, 0.7, 0.9, 350); P.shake = 0.3; b.state = 'return'; bigHit();
     burst(g.x, g.y, 50, { speed: 380, life: 1.4, size: 11 }); burst(g.x, g.y, 24, { kind: 'petal', cols: PETALS, speed: 260, life: 1.8, g: 80 });
     for (let i = 0; i < 8; i++) P.eggs.push(makeEgg(260 + Math.random() * 1400, 660 + Math.random() * 340, { state: 'pop', sx: g.x, sy: g.y, req: false, delay: i * 0.07 }));
     if (bs.phase >= CONFIG.boss.hits) { bs.state = 'won'; bs.t = 0; Snd.music('ending'); for (const p of bs.proj) p.dead = true; }
@@ -4563,6 +4895,7 @@ function updateBoss(dt) {
   if (bs.state === 'up') {
     bs.x = L.nest.x; bs.y = L.nest.y + 6;
     if (!P.heroes.some(h => h.down)) bs.throwT -= dt;      // nothing new is thrown while a hero waits for the friend's help
+    bs.windup = bs.throwT > 0 && bs.throwT < CONFIG.look.anticipate && CONFIG.look.anticipate > 0 && !P.heroes.some(h => h.down) ? 1 - bs.throwT / CONFIG.look.anticipate : 0;      // 0 -> 1 in the 0.15 s before a throw: George pulls back (T6.9)
     if (bs.throwT <= 0) {
       bs.throwT = B.throwEvery[Math.min(bs.phase, B.throwEvery.length - 1)] || 2.5;
       // one thing thrown at first, two from the second round, and one more in the last two rounds
@@ -4574,7 +4907,7 @@ function updateBoss(dt) {
         if (sol) sol.throwT = 0.5;
         bs.proj.push({ sx: sol ? sol.x : bs.x, sy: sol ? sol.y - 60 : bs.y - 40, tx: tx + i * 50 * (Math.random() - 0.5), ty, t: -i * 0.35, dur: [1.9, 1.4, 1.15][rank(h.k)], rot: 0, kind: sol ? 'spear' : L.arena ? 'rock' : 'cone' });
       }
-      bs.throwAnim = 0.4;
+      bs.throwAnim = 0.4; bs.windup = 0;
     }
   } else if (bs.state === 'falling') {
     const u = Math.min(1, bs.t / 0.8); bs.x = lerp(bs.sx, bs.fx, u); bs.y = lerp(bs.sy, bs.fy, u * u);
@@ -4894,7 +5227,7 @@ function duelEggs(n) {
 }
 function duelHit(k) {
   const d = P.duel, h = P.heroes[k], last = d.hp <= 1;
-  d.hp--; d.flash = 0.6; P.shake = Math.max(P.shake, 0.3);
+  d.hp--; d.flash = 0.6; P.shake = Math.max(P.shake, 0.3); bigHit();
   Snd.play('goal'); Snd.play('squeak', 1 + (d.maxHp - d.hp) * 0.1); Snd.talk(k, last ? 'guardGone' : 'guardHit');
   Input.rumble(0, 0.6, 0.8, 260); Input.rumble(1, 0.6, 0.8, 260);
   burst(d.x, d.y - 40 - d.z, 34, { speed: 320, life: 1.1, size: 10 }); burst(d.x, d.y - 40 - d.z, 14, { kind: 'petal', cols: PETALS, speed: 240, life: 1.4, g: 90 });
@@ -5140,7 +5473,7 @@ const DUEL_PAINT = {
     drawCiori(c, 0, 0, { scale: 1.25, t: t, fly: d.z > 30, mood: mood === 'dizzy' ? 'dizzy' : 'cheeky', body: '#4F7387', dark: '#3B596B', light: '#86AEBE', belly: '#A9C7D2' });
   },
   george(c, d, t, mood) {                                    // George cel Rău (second game): the same painter as the boss, the size comes from the level
-    drawGeorge(c, 0, 0, { scale: 1.15, t: t, mood: mood, moving: d.state === 'move' || d.state === 'dash', walk: t * 12, squash: d.state === 'aim' ? 0.12 : d.z > 20 ? -0.12 : 0 });
+    drawGeorge(c, 0, 0, { tail: tailFollow(d, d.x, t, 260), scale: 1.15, t: t, mood: mood, moving: d.state === 'move' || d.state === 'dash', walk: t * 12, squash: d.state === 'aim' ? 0.12 : d.z > 20 ? -0.12 : 0 });
   }
 };
 function drawDuelBoss(c) {
@@ -5200,7 +5533,7 @@ function drawDuelTop(c) {
 const _sorted = [];
 function heroOpts(h) {
   return { face: h.face, walk: h.walk, moving: h.moving, t: h.t, z: h.z, squash: h.squash, dizzy: h.dizzy > 0, kick: h.kickT > 0 ? h.kickT / 0.28 : 0,
-    happy: P.done || (P.boss && P.boss.state === 'won'), scale: h.small, hug: h.hugT > 0 ? h.hugT / 0.7 : 0,
+    happy: P.done || (P.boss && P.boss.state === 'won'), scale: h.small, hug: h.hugT > 0 ? h.hugT / 0.7 : 0, tail: h.tail, run: h.run,
     claw: h.spinT >= 0 && h.spinLook !== 'gloves' ? clamp(h.spinT / (abil(h.k, 'spin').time || 1), 0, 1) : -1,
     glove: h.spinT >= 0 && h.spinLook === 'gloves' ? clamp(h.spinT / (abil(h.k, 'spin').time || 1), 0, 1) : -1 };
 }
@@ -5284,14 +5617,25 @@ function drawGloveRing(c, h) {
     drawGlove(c, h.x + Math.cos(a0) * rr, h.y - 6 + Math.sin(a0) * rr * 0.52, 20 * grow, Math.cos(a0) >= 0 ? 1 : -1, t);
   }
 }
-/* The trail of a running hero: three fading copies of him, and six speed lines behind. */
+/* The trail of a running hero: three fading copies of him, and six speed lines behind.
+   Every copy is painted ONCE, into a small canvas of its own, when it appears (every 0.04 s), and then only
+   drawn with drawImage: 3 drawImage per hero (S7.7), not three more heroes painted on every frame. */
+const GHOST_W = 300, GHOST_H = 230, GHOST_OX = 150, GHOST_OY = 190, GHOST_RES = 1.25;   // the box of a hero around his feet, and how sharp
+function ghostCanvas(h, g) {
+  if (!h.ghostCv.length) for (let i = 0; i < 4; i++) h.ghostCv.push(makeCanvas(GHOST_W * GHOST_RES, GHOST_H * GHOST_RES));   // 4: one more than can be on screen
+  const cv = h.ghostCv[h.ghostNo++ % 4], c = cv.getContext('2d');
+  c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height); c.setTransform(GHOST_RES, 0, 0, GHOST_RES, 0, 0);
+  drawHero(c, h.k, GHOST_OX, GHOST_OY, Object.assign(heroOpts(h), { face: g.face, walk: g.walk, z: g.z }));
+  return cv;
+}
 function drawRunTrail(c, h) {
   const cfg = CONFIG.heroes[h.k], al = [0.28, 0.18, 0.09];
   for (let i = 0; i < h.ghosts.length; i++) {
     const g = h.ghosts[i];
+    if (!g.cv) g.cv = ghostCanvas(h, g);
     c.globalAlpha = al[i] || 0.08;
-    c.save(); c.translate(g.x, g.y); c.rotate(0.14 * g.face); c.translate(-g.x, -g.y);
-    drawHero(c, h.k, g.x, g.y, Object.assign(heroOpts(h), { face: g.face, walk: g.walk, z: g.z }));
+    c.save(); c.translate(g.x, g.y); c.rotate(0.14 * g.face);
+    c.drawImage(g.cv, -GHOST_OX, -GHOST_OY, GHOST_W, GHOST_H);
     c.restore();
   }
   c.globalAlpha = 1;
@@ -5390,7 +5734,7 @@ function drawProjs(c, list) {
 }
 
 function drawWorld(c) {
-  const L = P.L, cam = P.cam, z = cam.zoom, vw = W / z, vh = H / z, t = P.time;
+  const L = P.L, cam = P.cam, z = cam.zoom * kickZoom(), vw = W / z, vh = H / z, t = P.time;      // kickZoom: the camera comes closer at a big hit (T6.9)
   let l = cam.x - vw / 2, tp = cam.y - vh / 2;
   if (P.shake > 0) { l += Math.sin(t * 90) * P.shake * 22; tp += Math.cos(t * 77) * P.shake * 22; }
   const tpMin = -(HUD_TOP + 20) / z;         // the camera may look above the top edge of the world, so no hero hides under the band
@@ -5398,8 +5742,10 @@ function drawWorld(c) {
   if (tp < 0) { c.fillStyle = L.skyTop || '#CFE4F2'; c.fillRect(0, 0, W, Math.ceil(-tp * z) + 1); }      // that strip has no painting: it is sky
   c.drawImage(L.bg, l, tp, vw, vh, 0, 0, W, H);
   c.save(); c.scale(z, z); c.translate(-l, -tp);
-  // water shimmer
-  if (L.waterCells.length) {
+  // water: in the new levels two rows of waves and sparkles (drawWater), elsewhere the old shimmer
+  if (L.water && CONFIG.look.waves) drawWater(c, L, t, l, tp, vw, vh);
+  else if (L.waterCells.length) {
+    WaterCount.waves = WaterCount.spark = 0;
     c.strokeStyle = 'rgba(250,255,246,0.55)'; c.lineWidth = 2.5; c.lineCap = 'round';
     for (let i = 0; i < 46; i++) {
       const a = Math.sin(t * 1.4 + i * 1.7); if (a < 0.2) continue;
@@ -5860,8 +6206,179 @@ function drawHUD(c) {
   drawMidCard(c, downBanner() || P.banner || waitBanner());
   if (!P.L.boss) drawProgress(c);
 }
+/* ---------- The light map (S7.5) ----------
+   The whole screen is multiplied by the level's ambient colour (one fill), then every light is added on it ('lighter')
+   as a round sprite painted once per colour: at most maxLights drawImage, no createRadialGradient per frame.
+   S7.5 asks for a small canvas (480 x 270) blown up over the screen with 'multiply'. Measured on the test machine
+   (SwiftShader), blowing a small canvas up to the whole screen with smoothing costs 10 ms by itself (without
+   smoothing 4 ms, but the light comes out in blocks of 4 pixels): over the budget of S7.7. Painting the same lights
+   straight on the screen costs about 3 ms. The difference: a light here adds warm colour over the darkened world,
+   instead of giving back the world's own colour; the darker the ambient, the stronger the lights (lightGlow). */
+const _lights = [], _lightPool = [];
+const LightCount = { fill: 0, draw: 0, big: 0, halo: 0, haloLo: 1, haloHi: 0 };              // for the test: what the last frame did
+function lightSprite(col) {
+  return sprite('light-' + col, 64, 64, c => {
+    const g = c.createRadialGradient(32, 32, 0, 32, 32, 32);
+    g.addColorStop(0, rgba(col, 1)); g.addColorStop(0.4, rgba(col, 0.55)); g.addColorStop(1, rgba(col, 0));
+    c.fillStyle = g; c.fillRect(0, 0, 64, 64);
+  });
+}
+function addLight(x, y, r, col, a, glow) {
+  const o = _lightPool[_lights.length] || (_lightPool[_lights.length] = {});
+  o.x = x; o.y = y; o.r = r; o.col = col; o.a = a; o.glow = !!glow; _lights.push(o);       // glow: it also gets a halo, it gives light by itself
+}
+function collectLights(L) {
+  _lights.length = 0;
+  for (const h of P.heroes) addLight(h.x, h.y - 70, 150, mix(CONFIG.heroes[h.k].color, '#FFF6E0', 0.5), 0.45);
+  for (const e of P.eggs) if (e.delay <= 0 && e.state === 'idle' && !(e.big && L.cave && L.cave.reveal < 0.05)) addLight(e.x, e.y, 50, '#FFE6A8', 0.7);
+  for (const s of P.stars) if (!s.got && !s.hidden) addLight(s.x, s.y, 60, '#FFF0B8', 0.7, true);
+  for (const f of P.flock) addLight(f.x, f.y - 16, 70, '#FFE8C0', 0.6);
+  for (const q of P.heal) addLight(q.x, q.y, 90, '#FFF0C8', 0.8);
+  for (const ln of L.lanterns) if (ln.lit > 0) addLight(ln.x + 20, ln.y - 76, 230, '#FFD9A0', 0.85 * ln.lit, true);
+  if (L.torches) for (const tc of L.torches) addLight(tc.x, tc.y - 86, 210, '#FFBE80', 0.85, true);
+  if (L.lights) for (const lt of L.lights) addLight(lt.x, lt.y, lt.r, lt.col, lt.a == null ? 0.8 : lt.a, lt.glow !== false);     // the lights a level puts by itself (lava, the Sun Crystal...)
+  if (P.nestOpen && !L.boss) addLight(L.nest.x, L.nest.y, 260, '#FFE28C', 0.6, true);
+  if (L.arena && P.boss) {                                       // the crystals at the foot of George's throne give light too
+    const ne = Math.max(0, Math.round(12 * (1 - P.boss.phase / CONFIG.boss.hits)));
+    for (let i = 0; i < ne; i++) addLight(850 + (i % 6) * 44, 600 - (i / 6 | 0) * 44 - 14, 54, RAINBOW[i % 7], 0.7, true);
+  }
+}
+function drawLightMap(c, v) {
+  const L = P.L; LightCount.fill = LightCount.draw = LightCount.big = LightCount.halo = 0; LightCount.haloLo = 1; LightCount.haloHi = 0;
+  if (!v || !isDiorama(L) || !CONFIG.look.lights) return;
+  const vw = W / v.z, vh = H / v.z, mx = v.l + vw / 2, my = v.tp + vh / 2;
+  collectLights(L);
+  let n = 0;                                                // keep the ones on screen, then the nearest to the middle
+  for (let i = 0; i < _lights.length; i++) { const o = _lights[i]; if (o.x + o.r < v.l || o.x - o.r > v.l + vw || o.y + o.r < v.tp || o.y - o.r > v.tp + vh || o.a <= 0) continue; o.d = (o.x - mx) * (o.x - mx) + (o.y - my) * (o.y - my); _lights[n++] = o; }
+  _lights.length = n;
+  if (n > CONFIG.look.maxLights) { _lights.sort((a, b) => a.d - b.d); _lights.length = CONFIG.look.maxLights; }
+  const amb = levelAmbient(L), ar = parseInt(amb.slice(1, 3), 16), ag = parseInt(amb.slice(3, 5), 16), ab = parseInt(amb.slice(5, 7), 16);
+  const k = CONFIG.look.lightGlow * (0.35 + 1 - (ar * 0.299 + ag * 0.587 + ab * 0.114) / 255);
+  c.globalCompositeOperation = 'multiply'; c.fillStyle = amb; c.fillRect(0, 0, W, H);
+  c.globalCompositeOperation = 'lighter';
+  for (const o of _lights) { c.globalAlpha = Math.min(1, o.a * k); const s = o.r * v.z; c.drawImage(lightSprite(o.col), (o.x - v.l) * v.z - s, (o.y - v.tp) * v.z - s, s * 2, s * 2); }
+  const HA = CONFIG.look.halo;                               // the halos: a small bright core over what gives light, alpha 0.35 - 0.6 (it breathes a little)
+  if (HA > 0) for (const o of _lights) {
+    if (!o.glow || LightCount.halo >= CONFIG.look.haloMax) continue;
+    const s = Math.max(24, o.r * 0.34) * v.z, fl = 0.8 + 0.2 * Math.sin(P.time * 5 + o.x * 0.05 + o.y * 0.03);
+    c.globalAlpha = clamp(HA * fl * (0.55 + 0.45 * o.a), 0.7 * HA, 1.2 * HA); LightCount.haloLo = Math.min(LightCount.haloLo, c.globalAlpha); LightCount.haloHi = Math.max(LightCount.haloHi, c.globalAlpha);
+    c.drawImage(lightSprite(mix(o.col, '#FFFFFF', 0.45)), (o.x - v.l) * v.z - s, (o.y - v.tp) * v.z - s, s * 2, s * 2); LightCount.halo++;
+  }
+  c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+  LightCount.fill = 1; LightCount.draw = _lights.length;
+}
+/* ---------- Water (T6.8) ----------
+   Two rows of thin pale waves that go in opposite directions (one pattern, drawn twice with other shifts, in fillWaves),
+   and small sparkles that come and go, each at its own time. The reflection is already in the picture (paintWater). */
+const WaterCount = { waves: 0, spark: 0 };
+function waterSpark() {
+  return sprite('water-spark', 24, 24, k => {
+    const g = k.createRadialGradient(12, 12, 0, 12, 12, 12); g.addColorStop(0, 'rgba(255,252,236,1)'); g.addColorStop(0.3, 'rgba(255,244,208,0.5)'); g.addColorStop(1, 'rgba(255,244,208,0)');
+    k.fillStyle = g; k.fillRect(0, 0, 24, 24); k.strokeStyle = 'rgba(255,252,236,0.9)'; k.lineWidth = 1.4; k.lineCap = 'round';
+    k.beginPath(); k.moveTo(2, 12); k.lineTo(22, 12); k.moveTo(12, 2); k.lineTo(12, 22); k.stroke();
+  });
+}
+function drawWater(c, L, t, l, tp, vw, vh) {
+  WaterCount.waves = WaterCount.spark = 0;
+  fillWaves(c, L.water.path, t, CONFIG.look.waveSpeedA, CONFIG.look.waveSpeedB); WaterCount.waves = 2;
+  const sp = waterSpark();
+  c.globalCompositeOperation = 'lighter';
+  for (const q of L.water.spark) {
+    if (q.x < l - 20 || q.x > l + vw + 20 || q.y < tp - 20 || q.y > tp + vh + 20) continue;
+    const a = Math.sin(t * 2.2 + q.ph); if (a < 0.45) continue;               // most of the time it is dark: a glint is short
+    const k = (a - 0.45) / 0.55; c.globalAlpha = k * 0.9; const s = q.s * (0.6 + 0.4 * k);
+    c.drawImage(sp, q.x - s, q.y - s, s * 2, s * 2); WaterCount.spark++;
+  }
+  c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+}
+/* ---------- Dust in the light (T6.8) ----------
+   CONFIG.look.motes tiny specks float through the whole screen (in screen space, not in the world), alpha 0.15 - 0.4,
+   stronger near a light. On the volcano they are sparks that rise, in the cave spores that fall, elsewhere dust that drifts. */
+const MoteCount = { draw: 0 }, _motes = [];
+let _moteFor = null, _moteT = -1;
+function moteKind(L) { return L.def.key === 'volcano' ? 'spark' : L.def.key === 'cave' ? 'spore' : 'dust'; }
+const MOTE_COLS = { spark: ['#FFB060', '#FFD27A', '#FF8A4C'], spore: ['#D8C8FF', '#B8E0FF', '#F0C8F0'], dust: ['#FFF0C8', '#FFE6A8', '#FFF6E0'] };
+function moteSprite(col) {
+  return sprite('mote-' + col, 16, 16, k => {
+    const g = k.createRadialGradient(8, 8, 0, 8, 8, 8); g.addColorStop(0, rgba(col, 1)); g.addColorStop(0.45, rgba(col, 0.5)); g.addColorStop(1, rgba(col, 0));
+    k.fillStyle = g; k.fillRect(0, 0, 16, 16);
+  });
+}
+function moteInit(L) {
+  const r = rng((L.seed || 5) + 1313), kind = moteKind(L); _motes.length = 0;
+  for (let i = 0; i < CONFIG.look.motes; i++) {
+    _motes.push({ x: r() * W, y: r() * H, ph: r() * TAU, s: 1.6 + r() * 2.2, col: MOTE_COLS[kind][i % 3],
+      vy: kind === 'spark' ? -(40 + r() * 50) : kind === 'spore' ? 10 + r() * 18 : -(5 + r() * 10), vx: (r() - 0.5) * 12 });
+  }
+  _moteFor = L; _moteT = -1;
+}
+function drawMotes(c, v) {
+  const L = P.L; MoteCount.draw = 0;
+  if (!v || !isDiorama(L) || CONFIG.look.motes <= 0) return;
+  if (_moteFor !== L || _motes.length !== CONFIG.look.motes) moteInit(L);
+  const dt = _moteT < 0 ? 0 : clamp(P.time - _moteT, 0, 0.1); _moteT = P.time;
+  const t = P.time, lights = CONFIG.look.lights;
+  c.globalCompositeOperation = 'lighter';
+  for (const m of _motes) {
+    m.x += (m.vx + Math.sin(t * 0.7 + m.ph) * 9) * dt; m.y += m.vy * dt;
+    if (m.y < -12) { m.y = H + 12; m.x = (m.x * 7.3 + 311) % W; } else if (m.y > H + 12) { m.y = -12; m.x = (m.x * 7.3 + 311) % W; }
+    if (m.x < -12) m.x += W + 24; else if (m.x > W + 12) m.x -= W + 24;
+    let near = 0;
+    if (lights) for (const o of _lights) {                                   // _lights holds what the light map drew in this frame
+      const dx = (o.x - v.l) * v.z - m.x, dy = (o.y - v.tp) * v.z - m.y, R = o.r * v.z * 0.9, d2 = dx * dx + dy * dy;
+      if (d2 < R * R) near = Math.max(near, (1 - Math.sqrt(d2) / R) * o.a);
+    }
+    c.globalAlpha = clamp(0.15 + 0.1 * (0.5 + 0.5 * Math.sin(t * 1.3 + m.ph)) + 0.15 * near, 0.15, 0.4);
+    const s = m.s * 2.4; c.drawImage(moteSprite(m.col), m.x - s, m.y - s, s * 2, s * 2); MoteCount.draw++;
+  }
+  c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+}
+/* ---------- The front plane (S7.4) ----------
+   The things painted once in L.front, each drawn with its own alpha (at most 12 drawImage). They move 1.15 times the
+   camera, but never more than FRONT_PAR_MAX from their place, so they stay at the edges. THE RULE: a thing never
+   covers a hero. A hero closer than frontNear (on screen) to a thing makes it fade to frontMin in frontFade seconds,
+   so it is already faded when he gets under it. If he is under it anyway (the camera jumped), it fades at once. */
+const FrontCount = { draw: 0 };
+function heroScreenBox(h, v) {
+  const sx = (h.x - v.l) * v.z, sy = (h.y - v.tp) * v.z, s = v.z * (h.small || 1);
+  return [sx - 75 * s, sy - (190 + (h.z || 0)) * s, sx + 75 * s, sy + 20 * s];
+}
+function frontOffset(L, v) {
+  const vw = W / v.z, vh = H / v.z, p = CONFIG.look.frontPar - 1;
+  return [clamp(-(v.l - (L.W - vw) / 2) * p * v.z, -FRONT_PAR_MAX, FRONT_PAR_MAX), clamp(-(v.tp - (L.H - vh) / 2) * p * v.z, -FRONT_PAR_MAX, FRONT_PAR_MAX)];
+}
+function updateFront(L, v) {                                   // the alphas: called while drawing, from the time that passed in the game
+  const F = L.front, LK = CONFIG.look, dt = F.t < 0 ? 1 : clamp(P.time - F.t, 0, 0.1); F.t = P.time;
+  const [ox, oy] = frontOffset(L, v), near = LK.frontNear, step = (1 - LK.frontMin) / LK.frontFade * dt;
+  const boxes = P.heroes.map(h => heroScreenBox(h, v));
+  for (const it of F.items) {
+    const x0 = it.x + ox - near, y0 = it.y + oy - near, x1 = it.x + ox + it.w + near, y1 = it.y + oy + it.h + near;
+    let hit = false, under = false;
+    for (const b of boxes) {
+      if (b[2] > x0 && b[0] < x1 && b[3] > y0 && b[1] < y1) hit = true;
+      if (b[2] > it.x + ox && b[0] < it.x + ox + it.w && b[3] > it.y + oy && b[1] < it.y + oy + it.h) under = true;
+    }
+    const tg = hit ? LK.frontMin : 1;
+    if (under) it.a = LK.frontMin;                             // already under it (the camera jumped, a hero was put there): at once, no fading
+    else it.a = it.a < tg ? Math.min(tg, it.a + step) : Math.max(tg, it.a - step);
+  }
+  return [ox, oy];
+}
+function drawFront(c, v) {
+  const L = P.L; FrontCount.draw = 0;
+  if (!v || !L.front || !CONFIG.look.front) return;
+  const [ox, oy] = updateFront(L, v), cv = L.front.cv;
+  for (const it of L.front.items) {
+    if (it.a < 0.01) continue;
+    c.globalAlpha = it.a; c.drawImage(cv, it.x, it.y, it.w, it.h, it.x + ox, it.y + oy, it.w, it.h); FrontCount.draw++;
+  }
+  c.globalAlpha = 1;
+}
 function drawPlay(c) {
   const v = drawWorld(c);
+  drawLightMap(c, v);
+  drawMotes(c, v);
+  drawFront(c, v);
   drawHints(c, v);
   drawEdgePulse(c);
   drawHUD(c);
@@ -5918,7 +6435,8 @@ function drawGeorgeBoss(c, o, t) {
   if (!up) castShadow(c, o.x, (st === 'down' || st === 'won') ? o.y + 4 : 660, 100 * S, 70 * S, 21, 1);   // the cast shadow of S7.1
   c.save(); c.translate(o.x + (up ? Math.sin(t * 38) * o.treeShake * 9 : 0), o.y + (up ? 34 + Math.sin(t * 3) * 3 : 0));
   if (st === 'falling') c.rotate(o.t * 9);
-  drawGeorge(c, 0, st === 'falling' ? 40 : 0, { scale: S, t: t, face: st === 'won' ? 1 : (P.heroes[0].x + P.heroes[1].x < o.x * 2 ? -1 : 1), mood, moving: st === 'won' && o.t > 1.2, walk: t * 18, noCrown: st === 'won' });
+  if (o.windup > 0) { const w = easeOut(o.windup); c.translate(0, -12 * w); c.scale(1 - 0.05 * w, 1 + 0.07 * w); c.rotate(-0.1 * w); }      // anticipation: he draws back before he throws (T6.9)
+  drawGeorge(c, 0, st === 'falling' ? 40 : 0, { tail: tailFollow(o, o.x, t, 260), scale: S, t: t, face: st === 'won' ? 1 : (P.heroes[0].x + P.heroes[1].x < o.x * 2 ? -1 : 1), mood, moving: st === 'won' && o.t > 1.2, walk: t * 18, noCrown: st === 'won' });
   c.restore();
   if (st === 'down') drawDizzyStars(c, o.x + 30, o.y - 190, t);
   if (st === 'won' && o.wy != null) drawGeorgeCrown(c, o.cx, o.wy - 8, 1.5, 1.25);          // his crown stays behind on the sand
@@ -6985,7 +7503,7 @@ function update(dt) {
       const lost = Input.slots.findIndex(s => s.lost);
       if (lost >= 0) UI.lostK = lost;
       if (Input.pause || lost >= 0) { Game.paused = true; UI.pauseSel = 0; UI.ask = null; Snd.setDuck(0.35); }
-      else updatePlay(dt);
+      else if (!holdBreath(dt)) updatePlay(dt);      // not while the game holds its breath after a big hit (T6.9)
     }
   } else if (st === 'levelEnd') {
     UI.lvlT += dt; stepParts(dt);
@@ -6996,6 +7514,9 @@ function update(dt) {
   const hide = Game.state === 'play' && !Game.paused;
   if (hide !== UI.hidden) { UI.hidden = hide; document.body.classList.toggle('playing', hide); }
 }
+/* The paper and the vignette over the level. None while the light map is drawn on a level that has its paper in the
+   picture (finishLook): the light map takes the vignette's place. */
+function levelOverlay(L) { return L.paperBaked && CONFIG.look.lights && Game.state === 'play' ? null : L.overlay; }
 function draw() {
   const c = ctx, t = Game.t, st = Game.state;
   c.setTransform(renderScale, 0, 0, renderScale, 0, 0);
@@ -7006,14 +7527,14 @@ function draw() {
   else if (st === 'title') drawTitle(c, t);
   else if (st === 'chapters') drawChapters(c, t);
   else if (st === 'loading') drawLoading(c, t);
-  else if (st === 'intro') { drawIntro(c, t); ov = P.L.overlay; }
-  else if (st === 'play') { drawPlay(c); if (Game.paused && !UI.set) drawPause(c, t); ov = P.L.overlay; }
-  else if (st === 'retry') { drawRetry(c, t); ov = P.L.overlay; }
-  else if (st === 'levelEnd') { drawLevelEnd(c, t); ov = P.L.overlay; }
+  else if (st === 'intro') { drawIntro(c, t); ov = levelOverlay(P.L); }
+  else if (st === 'play') { drawPlay(c); if (Game.paused && !UI.set) drawPause(c, t); ov = levelOverlay(P.L); }
+  else if (st === 'retry') { drawRetry(c, t); ov = levelOverlay(P.L); }
+  else if (st === 'levelEnd') { drawLevelEnd(c, t); ov = levelOverlay(P.L); }
   else if (st === 'ending') { drawEnding(c, t); ov = UI.endOv; }
   if (UI.set && (st === 'title' || st === 'play')) { UI.hits.length = 0; drawSettings(c, t); }
   // the paper texture, the warm light and the vignette lie over everything
-  c.globalCompositeOperation = 'multiply'; c.drawImage(ov, 0, 0, W, H); c.globalCompositeOperation = 'source-over';
+  if (ov) { c.globalCompositeOperation = 'multiply'; c.drawImage(ov, 0, 0, W, H); c.globalCompositeOperation = 'source-over'; }
 }
 let _last = 0;
 const Perf = { ms: 0, n: 0, max: 0 };

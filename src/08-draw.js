@@ -5,7 +5,7 @@
 const _sorted = [];
 function heroOpts(h) {
   return { face: h.face, walk: h.walk, moving: h.moving, t: h.t, z: h.z, squash: h.squash, dizzy: h.dizzy > 0, kick: h.kickT > 0 ? h.kickT / 0.28 : 0,
-    happy: P.done || (P.boss && P.boss.state === 'won'), scale: h.small, hug: h.hugT > 0 ? h.hugT / 0.7 : 0,
+    happy: P.done || (P.boss && P.boss.state === 'won'), scale: h.small, hug: h.hugT > 0 ? h.hugT / 0.7 : 0, tail: h.tail, run: h.run,
     claw: h.spinT >= 0 && h.spinLook !== 'gloves' ? clamp(h.spinT / (abil(h.k, 'spin').time || 1), 0, 1) : -1,
     glove: h.spinT >= 0 && h.spinLook === 'gloves' ? clamp(h.spinT / (abil(h.k, 'spin').time || 1), 0, 1) : -1 };
 }
@@ -89,14 +89,25 @@ function drawGloveRing(c, h) {
     drawGlove(c, h.x + Math.cos(a0) * rr, h.y - 6 + Math.sin(a0) * rr * 0.52, 20 * grow, Math.cos(a0) >= 0 ? 1 : -1, t);
   }
 }
-/* The trail of a running hero: three fading copies of him, and six speed lines behind. */
+/* The trail of a running hero: three fading copies of him, and six speed lines behind.
+   Every copy is painted ONCE, into a small canvas of its own, when it appears (every 0.04 s), and then only
+   drawn with drawImage: 3 drawImage per hero (S7.7), not three more heroes painted on every frame. */
+const GHOST_W = 300, GHOST_H = 230, GHOST_OX = 150, GHOST_OY = 190, GHOST_RES = 1.25;   // the box of a hero around his feet, and how sharp
+function ghostCanvas(h, g) {
+  if (!h.ghostCv.length) for (let i = 0; i < 4; i++) h.ghostCv.push(makeCanvas(GHOST_W * GHOST_RES, GHOST_H * GHOST_RES));   // 4: one more than can be on screen
+  const cv = h.ghostCv[h.ghostNo++ % 4], c = cv.getContext('2d');
+  c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height); c.setTransform(GHOST_RES, 0, 0, GHOST_RES, 0, 0);
+  drawHero(c, h.k, GHOST_OX, GHOST_OY, Object.assign(heroOpts(h), { face: g.face, walk: g.walk, z: g.z }));
+  return cv;
+}
 function drawRunTrail(c, h) {
   const cfg = CONFIG.heroes[h.k], al = [0.28, 0.18, 0.09];
   for (let i = 0; i < h.ghosts.length; i++) {
     const g = h.ghosts[i];
+    if (!g.cv) g.cv = ghostCanvas(h, g);
     c.globalAlpha = al[i] || 0.08;
-    c.save(); c.translate(g.x, g.y); c.rotate(0.14 * g.face); c.translate(-g.x, -g.y);
-    drawHero(c, h.k, g.x, g.y, Object.assign(heroOpts(h), { face: g.face, walk: g.walk, z: g.z }));
+    c.save(); c.translate(g.x, g.y); c.rotate(0.14 * g.face);
+    c.drawImage(g.cv, -GHOST_OX, -GHOST_OY, GHOST_W, GHOST_H);
     c.restore();
   }
   c.globalAlpha = 1;
@@ -195,7 +206,7 @@ function drawProjs(c, list) {
 }
 
 function drawWorld(c) {
-  const L = P.L, cam = P.cam, z = cam.zoom, vw = W / z, vh = H / z, t = P.time;
+  const L = P.L, cam = P.cam, z = cam.zoom * kickZoom(), vw = W / z, vh = H / z, t = P.time;      // kickZoom: the camera comes closer at a big hit (T6.9)
   let l = cam.x - vw / 2, tp = cam.y - vh / 2;
   if (P.shake > 0) { l += Math.sin(t * 90) * P.shake * 22; tp += Math.cos(t * 77) * P.shake * 22; }
   const tpMin = -(HUD_TOP + 20) / z;         // the camera may look above the top edge of the world, so no hero hides under the band
@@ -203,8 +214,10 @@ function drawWorld(c) {
   if (tp < 0) { c.fillStyle = L.skyTop || '#CFE4F2'; c.fillRect(0, 0, W, Math.ceil(-tp * z) + 1); }      // that strip has no painting: it is sky
   c.drawImage(L.bg, l, tp, vw, vh, 0, 0, W, H);
   c.save(); c.scale(z, z); c.translate(-l, -tp);
-  // water shimmer
-  if (L.waterCells.length) {
+  // water: in the new levels two rows of waves and sparkles (drawWater), elsewhere the old shimmer
+  if (L.water && CONFIG.look.waves) drawWater(c, L, t, l, tp, vw, vh);
+  else if (L.waterCells.length) {
+    WaterCount.waves = WaterCount.spark = 0;
     c.strokeStyle = 'rgba(250,255,246,0.55)'; c.lineWidth = 2.5; c.lineCap = 'round';
     for (let i = 0; i < 46; i++) {
       const a = Math.sin(t * 1.4 + i * 1.7); if (a < 0.2) continue;
@@ -665,8 +678,179 @@ function drawHUD(c) {
   drawMidCard(c, downBanner() || P.banner || waitBanner());
   if (!P.L.boss) drawProgress(c);
 }
+/* ---------- The light map (S7.5) ----------
+   The whole screen is multiplied by the level's ambient colour (one fill), then every light is added on it ('lighter')
+   as a round sprite painted once per colour: at most maxLights drawImage, no createRadialGradient per frame.
+   S7.5 asks for a small canvas (480 x 270) blown up over the screen with 'multiply'. Measured on the test machine
+   (SwiftShader), blowing a small canvas up to the whole screen with smoothing costs 10 ms by itself (without
+   smoothing 4 ms, but the light comes out in blocks of 4 pixels): over the budget of S7.7. Painting the same lights
+   straight on the screen costs about 3 ms. The difference: a light here adds warm colour over the darkened world,
+   instead of giving back the world's own colour; the darker the ambient, the stronger the lights (lightGlow). */
+const _lights = [], _lightPool = [];
+const LightCount = { fill: 0, draw: 0, big: 0, halo: 0, haloLo: 1, haloHi: 0 };              // for the test: what the last frame did
+function lightSprite(col) {
+  return sprite('light-' + col, 64, 64, c => {
+    const g = c.createRadialGradient(32, 32, 0, 32, 32, 32);
+    g.addColorStop(0, rgba(col, 1)); g.addColorStop(0.4, rgba(col, 0.55)); g.addColorStop(1, rgba(col, 0));
+    c.fillStyle = g; c.fillRect(0, 0, 64, 64);
+  });
+}
+function addLight(x, y, r, col, a, glow) {
+  const o = _lightPool[_lights.length] || (_lightPool[_lights.length] = {});
+  o.x = x; o.y = y; o.r = r; o.col = col; o.a = a; o.glow = !!glow; _lights.push(o);       // glow: it also gets a halo, it gives light by itself
+}
+function collectLights(L) {
+  _lights.length = 0;
+  for (const h of P.heroes) addLight(h.x, h.y - 70, 150, mix(CONFIG.heroes[h.k].color, '#FFF6E0', 0.5), 0.45);
+  for (const e of P.eggs) if (e.delay <= 0 && e.state === 'idle' && !(e.big && L.cave && L.cave.reveal < 0.05)) addLight(e.x, e.y, 50, '#FFE6A8', 0.7);
+  for (const s of P.stars) if (!s.got && !s.hidden) addLight(s.x, s.y, 60, '#FFF0B8', 0.7, true);
+  for (const f of P.flock) addLight(f.x, f.y - 16, 70, '#FFE8C0', 0.6);
+  for (const q of P.heal) addLight(q.x, q.y, 90, '#FFF0C8', 0.8);
+  for (const ln of L.lanterns) if (ln.lit > 0) addLight(ln.x + 20, ln.y - 76, 230, '#FFD9A0', 0.85 * ln.lit, true);
+  if (L.torches) for (const tc of L.torches) addLight(tc.x, tc.y - 86, 210, '#FFBE80', 0.85, true);
+  if (L.lights) for (const lt of L.lights) addLight(lt.x, lt.y, lt.r, lt.col, lt.a == null ? 0.8 : lt.a, lt.glow !== false);     // the lights a level puts by itself (lava, the Sun Crystal...)
+  if (P.nestOpen && !L.boss) addLight(L.nest.x, L.nest.y, 260, '#FFE28C', 0.6, true);
+  if (L.arena && P.boss) {                                       // the crystals at the foot of George's throne give light too
+    const ne = Math.max(0, Math.round(12 * (1 - P.boss.phase / CONFIG.boss.hits)));
+    for (let i = 0; i < ne; i++) addLight(850 + (i % 6) * 44, 600 - (i / 6 | 0) * 44 - 14, 54, RAINBOW[i % 7], 0.7, true);
+  }
+}
+function drawLightMap(c, v) {
+  const L = P.L; LightCount.fill = LightCount.draw = LightCount.big = LightCount.halo = 0; LightCount.haloLo = 1; LightCount.haloHi = 0;
+  if (!v || !isDiorama(L) || !CONFIG.look.lights) return;
+  const vw = W / v.z, vh = H / v.z, mx = v.l + vw / 2, my = v.tp + vh / 2;
+  collectLights(L);
+  let n = 0;                                                // keep the ones on screen, then the nearest to the middle
+  for (let i = 0; i < _lights.length; i++) { const o = _lights[i]; if (o.x + o.r < v.l || o.x - o.r > v.l + vw || o.y + o.r < v.tp || o.y - o.r > v.tp + vh || o.a <= 0) continue; o.d = (o.x - mx) * (o.x - mx) + (o.y - my) * (o.y - my); _lights[n++] = o; }
+  _lights.length = n;
+  if (n > CONFIG.look.maxLights) { _lights.sort((a, b) => a.d - b.d); _lights.length = CONFIG.look.maxLights; }
+  const amb = levelAmbient(L), ar = parseInt(amb.slice(1, 3), 16), ag = parseInt(amb.slice(3, 5), 16), ab = parseInt(amb.slice(5, 7), 16);
+  const k = CONFIG.look.lightGlow * (0.35 + 1 - (ar * 0.299 + ag * 0.587 + ab * 0.114) / 255);
+  c.globalCompositeOperation = 'multiply'; c.fillStyle = amb; c.fillRect(0, 0, W, H);
+  c.globalCompositeOperation = 'lighter';
+  for (const o of _lights) { c.globalAlpha = Math.min(1, o.a * k); const s = o.r * v.z; c.drawImage(lightSprite(o.col), (o.x - v.l) * v.z - s, (o.y - v.tp) * v.z - s, s * 2, s * 2); }
+  const HA = CONFIG.look.halo;                               // the halos: a small bright core over what gives light, alpha 0.35 - 0.6 (it breathes a little)
+  if (HA > 0) for (const o of _lights) {
+    if (!o.glow || LightCount.halo >= CONFIG.look.haloMax) continue;
+    const s = Math.max(24, o.r * 0.34) * v.z, fl = 0.8 + 0.2 * Math.sin(P.time * 5 + o.x * 0.05 + o.y * 0.03);
+    c.globalAlpha = clamp(HA * fl * (0.55 + 0.45 * o.a), 0.7 * HA, 1.2 * HA); LightCount.haloLo = Math.min(LightCount.haloLo, c.globalAlpha); LightCount.haloHi = Math.max(LightCount.haloHi, c.globalAlpha);
+    c.drawImage(lightSprite(mix(o.col, '#FFFFFF', 0.45)), (o.x - v.l) * v.z - s, (o.y - v.tp) * v.z - s, s * 2, s * 2); LightCount.halo++;
+  }
+  c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+  LightCount.fill = 1; LightCount.draw = _lights.length;
+}
+/* ---------- Water (T6.8) ----------
+   Two rows of thin pale waves that go in opposite directions (one pattern, drawn twice with other shifts, in fillWaves),
+   and small sparkles that come and go, each at its own time. The reflection is already in the picture (paintWater). */
+const WaterCount = { waves: 0, spark: 0 };
+function waterSpark() {
+  return sprite('water-spark', 24, 24, k => {
+    const g = k.createRadialGradient(12, 12, 0, 12, 12, 12); g.addColorStop(0, 'rgba(255,252,236,1)'); g.addColorStop(0.3, 'rgba(255,244,208,0.5)'); g.addColorStop(1, 'rgba(255,244,208,0)');
+    k.fillStyle = g; k.fillRect(0, 0, 24, 24); k.strokeStyle = 'rgba(255,252,236,0.9)'; k.lineWidth = 1.4; k.lineCap = 'round';
+    k.beginPath(); k.moveTo(2, 12); k.lineTo(22, 12); k.moveTo(12, 2); k.lineTo(12, 22); k.stroke();
+  });
+}
+function drawWater(c, L, t, l, tp, vw, vh) {
+  WaterCount.waves = WaterCount.spark = 0;
+  fillWaves(c, L.water.path, t, CONFIG.look.waveSpeedA, CONFIG.look.waveSpeedB); WaterCount.waves = 2;
+  const sp = waterSpark();
+  c.globalCompositeOperation = 'lighter';
+  for (const q of L.water.spark) {
+    if (q.x < l - 20 || q.x > l + vw + 20 || q.y < tp - 20 || q.y > tp + vh + 20) continue;
+    const a = Math.sin(t * 2.2 + q.ph); if (a < 0.45) continue;               // most of the time it is dark: a glint is short
+    const k = (a - 0.45) / 0.55; c.globalAlpha = k * 0.9; const s = q.s * (0.6 + 0.4 * k);
+    c.drawImage(sp, q.x - s, q.y - s, s * 2, s * 2); WaterCount.spark++;
+  }
+  c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+}
+/* ---------- Dust in the light (T6.8) ----------
+   CONFIG.look.motes tiny specks float through the whole screen (in screen space, not in the world), alpha 0.15 - 0.4,
+   stronger near a light. On the volcano they are sparks that rise, in the cave spores that fall, elsewhere dust that drifts. */
+const MoteCount = { draw: 0 }, _motes = [];
+let _moteFor = null, _moteT = -1;
+function moteKind(L) { return L.def.key === 'volcano' ? 'spark' : L.def.key === 'cave' ? 'spore' : 'dust'; }
+const MOTE_COLS = { spark: ['#FFB060', '#FFD27A', '#FF8A4C'], spore: ['#D8C8FF', '#B8E0FF', '#F0C8F0'], dust: ['#FFF0C8', '#FFE6A8', '#FFF6E0'] };
+function moteSprite(col) {
+  return sprite('mote-' + col, 16, 16, k => {
+    const g = k.createRadialGradient(8, 8, 0, 8, 8, 8); g.addColorStop(0, rgba(col, 1)); g.addColorStop(0.45, rgba(col, 0.5)); g.addColorStop(1, rgba(col, 0));
+    k.fillStyle = g; k.fillRect(0, 0, 16, 16);
+  });
+}
+function moteInit(L) {
+  const r = rng((L.seed || 5) + 1313), kind = moteKind(L); _motes.length = 0;
+  for (let i = 0; i < CONFIG.look.motes; i++) {
+    _motes.push({ x: r() * W, y: r() * H, ph: r() * TAU, s: 1.6 + r() * 2.2, col: MOTE_COLS[kind][i % 3],
+      vy: kind === 'spark' ? -(40 + r() * 50) : kind === 'spore' ? 10 + r() * 18 : -(5 + r() * 10), vx: (r() - 0.5) * 12 });
+  }
+  _moteFor = L; _moteT = -1;
+}
+function drawMotes(c, v) {
+  const L = P.L; MoteCount.draw = 0;
+  if (!v || !isDiorama(L) || CONFIG.look.motes <= 0) return;
+  if (_moteFor !== L || _motes.length !== CONFIG.look.motes) moteInit(L);
+  const dt = _moteT < 0 ? 0 : clamp(P.time - _moteT, 0, 0.1); _moteT = P.time;
+  const t = P.time, lights = CONFIG.look.lights;
+  c.globalCompositeOperation = 'lighter';
+  for (const m of _motes) {
+    m.x += (m.vx + Math.sin(t * 0.7 + m.ph) * 9) * dt; m.y += m.vy * dt;
+    if (m.y < -12) { m.y = H + 12; m.x = (m.x * 7.3 + 311) % W; } else if (m.y > H + 12) { m.y = -12; m.x = (m.x * 7.3 + 311) % W; }
+    if (m.x < -12) m.x += W + 24; else if (m.x > W + 12) m.x -= W + 24;
+    let near = 0;
+    if (lights) for (const o of _lights) {                                   // _lights holds what the light map drew in this frame
+      const dx = (o.x - v.l) * v.z - m.x, dy = (o.y - v.tp) * v.z - m.y, R = o.r * v.z * 0.9, d2 = dx * dx + dy * dy;
+      if (d2 < R * R) near = Math.max(near, (1 - Math.sqrt(d2) / R) * o.a);
+    }
+    c.globalAlpha = clamp(0.15 + 0.1 * (0.5 + 0.5 * Math.sin(t * 1.3 + m.ph)) + 0.15 * near, 0.15, 0.4);
+    const s = m.s * 2.4; c.drawImage(moteSprite(m.col), m.x - s, m.y - s, s * 2, s * 2); MoteCount.draw++;
+  }
+  c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+}
+/* ---------- The front plane (S7.4) ----------
+   The things painted once in L.front, each drawn with its own alpha (at most 12 drawImage). They move 1.15 times the
+   camera, but never more than FRONT_PAR_MAX from their place, so they stay at the edges. THE RULE: a thing never
+   covers a hero. A hero closer than frontNear (on screen) to a thing makes it fade to frontMin in frontFade seconds,
+   so it is already faded when he gets under it. If he is under it anyway (the camera jumped), it fades at once. */
+const FrontCount = { draw: 0 };
+function heroScreenBox(h, v) {
+  const sx = (h.x - v.l) * v.z, sy = (h.y - v.tp) * v.z, s = v.z * (h.small || 1);
+  return [sx - 75 * s, sy - (190 + (h.z || 0)) * s, sx + 75 * s, sy + 20 * s];
+}
+function frontOffset(L, v) {
+  const vw = W / v.z, vh = H / v.z, p = CONFIG.look.frontPar - 1;
+  return [clamp(-(v.l - (L.W - vw) / 2) * p * v.z, -FRONT_PAR_MAX, FRONT_PAR_MAX), clamp(-(v.tp - (L.H - vh) / 2) * p * v.z, -FRONT_PAR_MAX, FRONT_PAR_MAX)];
+}
+function updateFront(L, v) {                                   // the alphas: called while drawing, from the time that passed in the game
+  const F = L.front, LK = CONFIG.look, dt = F.t < 0 ? 1 : clamp(P.time - F.t, 0, 0.1); F.t = P.time;
+  const [ox, oy] = frontOffset(L, v), near = LK.frontNear, step = (1 - LK.frontMin) / LK.frontFade * dt;
+  const boxes = P.heroes.map(h => heroScreenBox(h, v));
+  for (const it of F.items) {
+    const x0 = it.x + ox - near, y0 = it.y + oy - near, x1 = it.x + ox + it.w + near, y1 = it.y + oy + it.h + near;
+    let hit = false, under = false;
+    for (const b of boxes) {
+      if (b[2] > x0 && b[0] < x1 && b[3] > y0 && b[1] < y1) hit = true;
+      if (b[2] > it.x + ox && b[0] < it.x + ox + it.w && b[3] > it.y + oy && b[1] < it.y + oy + it.h) under = true;
+    }
+    const tg = hit ? LK.frontMin : 1;
+    if (under) it.a = LK.frontMin;                             // already under it (the camera jumped, a hero was put there): at once, no fading
+    else it.a = it.a < tg ? Math.min(tg, it.a + step) : Math.max(tg, it.a - step);
+  }
+  return [ox, oy];
+}
+function drawFront(c, v) {
+  const L = P.L; FrontCount.draw = 0;
+  if (!v || !L.front || !CONFIG.look.front) return;
+  const [ox, oy] = updateFront(L, v), cv = L.front.cv;
+  for (const it of L.front.items) {
+    if (it.a < 0.01) continue;
+    c.globalAlpha = it.a; c.drawImage(cv, it.x, it.y, it.w, it.h, it.x + ox, it.y + oy, it.w, it.h); FrontCount.draw++;
+  }
+  c.globalAlpha = 1;
+}
 function drawPlay(c) {
   const v = drawWorld(c);
+  drawLightMap(c, v);
+  drawMotes(c, v);
+  drawFront(c, v);
   drawHints(c, v);
   drawEdgePulse(c);
   drawHUD(c);
@@ -723,7 +907,8 @@ function drawGeorgeBoss(c, o, t) {
   if (!up) castShadow(c, o.x, (st === 'down' || st === 'won') ? o.y + 4 : 660, 100 * S, 70 * S, 21, 1);   // the cast shadow of S7.1
   c.save(); c.translate(o.x + (up ? Math.sin(t * 38) * o.treeShake * 9 : 0), o.y + (up ? 34 + Math.sin(t * 3) * 3 : 0));
   if (st === 'falling') c.rotate(o.t * 9);
-  drawGeorge(c, 0, st === 'falling' ? 40 : 0, { scale: S, t: t, face: st === 'won' ? 1 : (P.heroes[0].x + P.heroes[1].x < o.x * 2 ? -1 : 1), mood, moving: st === 'won' && o.t > 1.2, walk: t * 18, noCrown: st === 'won' });
+  if (o.windup > 0) { const w = easeOut(o.windup); c.translate(0, -12 * w); c.scale(1 - 0.05 * w, 1 + 0.07 * w); c.rotate(-0.1 * w); }      // anticipation: he draws back before he throws (T6.9)
+  drawGeorge(c, 0, st === 'falling' ? 40 : 0, { tail: tailFollow(o, o.x, t, 260), scale: S, t: t, face: st === 'won' ? 1 : (P.heroes[0].x + P.heroes[1].x < o.x * 2 ? -1 : 1), mood, moving: st === 'won' && o.t > 1.2, walk: t * 18, noCrown: st === 'won' });
   c.restore();
   if (st === 'down') drawDizzyStars(c, o.x + 30, o.y - 190, t);
   if (st === 'won' && o.wy != null) drawGeorgeCrown(c, o.cx, o.wy - 8, 1.5, 1.25);          // his crown stays behind on the sand

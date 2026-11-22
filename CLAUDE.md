@@ -43,6 +43,7 @@ Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece sec
 | Texte, limba, setarile salvate | `src/015-lang.js` | `docs/04-limba-si-setari.md` |
 | Pictura in acuarela, hartia, cerul | `src/02-core.js` | `docs/05-pictura.md` |
 | Lumina si materialele stilului nou (`lit`, `KEY`, `FILL`, `MATERIALS`), `CONFIG.look` | `src/02-core.js`, `src/01-config.js` | `docs/05-pictura.md`, `docs/03-config.md` |
+| Testul stilului grafic (pixeli gri, fara gradienti pe cadru, buget +20%) | `tests/stil-grafic.js`, `tests/performanta.js` | `docs/17-testare.md` |
 | Muzica, efecte, vocea | `src/03-audio.js` | `docs/06-sunet.md` |
 | Controllere si tastatura | `src/04-input.js` | `docs/07-control.md` |
 | Cum arata personajele si obiectele | `src/05-chars.js` | `docs/08-personaje.md` |
@@ -69,6 +70,13 @@ Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece sec
 - `T` este functia de traducere. Nu folosi `T` ca nume de variabila locala.
 - Un material (`mat: 'scale'` in `lit()`) face o textura din o placa pictata o data si facuta model o data (`matPattern`). Nu chema `createPattern` si nu picta o placa in desenul de la fiecare cadru. Modelul e prins de coordonatele din momentul desenului: deseneaza dupa `translate` la obiect, ca textura sa mearga cu el.
 - Pictorii eroilor (`drawBoon`, `drawKiller`, `drawGeorge`, `drawGlove`) pun `_fl` (-1 cand eroul e oglindit) si `litTube`, `litPuff`, `eyeLit` il dau lui `lit()` ca `flip`. O parte noua a unui erou se deseneaza cu ele, nu cu `puff` sau `tube`, altfel lumina se intoarce cu eroul. Un erou are o singura umbra (`castShadow`, in `drawHeroFull`): partile au `shadow: false`.
+- Urmele din fuga sunt imagini pictate o data (`ghostCanvas`, `g.cv`). O optiune noua in `heroOpts` intra singura si in urme. Nu desena eroul intreg in `drawRunTrail`.
+- Planul din fata (`L.front`) nu acopera niciodata un erou: fiecare lucru are un dreptunghi pe ecran si se stinge cand vine un erou. Un lucru nou in el se pune doar intr-un loc din `frontSlots()` (in afara mijlocului de 1500 x 760). `tests/stil-grafic.js` verifica in 400 de asezari.
+- O lumina noua (lava, o tinta aprinsa) se adauga in `collectLights` sau in `L.lights`, nu cu un `createRadialGradient` in desen. Daca lucrul chiar lumineaza (torta, lava, cristal), `addLight(..., true)` (sau `glow` in `L.lights`) ii da si un halou.
+- Apa nivelurilor noi: valurile sunt un pattern facut o data (`matPattern`) si mutat cu `setTransform`, nu un `createPattern` pe cadru. Praful (`drawMotes`) sta in spatiul ecranului, nu al lumii.
+- O lovitura mare (o poarta care se deschide, un bolovan care cade) cheama `bigHit()`: jocul sta 0.06 s si camera se apropie. `updatePlay` nu ruleaza in acele cadre, deci nimic care trebuie sa mearga in ele nu sta in `updatePlay`; o apasare de buton nu se pierde (`P.latch`). Un mecanism se misca cu `mechMove(t, dur)` (tragere inapoi, apoi `easeBack`) si scoate `mechClick(x, y)` inainte sa porneasca.
+- `tests/stil-grafic.js` are o lista de functii ale stilului nou care nu au voie sa cheme `createRadialGradient`, `createPattern` sau `shadowBlur` (se citesc cu `toString`). O functie noua de desen a stilului nou se adauga in lista `names` din test. Codul vechi (`drawBubu` etc.) are inca ~40 de gradienti pe cadru si nu e in lista.
+- Bugetul de timp: `performanta.js` masoara nivelul 6 cu tot stilul nou aprins si cu el stins, cinci runde pe rand, si cere ca cel mai bun cadru nou sa nu fie cu mai mult de 20% peste cel vechi. Masurat sub SwiftShader zgomotul e de ±2 ms: nu schimba metoda in minim de cinci runde.
 - `lit` este pictorul stilului nou (`02-core.js`). Nu folosi `lit` ca nume de variabila locala: l-ar ascunde exact in fisierul in care ai nevoie de el. Pentru "cat de aprins" scrie `glow`, pentru "cate sunt aprinse" scrie `onN`.
 - In `text(...)`, `halo` e grosimea conturului **ca parte din marimea fontului** (0.2 implicit). `halo: 5` deseneaza un cerc crem cat jumatate de ecran.
 - Tot scrisul de sus sta in banda de 132 de unitati (`HUD_TOP`, `08-draw.js`). Nimic nu coboara sub ea peste lume, niciun banner. Camera (`camTarget`, `07-play.js`) tine eroii sub banda. Daca schimbi inaltimea unui cartonas de sus, ruleaza `tests/hud-acoperire.js` cu `STRICT=1`.

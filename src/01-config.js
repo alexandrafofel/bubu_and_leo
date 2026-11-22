@@ -184,7 +184,35 @@ const CONFIG = {
     front: true,           // big blurred things at the edges of the screen (S7.4)
     motes: 40,             // tiny specks floating in the light. 0 = none
     freeze: 0.06,          // seconds the game holds its breath at a big hit (S7.6). 0 = off
-    maxLights: 24          // lights drawn in one frame. The ones nearest the middle of the screen win
+    maxLights: 24,         // lights drawn in one frame. The ones nearest the middle of the screen win
+    lightGlow: 0.6,        // how strong the lights of the light map are over the ambient (the darker the ambient, the stronger)
+    kick: 0.04,            // at a big hit the camera comes closer by this much (4%) in kickIn seconds and goes back in kickOut (S7.6). 0 = no zoom
+    kickIn: 0.15,
+    kickOut: 0.4,
+    anticipate: 0.15,      // seconds a mechanism, or George before an attack, pulls back before it goes (S7.6). 0 = none
+    halo: 0.5,             // glow over the things that give light (torches, crystals, lava): alpha 0.35 - 0.6 around this value (S7.5). 0 = none
+    haloMax: 12,           // at most this many halos in one frame
+    waves: true,           // the water of the new levels: two rows of waves, a reflection and sparkles. false = the old shimmer
+    waveSpeedA: 14,        // units per second: the first row of waves goes right at this speed, the second goes left (waveSpeedB)
+    waveSpeedB: 9,
+    preview: false,        // true = the new frame (light map, front plane, haze) also on levels 1 - 6, to see it before 7 - 12 exist
+    frontFade: 0.2,        // seconds a thing of the front plane takes to fade when a hero comes near it
+    frontMin: 0.15,        // how much of it stays when it fades
+    frontPar: 1.15,        // the front plane moves this many times more than the camera (parallax)
+    frontNear: 220,        // a hero closer than this (on screen) to a thing of the front plane makes it fade, before he is under it
+    // how the heroes and George move (S7.3, second part)
+    tailLift: 0.18,        // how high the tail lifts at walking speed (radians). Running lifts it more, up to tailMax
+    tailMax: 0.5,
+    tailSpring: 70,        // how stiff the tail is: higher = it follows the body sooner, with less swing
+    armSwing: 0.45,        // how far Killer's arms swing when he walks (radians); running: armSwingRun
+    armSwingRun: 0.8,
+    breath: 0.02,          // breathing while standing still: the body grows from 1 to 1 + breath
+    blinkMin: 3,           // a blink every blinkMin to blinkMax seconds, at random
+    blinkMax: 6,
+    squashStart: -0.1,     // stretch when a hero starts to walk (negative = taller), squash when he stops
+    squashStop: 0.12,
+    squashLand: 0.18,      // landing after a jump or a drop
+    squashRun: -0.16       // stretch when the run (L3) starts
   },
 
   // ---- The second game, "Cea mai grea luptă" (invented by the children) ---------------------

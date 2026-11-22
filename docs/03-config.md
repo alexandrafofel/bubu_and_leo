@@ -297,8 +297,33 @@ Stilul grafic nou (`docs/24-sisteme-noi.md`, S7) are reglajele lui. Fiecare se p
 |---|---|---|
 | `look.lights` | `true` | Harta de lumina care se misca (S7.5). `false` lasa vinieta de noapte de acum. Se foloseste de la T6.7. |
 | `look.front` | `true` | Planul din fata, cu lucruri mari si sterse la marginile ecranului (S7.4). Se foloseste de la T6.6. |
-| `look.motes` | `40` | Cate fire de praf plutesc in lumina. `0` = niciunul. De la T6.8. |
-| `look.freeze` | `0.06` | Cate secunde sta jocul la o lovitura mare (S7.6). `0` = nu sta deloc. De la T6.9. |
+| `look.lightGlow` | `0.6` | Cat de tari sunt luminile hartii peste ambianta (cu cat ambianta e mai inchisa, cu atat mai tari). T6.7. |
+| `look.preview` | `false` | `true` = cadrul nou (harta de lumina, planul din fata, ceata de aer) si pe nivelurile 1 - 6, ca sa se vada inainte sa existe nivelurile 7 - 12. Altfel il au doar nivelurile cu `look: 'diorama'`. T6.6. |
+| `look.frontFade` | `0.2` | In cate secunde se stinge un lucru din planul din fata cand vine un erou langa el. |
+| `look.frontMin` | `0.15` | Cat ramane din el stins. |
+| `look.frontPar` | `1.15` | De cate ori se misca planul din fata fata de camera (paralaxa). |
+| `look.frontNear` | `220` | La ce distanta (pe ecran) de un lucru din fata incepe sa se stinga, ca sa fie deja stins cand eroul ajunge sub el. |
+| `look.motes` | `40` | Cate fire de praf plutesc in lumina (in spatiul ecranului). `0` = niciunul. T6.8. |
+| `look.halo` | `0.5` | Cat de tare stralucesc lucrurile care lumineaza (torte, cristale, lava): alpha 0.35 - 0.6 in jurul acestei valori. `0` = niciun halou. T6.8. |
+| `look.haloMax` | `12` | Cel mult atatea halouri pe cadru, in plus fata de cele `maxLights` lumini. T6.8. |
+| `look.waves` | `true` | Apa nivelurilor noi: doua randuri de valuri, oglindire, sclipiri. `false` = vechea clipire. T6.8. |
+| `look.waveSpeedA`, `look.waveSpeedB` | `14`, `9` | Unitati pe secunda: primul rand de valuri merge spre dreapta, al doilea spre stanga. T6.8. |
+| `look.freeze` | `0.06` | Cate secunde sta jocul la o lovitura mare (S7.6): `updatePlay` nu ruleaza, desenul da. `0` = nu sta deloc. T6.9. |
+| `look.kick` | `0.04` | Cu cat se apropie camera la o lovitura mare (4%). `0` = nu se apropie. T6.9. |
+| `look.kickIn`, `look.kickOut` | `0.15`, `0.4` | In cate secunde se apropie camera si in cate revine. T6.9. |
+| `look.anticipate` | `0.15` | Cate secunde se trage inapoi un mecanism (`mechMove`) sau George inainte sa arunce. `0` = deloc. T6.9. |
 | `look.maxLights` | `24` | Cate lumini se deseneaza intr-un cadru. Daca sunt mai multe, raman cele mai apropiate de mijlocul ecranului. De la T6.7. |
+| `look.tailLift` | `0.18` | Cat se ridica coada lui Boon si a lui George la viteza de mers (radiani). La fuga mai mult, pana la `tailMax`. T6.5. |
+| `look.tailMax` | `0.5` | Cel mai sus pana unde se ridica coada. |
+| `look.tailSpring` | `70` | Cat de tare e arcul cozii: mai mare = urmeaza corpul mai repede, cu mai putina leganare. |
+| `look.armSwing` | `0.45` | Cat se balanseaza bratele lui Killer la mers (radiani). |
+| `look.armSwingRun` | `0.8` | La fuga. |
+| `look.breath` | `0.02` | Respiratia cand stau: corpul creste de la 1 la 1.02. `0` = nu respira. |
+| `look.blinkMin`, `look.blinkMax` | `3`, `6` | Clipit la intamplare, la 3 - 6 secunde, pentru fiecare personaj altfel. |
+| `look.squashStart`, `look.squashStop` | `-0.1`, `0.12` | Intindere cand porneste (negativ = mai inalt), turtire cand se opreste. |
+| `look.squashLand` | `0.18` | Turtire la aterizare (dupa o saritura sau cand il lasa pasarea jos). |
+| `look.squashRun` | `-0.16` | Intindere cand porneste fuga (L3). |
 
 La T6.1 valorile sunt doar scrise, nu si citite: `lit()` nu are nevoie de ele. Sarcinile T6.6 - T6.9 le folosesc pe rand.
+
+T6.10: nu se adauga chei noi; testul `tests/stil-grafic.js` si bugetul din `performanta.js` citesc `look.*` asa cum sunt.

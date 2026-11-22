@@ -222,6 +222,8 @@ Aceleasi cadru si aceleasi reguli ca la eroi (placa pictata o data, model facut 
 
 **Lava pulseaza dupa `o.t`** (secunde, dat de cel care deseneaza; fara el sta pe loc). Culoarea crapaturii e `mix(#F58A3C, #F6CE46, puls)`, puls = 0.5 + 0.5 sin(2.4 t + 0.45 k). Defazajul dintre crapaturi e mic dinadins: la 1.3 pulsau in faze opuse, iar vulcanul parea ca sta nemiscat. Doua straturi: o dunga larga si moale (alpha 0.3) si crapatura insasi (alpha 0.95). Galben si portocaliu raman in paleta: nicio culoare de pe drum nu e gri sau negru.
 
+> **Apa (T6.8):** al unsprezecelea material, `water`, e descris in `12-desen-si-hud.md`, "Update 22 noiembrie 2026 (T6.8)": baza albastra si doua randuri de valuri care merg in sens opus (`paintWaveTile`, `fillWaves`).
+
 ## Update 22 noiembrie 2026 (T6.4): `lit()` pentru eroi, `castShadow()`
 
 `lit()` a primit patru optiuni noi, pentru eroii facuti din multe parti:
@@ -234,3 +236,7 @@ Aceleasi cadru si aceleasi reguli ca la eroi (placa pictata o data, model facut 
 | `lite` | Doar gradientul si luciul: fara `clip`, fara material, fara margine. Pentru partile mici. |
 
 **Umbrele au iesit din `lit()` intr-o functie a lor**, `castShadow(c, x, y, w, h, seed, k)`, pe care `lit()` o cheama la fel ca inainte. Un erou are o singura umbra, desenata de cine il deseneaza (`drawHeroFull`), nu cate una pe fiecare parte. `h` hotaraste doar cat de departe spre dreapta-jos cade umbra: un erou da mai putin decat inaltimea lui, ca umbra sa porneasca de la picioare. `k` (0 - 1): cat de tare; sub 0.95 nu mai e linie de contact (eroul e in aer).
+
+## Update 22 noiembrie 2026 (T6.10): cum se verifica stilul nou
+
+Testul permanent `tests/stil-grafic.js` (pixeli gri, fara gradienti pe cadru) si bugetul de timp din `tests/performanta.js` sunt descrise in `17-testare.md`. Functiile noi de desen ale stilului nou se adauga in lista `names` din test.

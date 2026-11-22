@@ -76,7 +76,7 @@ function duelEggs(n) {
 }
 function duelHit(k) {
   const d = P.duel, h = P.heroes[k], last = d.hp <= 1;
-  d.hp--; d.flash = 0.6; P.shake = Math.max(P.shake, 0.3);
+  d.hp--; d.flash = 0.6; P.shake = Math.max(P.shake, 0.3); bigHit();
   Snd.play('goal'); Snd.play('squeak', 1 + (d.maxHp - d.hp) * 0.1); Snd.talk(k, last ? 'guardGone' : 'guardHit');
   Input.rumble(0, 0.6, 0.8, 260); Input.rumble(1, 0.6, 0.8, 260);
   burst(d.x, d.y - 40 - d.z, 34, { speed: 320, life: 1.1, size: 10 }); burst(d.x, d.y - 40 - d.z, 14, { kind: 'petal', cols: PETALS, speed: 240, life: 1.4, g: 90 });
@@ -322,7 +322,7 @@ const DUEL_PAINT = {
     drawCiori(c, 0, 0, { scale: 1.25, t: t, fly: d.z > 30, mood: mood === 'dizzy' ? 'dizzy' : 'cheeky', body: '#4F7387', dark: '#3B596B', light: '#86AEBE', belly: '#A9C7D2' });
   },
   george(c, d, t, mood) {                                    // George cel Rău (second game): the same painter as the boss, the size comes from the level
-    drawGeorge(c, 0, 0, { scale: 1.15, t: t, mood: mood, moving: d.state === 'move' || d.state === 'dash', walk: t * 12, squash: d.state === 'aim' ? 0.12 : d.z > 20 ? -0.12 : 0 });
+    drawGeorge(c, 0, 0, { tail: tailFollow(d, d.x, t, 260), scale: 1.15, t: t, mood: mood, moving: d.state === 'move' || d.state === 'dash', walk: t * 12, squash: d.state === 'aim' ? 0.12 : d.z > 20 ? -0.12 : 0 });
   }
 };
 function drawDuelBoss(c) {
