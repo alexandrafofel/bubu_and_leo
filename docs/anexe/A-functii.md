@@ -4,7 +4,7 @@
 
 Fiecare functie, functie sageata si metoda din cod, in ordinea din fisier. Coloana "Comentariul din cod" este textul scris chiar langa functie. Explicatiile pe larg sunt in capitolele din docs/.
 
-Total: 544 intrari.
+Total: 551 intrari.
 
 ## 01-config.js
 
@@ -375,56 +375,63 @@ Nicio functie.
 | 24 | `buildLevel(idx)` | functie | Builds chapter idx: a level (its number inside the game is ch.n) or a big fight. L.ch remembers the chapter. |
 | 31 | `makeHero(k, x, y)` | functie |  |
 | 39 | `makeEgg(x, y, o)` | functie |  |
-| 42 | `startPlay(L)` | functie |  |
-| 64 | `startWave(k)` | functie |  |
-| 77 | `part(x, y, o)` | functie | ---------- particles ---------- |
-| 81 | `burst(x, y, n, o)` | functie |  |
-| 91 | `stepParts(dt)` | functie |  |
-| 99 | `collide(L, e, r, isBall)` | functie | ---------- collisions ---------- |
-| 124 | `collectEgg(e, k)` | functie | ---------- eggs and stars ---------- |
-| 142 | `rainbowAdd(e, k)` | functie | Second game only: crystals come in seven colors. One of each color = a rainbow: a few bonus crystals for the team. |
-| 150 | `collectStar(s, k)` | functie |  |
-| 156 | `checkWave()` | functie | The order on a level: wave 1, wave 2, MIDDLE FIGHT (after the second-to-last wave), wave 3, NEST FIGHT, then the nest opens. |
-| 166 | `openNest()` | functie |  |
-| 167 | `shakeTree(t, power, byStomp)` | functie |  |
-| 184 | `rescueLimit()` | functie | How many seconds the friend has. After a few restarts of the same chapter the children get more time (the safety net). |
-| 192 | `countDown(h, dt)` | functie | The ten seconds of a hero who is down: a wooden tick and a short shake on BOTH controllers every second, twice a second and stronger in the last three. At zero the chapter starts again. |
-| 206 | `hitHero(h, sx, sy)` | functie |  |
-| 232 | `getUp(h, by)` | functie |  |
-| 247 | `tryRescue(h)` | functie | □ pressed. The first hero must stand close (a hug, healing hands). The second one may stand far: he sends a magic ball. |
-| 256 | `updateRescue(dt)` | functie |  |
-| 271 | `hurtSmall(e)` | functie | A small enemy loses one of its hits. true = that was the last one: it disappears, another one comes later. |
-| 281 | `powerSweep(h, id)` | functie | What the first hero's power does to everything around him. id = this stomp (or this spin of the claws): every enemy, tree and guardian feels it once per id. |
-| 300 | `doStomp(h)` | functie |  |
-| 310 | `startSpin(h)` | functie | A hero starts his spin: Bubu jumps and stomps; Boon's claws and Killer's gloves grow and spin around him (a shield that also gathers crystals). Nothing starts while the other power of the same hero is running. |
-| 322 | `spinBeat(h)` | functie | The gloves shake the controller in three short beats (0, 0.28 and 0.56 s), so they feel different in the hand. |
-| 324 | `bossShake(h)` | functie | A stomp (or the claws) next to the big tree, or next to George's throne, shakes it. |
-| 336 | `newBall(x, y, vx, vy, power, life, kick, size, hop, owner, look)` | functie |  |
-| 340 | `throwReady(h)` | functie sageata | This hero can throw again: everything of his is home, or his cooldown is over. |
-| 343 | `throwRing(h, power, ax, ay)` | functie | One throw sends n things out in a circle, so the power goes in every direction. Stick direction = the first one. Killer and Leo throw balls, Boon throws boomerang bones: the same rules, their own numbers and their own look. |
-| 363 | `recallBalls(k)` | functie | A second press while his things are still out (inside the cooldown) calls back everything of HIS. The friend's stay out. |
-| 370 | `canRun(h)` | functie | Running (L3). One press with the stick tilted starts it; it lasts until the stick is let go. canRun says when a hero is allowed to run at all; everything that stops a run is in one place, below. |
-| 375 | `startRun(h)` | functie |  |
-| 383 | `stopRun(h)` | functie |  |
-| 384 | `updateRun(h, s, ix, iy, dt)` | functie |  |
-| 401 | `updateHero(h, dt)` | functie |  |
-| 493 | `updateSpin(h, dt, pressed)` | functie | The spin (claws, gloves, or Bubu's stomp) of one hero, on its own button. |
-| 514 | `updateThrow(h, dt, pressed, released, held)` | functie | The throw (balls or bones) of one hero, on its own button. |
-| 528 | `updateBall(dt)` | functie |  |
-| 543 | `stepFlyBall(b, dt)` | functie | One ball in the air. Returns false when the ball has come home to Leo and can go. |
-| 593 | `updateEggs(dt)` | functie |  |
-| 618 | `enemyMul(x, y)` | functie | enemies slow down near a player on "Ușor" |
-| 623 | `updateEnemies(dt)` | functie |  |
-| 671 | `bossGoal()` | functie | Where the ball must land. Ciori: the nest in the tree. George: George himself, while he lies dizzy on the ground. |
-| 675 | `bossBall(b)` | functie |  |
-| 690 | `updateBoss(dt)` | functie |  |
-| 742 | `hitBird(bd)` | functie | ---------- second game: big birds that pick a hero up and carry him a little way (it does not hurt) ---------- |
-| 747 | `dropHero(bd)` | functie |  |
-| 756 | `updateBirds(dt)` | functie |  |
-| 780 | `stepProj(list, dt, spare)` | functie | Thrown things (pinecones, mud balls) fly in an arc and land on a marked spot. |
-| 795 | `updateDecor(dt)` | functie | The reacting decor. Grass, clover, daisies, reeds, dandelions and leaves send up a little puff of leaves, petals or seeds and rustle when a hero walks past (a stomp makes the dandelions and leaves jump). Snails pull in and a ladybug flies off and comes back. Only what is near a hero or a ball reacts. |
-| 822 | `updatePlay(dt)` | functie |  |
-| 935 | `camTarget(L, a, b)` | functie | Where the camera wants to be for two heroes: no side effects, so a test can ask the game itself. Rules: both heroes on screen; nothing of a hero (name included) above the band at the top (HUD_TOP, 08-draw.js); the camera may look up to HUD_TOP + 20 screen pixels above the top edge of the world, and that strip is painted sky. |
+| 45 | `isJoined(k)` | functie | ---------- the egg quota (docs/27-cota-de-oua.md) ---------- |
+| 46 | `bothJoined()` | functie |  |
+| 47 | `quotaOn()` | functie |  |
+| 48 | `quotaOk(k)` | functie |  |
+| 49 | `canTake(e, k)` | functie | alone there is no limit |
+| 50 | `quotaState(k)` | functie |  |
+| 51 | `capHint(k, e)` | functie |  |
+| 57 | `startPlay(L)` | functie |  |
+| 79 | `startWave(k)` | functie |  |
+| 92 | `part(x, y, o)` | functie | ---------- particles ---------- |
+| 96 | `burst(x, y, n, o)` | functie |  |
+| 106 | `stepParts(dt)` | functie |  |
+| 114 | `collide(L, e, r, isBall)` | functie | ---------- collisions ---------- |
+| 139 | `collectEgg(e, k)` | functie | ---------- eggs and stars ---------- |
+| 159 | `rainbowAdd(e, k)` | functie | Second game only: crystals come in seven colors. One of each color = a rainbow: a few bonus crystals for the team. |
+| 167 | `collectStar(s, k)` | functie |  |
+| 173 | `checkWave()` | functie | The order on a level: wave 1, wave 2, MIDDLE FIGHT (after the second-to-last wave), wave 3, NEST FIGHT, then the nest opens. |
+| 183 | `openNest()` | functie |  |
+| 184 | `shakeTree(t, power, byStomp)` | functie |  |
+| 201 | `rescueLimit()` | functie | How many seconds the friend has. After a few restarts of the same chapter the children get more time (the safety net). |
+| 209 | `countDown(h, dt)` | functie | The ten seconds of a hero who is down: a wooden tick and a short shake on BOTH controllers every second, twice a second and stronger in the last three. At zero the chapter starts again. |
+| 223 | `hitHero(h, sx, sy)` | functie |  |
+| 252 | `getUp(h, by)` | functie |  |
+| 267 | `tryRescue(h)` | functie | □ pressed. The first hero must stand close (a hug, healing hands). The second one may stand far: he sends a magic ball. |
+| 276 | `updateRescue(dt)` | functie |  |
+| 291 | `hurtSmall(e)` | functie | A small enemy loses one of its hits. true = that was the last one: it disappears, another one comes later. |
+| 301 | `powerSweep(h, id)` | functie | What the first hero's power does to everything around him. id = this stomp (or this spin of the claws): every enemy, tree and guardian feels it once per id. |
+| 320 | `doStomp(h)` | functie |  |
+| 330 | `startSpin(h)` | functie | A hero starts his spin: Bubu jumps and stomps; Boon's claws and Killer's gloves grow and spin around him (a shield that also gathers crystals). Nothing starts while the other power of the same hero is running. |
+| 342 | `spinBeat(h)` | functie | The gloves shake the controller in three short beats (0, 0.28 and 0.56 s), so they feel different in the hand. |
+| 344 | `bossShake(h)` | functie | A stomp (or the claws) next to the big tree, or next to George's throne, shakes it. |
+| 356 | `newBall(x, y, vx, vy, power, life, kick, size, hop, owner, look)` | functie |  |
+| 360 | `throwReady(h)` | functie sageata | This hero can throw again: everything of his is home, or his cooldown is over. |
+| 363 | `throwRing(h, power, ax, ay)` | functie | One throw sends n things out in a circle, so the power goes in every direction. Stick direction = the first one. Killer and Leo throw balls, Boon throws boomerang bones: the same rules, their own numbers and their own look. |
+| 383 | `recallBalls(k)` | functie | A second press while his things are still out (inside the cooldown) calls back everything of HIS. The friend's stay out. |
+| 390 | `canRun(h)` | functie | Running (L3). One press with the stick tilted starts it; it lasts until the stick is let go. canRun says when a hero is allowed to run at all; everything that stops a run is in one place, below. |
+| 395 | `startRun(h)` | functie |  |
+| 403 | `stopRun(h)` | functie |  |
+| 404 | `updateRun(h, s, ix, iy, dt)` | functie |  |
+| 421 | `updateHero(h, dt)` | functie |  |
+| 513 | `updateSpin(h, dt, pressed)` | functie | The spin (claws, gloves, or Bubu's stomp) of one hero, on its own button. |
+| 534 | `updateThrow(h, dt, pressed, released, held)` | functie | The throw (balls or bones) of one hero, on its own button. |
+| 548 | `updateBall(dt)` | functie |  |
+| 563 | `stepFlyBall(b, dt)` | functie | One ball in the air. Returns false when the ball has come home to Leo and can go. |
+| 613 | `updateEggs(dt)` | functie |  |
+| 643 | `enemyMul(x, y)` | functie | enemies slow down near a player on "Ușor" |
+| 648 | `updateEnemies(dt)` | functie |  |
+| 696 | `bossGoal()` | functie | Where the ball must land. Ciori: the nest in the tree. George: George himself, while he lies dizzy on the ground. |
+| 700 | `bossBall(b)` | functie |  |
+| 715 | `updateBoss(dt)` | functie |  |
+| 767 | `hitBird(bd)` | functie | ---------- second game: big birds that pick a hero up and carry him a little way (it does not hurt) ---------- |
+| 772 | `dropHero(bd)` | functie |  |
+| 781 | `updateBirds(dt)` | functie |  |
+| 805 | `stepProj(list, dt, spare)` | functie | Thrown things (pinecones, mud balls) fly in an arc and land on a marked spot. |
+| 820 | `updateDecor(dt)` | functie | The reacting decor. Grass, clover, daisies, reeds, dandelions and leaves send up a little puff of leaves, petals or seeds and rustle when a hero walks past (a stomp makes the dandelions and leaves jump). Snails pull in and a ladybug flies off and comes back. Only what is near a hero or a ball reacts. |
+| 847 | `updatePlay(dt)` | functie |  |
+| 960 | `camTarget(L, a, b)` | functie | Where the camera wants to be for two heroes: no side effects, so a test can ask the game itself. Rules: both heroes on screen; nothing of a hero (name included) above the band at the top (HUD_TOP, 08-draw.js); the camera may look up to HUD_TOP + 20 screen pixels above the top edge of the world, and that strip is painted sky. |
 
 ## 075-duel.js
 
@@ -485,22 +492,22 @@ Nicio functie.
 | 386 | `guideTarget(h)` | functie |  |
 | 407 | `drawGuides(c)` | functie |  |
 | 434 | `drawHints(c, v)` | functie |  |
-| 470 | `pressLabel(k)` | functie sageata |  |
-| 472 | `levelProgress()` | functie | How far the level is: eggs in groups, then the guardian, then the nest. |
-| 475 | `seg(k)` | functie sageata |  |
-| 484 | `drawProgress(c)` | functie |  |
-| 513 | `drawBadge(c, k, x, y)` | functie |  |
-| 531 | `downBanner()` | functie | "Ajută-l pe Boon! ○" while a friend is down and the seconds are running. It comes before any other banner. |
-| 535 | `waitBanner()` | functie |  |
-| 542 | `drawMidCard(c, ban)` | functie | The card in the middle, with what a banner says when there is one. A banner never comes down over the world. |
-| 601 | `drawHUD(c)` | functie |  |
-| 606 | `drawPlay(c)` | functie |  |
-| 613 | `drawEdgePulse(c)` | functie | The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. |
-| 623 | `drawNestShelter(c)` | functie | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
-| 631 | `drawDecor(c, l, tp, vw, vh)` | functie | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
-| 647 | `drawArenaBack(c)` | functie | the torches of fire around the arena |
-| 651 | `drawThrone(c)` | functie |  |
-| 658 | `drawGeorgeBoss(c, o, t)` | functie |  |
+| 477 | `pressLabel(k)` | functie sageata |  |
+| 479 | `levelProgress()` | functie | How far the level is: eggs in groups, then the guardian, then the nest. |
+| 482 | `seg(k)` | functie sageata |  |
+| 491 | `drawProgress(c)` | functie |  |
+| 520 | `drawBadge(c, k, x, y)` | functie |  |
+| 538 | `downBanner()` | functie | "Ajută-l pe Boon! ○" while a friend is down and the seconds are running. It comes before any other banner. |
+| 542 | `waitBanner()` | functie |  |
+| 549 | `drawMidCard(c, ban)` | functie | The card in the middle, with what a banner says when there is one. A banner never comes down over the world. |
+| 608 | `drawHUD(c)` | functie |  |
+| 613 | `drawPlay(c)` | functie |  |
+| 620 | `drawEdgePulse(c)` | functie | The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. |
+| 630 | `drawNestShelter(c)` | functie | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
+| 638 | `drawDecor(c, l, tp, vw, vh)` | functie | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
+| 654 | `drawArenaBack(c)` | functie | the torches of fire around the arena |
+| 658 | `drawThrone(c)` | functie |  |
+| 665 | `drawGeorgeBoss(c, o, t)` | functie |  |
 
 ## 09-screens.js
 

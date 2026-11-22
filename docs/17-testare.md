@@ -279,6 +279,8 @@ Verificat ca poate sa pice: cu vibratia prietenului scoasa si cu `Game.failLevel
 
 Verificare T14.1 (script scurt, fara test nou; `tests/cota.js` vine in T14.9): pentru nivelurile 1 - 6, 10 seminte pe nivel, toate in `[2q, 2 * cap]`. Oua pe nivel: 21, 33, 45, 57, 66, 78. Cu `extra` 1.2 jocul scrie o eroare si cade pe 60 de oua.
 
+Verificare T14.2 (script scurt, `tests/cota.js` vine in T14.9; verificarile 3 si 10 din `27-cota-de-oua.md`): un erou plin nu ia oul (ramane pe jos, `fullT > 0`), prietenul il ia, eroul lovit fara oua nu scapa nimic si nu atinge `P.found` al prietenului, cel cu oua scapa unul cu `goal: true`, oul urias are `goal: false`. Cu `CONFIG.quota.on = false` toate cinci pica. `tests/salvare-prieten.js` da acum eroului 5 oua din cota (`P.found[0] = 5`) inainte de lovitura.
+
 ## Update 21 noiembrie 2026: `lit()` (sarcina T6.1)
 
 Testul permanent al stilului grafic (`tests/stil-grafic.js`) se scrie la T6.10. Pana atunci, `lit()` a fost verificat cu un script de o singura data, `tests/tmp/lit-proba.js` (dosarul `tests/tmp/` nu intra in depozit). Deseneaza trei obiecte de proba pe un canvas al lui, nu pe cel al jocului: bucla jocului ar desena peste.

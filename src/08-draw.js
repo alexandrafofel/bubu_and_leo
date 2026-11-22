@@ -458,6 +458,13 @@ function drawHints(c, v) {
     const sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 30, (h.y - v.tp) * v.z - (h.tagT > 0 ? 200 : 160) * v.z) + Math.sin(t * 5) * 5;
     iconSq(c, sx, sy, 24, Math.sin(t * 6));
   }
+  for (const h of P.heroes) if (h.fullT > 0 && !h.down) {          // "Plin!": the hero cannot hold more quota eggs
+    const sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 40, (h.y - v.tp) * v.z - 190 * v.z) - (1.2 - h.fullT) * 14;
+    c.globalAlpha = Math.min(1, h.fullT / 0.3);
+    card(c, sx - 62, sy - 26, 124, 52, '#FFF6E2', 40 + h.k);
+    text(c, T('quota.full'), sx, sy + 2, 30, '#B9802E', { halo: 0, shadow: 0, weight: 'bold' });
+    c.globalAlpha = 1;
+  }
   if (P.hintCharge > 0) { const h = P.heroes[1], sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 30, (h.y - v.tp) * v.z - 200 * v.z - 20), u = (t * 0.9) % 1; iconX(c, sx - 24, sy, 28, 0); c.strokeStyle = '#3F78C8'; c.lineWidth = 8; c.lineCap = 'round'; c.beginPath(); c.arc(sx + 34, sy, 20, -Math.PI / 2, -Math.PI / 2 + TAU * u); c.stroke(); }
   if (P.boss) {
     const bs = P.boss, sc = v.z;

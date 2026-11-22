@@ -5,11 +5,11 @@
 | Ce | Cate |
 |---|---|
 | Fisiere sursa | 14 |
-| Linii de cod | 6866 |
-| Functii si metode | 544 |
+| Linii de cod | 6898 |
+| Functii si metode | 551 |
 | Culori hex diferite | 544 |
-| Texte (romana) | 201 |
-| Texte (engleza) | 201 |
+| Texte (romana) | 202 |
+| Texte (engleza) | 202 |
 | Efecte sonore | 39 |
 | Valori in CONFIG | 231 |
 
@@ -26,8 +26,8 @@
 | 05-chars.js | 338 |
 | 055-lupta.js | 513 |
 | 06-level.js | 985 |
-| 07-play.js | 944 |
+| 07-play.js | 969 |
 | 075-duel.js | 378 |
-| 08-draw.js | 669 |
+| 08-draw.js | 676 |
 | 09-screens.js | 954 |
 | 10-main.js | 147 |

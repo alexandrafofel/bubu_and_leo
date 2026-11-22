@@ -107,6 +107,12 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - Nimic din joc nu se schimba pentru erou: luarea ouului cu cota e T14.2.
 - Numarul de oua pe nivel difera cu 1 - 2 de tabelul din `27-cota-de-oua.md` (rotunjire pe val). Daca proprietara vrea cifre exacte, valurile trebuie sa imparta restul.
 
+## T14.2 (22 noiembrie 2026)
+
+- Balonul "Plin!" e un cartonas mic (`drawHints`), verificat doar prin test, nu cu ochii pe un ecran real. Nu e verificat pe un Mac cu controllere si copii.
+- Nu exista inca modul de a da oua prietenului (L1, T14.4): un erou plin trebuie sa lase oul pe jos, iar celalalt sa vina dupa el.
+- Nivelul inca se termina ca inainte (T14.5 muta sfarsitul pe cota).
+
 ## T6.1 (21 noiembrie 2026): ce nu s-a putut verifica
 
 - **Cum arata `lit()` pe personaje adevarate.** A fost verificat pe trei forme rotunde de proba. Boon, Killer si George au forme compuse din multe bucati; abia la T6.4 se vede daca lumina sta bine pe ele.

@@ -282,6 +282,15 @@ Cererea proprietarei: "scoate jocul Bubu si Leo, lasa doar Cea mai grea lupta. M
 | Un `CONFIG.quota` gresit scrie o eroare o data si se intoarce la 60 de oua | Jocul nu trebuie sa se strice din cauza unei cifre. |
 | Numarul real de oua poate fi cu 1 - 2 mai mare sau mai mic decat `ceil(2.2 * q)` | Valurile se impart ca inainte, rotunjit. Ramane in interval, deci nu e o problema. Specificatia (C3) da cifre exacte; nu s-a cerut exactitatea. |
 
+### T14.2: luarea ouului cu cota (22 noiembrie 2026)
+
+| Decizie | De ce |
+|---|---|
+| Un ou peste limita ramane pe jos si celalalt erou il poate lua | Cererea: un copil nu trebuie sa adune tot nivelul. Daca primul erou din apropiere e plin, oul trece la al doilea. |
+| Eroul lovit scapa un ou al lui, nu unul al echipei | Altfel ar pierde oua pe care le-a gasit prietenul. Fara oua proprii nu scapa nimic. |
+| Functia se numeste `isJoined`, nu `joined` | `joined` era deja numele unei variabile locale in `09-screens.js` si ascundea functia in teste. |
+| Cu un singur jucator nu exista limita | Cel absent nu poate lua ouale lui (C13). |
+
 ## Stilul grafic nou, partea 1 (sarcina T6.1, 21 noiembrie 2026)
 
 | Hotarare | De ce |

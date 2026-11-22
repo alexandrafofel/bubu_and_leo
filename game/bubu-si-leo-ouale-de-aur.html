@@ -296,7 +296,7 @@ const STR = {
     'boot.click': 'Fă clic sau apasă o tastă', 'boot.sub': 'pentru sunet și ecran complet',
     't.padPress': 'Controller: apasă ✕', 't.padOk': 'Controller detectat', 't.kb': 'Tastatură', 't.ready': 'Gata!',
     't.xReady': '✕ = Gata', 't.press': 'Apasă ✕', 't.then': 'apoi pornim!', 't.onPad': 'pe controller',
-    't.final': 'Marele final', 't.level': 'Nivelul {0}', 't.cont': 'Continuă: {0}', 't.new': 'Joc nou',
+    'quota.full': 'Plin!', 't.final': 'Marele final', 't.level': 'Nivelul {0}', 't.cont': 'Continuă: {0}', 't.new': 'Joc nou',
     't.start': 'Începe!', 't.chapters': 'Capitole', 't.newAsk': 'Începi de la capăt? Se șterge tot ce ați adunat în acest joc.', 't.newYes': 'Da, de la capăt', 't.newNo': 'Nu',
     'ch.title': 'Capitole', 'ch.part1': 'Partea întâi', 'ch.part2': 'Partea a doua: Stelele furate', 'ch.locked': 'Încă nu', 'ch.hint': '✕ joacă   ·   ○ înapoi',
     'pause.restart': 'Reia nivelul', 'pause.chapters': 'Capitole', 'pause.ask': 'Sigur? Ce ați adunat aici se pierde.', 'ask.yes': 'Da',
@@ -388,7 +388,7 @@ const STR = {
     'boot.click': 'Click or press a key', 'boot.sub': 'for sound and full screen',
     't.padPress': 'Controller: press ✕', 't.padOk': 'Controller found', 't.kb': 'Keyboard', 't.ready': 'Ready!',
     't.xReady': '✕ = Ready', 't.press': 'Press ✕', 't.then': 'then off we go!', 't.onPad': 'on the controller',
-    't.final': 'Grand finale', 't.level': 'Level {0}', 't.cont': 'Continue: {0}', 't.new': 'New game',
+    'quota.full': 'Full!', 't.final': 'Grand finale', 't.level': 'Level {0}', 't.cont': 'Continue: {0}', 't.new': 'New game',
     't.start': 'Start!', 't.chapters': 'Chapters', 't.newAsk': 'Start over? Everything you gathered in this game is erased.', 't.newYes': 'Yes, start over', 't.newNo': 'No',
     'ch.title': 'Chapters', 'ch.part1': 'Part One', 'ch.part2': 'Part Two: The Stolen Stars', 'ch.locked': 'Not yet', 'ch.hint': '✕ play   ·   ○ back',
     'pause.restart': 'Restart level', 'pause.chapters': 'Chapters', 'pause.ask': 'Sure? What you gathered here is lost.', 'ask.yes': 'Yes',
@@ -3796,17 +3796,32 @@ function buildLevel(idx) {
 function makeHero(k, x, y) {
   return { k, x, y, px: x, py: y, vx: 0, vy: 0, face: 1, ax: 1, ay: 0, walk: 0, moving: false, dizzy: 0, inv: 0, boost: 0, squash: 0, z: 0, cd: 0,
     stompT: -1, charge: 0, charging: false, kickT: 0, inMud: false, mudT: 0, tagT: 5, t: Math.random() * 5,
-    down: false, downT: 0, downLeft: 0, downTick: null, hurried: false, callT: 0, small: 1, spinT: -1, spinNo: 0, shield: false, carried: null, hugT: 0, reachHint: 0,
+    down: false, downT: 0, downLeft: 0, downTick: null, hurried: false, callT: 0, small: 1, spinT: -1, spinNo: 0, shield: false, carried: null, hugT: 0, reachHint: 0, fullT: 0,
     run: false, runIdle: 0, runT: 0, runRest: 0, runWord: -99, ghosts: [], ghostT: 0,         // run (L3): ghosts = the trail left behind
     throwCd: 0, homeState: 'held', home: { x, y, z: 0, spin: 0 }, chargeHold: 0,               // the thrown things (balls or bones): cooldown, whether they are all home, and the one kept at hand
     spinBeat: 0, spinLook: null, duelSweep: 0, bossSweep: 0 };                                 // the spin (claws or gloves)
 }
 function makeEgg(x, y, o) {
-  return Object.assign({ x, y, r: 17, seed: Math.random() * 10, req: true, value: 1, state: 'idle', t: 0, delay: 0, z: 0, pull: null, pullT: 0, big: false, hue: Math.random() * 7 | 0 }, o || {});   // hue: the color of a rainbow crystal (second game)
+  const e = Object.assign({ x, y, r: 17, seed: Math.random() * 10, req: true, value: 1, state: 'idle', t: 0, delay: 0, z: 0, pull: null, pullT: 0, big: false, hue: Math.random() * 7 | 0 }, o || {});   // hue: the color of a rainbow crystal (second game)
+  if (e.goal === undefined) e.goal = e.req;      // goal: counts toward the quota (wave and tree eggs, and the ones a hit hero drops). The giant egg and the guardians' eggs do not.
+  return e;
+}
+/* ---------- the egg quota (docs/27-cota-de-oua.md) ---------- */
+function isJoined(k) { return !!Input.slots[k].joined; }
+function bothJoined() { return isJoined(0) && isJoined(1); }
+function quotaOn() { return !!(CONFIG.quota.on && P && P.q > 0 && !P.L.boss); }
+function quotaOk(k) { return !isJoined(k) || P.found[k] >= P.q; }
+function canTake(e, k) { return !bothJoined() || P.found[k] < P.cap; }      // alone there is no limit
+function quotaState(k) { return { found: P.found[k], q: P.q, cap: P.cap, ok: quotaOk(k) }; }
+function capHint(k, e) {                       // "Plin!": a small balloon over the full hero, a soft no, and the egg hops a little
+  const h = P.heroes[k];
+  if (e) e.hop = 0.4;
+  if (h.fullT > 0) return;
+  h.fullT = 1.2; Snd.play('no', 0, k);
 }
 function startPlay(L) {
   const bs = !!L.boss;
-  P = { L, eggs: [], stars: L.stars, parts: [], rings: [], wave: -1, time: 0, sinceEgg: 0, levelEggs: 0, levelStars: 0, combo: 0, comboT: 0,
+  P = { L, q: L.q || 0, cap: Math.ceil(CONFIG.quota.cap * (L.q || 0)), found: [0, 0], eggs: [], stars: L.stars, parts: [], rings: [], wave: -1, time: 0, sinceEgg: 0, levelEggs: 0, levelStars: 0, combo: 0, comboT: 0,
     cam: { x: L.spawn.x, y: L.spawn.y, zoom: 1 }, shake: 0, wind: { t: CONFIG.windEvery * 0.7, state: 'calm', dir: 1, power: 0 },
     bfly: null, bflyT: 20 + Math.random() * 12, bflyCount: 0, crow: null, nestOpen: false, nestT: 0, done: false, doneT: 0, banner: null,
     tut: [{ moved: 0, used: false, used2: false, ran: false }, { moved: 0, used: false, used2: false, ran: false }], runHint: 0, runHintDone: false, nextWaveT: -1, waveNeed: 1, waveGot: 0, duel: null, hits: 0, hintCharge: 0, rumbleT: 0, bounceT: 0, glint: 0,
@@ -3887,7 +3902,9 @@ function collide(L, e, r, isBall) {
 
 /* ---------- eggs and stars ---------- */
 function collectEgg(e, k) {
+  if (e.goal && quotaOn() && !canTake(e, k)) { e.pull = null; capHint(k, e); return; }      // full: the egg stays on the ground for the friend
   const i = P.eggs.indexOf(e); if (i >= 0) P.eggs.splice(i, 1);
+  if (e.goal && quotaOn()) P.found[k]++;
   Game.team.eggs += e.value; P.levelEggs += e.value; P.sinceEgg = 0; if (e.req) P.waveGot++;
   P.combo = P.comboT > 0 ? P.combo + 1 : 0; P.comboT = 1.3;
   if (e.big) {
@@ -3984,11 +4001,14 @@ function hitHero(h, sx, sy) {
   const dx = h.x - sx, dy = h.y - sy, m = Math.hypot(dx, dy) || 1; h.vx = dx / m * 260; h.vy = dy / m * 260;
   Snd.play('bonk', 0, h.k); Snd.talk(h.k, 'hurt'); h.dizzyVoice = P.time + 0.9; Input.rumble(h.k, 0.9, 0.6, 300); P.shake = Math.max(P.shake, 0.12);
   burst(h.x, h.y - 50, 8, { speed: 120, life: 0.6, cols: ['#FFE08A', '#FFF3C0'] });
-  if (P.levelEggs > 0) {      // only what was gathered in this chapter can be dropped
+  // a hero drops one of his own quota eggs (none if he has none: the friend's eggs are safe). In the big fight: what was gathered there.
+  const QO = quotaOn(), canDrop = QO ? P.found[h.k] > 0 : P.levelEggs > 0;
+  if (canDrop) {
+    if (QO) P.found[h.k]--;
     Game.team.eggs--; P.levelEggs--;
     let cells = L.reachCells ? L.reachCells(h.x, h.y, 80, 200, 4) : [];
     const p = cells.length ? cells[Math.random() * cells.length | 0] : { x: clamp(h.x + (Math.random() - 0.5) * 240, 60, L.W - 60), y: clamp(h.y + 60 + Math.random() * 100, L.top + 60, L.H - 60) };
-    P.eggs.push(makeEgg(p.x, p.y, { state: 'pop', sx: h.x, sy: h.y - 40, req: false, delay: 0.1, wait: 0.9, dropped: true }));
+    P.eggs.push(makeEgg(p.x, p.y, { state: 'pop', sx: h.x, sy: h.y - 40, req: false, goal: QO, delay: 0.1, wait: 0.9, dropped: true }));
     Snd.play('drop', 0, h.k);
   }
 }
@@ -4171,7 +4191,7 @@ function updateHero(h, dt) {
   if (h.dizzyVoice && P.time >= h.dizzyVoice && h.dizzy > 0) { h.dizzyVoice = 0; Snd.talk(h.k, 'dizzy'); }
   if (h.wasDizzy && h.dizzy <= 0 && s.joined) Snd.talk(h.k, 'recover');
   h.wasDizzy = h.dizzy > 0;
-  h.hugT = Math.max(0, h.hugT - dt); h.reachHint = Math.max(0, h.reachHint - dt);
+  h.hugT = Math.max(0, h.hugT - dt); h.reachHint = Math.max(0, h.reachHint - dt); h.fullT = Math.max(0, h.fullT - dt);
   h.small += ((h.down && isLupta() ? CONFIG.lupta.shrink : 1) - h.small) * Math.min(1, dt * 7);        // second game: a hero who was hit is tiny until the friend helps
   if (h.down) {                          // hit: waits for the friend. Nothing can hit a hero who is down.
     const RS = CONFIG.rescue;
@@ -4341,7 +4361,7 @@ function stepFlyBall(b, dt) {
       else { cn.state = 'stun'; cn.t = CONFIG.heroes[0].stunTime; Snd.play('thud'); burst(cn.x, cn.y - 20, 8, { kind: 'dot', cols: ['#9C6A46', '#D6AA78'], speed: 200, life: 0.6, g: 300, size: 7 }); }
     }
     if (L.birds) for (const bd of L.birds) if (bd.state === 'fly' && bd.kickHit !== b.kick && dist(bd.x, bd.y, b.x, b.y) < 62 + b.r) { bd.kickHit = b.kick; hitBird(bd); }
-    for (let j = P.eggs.length - 1; j >= 0; j--) { const e = P.eggs[j]; if (e.state === 'idle' && e.delay <= 0 && !(e.wait > 0) && dist(e.x, e.y, b.x, b.y) < e.r + b.r + 20) collectEgg(e, b.owner); }
+    for (let j = P.eggs.length - 1; j >= 0; j--) { const e = P.eggs[j]; if (e.state === 'idle' && e.delay <= 0 && !(e.wait > 0) && dist(e.x, e.y, b.x, b.y) < e.r + b.r + 20) { if (e.goal && quotaOn() && !canTake(e, b.owner)) continue; collectEgg(e, b.owner); } }
     for (const s of P.stars) if (!s.got && !s.hidden && !s.pop && dist(s.x, s.y, b.x, b.y) < 26 + b.r + 16) collectStar(s, b.owner);
     if (P.boss) bossBall(b);
     if (P.duel) duelBall(b);
@@ -4363,6 +4383,8 @@ function updateEggs(dt) {
     if (e.state === 'fall') { e.t += dt; const u = e.t / 0.5; e.z = u < 1 ? 300 * (1 - u) * (1 - u) : Math.sin(Math.min(1, (e.t - 0.5) / 0.18) * Math.PI) * 14; if (e.t >= 0.68) { e.state = 'idle'; e.z = 0; } continue; }
     if (e.state === 'pop') { e.t += dt; const u = Math.min(1, e.t / 0.6); e.x = lerp(e.sx, e.tx == null ? (e.tx = e.x) : e.tx, u); e.y = lerp(e.sy, e.ty == null ? (e.ty = e.y) : e.ty, u); e.z = Math.sin(u * Math.PI) * 90; if (u >= 1) { e.state = 'idle'; e.z = 0; } continue; }
     if (e.wait > 0) { e.wait -= dt; continue; }
+    if (e.hop > 0) { e.hop -= dt; e.z = e.hop > 0 ? Math.sin((1 - e.hop / 0.4) * Math.PI) * 16 : 0; }
+    if (e.pull && e.goal && quotaOn() && !canTake(e, e.pull.k)) e.pull = null;      // the pull skips a full hero
     if (e.pull) {                        // stomped eggs fly all the way to Bubu, so none gets stranded
       const dx = e.pull.x - e.x, dy = e.pull.y - e.y, m = Math.hypot(dx, dy) || 1, sp = 540 * dt;
       e.x += dx / m * Math.min(m, sp); e.y += dy / m * Math.min(m, sp);
@@ -4370,7 +4392,10 @@ function updateEggs(dt) {
     for (const h of P.heroes) {
       if (h.dizzy > 0 || h.carried) continue;
       const rad = (e.big ? 80 : D(h.k).pickupRadius) * help;
-      if (dist(h.x, h.y, e.x, e.y) < rad) { collectEgg(e, h.k); break; }
+      if (dist(h.x, h.y, e.x, e.y) < rad) {
+        if (e.goal && quotaOn() && !canTake(e, h.k)) { capHint(h.k, e); continue; }      // full: maybe the friend can take it
+        collectEgg(e, h.k); break;
+      }
     }
   }
   for (const s of P.stars) {
@@ -5542,6 +5567,13 @@ function drawHints(c, v) {
     if (!Input.slots[h.k].joined || !CONFIG.heroes[h.k].power2 || P.tut[h.k].used2 || !P.tut[h.k].used || h.down) continue;
     const sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 30, (h.y - v.tp) * v.z - (h.tagT > 0 ? 200 : 160) * v.z) + Math.sin(t * 5) * 5;
     iconSq(c, sx, sy, 24, Math.sin(t * 6));
+  }
+  for (const h of P.heroes) if (h.fullT > 0 && !h.down) {          // "Plin!": the hero cannot hold more quota eggs
+    const sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 40, (h.y - v.tp) * v.z - 190 * v.z) - (1.2 - h.fullT) * 14;
+    c.globalAlpha = Math.min(1, h.fullT / 0.3);
+    card(c, sx - 62, sy - 26, 124, 52, '#FFF6E2', 40 + h.k);
+    text(c, T('quota.full'), sx, sy + 2, 30, '#B9802E', { halo: 0, shadow: 0, weight: 'bold' });
+    c.globalAlpha = 1;
   }
   if (P.hintCharge > 0) { const h = P.heroes[1], sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 30, (h.y - v.tp) * v.z - 200 * v.z - 20), u = (t * 0.9) % 1; iconX(c, sx - 24, sy, 28, 0); c.strokeStyle = '#3F78C8'; c.lineWidth = 8; c.lineCap = 'round'; c.beginPath(); c.arc(sx + 34, sy, 20, -Math.PI / 2, -Math.PI / 2 + TAU * u); c.stroke(); }
   if (P.boss) {
@@ -6848,7 +6880,7 @@ function frame(ts) {
 Save.load(); Save.apply(); setLanguage(Opt.lang);
 resize();
 initScreens();
-window.__game = { Game, Input, UI, Save, CONFIG, Opt, STR, T, Snd, Voice, Perf, get P() { return P; }, get GAME() { return GAME; }, setGame, buildLevel, genLevel, startPlay, startDuel, duelHit, openNest, hitHero, getUp, tryRescue, hurtSmall, throwRing, recallBalls, startSpin, abil, hasAbil, makeEgg, collectEgg, chapters, chapterLabel, titleMenu, chapterLayout, HUD_TOP, HERO_BOX, camTarget, update, draw, openSettings, closeSettings, swapHeroes, settingsRows, KEY_FIELDS, startRun, stopRun, canRun, rescueLimit, drawRetry };
+window.__game = { Game, Input, UI, Save, CONFIG, Opt, STR, T, Snd, Voice, Perf, get P() { return P; }, get GAME() { return GAME; }, setGame, buildLevel, genLevel, startPlay, startDuel, duelHit, openNest, hitHero, getUp, tryRescue, hurtSmall, throwRing, recallBalls, startSpin, abil, hasAbil, makeEgg, collectEgg, quotaState, canTake, quotaOn, chapters, chapterLabel, titleMenu, chapterLayout, HUD_TOP, HERO_BOX, camTarget, update, draw, openSettings, closeSettings, swapHeroes, settingsRows, KEY_FIELDS, startRun, stopRun, canRun, rescueLimit, drawRetry };
 requestAnimationFrame(ts => { _last = ts; requestAnimationFrame(frame); });
 
 </script>

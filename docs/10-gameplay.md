@@ -107,6 +107,13 @@ Fiecare minge se misca in pasi mici (maximum 11 unitati pe pas) ca sa nu treaca 
 
 `collectEgg(e, k)`: adauga la scor, sunet (nota urca cu seria), "iu-huu" la a 5-a in serie, particule, vibratie mica. Apoi `checkWave()`.
 
+**Cota (T14.2, 22 noiembrie 2026).** Un ou are campul `goal`: `true` pentru oul din val sau din copac si pentru oul scapat de un erou lovit; `false` pentru oul urias, oul din paznic si bonusul curcubeului. `makeEgg` il pune egal cu `req`, daca nu e dat. In `startPlay`: `P.q` (cota nivelului, `L.q`), `P.cap` (`ceil(CONFIG.quota.cap * q)`), `P.found[k]` (cate oua ale cotei are eroul `k`). Functii: `quotaOn()` (cota e pornita, nivelul are cota si nu e lupta mare), `quotaOk(k)`, `canTake(e, k)` (cu un singur jucator nu exista limita), `quotaState(k)` (`{ found, q, cap, ok }`), `capHint(k, e)`.
+
+- `collectEgg` nu ia un ou `goal` daca eroul e plin (`P.found[k] >= P.cap` cu amandoi in joc): oul ramane pe jos, eroul spune "Plin!" (un balon, cel mult o data la 1.2 s, cu sunetul `no`) si oul face un salt mic. Cand il ia, `P.found[k]++`.
+- `updateEggs`: daca primul erou din apropiere e plin, oul se da celuilalt. Tropaitul (`e.pull`) se opreste daca eroul tras e plin. Mingea lui Leo sau Killer ocoleste oul.
+- Cand eroul e lovit, scapa un ou al lui (`P.found[k]--`, oul nou are `goal: true`). Daca nu are niciunul, nu scapa nimic si ouale prietenului nu se ating. In lupta mare ramane regula veche (ce s-a adunat in lupta).
+- Nu e facut inca: L1, nivelul care se termina cu cota, ajutorul automat (T14.3 - T14.6).
+
 `checkWave()`: cand nu mai e niciun ou de val si niciun copac care sclipeste:
 
 - daca mai sunt valuri: urmatorul vine dupa 1 s;
@@ -121,7 +128,7 @@ Nu se intampla daca eroul e deja ametit, invulnerabil, in adapost, daca asteapta
 - daca joaca singur: ameteste `dizzyTime` si e invulnerabil inca 1.6 s dupa aceea (clipeste), ca inainte;
 - e impins putin in spate;
 - "bonk", "au-uu", vibratie, stele deasupra;
-- daca echipa are oua, scapa unul. Oul sare intr-o celula atinsa la 80 pana la 200 de unitati si poate fi luat dupa 0.9 s.
+- daca eroul are oua din cota lui (`P.found`), scapa unul (in lupta mare: daca echipa are oua adunate acolo). Fara oua proprii nu scapa nimic. Oul sare intr-o celula atinsa la 80 pana la 200 de unitati si poate fi luat dupa 0.9 s.
 
 Nu exista viata, nu exista "Game Over". Cererea a fost clara.
 
