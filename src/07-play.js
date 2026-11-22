@@ -31,7 +31,7 @@ function buildLevel(idx) {
 function makeHero(k, x, y) {
   return { k, x, y, px: x, py: y, vx: 0, vy: 0, face: 1, ax: 1, ay: 0, walk: 0, moving: false, dizzy: 0, inv: 0, boost: 0, squash: 0, z: 0, cd: 0,
     stompT: -1, charge: 0, charging: false, kickT: 0, inMud: false, mudT: 0, tagT: 5, t: Math.random() * 5,
-    down: false, downT: 0, downLeft: 0, downTick: null, hurried: false, callT: 0, small: 1, spinT: -1, spinNo: 0, shield: false, carried: null, hugT: 0, reachHint: 0, fullT: 0, farT: 0, giveT: 0,
+    down: false, downT: 0, downLeft: 0, downTick: null, hurried: false, callT: 0, small: 1, spinT: -1, spinNo: 0, shield: false, carried: null, hugT: 0, reachHint: 0, fullT: 0, tooFarT: 0, giveT: 0, numT: 0, noT: 0,
     run: false, runIdle: 0, runT: 0, runRest: 0, runWord: -99, ghosts: [], ghostT: 0,         // run (L3): ghosts = the trail left behind
     throwCd: 0, homeState: 'held', home: { x, y, z: 0, spin: 0 }, chargeHold: 0,               // the thrown things (balls or bones): cooldown, whether they are all home, and the one kept at hand
     spinBeat: 0, spinLook: null, duelSweep: 0, bossSweep: 0 };                                 // the spin (claws or gloves)
@@ -54,12 +54,10 @@ function giveEgg(k) {
   if (!quotaOn()) return false;
   const h = P.heroes[k], f = P.heroes[1 - k], Q = CONFIG.quota;
   if (!isJoined(1 - k) || h.down || h.dizzy > 0 || h.carried || P.done) return false;
-  if (P.found[k] < 1) { if (h.farT <= 0) { Snd.play('no', 0, k); h.numT = 0.5; } return false; }                 // nothing to give: the number shakes
+  if (P.found[k] < 1) { Snd.play('no', 0, k); h.noT = 0.5; return false; }                                      // nothing to give: the number shakes
   if (P.found[1 - k] + flying(1 - k) >= P.cap) { capHint(1 - k); return false; }                                 // the friend is full: "Plin!" over him
-  if (dist(h.x, h.y, f.x, f.y) > Q.giveRange) { h.farT = 1.4; h.reachHint = 1.4; Snd.play('no', 0, k); return false; }
-  P.found[k]--; h.numT = 0.3;
-  P.gifts.push({ from: k, to: 1 - k, t: 0, x0: h.x, y0: h.y - 50, x: h.x, y: h.y - 50, z: 0, seed: Math.random() * 10, auto: false });
-  Snd.play('give', 0, k); Input.rumble(k, 0.1, 0.3, 60); Snd.talk(k, 'together');
+  if (dist(h.x, h.y, f.x, f.y) > Q.giveRange) { h.tooFarT = 1.4; h.reachHint = 1.4; Snd.play('no', 0, k); return false; }
+  sendEgg(k, 1 - k, false); Snd.talk(k, 'together');
   return true;
 }
 function updateGifts(dt) {
@@ -74,6 +72,46 @@ function updateGifts(dt) {
     burst(f.x, f.y - 50, 8, { speed: 130, life: 0.6, up: 40 });
   }
 }
+/* The first time a hero has found his whole quota: tell the friend how to help (quotaDone), or, when the second one finishes too, say "to the nest" (quotaBoth).
+   Once per hero per level, and only with two players. */
+function updateQuotaMsg() {
+  if (!quotaOn() || !bothJoined() || P.done) return;
+  for (let k = 0; k < 2; k++) {
+    if (P.quotaMsg[k] || P.found[k] < P.q) continue;
+    if (P.found[1 - k] >= P.q) { P.quotaMsg[0] = P.quotaMsg[1] = true; P.banner = { kind: 'quotaBoth', t: 5 }; Snd.play('star', 0, k); return; }
+    P.quotaMsg[k] = true; P.banner = { kind: 'quotaDone', t: 6, k, name: CONFIG.heroes[1 - k].name }; Snd.play('star', 0, k);
+  }
+}
+/* C12: nobody stays stuck. After CONFIG.quota.autoGive seconds in the nest with a quota missing, the game itself
+   moves one egg every autoEvery seconds, from the hero who is over his quota to the one who is short. 0 = off. */
+function updateAutoGive(dt) {
+  const Q = CONFIG.quota;
+  if (!quotaOn() || !Q.autoGive || P.needT <= Q.autoGive) { P.autoT = 0; return; }
+  P.autoT += dt; if (P.autoT < Q.autoEvery) return;
+  P.autoT = 0;
+  const k = quotaOk(0) ? 1 : 0, g = 1 - k;                              // k is short, g gives
+  if (P.found[g] <= P.q) return;                                        // only what is over his own quota moves
+  if (P.found[k] + flying(k) >= P.cap) return;
+  sendEgg(g, k, true);
+  P.banner = { kind: 'auto', t: 3, name: CONFIG.heroes[g].name };
+}
+/* C14: when a player joins in the middle of a level, what the friend holds over the limit goes to him. */
+function updateJoinQuota() {
+  for (let k = 0; k < 2; k++) {
+    const now = isJoined(k);
+    if (now && !P.wasJoined[k] && quotaOn()) {
+      const f = 1 - k;
+      while (P.found[f] > P.cap && P.found[k] + flying(k) < P.cap) sendEgg(f, k, true);
+    }
+    P.wasJoined[k] = now;
+  }
+}
+function sendEgg(from, to, auto) {                   // one egg leaves `from` and flies to `to` (by hand with L1, or by the game itself)
+  const h = P.heroes[from];
+  P.found[from]--; h.numT = 0.3;
+  P.gifts.push({ from, to, t: 0, x0: h.x, y0: h.y - 50, x: h.x, y: h.y - 50, z: 0, seed: Math.random() * 10, auto: !!auto });
+  Snd.play('give', 0, from); Input.rumble(from, 0.1, 0.3, 60);
+}
 function capHint(k, e) {                       // "Plin!": a small balloon over the full hero, a soft no, and the egg hops a little
   const h = P.heroes[k];
   if (e) e.hop = 0.4;
@@ -82,7 +120,7 @@ function capHint(k, e) {                       // "Plin!": a small balloon over 
 }
 function startPlay(L) {
   const bs = !!L.boss;
-  P = { L, q: L.q || 0, cap: Math.ceil(CONFIG.quota.cap * (L.q || 0)), found: [0, 0], gifts: [], needT: 0, eggs: [], stars: L.stars, parts: [], rings: [], wave: -1, time: 0, sinceEgg: 0, levelEggs: 0, levelStars: 0, combo: 0, comboT: 0,
+  P = { L, q: L.q || 0, cap: Math.ceil(CONFIG.quota.cap * (L.q || 0)), found: [0, 0], gifts: [], needT: 0, autoT: 0, quotaMsg: [false, false], wasJoined: [isJoined(0), isJoined(1)], eggs: [], stars: L.stars, parts: [], rings: [], wave: -1, time: 0, sinceEgg: 0, levelEggs: 0, levelStars: 0, combo: 0, comboT: 0,
     cam: { x: L.spawn.x, y: L.spawn.y, zoom: 1 }, shake: 0, wind: { t: CONFIG.windEvery * 0.7, state: 'calm', dir: 1, power: 0 },
     bfly: null, bflyT: 20 + Math.random() * 12, bflyCount: 0, crow: null, nestOpen: false, nestT: 0, done: false, doneT: 0, banner: null,
     tut: [{ moved: 0, used: false, used2: false, ran: false }, { moved: 0, used: false, used2: false, ran: false }], runHint: 0, runHintDone: false, nextWaveT: -1, waveNeed: 1, waveGot: 0, duel: null, hits: 0, hintCharge: 0, rumbleT: 0, bounceT: 0, glint: 0,
@@ -452,7 +490,7 @@ function updateHero(h, dt) {
   if (h.dizzyVoice && P.time >= h.dizzyVoice && h.dizzy > 0) { h.dizzyVoice = 0; Snd.talk(h.k, 'dizzy'); }
   if (h.wasDizzy && h.dizzy <= 0 && s.joined) Snd.talk(h.k, 'recover');
   h.wasDizzy = h.dizzy > 0;
-  h.hugT = Math.max(0, h.hugT - dt); h.reachHint = Math.max(0, h.reachHint - dt); h.fullT = Math.max(0, h.fullT - dt); h.farT = Math.max(0, h.farT - dt); h.giveT = Math.max(0, h.giveT - dt); h.numT = Math.max(0, (h.numT || 0) - dt);
+  h.hugT = Math.max(0, h.hugT - dt); h.reachHint = Math.max(0, h.reachHint - dt); h.fullT = Math.max(0, h.fullT - dt); h.tooFarT = Math.max(0, h.tooFarT - dt); h.giveT = Math.max(0, h.giveT - dt); h.numT = Math.max(0, h.numT - dt); h.noT = Math.max(0, h.noT - dt);
   if (quotaOn() && (s.gP || (s.g && h.giveT <= 0))) { h.giveT = CONFIG.quota.giveEvery; giveEgg(h.k); }        // L1: give an egg to the friend (held down: again every giveEvery)
   h.small += ((h.down && isLupta() ? CONFIG.lupta.shrink : 1) - h.small) * Math.min(1, dt * 7);        // second game: a hero who was hit is tiny until the friend helps
   if (h.down) {                          // hit: waits for the friend. Nothing can hit a hero who is down.
@@ -904,6 +942,9 @@ function updatePlay(dt) {
   updateBall(dt);
   updateEggs(dt);
   updateGifts(dt);
+  updateJoinQuota();
+  updateQuotaMsg();
+  updateAutoGive(dt);
   updateEnemies(dt);
   if (L.birds) updateBirds(dt);
   if (P.boss) updateBoss(dt);

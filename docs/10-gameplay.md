@@ -114,7 +114,11 @@ Fiecare minge se misca in pasi mici (maximum 11 unitati pe pas) ca sa nu treaca 
 - Cand eroul e lovit, scapa un ou al lui (`P.found[k]--`, oul nou are `goal: true`). Daca nu are niciunul, nu scapa nimic si ouale prietenului nu se ating. In lupta mare ramane regula veche (ce s-a adunat in lupta).
 - **L1: `giveEgg(k)` (T14.4).** Se cheama din `updateHero` la `gP`, sau tinut apasat la fiecare `CONFIG.quota.giveEvery`. Verificari, in ordine: prietenul joaca; eroul nu e `down`, ametit sau purtat; `P.found[k] >= 1` (altfel sunetul `no`); prietenul are loc sub `cap`, numarand si ouale in zbor (`flying(to)`; altfel "Plin!" deasupra lui); distanta <= `giveRange` (altfel `h.farT` si balonul "Apropie-te de {0}!"). Daca da: `P.found[k]--` si oul intra in `P.gifts`. `updateGifts(dt)` il duce in arc 0.45 s spre prieten (urmareste prietenul daca el se misca) si la sosire `P.found[to]++`, sunetul `egg`, vibratie, "multumesc". Oul ajunge chiar daca cel care l-a dat e lovit pe drum. Sunetul `give` (doua note de marimba) e in `CHR`, deci merge in difuzorul controllerului.
 - **Sfarsitul nivelului (T14.5).** In `updatePlay`: `quotaMet = !quotaOn() || (quotaOk(0) && quotaOk(1))`, iar nivelul se termina doar cu `ready && quotaMet && (amandoi in cuib sau unul singur cand joaca singur)`. Cu un singur jucator `quotaOk` a celuilalt e adevarat (nu joaca). Cat timp amandoi sunt in cuib si cota lipseste, `P.needT` creste (il citeste ajutorul automat, T14.6) si banda de sus arata `quota.need` ("{0} mai are nevoie de {1}!"). Cuibul ramane deschis, ouale de pe jos se pot lua.
-- Nu e facut inca: insigna cu numaratoare (T14.7), bannerele "Ai gasit toate" (T14.8), ajutorul automat si cazurile speciale (T14.6).
+- **Ajutorul automat: `updateAutoGive(dt)` (T14.6).** Cat timp amandoi sunt in cuib si cota unuia lipseste, `P.needT` creste. Dupa `CONFIG.quota.autoGive` secunde (120, iar 0 opreste ajutorul) jocul muta singur, din `autoEvery` in `autoEvery` secunde (2), cate un ou de la cel care are **peste** cota lui la cel care lipseste, cu acelasi zbor ca la L1. Bannerul `quota.auto` ("{0} îți trimite un ou."). Nu se ia niciodata din ce are nevoie cel care da, deci nimeni nu pierde cota pe care si-a gasit-o. Niciun copil nu poate rama blocat in fata unui nivel pe care nu-l poate termina (regula 6 din `CLAUDE.md`).
+- **Al doilea jucator intra in mijlocul nivelului: `updateJoinQuota()` (C14).** `P.wasJoined` tine minte cine juca. Cand cineva intra, ce are prietenul peste `cap` zboara la el, pana la limita lui. Acelasi lucru se intampla cand un controller se deconecteaza si revine: cota celui plecat se socoteste indeplinita (`quotaOk` cere `isJoined`), `P.found` al lui nu se pierde, iar la revenire surplusul se muta.
+- **`sendEgg(from, to, auto)`** e locul prin care trece orice ou mutat intre eroi: scade la unul, il pune in `P.gifts`, sunetul `give`, vibratie. `giveEgg` (L1) si ajutorul automat il folosesc amandoua.
+- Reincepere dupa cele 10 secunde: `P` se reface, deci `P.found` revine la 0. Oul uriaș, luptele mari si bonusul curcubeului nu intra in cota si nu s-au schimbat.
+- Nu e facut inca: insigna cu numaratoare (T14.7), bannerele "Ai gasit toate" (T14.8).
 
 `checkWave()`: cand nu mai e niciun ou de val si niciun copac care sclipeste:
 
@@ -410,3 +414,7 @@ Dupa `CONFIG.rescue.retryMercy` (3) reinceperi ale aceluiasi capitol, limita dev
 | La boss | La fel: lupta reincepe de la inceput. |
 | Ce se pierde | Cristalele si stelele adunate in nivelul acesta. Totalul echipei revine la suma rezultatelor salvate (`startPlay` il reface). Rezultatele nivelurilor dinainte raman. |
 | Medalia "Fără nicio lovitură" | Ramane legata de `P.hits`, care porneste de la 0 la fiecare reincepere. |
+
+## Update 22 noiembrie 2026: mesajele cotei (T14.8)
+
+`updateQuotaMsg` (in `updatePlay`) ridica `quotaDone` o data pe erou cand isi termina cota si prietenul inca nu, doar cu doi jucatori; daca amandoi termina odata ridica `quotaBoth`. Textul numeste prietenul si butonul (L1 sau tasta). Testele: `tests/cota.js`.

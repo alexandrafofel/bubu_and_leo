@@ -27,7 +27,7 @@ const boot = require('./common.js');
   }
   await ev(() => { const G = __game, P = G.P; while (P.duel.hp > 0) { G.duelHit(1); step(70); if (P.duel.hp > 0) P.duel.state = 'tired'; } step(140); });
   await shot('p_nest');
-  await ev(() => { const G = __game, P = G.P; P.heroes[0].x = P.L.nest.x - 60; P.heroes[1].x = P.L.nest.x + 60; P.heroes[0].y = P.heroes[1].y = P.L.nest.y + 40; P.eggs.length = 0; P.levelEggs = 67; P.levelStars = 3; P.stars.forEach(s => { s.got = true; }); P.hits = 0; step(260); });      // no eggs left lying around: the level ends as soon as both are in the nest
+  await ev(() => { const G = __game, P = G.P; P.heroes[0].x = P.L.nest.x - 60; P.heroes[1].x = P.L.nest.x + 60; P.heroes[0].y = P.heroes[1].y = P.L.nest.y + 40; P.eggs.length = 0; P.found = [P.q, P.q]; P.wave = P.L.NW - 1; P.midFought = P.nestFought = true; P.nestOpen = true; P.nestOpenT = 20; P.levelEggs = 67; P.levelStars = 3; P.stars.forEach(s => { s.got = true; }); P.hits = 0; step(260); });      // no eggs left lying around: the level ends as soon as both are in the nest
   console.log('state', await ev(() => __game.Game.state + ' ' + JSON.stringify(__game.Game.results[5])));
   await ev(() => step(220)); await shot('p_levelend');
   // the new rules: a hero who waits for the friend, the magic ball on its way, a small enemy that was hit once

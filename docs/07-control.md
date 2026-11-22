@@ -153,3 +153,9 @@ Cererea proprietarei: "pe x apasa pentru puterea lor initiala, pe O sa se salvez
 - O salvare veche, fara `c` si `r`, se incarca si primeste tastele din `CONFIG` (`Save.apply` copiaza doar campurile din `KEY_FIELDS`).
 - Textele care spuneau "apasă pe pătrat" spun acum "apasă pe cerc". Cheile noi: `key.c`, `key.r`.
 - Testul: `tests/control-nou.js`.
+
+## Update 22 noiembrie 2026: ce face L1 (T14.3, T14.10)
+
+L1 (butonul 4 al unui DualShock 4; tastatura: `R` pentru primul erou, `.` pentru al doilea, reglabile in "Alege tastele") da un diamant prietenului. Campurile din `Input.slots[k]` sunt `g` (tinut) si `gP` (abia apasat), ca la celelalte butoane. `KEY_FIELDS` include `'g'`, deci tasta se salveaza cu restul.
+
+Apasarea nu face nimic in trei cazuri, fiecare cu semnul lui: fara diamante numarul din insigna se scutura, prea departe apare balonul "Apropie-te de {0}!", si prietenul nu joaca. Raza e `CONFIG.quota.giveRange` (420) si nu se poate da mai des de `giveEvery` (0.3 s). Detaliile: `10-gameplay.md` si `27-cota-de-oua.md`.

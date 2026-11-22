@@ -4,7 +4,7 @@
 
 Textele sunt in `STR` din src/015-lang.js. Cheia este numele folosit in cod: `T('cheie')`. `{0}` si `{1}` sunt locuri completate de cod (un nume, un numar).
 
-Total: 209 texte in romana si 209 in engleza.
+Total: 214 texte in romana si 213 in engleza.
 
 | Cheie | Linia (ro) | Romana | Engleza |
 |---|---|---|---|
@@ -23,6 +23,11 @@ Total: 209 texte in romana si 209 in engleza.
 | `quota.full` | 34 | Plin! | Full! |
 | `quota.far` | 34 | Apropie-te de {0}! | Come closer to {0}! |
 | `quota.need` | 34 | {0} mai are nevoie de {1}! | {0} still needs {1}! |
+| `quota.auto` | 34 | {0} îți trimite un ou. | {0} sends you one. |
+| `quota.done` | 34 | Ai găsit toate ouăle! Acum ajută-l și pe {0}: poți să-i dai cu {1}. | You found them all! Now help {0}: you can give them with {1}. |
+| `L:quota.done` | 34 | Ai găsit toate cristalele! Acum ajută-l și pe {0}: poți să-i dai cu {1}. | You found all the crystals! Now help {0}: you can give them with {1}. |
+| `quota.both` | 34 | Amândoi ați găsit toate! La cuib! | You both found them all! To the nest! |
+| `L:quota.auto` | 34 | {0} îți trimite un cristal. | (lipseste) |
 | `quota.one` | 34 | un ou | one egg |
 | `quota.many` | 34 | {0} ouă | {0} eggs |
 | `L:quota.one` | 34 | un cristal | one crystal |

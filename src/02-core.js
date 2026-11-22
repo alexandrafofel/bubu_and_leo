@@ -639,6 +639,16 @@ function iconSq(c, x, y, r, pulse) {
   c.strokeRect(-r * 0.4, -r * 0.4, r * 0.8, r * 0.8);
   c.restore();
 }
+/* L1: give an egg to the friend. A cream disc with a lilac rim and the letters L1 (the shoulder button). */
+function iconL1(c, x, y, r, pulse) {
+  const s = 1 + (pulse || 0) * 0.08;
+  c.save(); c.translate(x, y); c.scale(s, s);
+  soft(c, r * 0.06, r * 0.1, r, r, SHADOW, 0.25, 3);
+  puff(c, 0, 0, r, r, '#FFF6E2', 4, 'rgba(142,124,195,0.55)');
+  c.strokeStyle = '#8E7CC3'; c.lineWidth = r * 0.16; c.beginPath(); c.arc(0, 0, r * 0.72, 0, TAU); c.stroke();
+  text(c, 'L1', 0, r * 0.04, r * 0.82, '#5A4A8E', { halo: 0, shadow: 0, weight: 'bold' });
+  c.restore();
+}
 /* Text that may contain ✕ or □, drawn with the painted icons. Returns nothing. */
 /* ○: help the friend. Same shape as ✕ and □, in the warm coral of the ○ button. */
 function iconO(c, x, y, r, pulse) {

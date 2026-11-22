@@ -394,6 +394,10 @@ function guideTarget(h) {
     if (h.k === 1 && bs.state === 'down') { const g = bossGoal(); return L.arena ? { x: g.x, y: g.y + 50, kind: 'ball' } : { x: L.nest.x, y: L.nest.y + 60, kind: 'ball' }; }
     return nearestEgg(h, false);
   }
+  if (quotaOn() && bothJoined() && P.found[h.k] >= P.cap) {          // a full hero takes no more eggs: he goes to the friend who still needs some, or to the nest
+    if (!quotaOk(1 - h.k)) return { x: o.x, y: o.y, kind: 'give' };
+    return P.nestOpen ? { x: L.nest.x, y: L.nest.y, kind: 'nest' } : null;
+  }
   if (P.nestOpen) return nearestEgg(h, false, 700) || { x: L.nest.x, y: L.nest.y, kind: 'nest' };
   if (P.duel && !P.duel.over) {
     const d = P.duel, helper = rank(h.k) === 0 && Input.slots[o.k].joined && rank(o.k) > 0;     // the little one helps: eggs first, then the shelter
@@ -427,6 +431,7 @@ function drawGuides(c) {
       else if (g.kind === 'nest') c.drawImage(sprite('gNest', 56, 44, cc => drawNest(cc, 28, 22, 21, 3, 0)), ix - 28, iy - 22, 56, 44);
       else if (g.kind === 'x') iconX(c, ix, iy, 16, 0);
       else if (g.kind === 'help') iconO(c, ix, iy, 18, Math.sin(t * 8));
+      else if (g.kind === 'give') iconL1(c, ix, iy, 18, Math.sin(t * 8));
       else if (g.kind === 'ball') drawBall(c, ix, iy, 14, t * 2);
       else text(c, '!', ix, iy + 2, 40, '#D9463C', { halo: 0, shadow: 0, weight: 'bold' });
     }
@@ -460,9 +465,9 @@ function drawHints(c, v) {
     const sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 30, (h.y - v.tp) * v.z - (h.tagT > 0 ? 200 : 160) * v.z) + Math.sin(t * 5) * 5;
     iconSq(c, sx, sy, 24, Math.sin(t * 6));
   }
-  for (const h of P.heroes) if (h.farT > 0 && !h.down) {          // L1 pressed but the friend is too far: "come closer"
+  for (const h of P.heroes) if (h.tooFarT > 0 && !h.down) {       // L1 pressed but the friend is too far: "come closer"
     const sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 40, (h.y - v.tp) * v.z - 190 * v.z);
-    c.globalAlpha = Math.min(1, h.farT / 0.3);
+    c.globalAlpha = Math.min(1, h.tooFarT / 0.3);
     card(c, sx - 170, sy - 26, 340, 52, '#FFF6E2', 44 + h.k);
     fitText(c, T('quota.far', CONFIG.heroes[1 - h.k].name), sx, sy + 2, 28, 320, '#B9802E', { halo: 0, shadow: 0, weight: 'bold' });
     c.globalAlpha = 1;
@@ -526,21 +531,48 @@ function drawProgress(c) {
   c.strokeStyle = '#FFF8E8'; c.lineWidth = 3; c.beginPath(); c.arc(mx, y, 11, 0, TAU); c.stroke();
   text(c, Math.round(pr.u * 100) + '%', W / 2 + 432, y + 1, 22, '#8A6A5A', { align: 'left', shadow: 0, weight: 'bold' });
 }
-function drawBadge(c, k, x, y) {
-  const cfg = CONFIG.heroes[k], h = P.heroes[k], s = Input.slots[k], w = 300, hh = 88;
-  card(c, x, y, w, hh, '#FFF3DC', 20 + k);
-  c.fillStyle = rgba(cfg.color, 0.95); c.beginPath(); c.arc(x + 50, y + hh / 2, 34, 0, TAU); c.fill();
-  if (k === 1) { c.strokeStyle = cfg.color2; c.lineWidth = 5; c.beginPath(); c.arc(x + 50, y + hh / 2, 34, 0, TAU); c.stroke(); }
-  const dz = h.dizzy > 0, ps = sprite('port' + k + (dz ? 'd' : ''), 90, 90, cc => {
+/* The round picture of a hero (the one painted after the children's drawings) in a ring of his color; r = the radius of the ring. */
+function drawPort(c, k, cx, cy, r, dizzy) {
+  const cfg = CONFIG.heroes[k];
+  c.fillStyle = rgba(cfg.color, 0.95); c.beginPath(); c.arc(cx, cy, r, 0, TAU); c.fill();
+  if (k === 1) { c.strokeStyle = cfg.color2; c.lineWidth = 5; c.beginPath(); c.arc(cx, cy, r, 0, TAU); c.stroke(); }
+  const ps = sprite('port' + k + (dizzy ? 'd' : ''), 90, 90, cc => {
     cc.beginPath(); cc.arc(45, 45, 41, 0, TAU); cc.clip(); cc.fillStyle = '#FFF3DC'; cc.fillRect(0, 0, 90, 90);
     const pp = (isLupta() ? [[14, 131, 0.8], [43, 128, 0.92]] : [[27, 89, 0.8], [41, 129, 0.9]])[k];      // where the face sits in the round picture
-    drawHero(cc, k, pp[0], pp[1], { scale: pp[2], t: 1, dizzy: dz });
+    drawHero(cc, k, pp[0], pp[1], { scale: pp[2], t: 1, dizzy });
   });
-  c.drawImage(ps, x + 16, y + hh / 2 - 34, 68, 68);
-  text(c, cfg.name, x + 96, y + 34, 36, shade(cfg.color, -0.5), { align: 'left', title: true, halo: 0 });
-  if (!s.joined) richText(c, pressLabel(k), x + 96 + 62, y + 66, 22, '#8A6A6A', { halo: 0, shadow: 0, pulse: Math.sin(P.time * 5) });
-  else text(c, T('diff.' + Game.diff[k]), x + 96, y + 66, 22, '#8A6A6A', { align: 'left', halo: 0, shadow: 0 });
-  if (h.boost > 0) drawButterfly(c, x + w - 32, y + 44, P.time, 0.62);
+  c.drawImage(ps, cx - r, cy - r, r * 2, r * 2);
+}
+/* A round green tick, painted: the quota is found. */
+function drawTick(c, x, y, r) {
+  c.save(); c.translate(x, y);
+  soft(c, r * 0.05, r * 0.1, r, r, SHADOW, 0.22, 3);
+  puff(c, 0, 0, r, r, QUOTA_GREEN, 4, 'rgba(40,110,60,0.5)');
+  c.strokeStyle = '#FFF8E8'; c.lineWidth = r * 0.24; c.lineCap = 'round'; c.lineJoin = 'round';
+  c.beginPath(); c.moveTo(-r * 0.42, r * 0.02); c.lineTo(-r * 0.12, r * 0.34); c.lineTo(r * 0.46, -r * 0.32); c.stroke();
+  c.restore();
+}
+const QUOTA_GREEN = '#3E9A5A', QUOTA_RED = '#D6503F';      // contrast on the cream card (#FFF3DC): green 3.2 : 1, red 3.8 : 1
+/* The corner badge: portrait, name, difficulty and, when the level has a quota, "found / quota" in green (done) or red (still missing). 300 x 108, inside the band (16 to 124). */
+function drawBadge(c, k, x, y) {
+  const cfg = CONFIG.heroes[k], h = P.heroes[k], s = Input.slots[k], w = 300, hh = 108;
+  card(c, x, y, w, hh, '#FFF3DC', 20 + k);
+  drawPort(c, k, x + 54, y + hh / 2, 40, h.dizzy > 0);
+  text(c, cfg.name, x + 106, y + 30, 30, shade(cfg.color, -0.5), { align: 'left', title: true, halo: 0 });
+  if (s.joined) text(c, T('diff.' + Game.diff[k]), x + w - 14, y + 22, 18, '#8A6A6A', { align: 'right', halo: 0, shadow: 0 });
+  if (!s.joined) richText(c, pressLabel(k), x + 106 + 62, y + 76, 24, '#8A6A6A', { halo: 0, shadow: 0, pulse: Math.sin(P.time * 5) });
+  else if (quotaOn()) {
+    const qs = quotaState(k), col = qs.ok ? QUOTA_GREEN : QUOTA_RED, by = y + 78;
+    const pop = 1 + 0.25 * clamp(h.numT / 0.2, 0, 1);                                   // grows when an egg was given or received
+    const ph = P.time % 3, wob = !qs.ok && ph < 0.5 ? Math.sin(ph / 0.5 * TAU) * 0.0175 : 0;      // missing: a little wobble (1 degree) every 3 seconds, so it shows without color
+    const shake = h.noT > 0 ? Math.sin(P.time * 70) * 5 * clamp(h.noT / 0.3, 0, 1) : 0;           // L1 with nothing to give
+    c.save(); c.translate(x + 112 + shake, by); c.rotate(wob); c.scale(pop, pop);
+    c.save(); c.translate(10, 2); itemPath(c, 12); c.fillStyle = isLupta() ? '#7FB4E8' : '#F8CC4E'; c.fill(); c.strokeStyle = 'rgba(120,90,60,0.35)'; c.lineWidth = 2; c.stroke(); c.restore();
+    fitText(c, qs.found + ' / ' + qs.q, 28, 0, 46, qs.ok ? 116 : 152, col, { align: 'left', halo: 0.12, haloCol: shade(col, -0.35), shadow: 0, weight: 'bold' });
+    c.restore();
+    if (qs.ok) drawTick(c, x + w - 24, by, 15);
+  }
+  if (h.boost > 0) drawButterfly(c, x + w - 32, y + 56, P.time, 0.62);
 }
 /* "We wait for X in the nest": it used to be written in the world, over the nest. Now it is a banner in the band. */
 /* "Ajută-l pe Boon! ○" while a friend is down and the seconds are running. It comes before any other banner. */
@@ -576,7 +608,17 @@ function drawMidCard(c, ban) {
       c.globalAlpha = 1; c.restore();
       return;
     }
-    const label = ban.kind === 'need' ? T('quota.need', ban.name, ban.n === 1 ? T('quota.one') : T('quota.many', ban.n)) : T('ban.' + ban.kind, ban.kind === 'wait' ? ban.name : isLupta() ? CONFIG.lupta.rainbowBonus : '');
+    if (ban.kind === 'quotaDone') {                  // this hero found his quota: his picture, the words, and L1 with an arrow toward the friend
+      const k = ban.k, btn = Opt.ctrl[k] === 'kb' ? keyName(Opt.keys[k].g) : 'L1', lines = wrapLines(c, T('quota.done', ban.name, btn), cw - 250, 28);
+      drawPort(c, k, W / 2 - cw / 2 + 54, yc, 30, false);
+      const ly = yc - (Math.min(lines.length, 2) - 1) * 17;
+      lines.slice(0, 2).forEach((ln, i) => text(c, ln, W / 2 - 14, ly + i * 34, 28, '#7A4A52', { halo: 0, shadow: 0, weight: 'bold' }));
+      const ex = W / 2 + cw / 2 - 48, dir = k === 0 ? 1 : -1;
+      iconL1(c, ex - dir * 22, yc, 24, Math.sin(t * 7)); iconArrow(c, ex + dir * 22 + Math.sin(t * 6) * 5 * dir, yc, dir > 0 ? 0 : Math.PI, 16, '#F8C24E');
+      c.globalAlpha = 1; c.restore();
+      return;
+    }
+    const label = ban.kind === 'quotaBoth' ? T('quota.both') : ban.kind === 'need' ? T('quota.need', ban.name, ban.n === 1 ? T('quota.one') : T('quota.many', ban.n)) : ban.kind === 'auto' ? T('quota.auto', ban.name) : T('ban.' + ban.kind, ban.kind === 'wait' ? ban.name : isLupta() ? CONFIG.lupta.rainbowBonus : '');
     if (ban.kind === 'duel') {
       text(c, label, W / 2, y0 + 30, 40, '#C4573D', { title: true, halo: 0 });
       text(c, T(ban.mid ? 'duel.mid' : 'duel.guard', T('duel.' + ban.id)), W / 2, y0 + 66, 26, '#7A4A52', { halo: 0, shadow: 0, weight: 'bold' });
@@ -584,7 +626,7 @@ function drawMidCard(c, ban) {
       text(c, label, W / 2, yc, 46, '#C4573D', { title: true, halo: 0 });
       const ex = W / 2 + cw / 2 - 54;                 // the little picture sits at the right edge of the card
       if (ban.kind === 'more') iconArrow(c, ex + Math.sin(t * 6) * 6, yc, 0, 22, '#F8C24E');
-      if (ban.kind === 'nest' || ban.kind === 'wait') { drawNest(c, ex, yc + 4, 32, 5, 0); iconArrow(c, W / 2 - cw / 2 + 48 + Math.sin(t * 6) * 6, yc, 0, 19, '#F8C24E'); }
+      if (ban.kind === 'nest' || ban.kind === 'wait' || ban.kind === 'quotaBoth') { drawNest(c, ex, yc + 4, 32, 5, 0); iconArrow(c, W / 2 - cw / 2 + 48 + Math.sin(t * 6) * 6, yc, 0, 19, '#F8C24E'); }
       if (ban.kind === 'giant') drawEgg(c, ex, yc + 18, 19, t, 1, 0, 0, true);
       if (ban.kind === 'rainbow') for (let i = 0; i < 7; i++) { c.save(); c.translate(W / 2 + (i < 3 ? -cw / 2 + 34 + i * 24 : cw / 2 - 106 + (i - 3) * 24), yc + Math.sin(t * 6 + i) * 4); itemPath(c, 9); c.fillStyle = RAINBOW[i]; c.fill(); c.restore(); }
     }

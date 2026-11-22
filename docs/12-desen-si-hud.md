@@ -193,3 +193,11 @@ Trei copii ale eroului in spate (0.28, 0.18, 0.09), apoi sase linii subtiri de v
 - `iconO` si bulina prietenului de deasupra eroului cazut se mut la dreapta cand numaratoarea merge, ca sa faca loc cifrei.
 
 Atentie la `text(...)`: `halo` este **grosimea conturului ca parte din marimea fontului** (0.2 implicit), nu un numar de pixeli. `halo: 5` deseneaza un cerc crem imens peste jumatate de ecran.
+
+## Update 22 noiembrie 2026: insigna cu cota (T14.7, T14.8)
+
+- `drawBadge` are 300 x 108: portret rotund (`drawPort`, inel in culoarea eroului), nume, dificultate sus in dreapta si, cand nivelul are cota, un ou / cristal mic si `gasite / cota`.
+- Numarul e verde (`QUOTA_GREEN`) cand e gata, cu bifa (`drawTick`), si rosu (`QUOTA_RED`) cand lipseste, cu o clatinare de 1 grad la 3 secunde. Creste la 1,25 cand soseste un ou (`numT`) si se scutura cand L1 nu are ce da (`noT`).
+- `drawMidCard` are bannerele `quotaDone` (portret, text pe 2 randuri, `iconL1` care pulseaza, sageata spre prieten) si `quotaBoth`; `waitBanner` intoarce `need` cand cota lipseste.
+- `guideTarget` trimite eroul plin spre prietenul care are nevoie (`give`) sau spre cuib. `drawHints` deseneaza balonul "Apropie-te" si "Plin!".
+- Banda de sus ramane liber de eroi: `STRICT=1 node ../hud-acoperire.js` da 0%.
