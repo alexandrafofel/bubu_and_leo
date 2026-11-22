@@ -228,8 +228,9 @@ Atentie: `heroes[0]` si `heroes[1]` din tabelele de mai sus sunt eroii primului 
 | `b` | ajuta prietenul (butonul ○) | `KeyE` | `ShiftRight` |
 | `c` | a doua putere (butonul □) | `KeyQ` | `Slash` |
 | `r` | fuga (L3, apasarea stick-ului) | `ShiftLeft` | `AltRight` |
+| `g` | da un ou prietenului (L1) | `KeyR` | `Period` |
 
-Butoanele de controller nu se regleaza. O salvare veche, fara `c` si `r`, primeste valorile de aici.
+Butoanele de controller nu se regleaza. O salvare veche, fara `c`, `r` si `g`, primeste valorile de aici. (`g` a venit cu T14.3, 22 noiembrie 2026.)
 
 ### Fuga: `sprint`
 

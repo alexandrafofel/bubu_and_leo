@@ -147,6 +147,7 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `keys.0.b` | `"KeyE"` |  |
 | `keys.0.c` | `"KeyQ"` |  |
 | `keys.0.r` | `"ShiftLeft"` |  |
+| `keys.0.g` | `"KeyR"` |  |
 | `keys.1.up` | `"ArrowUp"` |  |
 | `keys.1.down` | `"ArrowDown"` |  |
 | `keys.1.left` | `"ArrowLeft"` |  |
@@ -155,6 +156,7 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `keys.1.b` | `"ShiftRight"` |  |
 | `keys.1.c` | `"Slash"` |  |
 | `keys.1.r` | `"AltRight"` |  |
+| `keys.1.g` | `"Period"` |  |
 | `sprint.enabled` | `true` |  |
 | `sprint.mult` | `3` |  |
 | `sprint.maxSpeed` | `1100` |  |

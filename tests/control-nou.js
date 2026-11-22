@@ -88,8 +88,8 @@ const boot = require('./common.js');
     return { ch, y: Math.round(Math.max(16, (1080 - ch) / 2)), fits: ch <= 1080 - 32 };
   });
   console.log('pagina tastelor: ' + rows.n + ' randuri (' + rows.fields.join(', ') + '), inaltime ' + fit.ch);
-  if (!(rows.n === 10 && fit.fits)) { console.log('GRESIT 12. pagina "Alege tastele" nu incape'); bad.push('12'); }
-  else console.log('ok   12. pagina "Alege tastele": 8 taste + 2 butoane, incape pe ecran');
+  if (!(rows.n === 11 && fit.fits)) { console.log('GRESIT 12. pagina "Alege tastele" nu incape'); bad.push('12'); }
+  else console.log('ok   12. pagina "Alege tastele": 9 taste + 2 butoane, incape pe ecran');
 
   if (bad.length) console.log('NEREUSIT: ' + bad.join(' | ')); else console.log('control-nou OK');
   await done();

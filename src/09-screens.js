@@ -85,7 +85,7 @@ const Save = {
   /* the furthest chapter open on the Chapters screen (-1: no chapter was ever finished, the button is not shown) */
   maxOpen(id) { const s = this.slot(id); return s && (s.max | 0) > 0 ? Math.min(s.max | 0, chapters(id).length - 1) : -1; }
 };
-const KEY_FIELDS = ['up', 'down', 'left', 'right', 'a', 'b', 'c', 'r'];      // a = first power (✕), b = help (○), c = second power (□), r = run (L3)
+const KEY_FIELDS = ['up', 'down', 'left', 'right', 'a', 'b', 'c', 'r', 'g'];      // a = first power (✕), b = help (○), c = second power (□), r = run (L3), g = give an egg (L1)
 
 /* Mouse: every clickable thing adds a rectangle while it is drawn. */
 function hitAdd(x, y, w, h, id, v, act, val) { UI.hits.push({ x, y, w, h, id, v, act, val }); }
@@ -751,6 +751,9 @@ function drawPadTester(c, x, y, g, t) {
   c.fillStyle = b(10) ? '#3F5A9A' : live ? '#6D8FD0' : 'rgba(109,143,208,0.45)'; c.beginPath(); c.arc(sx + ax * 24, sy + ay * 24, 16, 0, TAU); c.fill();      // L3: the cap goes darker when the stick is pressed
   // OPTIONS
   c.fillStyle = b(9) ? '#C4573D' : off; c.beginPath(); c.ellipse(x + 190, y + 40, 22, 9, 0, 0, TAU); c.fill();
+  // L1 (top left shoulder): gives an egg to the friend
+  c.fillStyle = b(4) ? '#F8C24E' : off; c.beginPath(); c.ellipse(x + 62, y + 22, 30, 12, 0, 0, TAU); c.fill();
+  text(c, 'L1', x + 62, y + 24, 20, b(4) ? '#FFF8E8' : '#6A3A30', { halo: 0, shadow: 0, weight: 'bold' });
   // △ ○ ✕ □
   const fx = x + 276, fy = y + 86, shapes = [[3, 0, -1, '#6FB58A'], [1, 1, 0, '#E2574C'], [0, 0, 1, '#6D8FD0'], [2, -1, 0, '#D98AC0']];
   for (const sI of shapes) {

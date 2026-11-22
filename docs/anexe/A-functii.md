@@ -215,20 +215,20 @@ Nicio functie.
 | 10 | `Input(()` | functie sageata | INPUT: two DualShock 4 controllers through the Gamepad API (standard mapping) or the keyboard. ✕ (button 0) = first power, ○ (button 1) = help the friend, □ (button 2) = second power, L3 (button 10, pressing the left stick) = run. Each hero is played with what was chosen in Setări: a controller ('pad') or the keyboard ('kb') with its own keys. Menus listen to everything: every controller, the arrow keys, Enter, Space, Backspace and the players' own keys. |
 | 12 | `kd(code)` | functie sageata |  |
 | 13 | `mk()` | functie sageata |  |
-| 35 | `pads()` | functie |  |
-| 40 | `assigned(i)` | functie |  |
-| 41 | `freeSlot()` | functie | the hero a newly pressed controller will play |
-| 48 | `poll(dt)` | functie |  |
-| 55 | `b(n)` | functie sageata |  |
-| 76 | `b(n)` | functie sageata |  |
-| 131 | `rumble(k, strong, weak, ms, force)` | functie | returns false when this controller cannot vibrate |
-| 144 | `setCtrl(k, kind)` | functie | Settings: play hero k with a controller or with the keyboard. |
-| 149 | `unbind(k)` | functie |  |
-| 150 | `swap()` | functie | the two players trade heroes: controllers go with the players |
-| 157 | `capture(f)` | metoda |  |
-| 158 | `muteHeld()` | metoda |  |
-| 159 | `any(f)` | metoda |  |
-| 160 | `padCount()` | metoda |  |
+| 36 | `pads()` | functie |  |
+| 41 | `assigned(i)` | functie |  |
+| 42 | `freeSlot()` | functie | the hero a newly pressed controller will play |
+| 49 | `poll(dt)` | functie |  |
+| 56 | `b(n)` | functie sageata |  |
+| 77 | `b(n)` | functie sageata |  |
+| 134 | `rumble(k, strong, weak, ms, force)` | functie | returns false when this controller cannot vibrate |
+| 147 | `setCtrl(k, kind)` | functie | Settings: play hero k with a controller or with the keyboard. |
+| 152 | `unbind(k)` | functie |  |
+| 153 | `swap()` | functie | the two players trade heroes: controllers go with the players |
+| 160 | `capture(f)` | metoda |  |
+| 161 | `muteHeld()` | metoda |  |
+| 162 | `any(f)` | metoda |  |
+| 163 | `padCount()` | metoda |  |
 
 ## 05-chars.js
 
@@ -590,17 +590,17 @@ Nicio functie.
 | 727 | `updateSettings(dt)` | functie |  |
 | 740 | `drawPadTester(c, x, y, g, t)` | functie |  |
 | 742 | `b(n)` | functie sageata |  |
-| 767 | `drawPadBody(c, x, y, cw, k, t)` | functie |  |
-| 769 | `step(n, yy, done, label, w)` | functie sageata |  |
-| 774 | `small(str, yy, col)` | functie sageata |  |
-| 787 | `drawSettings(c, t)` | functie |  |
-| 800 | `restoreSpeakers(ask)` | functie | Chrome only tells the names of the speakers while it has the microphone permission, and for a page opened from a file it forgets that permission when the page is closed. So when the saved speaker is not in the list, the question is asked again (ask = true). If the speaker is still not there, the start screen says so: the sounds are then on the computer. |
-| 812 | `startEnding()` | functie | ---------- the Sunset Festival ---------- |
-| 841 | `updateEnding(dt)` | functie |  |
-| 860 | `drawEndingL(c, t)` | functie | The end of the second game: the Rainbow Party. The crystals are the present, the heroes get medals, and little stars fly in and hug them. |
-| 865 | `bob(k)` | functie sageata |  |
-| 919 | `drawEnding(c, t)` | functie |  |
-| 925 | `bob(k)` | functie sageata |  |
+| 770 | `drawPadBody(c, x, y, cw, k, t)` | functie |  |
+| 772 | `step(n, yy, done, label, w)` | functie sageata |  |
+| 777 | `small(str, yy, col)` | functie sageata |  |
+| 790 | `drawSettings(c, t)` | functie |  |
+| 803 | `restoreSpeakers(ask)` | functie | Chrome only tells the names of the speakers while it has the microphone permission, and for a page opened from a file it forgets that permission when the page is closed. So when the saved speaker is not in the list, the question is asked again (ask = true). If the speaker is still not there, the start screen says so: the sounds are then on the computer. |
+| 815 | `startEnding()` | functie | ---------- the Sunset Festival ---------- |
+| 844 | `updateEnding(dt)` | functie |  |
+| 863 | `drawEndingL(c, t)` | functie | The end of the second game: the Rainbow Party. The crystals are the present, the heroes get medals, and little stars fly in and hug them. |
+| 868 | `bob(k)` | functie sageata |  |
+| 922 | `drawEnding(c, t)` | functie |  |
+| 928 | `bob(k)` | functie sageata |  |
 
 ## 10-main.js
 

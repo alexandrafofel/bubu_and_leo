@@ -339,3 +339,11 @@ Cererea proprietarei: "scoate jocul Bubu si Leo, lasa doar Cea mai grea lupta. M
 | Ochii vechi raman pentru clipit, fericit, ametit. | Acolo nu se vede nicio lucire. |
 | Coroana lui George nu s-a schimbat. | E "cornul-coroana" din desen, cu dungi; promptul cere sa nu se atinga. |
 | Varful mai inchis al picioarelor lui Boon si al pantalonilor lui Killer s-a pierdut (`lite` nu are suprapunere de culoare). | Diferenta e de cateva procente de culoare pe o parte mica; costa un `clip`. |
+
+### T14.3: butonul L1 (22 noiembrie 2026)
+
+| Decizie | De ce |
+|---|---|
+| L1 = indicele 4 in gamepad, tastele `KeyR` si `Period` | Cererea din C6. Tastele nu se ciocnesc cu cele existente sau cu `RESERVED`. |
+| L1 se adauga in `KEY_FIELDS`, deci apare ca rand in "Alege tastele" | Jucatorii il pot muta ca pe celelalte butoane. |
+| O salvare veche fara `g` pastreaza valoarea implicita | `apply()` copiaza doar campurile care exista in salvare. |

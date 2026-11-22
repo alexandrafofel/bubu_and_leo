@@ -161,8 +161,8 @@ const CONFIG = {
   deadzone: 0.25,              // stick deadzone (0.25 or more)
   vibration: true,
   keys: [                      // starting keys: player 1, player 2 (KeyboardEvent.code names)
-    { up: 'KeyW', down: 'KeyS', left: 'KeyA', right: 'KeyD', a: 'Space', b: 'KeyE', c: 'KeyQ', r: 'ShiftLeft' },   // a = first power (✕), b = help the friend (○), c = second power (□), r = run (L3)
-    { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', a: 'Enter', b: 'ShiftRight', c: 'Slash', r: 'AltRight' }
+    { up: 'KeyW', down: 'KeyS', left: 'KeyA', right: 'KeyD', a: 'Space', b: 'KeyE', c: 'KeyQ', r: 'ShiftLeft', g: 'KeyR' },   // a = first power (✕), b = help the friend (○), c = second power (□), r = run (L3), g = give an egg (L1)
+    { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', a: 'Enter', b: 'ShiftRight', c: 'Slash', r: 'AltRight', g: 'Period' }
   ],
 
   // ---- Run: press the left stick (L3) ----
@@ -346,7 +346,7 @@ const STR = {
     'set.fsHint': 'Apasă tasta F pentru ecran complet.',
     'pad.noVib': 'Acest controller nu poate vibra în Chrome.', 'spk.ok': 'Sunetele lui {0} se aud acum în: {1}', 'spk.fail': 'Nu am putut porni acest difuzor.',
     'set.hint': 'sus / jos = alege      stânga / dreapta = schimbă      ✕ sau Enter = OK      ○ sau Backspace = înapoi',
-    'key.title': 'Tastele lui {0}', 'key.up': 'Sus', 'key.down': 'Jos', 'key.left': 'Stânga', 'key.right': 'Dreapta', 'key.a': 'Prima putere (butonul ✕)', 'key.b': 'Ajută prietenul (butonul ○)', 'key.c': 'A doua putere (butonul □)', 'key.r': 'Fugă (apasă stick-ul, L3)',
+    'key.title': 'Tastele lui {0}', 'key.up': 'Sus', 'key.down': 'Jos', 'key.left': 'Stânga', 'key.right': 'Dreapta', 'key.a': 'Prima putere (butonul ✕)', 'key.b': 'Ajută prietenul (butonul ○)', 'key.c': 'A doua putere (butonul □)', 'key.r': 'Fugă (apasă stick-ul, L3)', 'key.g': 'Dă un ou prietenului (butonul L1)',
     'key.press': 'Apasă tasta nouă', 'key.reset': 'Tastele de la început', 'key.space': 'Spațiu', 'key.taken': 'Tasta era folosită. Le-am schimbat între ele.',
     'key.no': 'Tasta aceasta este păstrată pentru meniu.',
     'pad.title': 'Controllerul lui {0}', 'pad.s1': 'Pornește controllerul',
@@ -438,7 +438,7 @@ const STR = {
     'set.fsHint': 'Press the F key for full screen.',
     'pad.noVib': 'This controller cannot vibrate in Chrome.', 'spk.ok': "{0}'s sounds now play on: {1}", 'spk.fail': 'That speaker could not be started.',
     'set.hint': 'up / down = choose      left / right = change      ✕ or Enter = OK      ○ or Backspace = back',
-    'key.title': "{0}'s keys", 'key.up': 'Up', 'key.down': 'Down', 'key.left': 'Left', 'key.right': 'Right', 'key.a': 'First power (the ✕ button)', 'key.b': 'Help your friend (the ○ button)', 'key.c': 'Second power (the □ button)', 'key.r': 'Run (press the stick, L3)',
+    'key.title': "{0}'s keys", 'key.up': 'Up', 'key.down': 'Down', 'key.left': 'Left', 'key.right': 'Right', 'key.a': 'First power (the ✕ button)', 'key.b': 'Help your friend (the ○ button)', 'key.c': 'Second power (the □ button)', 'key.r': 'Run (press the stick, L3)', 'key.g': 'Give an egg to your friend (the L1 button)',
     'key.press': 'Press the new key', 'key.reset': 'Starting keys', 'key.space': 'Space', 'key.taken': 'That key was in use. The two were swapped.',
     'key.no': 'That key is kept for the menu.',
     'pad.title': "{0}'s controller", 'pad.s1': 'Turn the controller on',
@@ -1784,6 +1784,7 @@ const Input = (() => {
     h: false, hP: false,                      // ○: help the friend
     c: false, cP: false, cR: false,           // □: the second power
     run: false, runP: false,                  // L3: run
+    g: false, gP: false,                      // L1: give an egg to the friend (second game)
     start: false, tri: false, back: false, up: false, down: false, left: false, right: false, _p: {}, _rep: 0 });
   const slots = [mk(), mk()];
   const menu = { up: false, down: false, left: false, right: false, ok: false, back: false, pause: false, _p: {}, _rep: 0 };
@@ -1837,7 +1838,7 @@ const Input = (() => {
     for (let k = 0; k < 2; k++) {
       const s = slots[k], kb = Opt.keys[k];
       let x = 0, y = 0, a = false, start = false, tri = false, back = false, sq = false, hp = false, l3 = false;
-      let dU = false, dD = false, dL = false, dR = false;
+      let dU = false, dD = false, dL = false, dR = false, l1 = false;
       s.lost = false;
       if (s.pad != null) {
         const g = gp[s.pad];
@@ -1849,6 +1850,7 @@ const Input = (() => {
           if (m > dz) { const f = Math.min(1, (m - dz) / (1 - dz)) / m; x = ax * f; y = ay * f; }
           if (b(12)) y = -1; if (b(13)) y = 1; if (b(14)) x = -1; if (b(15)) x = 1;
           a = b(0); start = b(9); tri = b(3); back = b(1); hp = b(1); sq = b(2); l3 = b(10);      // ○ is "back" in the menus and "help the friend" in the game
+          l1 = b(4);                                   // L1: give an egg to the friend
           dU = y < -0.55; dD = y > 0.55; dL = x < -0.55; dR = x > 0.55;
           s.joined = true;
         }
@@ -1860,7 +1862,7 @@ const Input = (() => {
         if (kd(kb.left)) kx -= 1; if (kd(kb.right)) kx += 1; if (kd(kb.up)) ky -= 1; if (kd(kb.down)) ky += 1;
         if (kx || ky || kd(kb.a)) { s.usedKb = true; s.joined = true; }
         if (kx || ky) { x = kx; y = ky; dU = ky < 0; dD = ky > 0; dL = kx < 0; dR = kx > 0; }
-        a = kd(kb.a); hp = kd(kb.b); sq = kd(kb.c); l3 = kd(kb.r);
+        a = kd(kb.a); hp = kd(kb.b); sq = kd(kb.c); l3 = kd(kb.r); l1 = kd(kb.g);
         mU = mU || dU; mD = mD || dD; mL = mL || dL; mR = mR || dR; mOk = mOk || a;
       }
       const m = Math.hypot(x, y); if (m > 1) { x /= m; y /= m; }
@@ -1870,6 +1872,7 @@ const Input = (() => {
       s.hP = hp && !p.hp; s.h = hp;                 // ○ (or the help key): help the friend who was hit
       s.cP = sq && !p.sq; s.cR = !sq && !!p.sq; s.c = sq;      // □ (or its key): the second power
       s.runP = l3 && !p.l3; s.run = l3;             // L3 (or its key): run
+      s.gP = l1 && !p.g; s.g = l1;                  // L1 (or its key): give an egg
       s.start = start && !p.start; s.tri = tri && !p.tri; s.back = back && !p.back;
       s.up = dU && !p.dU; s.down = dD && !p.dD;
       // left/right repeat while held (for the volume sliders)
@@ -1879,7 +1882,7 @@ const Input = (() => {
         if (p.lr !== lr) { s._rep = 0.4; s.left = lr < 0; s.right = lr > 0; }
         else { s._rep -= dt; if (s._rep <= 0) { s._rep = 0.16; s.left = lr < 0; s.right = lr > 0; } }
       }
-      p.a = a; p.sq = sq; p.hp = hp; p.l3 = l3; p.start = start; p.tri = tri; p.back = back; p.dU = dU; p.dD = dD; p.lr = lr;
+      p.a = a; p.sq = sq; p.hp = hp; p.l3 = l3; p.g = l1; p.start = start; p.tri = tri; p.back = back; p.dU = dU; p.dD = dD; p.lr = lr;
     }
     // menus: fixed keys always work
     mU = mU || kd('ArrowUp'); mD = mD || kd('ArrowDown'); mL = mL || kd('ArrowLeft'); mR = mR || kd('ArrowRight');
@@ -5870,7 +5873,7 @@ const Save = {
   /* the furthest chapter open on the Chapters screen (-1: no chapter was ever finished, the button is not shown) */
   maxOpen(id) { const s = this.slot(id); return s && (s.max | 0) > 0 ? Math.min(s.max | 0, chapters(id).length - 1) : -1; }
 };
-const KEY_FIELDS = ['up', 'down', 'left', 'right', 'a', 'b', 'c', 'r'];      // a = first power (✕), b = help (○), c = second power (□), r = run (L3)
+const KEY_FIELDS = ['up', 'down', 'left', 'right', 'a', 'b', 'c', 'r', 'g'];      // a = first power (✕), b = help (○), c = second power (□), r = run (L3), g = give an egg (L1)
 
 /* Mouse: every clickable thing adds a rectangle while it is drawn. */
 function hitAdd(x, y, w, h, id, v, act, val) { UI.hits.push({ x, y, w, h, id, v, act, val }); }
@@ -6536,6 +6539,9 @@ function drawPadTester(c, x, y, g, t) {
   c.fillStyle = b(10) ? '#3F5A9A' : live ? '#6D8FD0' : 'rgba(109,143,208,0.45)'; c.beginPath(); c.arc(sx + ax * 24, sy + ay * 24, 16, 0, TAU); c.fill();      // L3: the cap goes darker when the stick is pressed
   // OPTIONS
   c.fillStyle = b(9) ? '#C4573D' : off; c.beginPath(); c.ellipse(x + 190, y + 40, 22, 9, 0, 0, TAU); c.fill();
+  // L1 (top left shoulder): gives an egg to the friend
+  c.fillStyle = b(4) ? '#F8C24E' : off; c.beginPath(); c.ellipse(x + 62, y + 22, 30, 12, 0, 0, TAU); c.fill();
+  text(c, 'L1', x + 62, y + 24, 20, b(4) ? '#FFF8E8' : '#6A3A30', { halo: 0, shadow: 0, weight: 'bold' });
   // △ ○ ✕ □
   const fx = x + 276, fy = y + 86, shapes = [[3, 0, -1, '#6FB58A'], [1, 1, 0, '#E2574C'], [0, 0, 1, '#6D8FD0'], [2, -1, 0, '#D98AC0']];
   for (const sI of shapes) {

@@ -16,21 +16,21 @@ Culori hex diferite: 544. Culori rgba() scrise direct: 191 aparitii, 115 valori 
 | ![](https://placehold.co/24x24/F29A9A/F29A9A.png) | `#F29A9A` | rosu / teracota | 0°, 77%, 78% | 1 | 075-duel.js:318 |
 | ![](https://placehold.co/24x24/FFFFFF/FFFFFF.png) | `#FFFFFF` | crem / aproape alb | 0°, 0%, 100% | 6 | 05-chars.js:23, 055-lupta.js:129, 055-lupta.js:242, 06-level.js:538, 07-play.js:528, 07-play.js:840 |
 | ![](https://placehold.co/24x24/D9463C/D9463C.png) | `#D9463C` | rosu / teracota | 4°, 67%, 54% | 10 | 01-config.js:19, 01-config.js:31, 05-chars.js:204, 06-level.js:506, 06-level.js:511, 075-duel.js:264, 075-duel.js:344, 08-draw.js:185, 08-draw.js:323, 08-draw.js:429 |
-| ![](https://placehold.co/24x24/E2574C/E2574C.png) | `#E2574C` | rosu / teracota | 4°, 72%, 59% | 5 | 075-duel.js:371, 08-draw.js:166, 08-draw.js:497, 08-draw.js:510, 09-screens.js:755 |
-| ![](https://placehold.co/24x24/E7A6A1/E7A6A1.png) | `#E7A6A1` | rosu / teracota | 4°, 59%, 77% | 8 | 06-level.js:55, 06-level.js:56, 06-level.js:57, 06-level.js:58, 06-level.js:59, 06-level.js:511, 07-play.js:104, 09-screens.js:832 |
+| ![](https://placehold.co/24x24/E2574C/E2574C.png) | `#E2574C` | rosu / teracota | 4°, 72%, 59% | 5 | 075-duel.js:371, 08-draw.js:166, 08-draw.js:497, 08-draw.js:510, 09-screens.js:758 |
+| ![](https://placehold.co/24x24/E7A6A1/E7A6A1.png) | `#E7A6A1` | rosu / teracota | 4°, 59%, 77% | 8 | 06-level.js:55, 06-level.js:56, 06-level.js:57, 06-level.js:58, 06-level.js:59, 06-level.js:511, 07-play.js:104, 09-screens.js:835 |
 | ![](https://placehold.co/24x24/F4B6B0/F4B6B0.png) | `#F4B6B0` | rosu / teracota | 5°, 76%, 82% | 1 | 07-play.js:104 |
 | ![](https://placehold.co/24x24/BE665C/BE665C.png) | `#BE665C` | rosu / teracota | 6°, 43%, 55% | 1 | 05-chars.js:170 |
 | ![](https://placehold.co/24x24/F29C8E/F29C8E.png) | `#F29C8E` | rosu / teracota | 8°, 79%, 75% | 5 | 05-chars.js:62, 05-chars.js:110, 05-chars.js:110, 055-lupta.js:228, 055-lupta.js:228 |
-| ![](https://placehold.co/24x24/FFC8C0/FFC8C0.png) | `#FFC8C0` | rosu / teracota | 8°, 100%, 88% | 1 | 09-screens.js:847 |
+| ![](https://placehold.co/24x24/FFC8C0/FFC8C0.png) | `#FFC8C0` | rosu / teracota | 8°, 100%, 88% | 1 | 09-screens.js:850 |
 | ![](https://placehold.co/24x24/7A3428/7A3428.png) | `#7A3428` | rosu / teracota | 9°, 51%, 32% | 1 | 075-duel.js:295 |
 | ![](https://placehold.co/24x24/D0604C/D0604C.png) | `#D0604C` | rosu / teracota | 9°, 58%, 56% | 1 | 075-duel.js:287 |
-| ![](https://placehold.co/24x24/6A3A30/6A3A30.png) | `#6A3A30` | rosu / teracota | 10°, 38%, 30% | 4 | 09-screens.js:291, 09-screens.js:566, 09-screens.js:573, 09-screens.js:772 |
+| ![](https://placehold.co/24x24/6A3A30/6A3A30.png) | `#6A3A30` | rosu / teracota | 10°, 38%, 30% | 5 | 09-screens.js:291, 09-screens.js:566, 09-screens.js:573, 09-screens.js:756, 09-screens.js:775 |
 | ![](https://placehold.co/24x24/B4503C/B4503C.png) | `#B4503C` | rosu / teracota | 10°, 50%, 47% | 3 | 075-duel.js:282, 075-duel.js:290, 075-duel.js:293 |
 | ![](https://placehold.co/24x24/E4583C/E4583C.png) | `#E4583C` | rosu / teracota | 10°, 76%, 56% | 14 | 01-config.js:220, 02-core.js:649, 055-lupta.js:196, 055-lupta.js:311, 055-lupta.js:444, 055-lupta.js:446, 055-lupta.js:460, 055-lupta.js:474, 055-lupta.js:488, 055-lupta.js:491, 055-lupta.js:492, 06-level.js:975, 08-draw.js:59, 08-draw.js:153 |
 | ![](https://placehold.co/24x24/E0705A/E0705A.png) | `#E0705A` | rosu / teracota | 10°, 68%, 62% | 3 | 075-duel.js:287, 075-duel.js:287, 075-duel.js:290 |
 | ![](https://placehold.co/24x24/D9735C/D9735C.png) | `#D9735C` | rosu / teracota | 11°, 62%, 61% | 1 | 06-level.js:788 |
 | ![](https://placehold.co/24x24/F4B6A8/F4B6A8.png) | `#F4B6A8` | rosu / teracota | 11°, 78%, 81% | 1 | 02-core.js:527 |
-| ![](https://placehold.co/24x24/C4573D/C4573D.png) | `#C4573D` | rosu / teracota | 12°, 53%, 50% | 30 | 05-chars.js:82, 05-chars.js:126, 05-chars.js:127, 075-duel.js:375, 08-draw.js:497, 08-draw.js:568, 08-draw.js:571, 09-screens.js:243, 09-screens.js:247, 09-screens.js:279, 09-screens.js:294, 09-screens.js:295, 09-screens.js:402, 09-screens.js:405, 09-screens.js:458, 09-screens.js:466, 09-screens.js:494, 09-screens.js:514, 09-screens.js:562, 09-screens.js:563, 09-screens.js:573, 09-screens.js:579, 09-screens.js:584, 09-screens.js:584, 09-screens.js:588, 09-screens.js:592, 09-screens.js:746, 09-screens.js:753, 09-screens.js:781, 10-main.js:137 |
+| ![](https://placehold.co/24x24/C4573D/C4573D.png) | `#C4573D` | rosu / teracota | 12°, 53%, 50% | 30 | 05-chars.js:82, 05-chars.js:126, 05-chars.js:127, 075-duel.js:375, 08-draw.js:497, 08-draw.js:568, 08-draw.js:571, 09-screens.js:243, 09-screens.js:247, 09-screens.js:279, 09-screens.js:294, 09-screens.js:295, 09-screens.js:402, 09-screens.js:405, 09-screens.js:458, 09-screens.js:466, 09-screens.js:494, 09-screens.js:514, 09-screens.js:562, 09-screens.js:563, 09-screens.js:573, 09-screens.js:579, 09-screens.js:584, 09-screens.js:584, 09-screens.js:588, 09-screens.js:592, 09-screens.js:746, 09-screens.js:753, 09-screens.js:784, 10-main.js:137 |
 | ![](https://placehold.co/24x24/FFD0C4/FFD0C4.png) | `#FFD0C4` | rosu / teracota | 12°, 100%, 88% | 1 | 07-play.js:886 |
 | ![](https://placehold.co/24x24/8A4A38/8A4A38.png) | `#8A4A38` | rosu / teracota | 13°, 42%, 38% | 1 | 05-chars.js:63 |
 | ![](https://placehold.co/24x24/9A5440/9A5440.png) | `#9A5440` | rosu / teracota | 13°, 41%, 43% | 3 | 05-chars.js:111, 055-lupta.js:229, 055-lupta.js:231 |
@@ -58,11 +58,11 @@ Culori hex diferite: 544. Culori rgba() scrise direct: 191 aparitii, 115 valori 
 | ![](https://placehold.co/24x24/8A6A5A/8A6A5A.png) | `#8A6A5A` | portocaliu / piersica | 20°, 21%, 45% | 1 | 08-draw.js:518 |
 | ![](https://placehold.co/24x24/BFA090/BFA090.png) | `#BFA090` | portocaliu / piersica | 20°, 27%, 66% | 1 | 06-level.js:59 |
 | ![](https://placehold.co/24x24/C4A08E/C4A08E.png) | `#C4A08E` | portocaliu / piersica | 20°, 31%, 66% | 1 | 06-level.js:67 |
-| ![](https://placehold.co/24x24/F4B08E/F4B08E.png) | `#F4B08E` | portocaliu / piersica | 20°, 82%, 76% | 7 | 05-chars.js:266, 055-lupta.js:432, 08-draw.js:599, 09-screens.js:391, 09-screens.js:523, 09-screens.js:913, 09-screens.js:948 |
+| ![](https://placehold.co/24x24/F4B08E/F4B08E.png) | `#F4B08E` | portocaliu / piersica | 20°, 82%, 76% | 7 | 05-chars.js:266, 055-lupta.js:432, 08-draw.js:599, 09-screens.js:391, 09-screens.js:523, 09-screens.js:916, 09-screens.js:951 |
 | ![](https://placehold.co/24x24/7C4B30/7C4B30.png) | `#7C4B30` | portocaliu / piersica | 21°, 44%, 34% | 1 | 05-chars.js:76 |
 | ![](https://placehold.co/24x24/B89684/B89684.png) | `#B89684` | portocaliu / piersica | 21°, 27%, 62% | 1 | 09-screens.js:428 |
 | ![](https://placehold.co/24x24/DB9C79/DB9C79.png) | `#DB9C79` | portocaliu / piersica | 21°, 58%, 67% | 1 | 06-level.js:67 |
-| ![](https://placehold.co/24x24/E9A07A/E9A07A.png) | `#E9A07A` | portocaliu / piersica | 21°, 72%, 70% | 4 | 06-level.js:673, 06-level.js:692, 06-level.js:788, 09-screens.js:832 |
+| ![](https://placehold.co/24x24/E9A07A/E9A07A.png) | `#E9A07A` | portocaliu / piersica | 21°, 72%, 70% | 4 | 06-level.js:673, 06-level.js:692, 06-level.js:788, 09-screens.js:835 |
 | ![](https://placehold.co/24x24/8A6048/8A6048.png) | `#8A6048` | portocaliu / piersica | 22°, 31%, 41% | 2 | 06-level.js:56, 06-level.js:59 |
 | ![](https://placehold.co/24x24/C8784A/C8784A.png) | `#C8784A` | portocaliu / piersica | 22°, 53%, 54% | 1 | 06-level.js:618 |
 | ![](https://placehold.co/24x24/B9A092/B9A092.png) | `#B9A092` | portocaliu / piersica | 22°, 22%, 65% | 1 | 06-level.js:56 |
@@ -76,7 +76,7 @@ Culori hex diferite: 544. Culori rgba() scrise direct: 191 aparitii, 115 valori 
 | ![](https://placehold.co/24x24/9A6B4C/9A6B4C.png) | `#9A6B4C` | portocaliu / piersica | 24°, 34%, 45% | 4 | 055-lupta.js:458, 06-level.js:55, 06-level.js:58, 06-level.js:681 |
 | ![](https://placehold.co/24x24/D8A07A/D8A07A.png) | `#D8A07A` | portocaliu / piersica | 24°, 55%, 66% | 1 | 06-level.js:67 |
 | ![](https://placehold.co/24x24/E8A87C/E8A87C.png) | `#E8A87C` | portocaliu / piersica | 24°, 70%, 70% | 1 | 09-screens.js:506 |
-| ![](https://placehold.co/24x24/FFB88A/FFB88A.png) | `#FFB88A` | portocaliu / piersica | 24°, 100%, 77% | 1 | 09-screens.js:847 |
+| ![](https://placehold.co/24x24/FFB88A/FFB88A.png) | `#FFB88A` | portocaliu / piersica | 24°, 100%, 77% | 1 | 09-screens.js:850 |
 | ![](https://placehold.co/24x24/9C6A46/9C6A46.png) | `#9C6A46` | portocaliu / piersica | 25°, 38%, 44% | 6 | 05-chars.js:212, 06-level.js:493, 06-level.js:519, 07-play.js:596, 07-play.js:687, 07-play.js:810 |
 | ![](https://placehold.co/24x24/A8744E/A8744E.png) | `#A8744E` | portocaliu / piersica | 25°, 37%, 48% | 1 | 06-level.js:873 |
 | ![](https://placehold.co/24x24/D98A52/D98A52.png) | `#D98A52` | portocaliu / piersica | 25°, 64%, 59% | 1 | 06-level.js:67 |
@@ -95,11 +95,11 @@ Culori hex diferite: 544. Culori rgba() scrise direct: 191 aparitii, 115 valori 
 | ![](https://placehold.co/24x24/FF9A4A/FF9A4A.png) | `#FF9A4A` | portocaliu / piersica | 27°, 100%, 65% | 5 | 055-lupta.js:332, 055-lupta.js:333, 055-lupta.js:336, 055-lupta.js:336, 055-lupta.js:353 |
 | ![](https://placehold.co/24x24/C2A994/C2A994.png) | `#C2A994` | portocaliu / piersica | 27°, 27%, 67% | 1 | 06-level.js:57 |
 | ![](https://placehold.co/24x24/FFC08C/FFC08C.png) | `#FFC08C` | portocaliu / piersica | 27°, 100%, 77% | 1 | 06-level.js:854 |
-| ![](https://placehold.co/24x24/8A5A30/8A5A30.png) | `#8A5A30` | portocaliu / piersica | 28°, 48%, 36% | 2 | 09-screens.js:529, 09-screens.js:903 |
+| ![](https://placehold.co/24x24/8A5A30/8A5A30.png) | `#8A5A30` | portocaliu / piersica | 28°, 48%, 36% | 2 | 09-screens.js:529, 09-screens.js:906 |
 | ![](https://placehold.co/24x24/8A6A4E/8A6A4E.png) | `#8A6A4E` | portocaliu / piersica | 28°, 28%, 42% | 2 | 075-duel.js:268, 075-duel.js:274 |
-| ![](https://placehold.co/24x24/B9702E/B9702E.png) | `#B9702E` | portocaliu / piersica | 28°, 60%, 45% | 7 | 08-draw.js:496, 08-draw.js:586, 09-screens.js:395, 09-screens.js:518, 09-screens.js:914, 09-screens.js:947, 09-screens.js:949 |
+| ![](https://placehold.co/24x24/B9702E/B9702E.png) | `#B9702E` | portocaliu / piersica | 28°, 60%, 45% | 7 | 08-draw.js:496, 08-draw.js:586, 09-screens.js:395, 09-screens.js:518, 09-screens.js:917, 09-screens.js:950, 09-screens.js:952 |
 | ![](https://placehold.co/24x24/B08A68/B08A68.png) | `#B08A68` | portocaliu / piersica | 28°, 31%, 55% | 1 | 06-level.js:74 |
-| ![](https://placehold.co/24x24/F2913C/F2913C.png) | `#F2913C` | portocaliu / piersica | 28°, 87%, 59% | 3 | 05-chars.js:283, 07-play.js:926, 09-screens.js:832 |
+| ![](https://placehold.co/24x24/F2913C/F2913C.png) | `#F2913C` | portocaliu / piersica | 28°, 87%, 59% | 3 | 05-chars.js:283, 07-play.js:926, 09-screens.js:835 |
 | ![](https://placehold.co/24x24/E4A771/E4A771.png) | `#E4A771` | portocaliu / piersica | 28°, 68%, 67% | 1 | 06-level.js:67 |
 | ![](https://placehold.co/24x24/C8AE98/C8AE98.png) | `#C8AE98` | portocaliu / piersica | 28°, 30%, 69% | 1 | 06-level.js:55 |
 | ![](https://placehold.co/24x24/F5B983/F5B983.png) | `#F5B983` | portocaliu / piersica | 28°, 85%, 74% | 1 | 02-core.js:498 |
@@ -126,7 +126,7 @@ Culori hex diferite: 544. Culori rgba() scrise direct: 191 aparitii, 115 valori 
 | ![](https://placehold.co/24x24/E2A04F/E2A04F.png) | `#E2A04F` | portocaliu / piersica | 33°, 72%, 60% | 3 | 06-level.js:67, 06-level.js:498, 07-play.js:104 |
 | ![](https://placehold.co/24x24/E2BB8C/E2BB8C.png) | `#E2BB8C` | portocaliu / piersica | 33°, 60%, 72% | 1 | 06-level.js:67 |
 | ![](https://placehold.co/24x24/B98848/B98848.png) | `#B98848` | portocaliu / piersica | 34°, 45%, 50% | 1 | 06-level.js:662 |
-| ![](https://placehold.co/24x24/E3952F/E3952F.png) | `#E3952F` | portocaliu / piersica | 34°, 76%, 54% | 7 | 05-chars.js:247, 08-draw.js:508, 08-draw.js:585, 09-screens.js:356, 09-screens.js:477, 09-screens.js:888, 09-screens.js:939 |
+| ![](https://placehold.co/24x24/E3952F/E3952F.png) | `#E3952F` | portocaliu / piersica | 34°, 76%, 54% | 7 | 05-chars.js:247, 08-draw.js:508, 08-draw.js:585, 09-screens.js:356, 09-screens.js:477, 09-screens.js:891, 09-screens.js:942 |
 | ![](https://placehold.co/24x24/E0A04A/E0A04A.png) | `#E0A04A` | portocaliu / piersica | 34°, 71%, 58% | 3 | 055-lupta.js:473, 06-level.js:617, 06-level.js:876 |
 | ![](https://placehold.co/24x24/F6B25A/F6B25A.png) | `#F6B25A` | portocaliu / piersica | 34°, 90%, 66% | 1 | 05-chars.js:283 |
 | ![](https://placehold.co/24x24/E9C9A0/E9C9A0.png) | `#E9C9A0` | portocaliu / piersica | 34°, 62%, 77% | 1 | 06-level.js:501 |
@@ -154,7 +154,7 @@ Culori hex diferite: 544. Culori rgba() scrise direct: 191 aparitii, 115 valori 
 | ![](https://placehold.co/24x24/F0D3A3/F0D3A3.png) | `#F0D3A3` | portocaliu / piersica | 37°, 72%, 79% | 1 | 06-level.js:58 |
 | ![](https://placehold.co/24x24/EAD9BE/EAD9BE.png) | `#EAD9BE` | portocaliu / piersica | 37°, 51%, 83% | 1 | 05-chars.js:123 |
 | ![](https://placehold.co/24x24/FFE6BE/FFE6BE.png) | `#FFE6BE` | portocaliu / piersica | 37°, 100%, 87% | 1 | 09-screens.js:162 |
-| ![](https://placehold.co/24x24/FFF0D8/FFF0D8.png) | `#FFF0D8` | portocaliu / piersica | 37°, 100%, 92% | 1 | 09-screens.js:847 |
+| ![](https://placehold.co/24x24/FFF0D8/FFF0D8.png) | `#FFF0D8` | portocaliu / piersica | 37°, 100%, 92% | 1 | 09-screens.js:850 |
 | ![](https://placehold.co/24x24/FFF4E2/FFF4E2.png) | `#FFF4E2` | portocaliu / piersica | 37°, 100%, 94% | 1 | 02-core.js:527 |
 | ![](https://placehold.co/24x24/FFF3E0/FFF3E0.png) | `#FFF3E0` | portocaliu / piersica | 37°, 100%, 94% | 2 | 07-play.js:294, 07-play.js:656 |
 | ![](https://placehold.co/24x24/E9A93A/E9A93A.png) | `#E9A93A` | portocaliu / piersica | 38°, 80%, 57% | 2 | 08-draw.js:229, 08-draw.js:496 |
@@ -174,45 +174,45 @@ Culori hex diferite: 544. Culori rgba() scrise direct: 191 aparitii, 115 valori 
 | ![](https://placehold.co/24x24/F3E2C0/F3E2C0.png) | `#F3E2C0` | galben / miere / ocru | 40°, 68%, 85% | 8 | 06-level.js:510, 07-play.js:294, 07-play.js:324, 07-play.js:779, 07-play.js:810, 075-duel.js:150, 075-duel.js:199, 075-duel.js:217 |
 | ![](https://placehold.co/24x24/F3E4C6/F3E4C6.png) | `#F3E4C6` | galben / miere / ocru | 40°, 65%, 86% | 1 | 06-level.js:669 |
 | ![](https://placehold.co/24x24/FFF8EA/FFF8EA.png) | `#FFF8EA` | galben / miere / ocru | 40°, 100%, 96% | 4 | 06-level.js:489, 06-level.js:496, 06-level.js:512, 07-play.js:840 |
-| ![](https://placehold.co/24x24/F8C24E/F8C24E.png) | `#F8C24E` | galben / miere / ocru | 41°, 92%, 64% | 20 | 02-core.js:661, 05-chars.js:317, 055-lupta.js:314, 07-play.js:97, 075-duel.js:262, 08-draw.js:438, 08-draw.js:439, 08-draw.js:498, 08-draw.js:502, 08-draw.js:508, 08-draw.js:573, 08-draw.js:574, 08-draw.js:590, 09-screens.js:289, 09-screens.js:356, 09-screens.js:374, 09-screens.js:476, 09-screens.js:568, 09-screens.js:770, 09-screens.js:888 |
+| ![](https://placehold.co/24x24/F8C24E/F8C24E.png) | `#F8C24E` | galben / miere / ocru | 41°, 92%, 64% | 21 | 02-core.js:661, 05-chars.js:317, 055-lupta.js:314, 07-play.js:97, 075-duel.js:262, 08-draw.js:438, 08-draw.js:439, 08-draw.js:498, 08-draw.js:502, 08-draw.js:508, 08-draw.js:573, 08-draw.js:574, 08-draw.js:590, 09-screens.js:289, 09-screens.js:356, 09-screens.js:374, 09-screens.js:476, 09-screens.js:568, 09-screens.js:755, 09-screens.js:773, 09-screens.js:891 |
 | ![](https://placehold.co/24x24/F3D9A0/F3D9A0.png) | `#F3D9A0` | galben / miere / ocru | 41°, 78%, 79% | 1 | 06-level.js:834 |
-| ![](https://placehold.co/24x24/FFE4A8/FFE4A8.png) | `#FFE4A8` | galben / miere / ocru | 41°, 100%, 83% | 1 | 09-screens.js:847 |
+| ![](https://placehold.co/24x24/FFE4A8/FFE4A8.png) | `#FFE4A8` | galben / miere / ocru | 41°, 100%, 83% | 1 | 09-screens.js:850 |
 | ![](https://placehold.co/24x24/F4E6C8/F4E6C8.png) | `#F4E6C8` | galben / miere / ocru | 41°, 67%, 87% | 2 | 075-duel.js:275, 075-duel.js:275 |
-| ![](https://placehold.co/24x24/FFF0D0/FFF0D0.png) | `#FFF0D0` | galben / miere / ocru | 41°, 100%, 91% | 6 | 09-screens.js:907, 09-screens.js:917, 09-screens.js:917, 09-screens.js:942, 09-screens.js:952, 09-screens.js:952 |
-| ![](https://placehold.co/24x24/FFF6E2/FFF6E2.png) | `#FFF6E2` | galben / miere / ocru | 41°, 100%, 94% | 29 | 02-core.js:627, 02-core.js:637, 02-core.js:648, 05-chars.js:319, 055-lupta.js:445, 055-lupta.js:489, 07-play.js:501, 08-draw.js:81, 08-draw.js:105, 08-draw.js:353, 08-draw.js:423, 08-draw.js:464, 08-draw.js:508, 08-draw.js:557, 09-screens.js:185, 09-screens.js:238, 09-screens.js:246, 09-screens.js:279, 09-screens.js:375, 09-screens.js:404, 09-screens.js:456, 09-screens.js:493, 09-screens.js:513, 09-screens.js:561, 09-screens.js:758, 09-screens.js:759, 09-screens.js:911, 09-screens.js:946, 10-main.js:137 |
+| ![](https://placehold.co/24x24/FFF0D0/FFF0D0.png) | `#FFF0D0` | galben / miere / ocru | 41°, 100%, 91% | 6 | 09-screens.js:910, 09-screens.js:920, 09-screens.js:920, 09-screens.js:945, 09-screens.js:955, 09-screens.js:955 |
+| ![](https://placehold.co/24x24/FFF6E2/FFF6E2.png) | `#FFF6E2` | galben / miere / ocru | 41°, 100%, 94% | 29 | 02-core.js:627, 02-core.js:637, 02-core.js:648, 05-chars.js:319, 055-lupta.js:445, 055-lupta.js:489, 07-play.js:501, 08-draw.js:81, 08-draw.js:105, 08-draw.js:353, 08-draw.js:423, 08-draw.js:464, 08-draw.js:508, 08-draw.js:557, 09-screens.js:185, 09-screens.js:238, 09-screens.js:246, 09-screens.js:279, 09-screens.js:375, 09-screens.js:404, 09-screens.js:456, 09-screens.js:493, 09-screens.js:513, 09-screens.js:561, 09-screens.js:761, 09-screens.js:762, 09-screens.js:914, 09-screens.js:949, 10-main.js:137 |
 | ![](https://placehold.co/24x24/C8B486/C8B486.png) | `#C8B486` | galben / miere / ocru | 42°, 37%, 65% | 1 | 06-level.js:75 |
 | ![](https://placehold.co/24x24/F8E6BC/F8E6BC.png) | `#F8E6BC` | galben / miere / ocru | 42°, 81%, 85% | 1 | 02-core.js:498 |
 | ![](https://placehold.co/24x24/FFF0CC/FFF0CC.png) | `#FFF0CC` | galben / miere / ocru | 42°, 100%, 90% | 1 | 05-chars.js:284 |
 | ![](https://placehold.co/24x24/FFF3D6/FFF3D6.png) | `#FFF3D6` | galben / miere / ocru | 42°, 100%, 92% | 5 | 05-chars.js:59, 055-lupta.js:20, 055-lupta.js:103, 055-lupta.js:157, 055-lupta.js:282 |
 | ![](https://placehold.co/24x24/FBF1DA/FBF1DA.png) | `#FBF1DA` | galben / miere / ocru | 42°, 80%, 92% | 1 | 06-level.js:669 |
-| ![](https://placehold.co/24x24/FFF8E8/FFF8E8.png) | `#FFF8E8` | galben / miere / ocru | 42°, 100%, 95% | 4 | 08-draw.js:145, 08-draw.js:517, 09-screens.js:267, 09-screens.js:771 |
+| ![](https://placehold.co/24x24/FFF8E8/FFF8E8.png) | `#FFF8E8` | galben / miere / ocru | 42°, 100%, 95% | 5 | 08-draw.js:145, 08-draw.js:517, 09-screens.js:267, 09-screens.js:756, 09-screens.js:774 |
 | ![](https://placehold.co/24x24/CBB47C/CBB47C.png) | `#CBB47C` | galben / miere / ocru | 43°, 43%, 64% | 1 | 06-level.js:67 |
 | ![](https://placehold.co/24x24/E9C56C/E9C56C.png) | `#E9C56C` | galben / miere / ocru | 43°, 74%, 67% | 1 | 06-level.js:656 |
 | ![](https://placehold.co/24x24/F3E2B8/F3E2B8.png) | `#F3E2B8` | galben / miere / ocru | 43°, 71%, 84% | 3 | 055-lupta.js:499, 07-play.js:379, 07-play.js:583 |
-| ![](https://placehold.co/24x24/FFE9B0/FFE9B0.png) | `#FFE9B0` | galben / miere / ocru | 43°, 100%, 85% | 6 | 06-level.js:693, 07-play.js:934, 09-screens.js:183, 09-screens.js:243, 09-screens.js:910, 09-screens.js:945 |
+| ![](https://placehold.co/24x24/FFE9B0/FFE9B0.png) | `#FFE9B0` | galben / miere / ocru | 43°, 100%, 85% | 6 | 06-level.js:693, 07-play.js:934, 09-screens.js:183, 09-screens.js:243, 09-screens.js:913, 09-screens.js:948 |
 | ![](https://placehold.co/24x24/FBF3DE/FBF3DE.png) | `#FBF3DE` | galben / miere / ocru | 43°, 78%, 93% | 7 | 06-level.js:55, 06-level.js:56, 06-level.js:57, 06-level.js:58, 06-level.js:59, 06-level.js:67, 06-level.js:788 |
 | ![](https://placehold.co/24x24/FFF6E0/FFF6E0.png) | `#FFF6E0` | galben / miere / ocru | 43°, 100%, 94% | 7 | 02-core.js:37, 02-core.js:319, 02-core.js:346, 02-core.js:516, 06-level.js:728, 06-level.js:789, 06-level.js:789 |
 | ![](https://placehold.co/24x24/F8CC4E/F8CC4E.png) | `#F8CC4E` | galben / miere / ocru | 44°, 92%, 64% | 2 | 05-chars.js:247, 08-draw.js:585 |
 | ![](https://placehold.co/24x24/FFD86A/FFD86A.png) | `#FFD86A` | galben / miere / ocru | 44°, 100%, 71% | 3 | 055-lupta.js:433, 08-draw.js:604, 08-draw.js:604 |
 | ![](https://placehold.co/24x24/E8CE86/E8CE86.png) | `#E8CE86` | galben / miere / ocru | 44°, 68%, 72% | 1 | 06-level.js:58 |
 | ![](https://placehold.co/24x24/EBD59A/EBD59A.png) | `#EBD59A` | galben / miere / ocru | 44°, 67%, 76% | 1 | 06-level.js:58 |
-| ![](https://placehold.co/24x24/FFE08A/FFE08A.png) | `#FFE08A` | galben / miere / ocru | 44°, 100%, 77% | 9 | 05-chars.js:325, 055-lupta.js:443, 06-level.js:627, 07-play.js:94, 07-play.js:97, 07-play.js:238, 07-play.js:251, 07-play.js:348, 09-screens.js:901 |
+| ![](https://placehold.co/24x24/FFE08A/FFE08A.png) | `#FFE08A` | galben / miere / ocru | 44°, 100%, 77% | 9 | 05-chars.js:325, 055-lupta.js:443, 06-level.js:627, 07-play.js:94, 07-play.js:97, 07-play.js:238, 07-play.js:251, 07-play.js:348, 09-screens.js:904 |
 | ![](https://placehold.co/24x24/FFF8E4/FFF8E4.png) | `#FFF8E4` | galben / miere / ocru | 44°, 100%, 95% | 1 | 02-core.js:554 |
 | ![](https://placehold.co/24x24/F6C63C/F6C63C.png) | `#F6C63C` | galben / miere / ocru | 45°, 91%, 60% | 5 | 01-config.js:29, 06-level.js:490, 06-level.js:490, 07-play.js:379, 08-draw.js:152 |
 | ![](https://placehold.co/24x24/DCC47C/DCC47C.png) | `#DCC47C` | galben / miere / ocru | 45°, 58%, 67% | 1 | 06-level.js:55 |
 | ![](https://placehold.co/24x24/D6C592/D6C592.png) | `#D6C592` | galben / miere / ocru | 45°, 45%, 71% | 1 | 06-level.js:75 |
 | ![](https://placehold.co/24x24/F1DFA8/F1DFA8.png) | `#F1DFA8` | galben / miere / ocru | 45°, 72%, 80% | 1 | 06-level.js:715 |
-| ![](https://placehold.co/24x24/FFE7A0/FFE7A0.png) | `#FFE7A0` | galben / miere / ocru | 45°, 100%, 81% | 6 | 05-chars.js:267, 08-draw.js:599, 09-screens.js:391, 09-screens.js:523, 09-screens.js:913, 09-screens.js:948 |
+| ![](https://placehold.co/24x24/FFE7A0/FFE7A0.png) | `#FFE7A0` | galben / miere / ocru | 45°, 100%, 81% | 6 | 05-chars.js:267, 08-draw.js:599, 09-screens.js:391, 09-screens.js:523, 09-screens.js:916, 09-screens.js:951 |
 | ![](https://placehold.co/24x24/FFE9A8/FFE9A8.png) | `#FFE9A8` | galben / miere / ocru | 45°, 100%, 83% | 1 | 02-core.js:522 |
-| ![](https://placehold.co/24x24/F6CE46/F6CE46.png) | `#F6CE46` | galben / miere / ocru | 46°, 91%, 62% | 11 | 02-core.js:39, 02-core.js:407, 055-lupta.js:288, 055-lupta.js:311, 055-lupta.js:389, 055-lupta.js:392, 06-level.js:631, 06-level.js:975, 07-play.js:737, 09-screens.js:872, 09-screens.js:878 |
-| ![](https://placehold.co/24x24/F3D36B/F3D36B.png) | `#F3D36B` | galben / miere / ocru | 46°, 85%, 69% | 11 | 06-level.js:55, 06-level.js:56, 06-level.js:57, 06-level.js:58, 06-level.js:59, 06-level.js:67, 06-level.js:783, 07-play.js:104, 09-screens.js:136, 09-screens.js:832, 09-screens.js:940 |
-| ![](https://placehold.co/24x24/FFE48A/FFE48A.png) | `#FFE48A` | galben / miere / ocru | 46°, 100%, 77% | 1 | 09-screens.js:847 |
+| ![](https://placehold.co/24x24/F6CE46/F6CE46.png) | `#F6CE46` | galben / miere / ocru | 46°, 91%, 62% | 11 | 02-core.js:39, 02-core.js:407, 055-lupta.js:288, 055-lupta.js:311, 055-lupta.js:389, 055-lupta.js:392, 06-level.js:631, 06-level.js:975, 07-play.js:737, 09-screens.js:875, 09-screens.js:881 |
+| ![](https://placehold.co/24x24/F3D36B/F3D36B.png) | `#F3D36B` | galben / miere / ocru | 46°, 85%, 69% | 11 | 06-level.js:55, 06-level.js:56, 06-level.js:57, 06-level.js:58, 06-level.js:59, 06-level.js:67, 06-level.js:783, 07-play.js:104, 09-screens.js:136, 09-screens.js:835, 09-screens.js:943 |
+| ![](https://placehold.co/24x24/FFE48A/FFE48A.png) | `#FFE48A` | galben / miere / ocru | 46°, 100%, 77% | 1 | 09-screens.js:850 |
 | ![](https://placehold.co/24x24/E8DAAC/E8DAAC.png) | `#E8DAAC` | galben / miere / ocru | 46°, 57%, 79% | 1 | 06-level.js:75 |
 | ![](https://placehold.co/24x24/FFE9A0/FFE9A0.png) | `#FFE9A0` | galben / miere / ocru | 46°, 100%, 81% | 3 | 07-play.js:886, 07-play.js:942, 09-screens.js:424 |
-| ![](https://placehold.co/24x24/FFF0C0/FFF0C0.png) | `#FFF0C0` | galben / miere / ocru | 46°, 100%, 88% | 2 | 05-chars.js:269, 09-screens.js:832 |
+| ![](https://placehold.co/24x24/FFF0C0/FFF0C0.png) | `#FFF0C0` | galben / miere / ocru | 46°, 100%, 88% | 2 | 05-chars.js:269, 09-screens.js:835 |
 | ![](https://placehold.co/24x24/FFF1C4/FFF1C4.png) | `#FFF1C4` | galben / miere / ocru | 46°, 100%, 88% | 1 | 06-level.js:587 |
 | ![](https://placehold.co/24x24/FFF6D8/FFF6D8.png) | `#FFF6D8` | galben / miere / ocru | 46°, 100%, 92% | 2 | 02-core.js:523, 06-level.js:75 |
-| ![](https://placehold.co/24x24/FFF8E0/FFF8E0.png) | `#FFF8E0` | galben / miere / ocru | 46°, 100%, 94% | 4 | 075-duel.js:362, 09-screens.js:478, 09-screens.js:820, 09-screens.js:889 |
+| ![](https://placehold.co/24x24/FFF8E0/FFF8E0.png) | `#FFF8E0` | galben / miere / ocru | 46°, 100%, 94% | 4 | 075-duel.js:362, 09-screens.js:478, 09-screens.js:823, 09-screens.js:892 |
 | ![](https://placehold.co/24x24/FFFBEE/FFFBEE.png) | `#FFFBEE` | galben / miere / ocru | 46°, 100%, 97% | 1 | 05-chars.js:123 |
 | ![](https://placehold.co/24x24/B9A868/B9A868.png) | `#B9A868` | galben / miere / ocru | 47°, 37%, 57% | 1 | 06-level.js:715 |
 | ![](https://placehold.co/24x24/FFD84A/FFD84A.png) | `#FFD84A` | galben / miere / ocru | 47°, 100%, 65% | 6 | 06-level.js:61, 06-level.js:62, 06-level.js:63, 06-level.js:64, 06-level.js:65, 06-level.js:66 |
@@ -224,13 +224,13 @@ Culori hex diferite: 544. Culori rgba() scrise direct: 191 aparitii, 115 valori 
 | ![](https://placehold.co/24x24/D9C985/D9C985.png) | `#D9C985` | galben / miere / ocru | 49°, 53%, 69% | 1 | 06-level.js:58 |
 | ![](https://placehold.co/24x24/E6D58A/E6D58A.png) | `#E6D58A` | galben / miere / ocru | 49°, 65%, 72% | 1 | 06-level.js:55 |
 | ![](https://placehold.co/24x24/FFF0B0/FFF0B0.png) | `#FFF0B0` | galben / miere / ocru | 49°, 100%, 85% | 1 | 09-screens.js:443 |
-| ![](https://placehold.co/24x24/FFF1B0/FFF1B0.png) | `#FFF1B0` | galben / miere / ocru | 49°, 100%, 85% | 1 | 09-screens.js:899 |
+| ![](https://placehold.co/24x24/FFF1B0/FFF1B0.png) | `#FFF1B0` | galben / miere / ocru | 49°, 100%, 85% | 1 | 09-screens.js:902 |
 | ![](https://placehold.co/24x24/FFF3C0/FFF3C0.png) | `#FFF3C0` | galben / miere / ocru | 49°, 100%, 88% | 12 | 07-play.js:97, 07-play.js:152, 07-play.js:238, 07-play.js:251, 07-play.js:379, 07-play.js:583, 07-play.js:609, 07-play.js:926, 075-duel.js:96, 075-duel.js:351, 075-duel.js:363, 08-draw.js:222 |
 | ![](https://placehold.co/24x24/FFF6D0/FFF6D0.png) | `#FFF6D0` | galben / miere / ocru | 49°, 100%, 91% | 7 | 06-level.js:534, 06-level.js:596, 06-level.js:636, 06-level.js:645, 06-level.js:783, 07-play.js:942, 09-screens.js:154 |
-| ![](https://placehold.co/24x24/FFF8D8/FFF8D8.png) | `#FFF8D8` | galben / miere / ocru | 49°, 100%, 92% | 1 | 09-screens.js:847 |
+| ![](https://placehold.co/24x24/FFF8D8/FFF8D8.png) | `#FFF8D8` | galben / miere / ocru | 49°, 100%, 92% | 1 | 09-screens.js:850 |
 | ![](https://placehold.co/24x24/FFFBEA/FFFBEA.png) | `#FFFBEA` | galben / miere / ocru | 49°, 100%, 96% | 3 | 055-lupta.js:176, 06-level.js:613, 08-draw.js:70 |
 | ![](https://placehold.co/24x24/FFFDF4/FFFDF4.png) | `#FFFDF4` | galben / miere / ocru | 49°, 100%, 98% | 6 | 05-chars.js:19, 055-lupta.js:113, 055-lupta.js:121, 055-lupta.js:231, 055-lupta.js:505, 08-draw.js:87 |
-| ![](https://placehold.co/24x24/FFF6C4/FFF6C4.png) | `#FFF6C4` | galben / miere / ocru | 51°, 100%, 88% | 7 | 05-chars.js:247, 08-draw.js:229, 08-draw.js:496, 08-draw.js:509, 08-draw.js:510, 08-draw.js:585, 09-screens.js:939 |
+| ![](https://placehold.co/24x24/FFF6C4/FFF6C4.png) | `#FFF6C4` | galben / miere / ocru | 51°, 100%, 88% | 7 | 05-chars.js:247, 08-draw.js:229, 08-draw.js:496, 08-draw.js:509, 08-draw.js:510, 08-draw.js:585, 09-screens.js:942 |
 | ![](https://placehold.co/24x24/C8BE7C/C8BE7C.png) | `#C8BE7C` | galben / miere / ocru | 52°, 41%, 64% | 1 | 06-level.js:58 |
 | ![](https://placehold.co/24x24/C8C08A/C8C08A.png) | `#C8C08A` | galben / miere / ocru | 52°, 36%, 66% | 1 | 06-level.js:59 |
 | ![](https://placehold.co/24x24/FFFDF0/FFFDF0.png) | `#FFFDF0` | galben / miere / ocru | 52°, 100%, 97% | 2 | 05-chars.js:267, 055-lupta.js:433 |
@@ -285,20 +285,20 @@ Culori hex diferite: 544. Culori rgba() scrise direct: 191 aparitii, 115 valori 
 | ![](https://placehold.co/24x24/8DB866/8DB866.png) | `#8DB866` | verde / salvie | 91°, 37%, 56% | 3 | 075-duel.js:311, 075-duel.js:312, 075-duel.js:315 |
 | ![](https://placehold.co/24x24/7F9B66/7F9B66.png) | `#7F9B66` | verde / salvie | 92°, 21%, 50% | 1 | 06-level.js:56 |
 | ![](https://placehold.co/24x24/7FA65C/7FA65C.png) | `#7FA65C` | verde / salvie | 92°, 29%, 51% | 1 | 06-level.js:482 |
-| ![](https://placehold.co/24x24/9CC27A/9CC27A.png) | `#9CC27A` | verde / salvie | 92°, 37%, 62% | 1 | 09-screens.js:940 |
+| ![](https://placehold.co/24x24/9CC27A/9CC27A.png) | `#9CC27A` | verde / salvie | 92°, 37%, 62% | 1 | 09-screens.js:943 |
 | ![](https://placehold.co/24x24/7E9F63/7E9F63.png) | `#7E9F63` | verde / salvie | 93°, 24%, 51% | 1 | 06-level.js:55 |
 | ![](https://placehold.co/24x24/8BB36B/8BB36B.png) | `#8BB36B` | verde / salvie | 93°, 32%, 56% | 1 | 06-level.js:482 |
 | ![](https://placehold.co/24x24/4E6E3A/4E6E3A.png) | `#4E6E3A` | verde / salvie | 97°, 31%, 33% | 1 | 075-duel.js:317 |
 | ![](https://placehold.co/24x24/6E9A52/6E9A52.png) | `#6E9A52` | verde / salvie | 97°, 31%, 46% | 4 | 075-duel.js:311, 075-duel.js:312, 075-duel.js:319, 075-duel.js:319 |
 | ![](https://placehold.co/24x24/BFE3A8/BFE3A8.png) | `#BFE3A8` | verde / salvie | 97°, 51%, 77% | 1 | 08-draw.js:633 |
 | ![](https://placehold.co/24x24/7E9F6B/7E9F6B.png) | `#7E9F6B` | verde / salvie | 98°, 21%, 52% | 1 | 06-level.js:59 |
-| ![](https://placehold.co/24x24/F8FFF4/F8FFF4.png) | `#F8FFF4` | verde / salvie | 98°, 100%, 98% | 1 | 09-screens.js:847 |
+| ![](https://placehold.co/24x24/F8FFF4/F8FFF4.png) | `#F8FFF4` | verde / salvie | 98°, 100%, 98% | 1 | 09-screens.js:850 |
 | ![](https://placehold.co/24x24/93AE84/93AE84.png) | `#93AE84` | verde / salvie | 99°, 21%, 60% | 1 | 06-level.js:59 |
 | ![](https://placehold.co/24x24/6F9160/6F9160.png) | `#6F9160` | verde / salvie | 102°, 20%, 47% | 1 | 06-level.js:56 |
-| ![](https://placehold.co/24x24/7FB06A/7FB06A.png) | `#7FB06A` | verde / salvie | 102°, 31%, 55% | 3 | 08-draw.js:131, 08-draw.js:634, 09-screens.js:770 |
+| ![](https://placehold.co/24x24/7FB06A/7FB06A.png) | `#7FB06A` | verde / salvie | 102°, 31%, 55% | 3 | 08-draw.js:131, 08-draw.js:634, 09-screens.js:773 |
 | ![](https://placehold.co/24x24/79A866/79A866.png) | `#79A866` | verde / salvie | 103°, 27%, 53% | 1 | 06-level.js:505 |
 | ![](https://placehold.co/24x24/B7F0A0/B7F0A0.png) | `#B7F0A0` | verde / salvie | 103°, 73%, 78% | 5 | 06-level.js:63, 06-level.js:74, 06-level.js:551, 06-level.js:552, 06-level.js:730 |
-| ![](https://placehold.co/24x24/5E8A4E/5E8A4E.png) | `#5E8A4E` | verde / salvie | 104°, 28%, 42% | 3 | 09-screens.js:270, 09-screens.js:778, 09-screens.js:780 |
+| ![](https://placehold.co/24x24/5E8A4E/5E8A4E.png) | `#5E8A4E` | verde / salvie | 104°, 28%, 42% | 3 | 09-screens.js:270, 09-screens.js:781, 09-screens.js:783 |
 | ![](https://placehold.co/24x24/6FA35E/6FA35E.png) | `#6FA35E` | verde / salvie | 105°, 27%, 50% | 4 | 01-config.js:18, 06-level.js:482, 06-level.js:487, 06-level.js:491 |
 | ![](https://placehold.co/24x24/7AA86A/7AA86A.png) | `#7AA86A` | verde / salvie | 105°, 26%, 54% | 1 | 06-level.js:949 |
 | ![](https://placehold.co/24x24/7A9A72/7A9A72.png) | `#7A9A72` | verde / salvie | 108°, 17%, 53% | 1 | 06-level.js:56 |
@@ -316,7 +316,7 @@ Culori hex diferite: 544. Culori rgba() scrise direct: 191 aparitii, 115 valori 
 | ![](https://placehold.co/24x24/58BF7A/58BF7A.png) | `#58BF7A` | verde / salvie | 140°, 45%, 55% | 2 | 06-level.js:74, 06-level.js:730 |
 | ![](https://placehold.co/24x24/4E9A6A/4E9A6A.png) | `#4E9A6A` | verde / salvie | 142°, 33%, 45% | 1 | 06-level.js:75 |
 | ![](https://placehold.co/24x24/58B078/58B078.png) | `#58B078` | verde / salvie | 142°, 36%, 52% | 1 | 06-level.js:63 |
-| ![](https://placehold.co/24x24/6FB58A/6FB58A.png) | `#6FB58A` | verde / salvie | 143°, 32%, 57% | 1 | 09-screens.js:755 |
+| ![](https://placehold.co/24x24/6FB58A/6FB58A.png) | `#6FB58A` | verde / salvie | 143°, 32%, 57% | 1 | 09-screens.js:758 |
 | ![](https://placehold.co/24x24/8AD6A8/8AD6A8.png) | `#8AD6A8` | verde / salvie | 144°, 48%, 69% | 2 | 05-chars.js:293, 05-chars.js:293 |
 | ![](https://placehold.co/24x24/BFE8D0/BFE8D0.png) | `#BFE8D0` | verde / salvie | 145°, 47%, 83% | 1 | 07-play.js:251 |
 | ![](https://placehold.co/24x24/C8FFE0/C8FFE0.png) | `#C8FFE0` | verde / salvie | 146°, 100%, 89% | 1 | 06-level.js:549 |
@@ -329,7 +329,7 @@ Culori hex diferite: 544. Culori rgba() scrise direct: 191 aparitii, 115 valori 
 | ![](https://placehold.co/24x24/4E9A78/4E9A78.png) | `#4E9A78` | verde / salvie | 153°, 33%, 45% | 2 | 05-chars.js:293, 05-chars.js:293 |
 | ![](https://placehold.co/24x24/2F7A5A/2F7A5A.png) | `#2F7A5A` | verde / salvie | 154°, 44%, 33% | 1 | 06-level.js:75 |
 | ![](https://placehold.co/24x24/58C89A/58C89A.png) | `#58C89A` | verde / salvie | 155°, 50%, 56% | 4 | 06-level.js:527, 06-level.js:541, 06-level.js:545, 06-level.js:569 |
-| ![](https://placehold.co/24x24/C8F0E0/C8F0E0.png) | `#C8F0E0` | verde / salvie | 156°, 57%, 86% | 1 | 09-screens.js:847 |
+| ![](https://placehold.co/24x24/C8F0E0/C8F0E0.png) | `#C8F0E0` | verde / salvie | 156°, 57%, 86% | 1 | 09-screens.js:850 |
 | ![](https://placehold.co/24x24/2A6A52/2A6A52.png) | `#2A6A52` | verde / salvie | 158°, 43%, 29% | 1 | 06-level.js:75 |
 | ![](https://placehold.co/24x24/BFE0D4/BFE0D4.png) | `#BFE0D4` | verde / salvie | 158°, 35%, 81% | 1 | 06-level.js:834 |
 | ![](https://placehold.co/24x24/7AF0C8/7AF0C8.png) | `#7AF0C8` | turcoaz / apa | 160°, 80%, 71% | 6 | 055-lupta.js:333, 06-level.js:61, 06-level.js:62, 06-level.js:65, 06-level.js:66, 06-level.js:569 |
@@ -374,7 +374,7 @@ Culori hex diferite: 544. Culori rgba() scrise direct: 191 aparitii, 115 valori 
 | ![](https://placehold.co/24x24/3F7AB8/3F7AB8.png) | `#3F7AB8` | albastru | 211°, 49%, 48% | 1 | 06-level.js:63 |
 | ![](https://placehold.co/24x24/62A0E4/62A0E4.png) | `#62A0E4` | albastru | 211°, 71%, 64% | 1 | 06-level.js:747 |
 | ![](https://placehold.co/24x24/4E5A6A/4E5A6A.png) | `#4E5A6A` | albastru | 214°, 15%, 36% | 1 | 06-level.js:65 |
-| ![](https://placehold.co/24x24/3F6FB0/3F6FB0.png) | `#3F6FB0` | albastru | 215°, 47%, 47% | 4 | 08-draw.js:586, 09-screens.js:395, 09-screens.js:518, 09-screens.js:912 |
+| ![](https://placehold.co/24x24/3F6FB0/3F6FB0.png) | `#3F6FB0` | albastru | 215°, 47%, 47% | 4 | 08-draw.js:586, 09-screens.js:395, 09-screens.js:518, 09-screens.js:915 |
 | ![](https://placehold.co/24x24/3F78C8/3F78C8.png) | `#3F78C8` | albastru | 215°, 55%, 52% | 3 | 01-config.js:30, 08-draw.js:153, 08-draw.js:468 |
 | ![](https://placehold.co/24x24/4C89E0/4C89E0.png) | `#4C89E0` | albastru | 215°, 70%, 59% | 1 | 055-lupta.js:295 |
 | ![](https://placehold.co/24x24/C9D6E8/C9D6E8.png) | `#C9D6E8` | albastru | 215°, 40%, 85% | 2 | 075-duel.js:96, 075-duel.js:301 |
@@ -386,7 +386,7 @@ Culori hex diferite: 544. Culori rgba() scrise direct: 191 aparitii, 115 valori 
 | ![](https://placehold.co/24x24/4A78C8/4A78C8.png) | `#4A78C8` | albastru | 218°, 53%, 54% | 1 | 06-level.js:61 |
 | ![](https://placehold.co/24x24/3F78D8/3F78D8.png) | `#3F78D8` | albastru | 218°, 66%, 55% | 2 | 055-lupta.js:149, 055-lupta.js:267 |
 | ![](https://placehold.co/24x24/5A82C8/5A82C8.png) | `#5A82C8` | albastru | 218°, 50%, 57% | 1 | 06-level.js:64 |
-| ![](https://placehold.co/24x24/6D8FD0/6D8FD0.png) | `#6D8FD0` | albastru | 219°, 51%, 62% | 3 | 02-core.js:628, 09-screens.js:751, 09-screens.js:755 |
+| ![](https://placehold.co/24x24/6D8FD0/6D8FD0.png) | `#6D8FD0` | albastru | 219°, 51%, 62% | 3 | 02-core.js:628, 09-screens.js:751, 09-screens.js:758 |
 | ![](https://placehold.co/24x24/8E9AB0/8E9AB0.png) | `#8E9AB0` | albastru | 219°, 18%, 62% | 1 | 09-screens.js:426 |
 | ![](https://placehold.co/24x24/8AA0C8/8AA0C8.png) | `#8AA0C8` | albastru | 219°, 36%, 66% | 1 | 06-level.js:62 |
 | ![](https://placehold.co/24x24/6A7A9A/6A7A9A.png) | `#6A7A9A` | albastru | 220°, 19%, 51% | 1 | 075-duel.js:305 |
@@ -405,7 +405,7 @@ Culori hex diferite: 544. Culori rgba() scrise direct: 191 aparitii, 115 valori 
 | ![](https://placehold.co/24x24/98A2D4/98A2D4.png) | `#98A2D4` | albastru | 230°, 41%, 71% | 1 | 06-level.js:64 |
 | ![](https://placehold.co/24x24/E8ECFF/E8ECFF.png) | `#E8ECFF` | albastru | 230°, 100%, 95% | 1 | 08-draw.js:604 |
 | ![](https://placehold.co/24x24/7C86BE/7C86BE.png) | `#7C86BE` | albastru | 231°, 34%, 62% | 1 | 055-lupta.js:321 |
-| ![](https://placehold.co/24x24/C8D0FF/C8D0FF.png) | `#C8D0FF` | albastru | 231°, 100%, 89% | 4 | 06-level.js:854, 06-level.js:982, 09-screens.js:162, 09-screens.js:822 |
+| ![](https://placehold.co/24x24/C8D0FF/C8D0FF.png) | `#C8D0FF` | albastru | 231°, 100%, 89% | 4 | 06-level.js:854, 06-level.js:982, 09-screens.js:162, 09-screens.js:825 |
 | ![](https://placehold.co/24x24/D6DBF8/D6DBF8.png) | `#D6DBF8` | albastru | 231°, 71%, 91% | 1 | 055-lupta.js:242 |
 | ![](https://placehold.co/24x24/27306E/27306E.png) | `#27306E` | albastru | 232°, 48%, 29% | 1 | 06-level.js:747 |
 | ![](https://placehold.co/24x24/56609E/56609E.png) | `#56609E` | albastru | 232°, 30%, 48% | 2 | 055-lupta.js:149, 06-level.js:563 |
@@ -446,7 +446,7 @@ Culori hex diferite: 544. Culori rgba() scrise direct: 191 aparitii, 115 valori 
 | ![](https://placehold.co/24x24/6E62A8/6E62A8.png) | `#6E62A8` | albastru | 250°, 29%, 52% | 3 | 06-level.js:813, 09-screens.js:445, 09-screens.js:446 |
 | ![](https://placehold.co/24x24/7E72B8/7E72B8.png) | `#7E72B8` | albastru | 250°, 33%, 58% | 1 | 06-level.js:813 |
 | ![](https://placehold.co/24x24/7A6AC8/7A6AC8.png) | `#7A6AC8` | albastru | 250°, 46%, 60% | 2 | 055-lupta.js:383, 06-level.js:747 |
-| ![](https://placehold.co/24x24/C8C0F0/C8C0F0.png) | `#C8C0F0` | albastru | 250°, 62%, 85% | 1 | 09-screens.js:819 |
+| ![](https://placehold.co/24x24/C8C0F0/C8C0F0.png) | `#C8C0F0` | albastru | 250°, 62%, 85% | 1 | 09-screens.js:822 |
 | ![](https://placehold.co/24x24/5A4AA0/5A4AA0.png) | `#5A4AA0` | albastru | 251°, 37%, 46% | 1 | 02-core.js:538 |
 | ![](https://placehold.co/24x24/6A58B8/6A58B8.png) | `#6A58B8` | albastru | 251°, 40%, 53% | 1 | 02-core.js:540 |
 | ![](https://placehold.co/24x24/8478BC/8478BC.png) | `#8478BC` | albastru | 251°, 34%, 60% | 1 | 06-level.js:813 |
@@ -492,7 +492,7 @@ Culori hex diferite: 544. Culori rgba() scrise direct: 191 aparitii, 115 valori 
 | ![](https://placehold.co/24x24/A088C0/A088C0.png) | `#A088C0` | violet / mov | 266°, 31%, 64% | 1 | 06-level.js:66 |
 | ![](https://placehold.co/24x24/5C417C/5C417C.png) | `#5C417C` | violet / mov | 267°, 31%, 37% | 1 | 06-level.js:66 |
 | ![](https://placehold.co/24x24/8E7AA6/8E7AA6.png) | `#8E7AA6` | violet / mov | 267°, 20%, 56% | 1 | 05-chars.js:197 |
-| ![](https://placehold.co/24x24/E0CCF8/E0CCF8.png) | `#E0CCF8` | violet / mov | 267°, 76%, 89% | 1 | 09-screens.js:847 |
+| ![](https://placehold.co/24x24/E0CCF8/E0CCF8.png) | `#E0CCF8` | violet / mov | 267°, 76%, 89% | 1 | 09-screens.js:850 |
 | ![](https://placehold.co/24x24/C6B4D8/C6B4D8.png) | `#C6B4D8` | violet / mov | 270°, 32%, 78% | 1 | 06-level.js:959 |
 | ![](https://placehold.co/24x24/E4DCEC/E4DCEC.png) | `#E4DCEC` | violet / mov | 270°, 30%, 89% | 2 | 02-core.js:555, 02-core.js:555 |
 | ![](https://placehold.co/24x24/8A58B8/8A58B8.png) | `#8A58B8` | violet / mov | 271°, 40%, 53% | 1 | 06-level.js:66 |
@@ -509,31 +509,31 @@ Culori hex diferite: 544. Culori rgba() scrise direct: 191 aparitii, 115 valori 
 | ![](https://placehold.co/24x24/7A5A80/7A5A80.png) | `#7A5A80` | violet / mov | 291°, 17%, 43% | 1 | 075-duel.js:376 |
 | ![](https://placehold.co/24x24/6A4270/6A4270.png) | `#6A4270` | violet / mov | 292°, 26%, 35% | 2 | 02-core.js:38, 09-screens.js:367 |
 | ![](https://placehold.co/24x24/6A4A6A/6A4A6A.png) | `#6A4A6A` | roz / pruna | 300°, 18%, 35% | 2 | 06-level.js:616, 06-level.js:639 |
-| ![](https://placehold.co/24x24/FFF0FF/FFF0FF.png) | `#FFF0FF` | roz / pruna | 300°, 100%, 97% | 1 | 09-screens.js:847 |
+| ![](https://placehold.co/24x24/FFF0FF/FFF0FF.png) | `#FFF0FF` | roz / pruna | 300°, 100%, 97% | 1 | 09-screens.js:850 |
 | ![](https://placehold.co/24x24/3F2A3A/3F2A3A.png) | `#3F2A3A` | roz / pruna | 314°, 20%, 21% | 2 | 05-chars.js:177, 05-chars.js:182 |
 | ![](https://placehold.co/24x24/6E5668/6E5668.png) | `#6E5668` | roz / pruna | 315°, 12%, 38% | 1 | 06-level.js:832 |
 | ![](https://placehold.co/24x24/B0589A/B0589A.png) | `#B0589A` | roz / pruna | 315°, 36%, 52% | 1 | 06-level.js:66 |
 | ![](https://placehold.co/24x24/5A3550/5A3550.png) | `#5A3550` | roz / pruna | 316°, 26%, 28% | 3 | 02-core.js:37, 02-core.js:131, 055-lupta.js:106 |
 | ![](https://placehold.co/24x24/A8508E/A8508E.png) | `#A8508E` | roz / pruna | 318°, 35%, 49% | 1 | 055-lupta.js:369 |
-| ![](https://placehold.co/24x24/D98AC0/D98AC0.png) | `#D98AC0` | roz / pruna | 319°, 51%, 70% | 2 | 02-core.js:638, 09-screens.js:755 |
+| ![](https://placehold.co/24x24/D98AC0/D98AC0.png) | `#D98AC0` | roz / pruna | 319°, 51%, 70% | 2 | 02-core.js:638, 09-screens.js:758 |
 | ![](https://placehold.co/24x24/806878/806878.png) | `#806878` | neutru cald | 320°, 10%, 45% | 1 | 06-level.js:832 |
 | ![](https://placehold.co/24x24/7A5A6C/7A5A6C.png) | `#7A5A6C` | roz / pruna | 326°, 15%, 42% | 2 | 06-level.js:813, 06-level.js:813 |
 | ![](https://placehold.co/24x24/D86AA8/D86AA8.png) | `#D86AA8` | roz / pruna | 326°, 59%, 63% | 1 | 055-lupta.js:369 |
 | ![](https://placehold.co/24x24/B88FA6/B88FA6.png) | `#B88FA6` | roz / pruna | 326°, 22%, 64% | 1 | 02-core.js:499 |
-| ![](https://placehold.co/24x24/6A4258/6A4258.png) | `#6A4258` | roz / pruna | 327°, 23%, 34% | 2 | 06-level.js:923, 09-screens.js:831 |
+| ![](https://placehold.co/24x24/6A4258/6A4258.png) | `#6A4258` | roz / pruna | 327°, 23%, 34% | 2 | 06-level.js:923, 09-screens.js:834 |
 | ![](https://placehold.co/24x24/E77AB4/E77AB4.png) | `#E77AB4` | roz / pruna | 328°, 69%, 69% | 1 | 055-lupta.js:272 |
 | ![](https://placehold.co/24x24/FFF0F8/FFF0F8.png) | `#FFF0F8` | roz / pruna | 328°, 100%, 97% | 1 | 055-lupta.js:374 |
 | ![](https://placehold.co/24x24/4A3540/4A3540.png) | `#4A3540` | roz / pruna | 329°, 17%, 25% | 1 | 00-head.html:8 |
-| ![](https://placehold.co/24x24/D94C94/D94C94.png) | `#D94C94` | roz / pruna | 329°, 65%, 57% | 1 | 09-screens.js:875 |
+| ![](https://placehold.co/24x24/D94C94/D94C94.png) | `#D94C94` | roz / pruna | 329°, 65%, 57% | 1 | 09-screens.js:878 |
 | ![](https://placehold.co/24x24/E0559C/E0559C.png) | `#E0559C` | roz / pruna | 329°, 69%, 61% | 1 | 07-play.js:737 |
-| ![](https://placehold.co/24x24/F07AB6/F07AB6.png) | `#F07AB6` | roz / pruna | 329°, 80%, 71% | 1 | 09-screens.js:875 |
+| ![](https://placehold.co/24x24/F07AB6/F07AB6.png) | `#F07AB6` | roz / pruna | 329°, 80%, 71% | 1 | 09-screens.js:878 |
 | ![](https://placehold.co/24x24/F6A8D0/F6A8D0.png) | `#F6A8D0` | roz / pruna | 329°, 81%, 81% | 1 | 055-lupta.js:369 |
 | ![](https://placehold.co/24x24/E45AA0/E45AA0.png) | `#E45AA0` | roz / pruna | 330°, 72%, 62% | 3 | 055-lupta.js:262, 06-level.js:631, 09-screens.js:357 |
-| ![](https://placehold.co/24x24/C8A0B4/C8A0B4.png) | `#C8A0B4` | roz / pruna | 330°, 27%, 71% | 1 | 09-screens.js:834 |
+| ![](https://placehold.co/24x24/C8A0B4/C8A0B4.png) | `#C8A0B4` | roz / pruna | 330°, 27%, 71% | 1 | 09-screens.js:837 |
 | ![](https://placehold.co/24x24/FFB0D8/FFB0D8.png) | `#FFB0D8` | roz / pruna | 330°, 100%, 85% | 1 | 09-screens.js:244 |
-| ![](https://placehold.co/24x24/C2417F/C2417F.png) | `#C2417F` | roz / pruna | 331°, 51%, 51% | 2 | 09-screens.js:872, 09-screens.js:874 |
+| ![](https://placehold.co/24x24/C2417F/C2417F.png) | `#C2417F` | roz / pruna | 331°, 51%, 51% | 2 | 09-screens.js:875, 09-screens.js:877 |
 | ![](https://placehold.co/24x24/C8508A/C8508A.png) | `#C8508A` | roz / pruna | 331°, 52%, 55% | 1 | 06-level.js:66 |
-| ![](https://placehold.co/24x24/FBC2DE/FBC2DE.png) | `#FBC2DE` | roz / pruna | 331°, 88%, 87% | 1 | 09-screens.js:877 |
+| ![](https://placehold.co/24x24/FBC2DE/FBC2DE.png) | `#FBC2DE` | roz / pruna | 331°, 88%, 87% | 1 | 09-screens.js:880 |
 | ![](https://placehold.co/24x24/7A4B60/7A4B60.png) | `#7A4B60` | roz / pruna | 333°, 24%, 39% | 3 | 05-chars.js:167, 05-chars.js:169, 05-chars.js:175 |
 | ![](https://placehold.co/24x24/8E6E7C/8E6E7C.png) | `#8E6E7C` | roz / pruna | 334°, 13%, 49% | 1 | 06-level.js:813 |
 | ![](https://placehold.co/24x24/B08A9A/B08A9A.png) | `#B08A9A` | roz / pruna | 335°, 19%, 62% | 1 | 06-level.js:670 |
@@ -545,7 +545,7 @@ Culori hex diferite: 544. Culori rgba() scrise direct: 191 aparitii, 115 valori 
 | ![](https://placehold.co/24x24/E9B8C4/E9B8C4.png) | `#E9B8C4` | rosu / teracota | 345°, 53%, 82% | 1 | 06-level.js:834 |
 | ![](https://placehold.co/24x24/FFD0DC/FFD0DC.png) | `#FFD0DC` | rosu / teracota | 345°, 100%, 91% | 1 | 07-play.js:251 |
 | ![](https://placehold.co/24x24/7A2A3A/7A2A3A.png) | `#7A2A3A` | rosu / teracota | 348°, 49%, 32% | 1 | 055-lupta.js:299 |
-| ![](https://placehold.co/24x24/7A5A60/7A5A60.png) | `#7A5A60` | rosu / teracota | 349°, 15%, 42% | 4 | 09-screens.js:566, 09-screens.js:774, 09-screens.js:778, 09-screens.js:785 |
+| ![](https://placehold.co/24x24/7A5A60/7A5A60.png) | `#7A5A60` | rosu / teracota | 349°, 15%, 42% | 4 | 09-screens.js:566, 09-screens.js:777, 09-screens.js:781, 09-screens.js:788 |
 | ![](https://placehold.co/24x24/4B2E33/4B2E33.png) | `#4B2E33` | rosu / teracota | 350°, 24%, 24% | 2 | 05-chars.js:22, 055-lupta.js:128 |
 | ![](https://placehold.co/24x24/7A4A52/7A4A52.png) | `#7A4A52` | rosu / teracota | 350°, 24%, 38% | 11 | 05-chars.js:9, 08-draw.js:569, 09-screens.js:177, 09-screens.js:186, 09-screens.js:248, 09-screens.js:278, 09-screens.js:283, 09-screens.js:284, 09-screens.js:405, 09-screens.js:409, 09-screens.js:496 |
 | ![](https://placehold.co/24x24/E4455A/E4455A.png) | `#E4455A` | rosu / teracota | 352°, 75%, 58% | 2 | 055-lupta.js:284, 055-lupta.js:286 |
@@ -560,20 +560,20 @@ Celelalte culori transparente sunt facute cu functia `rgba(hex, alfa)` din culor
 | Valoare | Aparitii | Unde |
 |---|---|---|
 | `rgba(255,255,255)` | 9 | 02-core.js:148, 055-lupta.js:421, 06-level.js:561, 06-level.js:604, 06-level.js:643, 06-level.js:976, 075-duel.js:302, 08-draw.js:584, 09-screens.js:428 |
-| `rgba(255,200,120)` | 7 | 05-chars.js:278, 05-chars.js:278, 055-lupta.js:439, 055-lupta.js:439, 08-draw.js:331, 09-screens.js:429, 09-screens.js:923 |
-| `rgba(70,56,140)` | 7 | 09-screens.js:183, 09-screens.js:243, 09-screens.js:244, 09-screens.js:907, 09-screens.js:910, 09-screens.js:917, 09-screens.js:917 |
+| `rgba(255,200,120)` | 7 | 05-chars.js:278, 05-chars.js:278, 055-lupta.js:439, 055-lupta.js:439, 08-draw.js:331, 09-screens.js:429, 09-screens.js:926 |
+| `rgba(70,56,140)` | 7 | 09-screens.js:183, 09-screens.js:243, 09-screens.js:244, 09-screens.js:910, 09-screens.js:913, 09-screens.js:920, 09-screens.js:920 |
 | `rgba(255,246,224)` | 6 | 02-core.js:243, 02-core.js:384, 02-core.js:384, 02-core.js:604, 055-lupta.js:137, 08-draw.js:53 |
-| `rgba(255,240,200)` | 6 | 06-level.js:877, 06-level.js:877, 09-screens.js:344, 09-screens.js:863, 09-screens.js:869, 09-screens.js:869 |
-| `rgba(106,66,112)` | 5 | 02-core.js:607, 09-screens.js:942, 09-screens.js:945, 09-screens.js:952, 09-screens.js:952 |
+| `rgba(255,240,200)` | 6 | 06-level.js:877, 06-level.js:877, 09-screens.js:344, 09-screens.js:866, 09-screens.js:872, 09-screens.js:872 |
+| `rgba(106,66,112)` | 5 | 02-core.js:607, 09-screens.js:945, 09-screens.js:948, 09-screens.js:955, 09-screens.js:955 |
 | `rgba(150,110,100)` | 5 | 06-level.js:671, 08-draw.js:591, 09-screens.js:478, 09-screens.js:579, 09-screens.js:743 |
 | `rgba(190,150,130)` | 5 | 08-draw.js:500, 08-draw.js:599, 09-screens.js:391, 09-screens.js:476, 09-screens.js:523 |
-| `rgba(255,246,214)` | 5 | 08-draw.js:503, 09-screens.js:358, 09-screens.js:366, 09-screens.js:477, 09-screens.js:878 |
+| `rgba(255,246,214)` | 5 | 08-draw.js:503, 09-screens.js:358, 09-screens.js:366, 09-screens.js:477, 09-screens.js:881 |
 | `rgba(60,30,110)` | 4 | 055-lupta.js:386, 055-lupta.js:388, 055-lupta.js:390, 055-lupta.js:394 |
 | `rgba(120,70,80)` | 3 | 02-core.js:86, 05-chars.js:20, 055-lupta.js:126 |
 | `rgba(122,174,94)` | 3 | 02-core.js:365, 02-core.js:365, 02-core.js:367 |
 | `rgba(255,214,140)` | 3 | 06-level.js:623, 08-draw.js:130, 08-draw.js:130 |
 | `rgba(255,246,226)` | 3 | 06-level.js:682, 075-duel.js:371, 08-draw.js:166 |
-| `rgba(255,232,170)` | 3 | 06-level.js:887, 08-draw.js:331, 09-screens.js:923 |
+| `rgba(255,232,170)` | 3 | 06-level.js:887, 08-draw.js:331, 09-screens.js:926 |
 | `rgba(255,255,250)` | 2 | 02-core.js:478, 055-lupta.js:415 |
 | `rgba(255,226,130)` | 2 | 05-chars.js:245, 05-chars.js:245 |
 | `rgba(190,110,50)` | 2 | 05-chars.js:249, 08-draw.js:585 |
@@ -672,5 +672,5 @@ Celelalte culori transparente sunt facute cu functia `rgba(hex, alfa)` din culor
 | `rgba(232,228,255)` | 1 | 09-screens.js:451 |
 | `rgba(255,240,214)` | 1 | 09-screens.js:451 |
 | `rgba(109,143,208)` | 1 | 09-screens.js:751 |
-| `rgba(255,220,160)` | 1 | 09-screens.js:863 |
-| `rgba(150,90,50)` | 1 | 09-screens.js:934 |
+| `rgba(255,220,160)` | 1 | 09-screens.js:866 |
+| `rgba(150,90,50)` | 1 | 09-screens.js:937 |

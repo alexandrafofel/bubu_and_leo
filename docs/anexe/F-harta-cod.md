@@ -94,12 +94,12 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 478-518 | Chrome only tells the names of the speakers after the microphone permission was given (ask = true asks for it). |
 | 519-550 | Voice-over with a system voice in the chosen language, when one is installed. |
 
-## 04-input.js (163 linii)
+## 04-input.js (166 linii)
 
 | Liniile | Sectiunea |
 |---|---|
-| 2-142 | INPUT: two DualShock 4 controllers through the Gamepad API (standard mapping) |
-| 143-163 | Settings: play hero k with a controller or with the keyboard. |
+| 2-145 | INPUT: two DualShock 4 controllers through the Gamepad API (standard mapping) |
+| 146-166 | Settings: play hero k with a controller or with the keyboard. |
 
 ## 05-chars.js (338 linii)
 
@@ -231,7 +231,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 637-652 | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
 | 653-676 | George's arena (the last level of the second game) |
 
-## 09-screens.js (954 linii)
+## 09-screens.js (957 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -257,9 +257,9 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 469-469 | level end |
 | 470-595 | Three little medals give the bigger player something extra to aim for. |
 | 596-619 | pause |
-| 620-795 | settings |
-| 796-810 | After a restart: send each hero's sounds to the speaker chosen last time, if Chrome still shows it. |
-| 811-954 | the Sunset Festival |
+| 620-798 | settings |
+| 799-813 | After a restart: send each hero's sounds to the speaker chosen last time, if Chrome still shows it. |
+| 814-957 | the Sunset Festival |
 
 ## 10-main.js (147 linii)
 

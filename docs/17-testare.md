@@ -376,3 +376,7 @@ Sapte defectiuni, toate prinse: ochi fara `flip` (lucirea trece in dreapta), `li
 - **Masuratoarea ochiului pica din cauza testului:** uitase privirea (`look`) si respiratia (scara 1.02). Testul deseneaza acum la un moment cu respiratia 0.
 - **Costul:** prima varianta (toate partile prin `lit()` complet) era 7,2 ms pentru cei trei, fata de 2 ms. Gasit cu o masuratoare a pictorilor singuri, inainte de `performanta.js`.
 - Pe foaia de personaje: luciu pe fiecare parte, margini de lumina care pareau contururi, cusaturi pe pantaloni si maneci (prea mici), umbra langa erou in loc de sub el. Toate reparate.
+
+## Update 22 noiembrie 2026: butonul L1 (sarcina T14.3)
+
+Verificare T14.3: `tests/setari-ui.js` si `tests/tastatura-reala.js` trec (`errors 0`). Tasta `KeyR` (jucatorul 1) si `Period` (jucatorul 2) sunt in `CONFIG.keys` si in `KEY_FIELDS`, deci apar in pagina "Alege tastele". Testerul de controller din Setari arata L1 in coltul de sus, stanga. Un script scurt a verificat ca tasta R si valoarea implicita a salvarilor vechi merg. Pagina "Alege tastele" are acum 11 randuri (9 taste si 2 butoane); `tests/control-nou.js` si-a schimbat asteptarea de la 10 la 11 si verifica ca incape (1046 din 1048 unitati). Verificarea cu tasta R: `Input.slots[0].g` ramane adevarat cat tasta e tinuta si se intoarce la fals cand e lasata. `gP` e un front de un singur cadru, deci nu se citeste dupa o apasare lunga. Nu s-a verificat un apasat real de L1 pe un controller DualShock.

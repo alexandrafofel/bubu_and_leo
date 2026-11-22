@@ -146,3 +146,8 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - **Umbrele din fuga** deseneaza tot eroul de trei ori (cu `lit()`). S7.7 cere cate 3 `drawImage` pe erou: se rezolva la T6.5, odata cu miscarea.
 - **George cazand in arena** se roteste: lumina se roteste cu el. Dureaza o clipa.
 - **Bubu si Leo** folosesc inca `drawEye` vechi (neschimbat). Nu se mai joaca.
+
+## T14.3 (22 noiembrie 2026)
+
+- L1 se aprinde la apasare (`gP`), dar nu face nimic inca: actiunea (ouul pentru prieten) e in T14.4.
+- Desenul lui L1 in testerul de controller e o pastila simpla cu litere, nu o iconita pictata. Se poate schimba daca proprietara vrea.
