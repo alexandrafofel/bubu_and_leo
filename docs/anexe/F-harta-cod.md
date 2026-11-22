@@ -168,7 +168,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 880-891 | Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). |
 | 892-985 | The boss arena: one screen, the tallest tree in the valley. |
 
-## 07-play.js (999 linii)
+## 07-play.js (1029 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -176,28 +176,29 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 19-22 | Which button an ability sits on for this hero: 1 = ✕ (the first power), 2 = □ (the second). Decides the word and the hint. |
 | 23-43 | Builds chapter idx: a level (its number inside the game is ch.n) or a big fight. L.ch remembers the chapter. |
 | 44-51 | the egg quota (docs/27-cota-de-oua.md) |
-| 52-116 | L1: the hero gives one of his quota eggs to the friend. Returns true when an egg left. |
-| 117-138 | particles |
-| 139-163 | collisions |
-| 164-183 | eggs and stars |
-| 184-197 | Second game only: crystals come in seven colors. One of each color = a rainbow: a few bonus crystals for the team. |
-| 198-225 | The order on a level: wave 1, wave 2, MIDDLE FIGHT (after the second-to-last wave), wave 3, NEST FIGHT, then the nest opens. |
-| 226-275 | How many seconds the friend has. After a few restarts of the same chapter the children get more time (the safety net). |
-| 276-291 | rescue: the friend helps a hero who was hit |
-| 292-315 | □ pressed. The first hero must stand close (a hug, healing hands). The second one may stand far: he sends a magic ball. |
-| 316-323 | A small enemy loses one of its hits. true = that was the last one: it disappears, another one comes later. |
-| 324-366 | powers |
-| 367-368 | The gloves shake the controller in three short beats (0, 0.28 and 0.56 s), so they feel different in the hand. |
-| 369-384 | A stomp (or the claws) next to the big tree, or next to George's throne, shakes it. |
-| 385-407 | This hero can throw again: everything of his is home, or his cooldown is over. |
-| 408-538 | A second press while his things are still out (inside the cooldown) calls back everything of HIS. The friend's stay out. |
-| 539-559 | The spin (claws, gloves, or Bubu's stomp) of one hero, on its own button. |
-| 560-588 | The throw (balls or bones) of one hero, on its own button. |
-| 589-720 | One ball in the air. Returns false when the ball has come home to Leo and can go. |
-| 721-721 | boss: Ciori in the tallest tree (first game), George on his stone throne (second game) |
-| 722-792 | Where the ball must land. Ciori: the nest in the tree. George: George himself, while he lies dizzy on the ground. |
-| 793-830 | second game: big birds that pick a hero up and carry him a little way (it does not hurt) |
-| 831-999 | Thrown things (pinecones, mud balls) fly in an arc and land on a marked spot. |
+| 52-87 | L1: the hero gives one of his quota eggs to the friend. Returns true when an egg left. |
+| 88-144 | C14: when a player joins in the middle of a level, what the friend holds over the limit goes to him. |
+| 145-166 | particles |
+| 167-191 | collisions |
+| 192-211 | eggs and stars |
+| 212-225 | Second game only: crystals come in seven colors. One of each color = a rainbow: a few bonus crystals for the team. |
+| 226-253 | The order on a level: wave 1, wave 2, MIDDLE FIGHT (after the second-to-last wave), wave 3, NEST FIGHT, then the nest opens. |
+| 254-303 | How many seconds the friend has. After a few restarts of the same chapter the children get more time (the safety net). |
+| 304-319 | rescue: the friend helps a hero who was hit |
+| 320-343 | □ pressed. The first hero must stand close (a hug, healing hands). The second one may stand far: he sends a magic ball. |
+| 344-351 | A small enemy loses one of its hits. true = that was the last one: it disappears, another one comes later. |
+| 352-394 | powers |
+| 395-396 | The gloves shake the controller in three short beats (0, 0.28 and 0.56 s), so they feel different in the hand. |
+| 397-412 | A stomp (or the claws) next to the big tree, or next to George's throne, shakes it. |
+| 413-435 | This hero can throw again: everything of his is home, or his cooldown is over. |
+| 436-566 | A second press while his things are still out (inside the cooldown) calls back everything of HIS. The friend's stay out. |
+| 567-587 | The spin (claws, gloves, or Bubu's stomp) of one hero, on its own button. |
+| 588-616 | The throw (balls or bones) of one hero, on its own button. |
+| 617-748 | One ball in the air. Returns false when the ball has come home to Leo and can go. |
+| 749-749 | boss: Ciori in the tallest tree (first game), George on his stone throne (second game) |
+| 750-820 | Where the ball must land. Ciori: the nest in the tree. George: George himself, while he lies dizzy on the ground. |
+| 821-858 | second game: big birds that pick a hero up and carry him a little way (it does not hurt) |
+| 859-1029 | Thrown things (pinecones, mud balls) fly in an arc and land on a marked spot. |
 
 ## 075-duel.js (378 linii)
 

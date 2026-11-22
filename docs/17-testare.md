@@ -386,3 +386,17 @@ Verificare T14.3: `tests/setari-ui.js` si `tests/tastatura-reala.js` trec (`erro
 Verificare (script scurt; `tests/cota.js` vine in T14.9; verificarile 4, 5 si 6 din `27-cota-de-oua.md`): prea departe nu da, fara oua nu da, un ou dat ajunge la prieten chiar daca cel care a dat e lovit, prietenul plin nu primeste, cota 10 cu 15 si 7 in cuib nu termina nivelul si `needT` creste, dupa trei oua date nivelul se termina. Cu `CONFIG.quota.on = false` verificarile pica. Harness-ul (`tests/common.js`) a primit `inp[k].gP` si `inp[k].g`.
 
 Testele vechi adaptate: `tests/cuib-amandoi.js` da fiecarui erou cota (`P.found = [q, q]`) inainte de verificarea cuibului. `tests/joc-complet-bot.js`: in cuib, cel cu mai multe oua da cu L1 celui cu mai putine, **un ou odata** (urmatorul dupa ce precedentul a ajuns), altfel ouale in zbor nu se numara si se plimba intre eroi fara sfarsit. Linia de stare a botului arata acum `found`.
+
+## Update 22 noiembrie 2026: ajutorul automat (T14.6)
+
+Verificare (scripturi scurte; `tests/cota.js` vine in T14.9; verificarile 9, 11 si 13 din `27-cota-de-oua.md`):
+
+- **13.** Cu `autoGive` 3 si `autoEvery` 0.5: primele 2 secunde in cuib nu muta nimic, apoi apare bannerul `quota.auto`, ouale trec pana la cota si nivelul se termina. Cu `autoGive` 0 nu se muta nimic si nivelul nu se termina.
+- **9.** Cu un singur jucator: nu exista limita (eroul trece peste `cap`), cota celui care nu joaca se socoteste indeplinita, iar nivelul se termina cand cel care joaca ajunge in cuib cu cota lui.
+- **11.** Al doilea jucator intra in mijlocul nivelului: cele 3 oua peste `cap` ale primului trec la el.
+- Reincepere dupa cele 10 secunde: `P` nou, `P.found` revine la `[0, 0]`.
+- Balonul "Apropie-te de {0}!" tine acum mai mult de un cadru (vezi `19-limitari.md`, T14.4).
+
+Fiecare verificare a fost pusa sa pice (`autoGive` 0, fara intrarea jucatorului).
+
+`tests/joc-complet-bot.js`: cand primul erou e la limita (`found >= cap`), prietenul lui merge dupa ouale ramase pe jos. Fara asta botul se blocase pe nivelul 3 cu 30 / 13 din cota 20 si doua oua `req` pe jos, pe care eroul plin nu le mai putea lua, deci cuibul nu se deschidea. Pe un copil nu-l blocheaza (specificatia garanteaza `E <= 2 * cap`, deci impreuna pot lua tot), dar botul mergea doar cu primul erou dupa oua.

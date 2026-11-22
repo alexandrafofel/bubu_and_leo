@@ -44,9 +44,11 @@ const GAME = process.argv[2] === 'lupta' || process.argv[2] === 'bubu' ? process
         return;
       }
       if (f % 6) return;
+      // the quota (T14.2): a full hero cannot take any more, so his friend goes and fetches the eggs left on the ground
+      const take = P.q && P.found[0] >= P.cap && P.found[1] < P.cap ? l : h;
       let best = null, bd = 1e9;
-      for (const e of P.eggs) if (e.delay <= 0 && e.state === 'idle' && !(e.wait > 0)) { const d = Math.hypot(e.x - h.x, e.y - h.y); if (d < bd) { bd = d; best = e; } }
-      if (best) { h.x = best.x - 20; h.y = best.y; return; }
+      for (const e of P.eggs) if (e.delay <= 0 && e.state === 'idle' && !(e.wait > 0)) { const d = Math.hypot(e.x - take.x, e.y - take.y); if (d < bd) { bd = d; best = e; } }
+      if (best) { take.x = best.x - 20; take.y = best.y; return; }
       if (P.duel && !P.duel.over) { h.x = P.duel.x - 130; h.y = P.duel.y; h.dizzy = 0; if (h.cd <= 0 && P.duel.z < 60) S[0].aP = true; return; }
       const tr = L.dynTrees.find(t => t.spark && t.spark.active && !t.spark.done);
       if (tr) { h.x = tr.cx; h.y = tr.cy + tr.cr + 60; if (h.cd <= 0) S[0].aP = true; return; }

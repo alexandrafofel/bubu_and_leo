@@ -356,3 +356,12 @@ Cererea proprietarei: "scoate jocul Bubu si Leo, lasa doar Cea mai grea lupta. M
 | Oul in zbor se numara la limita prietenului (`flying`) | Altfel doua apasari rapide ar trece peste `cap`. |
 | Cand lipsesc oua la amandoi, bannerul `need` il numeste pe cel care are mai mult de gasit | Un singur mesaj clar. |
 | `tests/common.js` primeste `inp[k].gP` si `inp[k].g` | Testele pot apasa L1 fara controller. |
+
+### T14.6: ajutorul automat si cazurile speciale (22 noiembrie 2026)
+
+| Decizie | De ce |
+|---|---|
+| Ajutorul automat ia doar din ce e **peste** cota celui care da | Altfel cel care da ar cobori sub cota lui si nivelul s-ar bloca invers. |
+| Ajutorul si L1 trec prin aceeasi functie, `sendEgg` | Un singur loc pentru ou, zbor, sunet si vibratie. |
+| Mutarea la intrarea unui jucator se face in `updatePlay` (`updateJoinQuota`), nu in `Input` | `P` si ouale in zbor se vad de aici; `Input` nu stie de nivel. Specificatia spunea `Input`; efectul e acelasi. |
+| Numele noului camp e `tooFarT`, nu `farT` | `farT` era deja timerul "sunt departe unul de altul" din `updatePlay`. Vezi limitarile. |

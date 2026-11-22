@@ -460,9 +460,9 @@ function drawHints(c, v) {
     const sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 30, (h.y - v.tp) * v.z - (h.tagT > 0 ? 200 : 160) * v.z) + Math.sin(t * 5) * 5;
     iconSq(c, sx, sy, 24, Math.sin(t * 6));
   }
-  for (const h of P.heroes) if (h.farT > 0 && !h.down) {          // L1 pressed but the friend is too far: "come closer"
+  for (const h of P.heroes) if (h.tooFarT > 0 && !h.down) {       // L1 pressed but the friend is too far: "come closer"
     const sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 40, (h.y - v.tp) * v.z - 190 * v.z);
-    c.globalAlpha = Math.min(1, h.farT / 0.3);
+    c.globalAlpha = Math.min(1, h.tooFarT / 0.3);
     card(c, sx - 170, sy - 26, 340, 52, '#FFF6E2', 44 + h.k);
     fitText(c, T('quota.far', CONFIG.heroes[1 - h.k].name), sx, sy + 2, 28, 320, '#B9802E', { halo: 0, shadow: 0, weight: 'bold' });
     c.globalAlpha = 1;
@@ -576,7 +576,7 @@ function drawMidCard(c, ban) {
       c.globalAlpha = 1; c.restore();
       return;
     }
-    const label = ban.kind === 'need' ? T('quota.need', ban.name, ban.n === 1 ? T('quota.one') : T('quota.many', ban.n)) : T('ban.' + ban.kind, ban.kind === 'wait' ? ban.name : isLupta() ? CONFIG.lupta.rainbowBonus : '');
+    const label = ban.kind === 'need' ? T('quota.need', ban.name, ban.n === 1 ? T('quota.one') : T('quota.many', ban.n)) : ban.kind === 'auto' ? T('quota.auto', ban.name) : T('ban.' + ban.kind, ban.kind === 'wait' ? ban.name : isLupta() ? CONFIG.lupta.rainbowBonus : '');
     if (ban.kind === 'duel') {
       text(c, label, W / 2, y0 + 30, 40, '#C4573D', { title: true, halo: 0 });
       text(c, T(ban.mid ? 'duel.mid' : 'duel.guard', T('duel.' + ban.id)), W / 2, y0 + 66, 26, '#7A4A52', { halo: 0, shadow: 0, weight: 'bold' });

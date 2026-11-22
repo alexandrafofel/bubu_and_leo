@@ -158,3 +158,10 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - Numarul eroului nu se clatina inca (insigna e in T14.7); `h.numT` e pregatit.
 - Nu exista ajutor automat: daca nimeni nu da oua, jocul asteapta in cuib pana intervine un copil (T14.6).
 - Cand un jucator intra in mijlocul nivelului, oul in plus nu se muta inca (C14, T14.6).
+
+## T14.6 (22 noiembrie 2026)
+
+- **Greseala reparata din T14.4**: balonul "Apropie-te de {0}!" folosea `h.farT`, care era deja timerul "sunt departe unul de altul" din `updatePlay` (cel care face eroul sa-si strige prietenul). `updatePlay` il punea pe 0 la fiecare cadru cat eroii erau mai aproape de 1200 de unitati, deci balonul se stergea imediat si nu se vedea niciodata, iar strigatul "unde esti?" se amana. Campul nou se numeste `tooFarT`. Lectia pentru orice camp nou pe erou: `grep` intai, cum cere `CLAUDE.md`.
+- Ajutorul automat n-a fost vazut la viteza adevarata (120 de secunde); testul a folosit 3 secunde.
+- Bannerul `quota.auto` nu are inca o imagine langa text (celelalte bannere au).
+- Nu s-a verificat nimic pe un Mac cu controllere si copii. In special: daca un copil de 6 ani intelege ca prietenul i-a trimis un ou.
