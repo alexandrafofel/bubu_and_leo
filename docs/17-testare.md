@@ -499,3 +499,53 @@ Timpii masurati in Chrome fara placa video (SwiftShader), deci mai mari decat pe
 | Lupta finala | 46 s | - |
 
 Botul cu doi eroi a dat 49 de diamante cu `giveEgg` intr-un joc intreg si a apasat ○ de 21 de ori pentru 11 eroi loviti. La fiecare nivel a terminat cu surplus la primul erou si exact cota la al doilea (de exemplu 43 si 35 pe nivelul 6), adica impartirea functioneaza.
+
+## Update 22 noiembrie 2026: T15 si `tests/george.js`
+
+`tests/george.js` verifica cele 14 puncte din `28-t15-george-de-doua-ori.md`, sectiunea 12: cota 15 fara limita, diamante doar din inamici (valurile si copacii nu dau, copacii dau melci), un diamant de la fiecare inamic, Micul George (3 inimi, se apropie, nu loveste, lasa un diamant, revine), George la 15 si la 30 (dar nu inainte de `minT`), oasele si mingile din mijloc, aruncarile de la cuib dupa inimi, inamicii care nu renunta si dispar cu George, George fara blindaj, cele trei conditii de sfarsit, jocul cu un singur jucator si reinceperea. Iese cu `george OK` sau `NEREUSIT: <numere>`, apoi `errors N`. E in `tests/toate.sh`, dupa `cota.js`.
+
+Dovada ca poate pica: `MUTA=n node ../george.js`, cu `n` de la 1 la 15, strica pe rand: cota unui nivel, valurile (pun un diamant), `dropGems`, viteza Micului George, `minT`, lupta de la cuib, `midThrows`, `boneEvery`, `nestEnemies`, `enemyHp`, un George blindat, `quotaOk`, `teamNeed`, reinceperea, si regula jocului singur. Rezultatele sunt in sectiunea de mai jos.
+
+Ce a prins testul in timp ce se scria: Micul George pornea cu 2 inimi (`startPlay` punea numarul general peste `maxHp`).
+
+Teste vechi schimbate:
+
+- `ordine-nivel.js`: ordinea noua, `eggs0 > duel1:mid > eggs2 > duel3:nest > nest4`, cu bannerele `george.half` si `george.final`. Invinge un inamic pe secunda (ca echipa sa nu stranga totul inainte de cele 20 de secunde) si tine eroii in picioare.
+- `cota.js`: nu mai presupune cota 10 (verificarile 2, 6, 7 folosesc `P.q`), nu mai are limita (verificarile 3, 4, 9, 11) si tine George departe (`midFought`, `nestFought`), pentru ca verifica doar cota. Verificarea 10 muta eroul lovit departe de diamantul scapat, altfel il lua inapoi tot el.
+- `joc-complet-bot.js` si `nivele-bot-mers.js` vaneaza inamici: diamantele nu mai stau pe jos. Botul care merge singur a gasit greseala jocului singur (eroul care nu joaca lua diamante).
+
+Timpii botilor cu T15 (SwiftShader):
+
+| Capitol | `joc-complet-bot.js` (doi eroi) | `nivele-bot-mers.js` (singur, mers adevarat) |
+|---|---|---|
+| Nivelul 1 | 73 s | 79 s |
+| Nivelul 2 | 39 s | 93 s |
+| Nivelul 3 | 48 s | 71 s |
+| Nivelul 4 | 47 s | 69 s |
+| Nivelul 5 | 48 s | 76 s |
+| Nivelul 6 | 61 s | 73 s |
+| Lupta finala | 48 s | - |
+
+### `george.js`: verificat ca poate sa pice (22 noiembrie 2026)
+
+| `MUTA` | Ce strica | Verificari care pica |
+|---|---|---|
+| 1 | cota nivelului 3 = 10 | 1 |
+| 2 | un diamant pus la fiecare val | 2 |
+| 3 | `dropGems` nu lasa nimic | 3, 4 |
+| 4 | Micul George sta pe loc | 4 |
+| 5 | `minT = 0` | 5 |
+| 6 | lupta de la cuib nu mai vine | 6, 12 |
+| 7 | fara oase in lupta din mijloc | 7 |
+| 8 | fara oase peste jumatate, la cuib | 8 |
+| 9 | fara inamici la jumatate si la ultima inima | 9, 10 |
+| 10 | inamicii aruncati raman dupa George | 10 |
+| 11 | George blindat cat traiesc inamicii | 8 - 14 |
+| 12 | `quotaOk` mereu adevarat | 12 |
+| 13 | jocul singur cere cota a doi | 13 |
+| 14 | reinceperea pastreaza lupta din mijloc | 5, 6, 13, 14 |
+| 15 | eroul care nu joaca isi pastreaza diamantele | 13 |
+
+Prima runda a aratat ca mutatiile 8 - 11 si 15 nu prindeau nimic: verificarile 8 - 10 comparau cu valoarea din `CONFIG` citita chiar atunci (o mutatie a configuratiei se compara cu ea insasi), iar 11 si 13 chemau `G.duelHit` si `G.collectEgg`, care tin originalul. Acum mutatiile strica codul, iar testul cheama functiile pe numele lor global, ca jocul. O verificare care se opreste cu o eroare pica cu mesajul erorii, nu opreste testul.
+
+`cota.js`: mutatiile 3 (limita de sus pusa inapoi) si 7 (`quotaState` gresit) au fost rescrise pentru T15 si pica la verificarile 3 si 9, respectiv 7.

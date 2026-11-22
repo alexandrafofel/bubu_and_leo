@@ -182,3 +182,9 @@ Greutatea fiecarui fel este in `DECOR_WEIGHT`. Cele care reactioneaza (`DECOR_RE
 `genLevel` ia cota nivelului din `quotaOf(idx)` si pune pe harta `ceil(extra * cota)` oua, impartite pe valuri ca inainte (`round(total / NW)` pe val). Din cauza rotunjirii pe val, numarul real (`L.totalEggs`) poate diferi cu 1 - 2 de cifra ideala: nivelul 1 are 21, nu 22. Dupa generare, daca `L.totalEggs` nu e intre `2q` si `2 * ceil(cap * q)`, `genLevel` intoarce `null`, iar `buildLevel` incearca urmatoarea samanta (pana la 80).
 
 `levelDurationOf(L) = max(levelDuration, L.totalEggs / eggsPerMinute * 60)`. Soarele din HUD, medalia "soare", indiciile si raza de adunare citesc aceasta durata. Nivelurile 1 - 4 raman la 360 s; nivelul 5 are 396 s, nivelul 6 are 468 s.
+
+## Update 22 noiembrie 2026: nivelurile fara diamante pe jos (T15)
+
+Cand nivelul are cota, `genLevel` nu mai pune diamante in valuri: `L.waves` are cate o lista goala pe val, iar `L.totalEggs = 2 * q` (cat trebuie echipei). Copacii care stralucesc raman, dar ascund melci (`treeSnails`), nu diamante.
+
+Dupa copaci, nivelul primeste destui inamici mici ca sa dea diamantele: daca robotii, melcii copacilor si conurile sunt mai putini decat `CONFIG.lupta.fieldEnemies[nivel]`, se mai pun roboti, pe rand in fiecare val, cu aceleasi reguli ca robotii de pana acum (departe de start, de cuib si de drum). Apoi vin Micii George (`miniGeorge.perLevel`), tot ca intrari in `L.beetles`, cu `look: 'mini'`, 3 inimi si `maxHp`.

@@ -10,7 +10,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 |---|---|
 | 1-16 | tot fisierul |
 
-## 01-config.js (275 linii)
+## 01-config.js (290 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -32,7 +32,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 167-173 | Sound |
 | 174-179 | Look |
 | 180-213 | The look of levels 7 - 12 and of the heroes (docs/24-sisteme-noi.md, S7) |
-| 214-275 | The second game, "Cea mai grea luptă" (invented by the children) |
+| 214-290 | The second game, "Cea mai grea luptă" (invented by the children) |
 
 ## 015-lang.js (233 linii)
 
@@ -102,7 +102,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 2-145 | INPUT: two DualShock 4 controllers through the Gamepad API (standard mapping) |
 | 146-166 | Settings: play hero k with a controller or with the keyboard. |
 
-## 05-chars.js (338 linii)
+## 05-chars.js (342 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -117,10 +117,10 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 291-307 | A woven nest seen from above. |
 | 308-328 | Small painted icons for hints (no words needed). |
 | 329-333 | The two heroes of the game being played: Bubu and Leo, or Boon and Killer. |
-| 334-335 | The small enemy that sleeps and wakes up: a beetle, or one of George's robots. |
-| 336-338 | The small enemy that comes down a lane: a rolling pinecone, or a sticky snail. |
+| 334-339 | The small enemy that sleeps and wakes up: a beetle, or one of George's robots. |
+| 340-342 | The small enemy that comes down a lane: a rolling pinecone, or a sticky snail. |
 
-## 055-lupta.js (566 linii)
+## 055-lupta.js (582 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -131,19 +131,19 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 171-232 | Killer's 10, "sewn on": a patch around the digits and a dotted cream stitch just outside them. |
 | 233-284 | KILLER: the big one's hero. A footballer all in blue, number 10, big red boots, a round head with big eyes and a wide grin. |
 | 285-371 | Killer's ball, like in the drawing: white, with hexagons. |
-| 372-408 | One of George's robots: asleep (a slow light), awake (!), chasing, dizzy. Same states as the beetle of the first game. |
-| 409-433 | A sticky snail that crawls down its lane and leaves a shiny trail. o.state 'stun' = it hides in its shell. |
-| 434-452 | A big jungle bird. It flies high: only its shadow touches the ground. o.grab = it carries a hero. o.spy = the small one that brings news to George. |
-| 453-476 | A rainbow crystal: a cut gem in one of the seven colors, with a soft glow. |
-| 477-488 | The secret star hidden behind the door: big, golden, with a ring in all the rainbow colors. |
-| 489-502 | The helper of the second game: a little rocket. Whoever touches it makes both heroes fast. |
-| 503-515 | Things thrown in the second game: a glowing rock (George) and a spear (his soldiers). |
-| 516-535 | One of George's soldiers: a small lizard with a helmet and a spear. They stand around the arena. throwT > 0 = it just threw. |
-| 536-548 | One goalkeeper glove: red, white palm, a blue star in the palm. sd = which side it points to. |
-| 549-561 | Boon's boomerang bone: two round ends and a shaft, cream amber, with a small crack. |
-| 562-566 | What a thrown thing looks like: Killer's and Leo's ball, or Boon's bone. |
+| 372-424 | One of George's robots: asleep (a slow light), awake (!), chasing, dizzy. Same states as the beetle of the first game. |
+| 425-449 | A sticky snail that crawls down its lane and leaves a shiny trail. o.state 'stun' = it hides in its shell. |
+| 450-468 | A big jungle bird. It flies high: only its shadow touches the ground. o.grab = it carries a hero. o.spy = the small one that brings news to George. |
+| 469-492 | A rainbow crystal: a cut gem in one of the seven colors, with a soft glow. |
+| 493-504 | The secret star hidden behind the door: big, golden, with a ring in all the rainbow colors. |
+| 505-518 | The helper of the second game: a little rocket. Whoever touches it makes both heroes fast. |
+| 519-531 | Things thrown in the second game: a glowing rock (George) and a spear (his soldiers). |
+| 532-551 | One of George's soldiers: a small lizard with a helmet and a spear. They stand around the arena. throwT > 0 = it just threw. |
+| 552-564 | One goalkeeper glove: red, white palm, a blue star in the palm. sd = which side it points to. |
+| 565-577 | Boon's boomerang bone: two round ends and a shaft, cream amber, with a small crack. |
+| 578-582 | What a thrown thing looks like: Killer's and Leo's ball, or Boon's bone. |
 
-## 06-level.js (1135 linii)
+## 06-level.js (1161 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -157,87 +157,97 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 309-334 | trees, rocks, haystacks |
 | 335-369 | reachability (flood fill from the start) |
 | 370-386 | beetles |
-| 387-412 | sparkling trees (hide eggs) and the treetop star |
-| 413-435 | golden eggs, in waves from left to right |
-| 436-450 | lanterns along the path (sunset level) |
-| 451-459 | painting |
-| 460-478 | The decor of the second game: as many kinds, with the same ways of reacting, but the things of a jungle at night. |
-| 479-524 | One picture of a kind of decor, drawn once and cached. v = which of the 4 looks it has. |
-| 525-599 | The decor of the second game (the jungle at night). Glowing things get a soft halo of their own color. |
-| 600-856 | Second game: a rock with little crystals growing on it, a big glowing mushroom, a torch, a totem with a rainbow pinwheel. |
-| 857-868 | A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). |
-| 869-879 | The door of the hideout: an arched wooden door with a rainbow knob. x = middle, y = the ground line. |
-| 880-1041 | Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). |
-| 1042-1135 | The boss arena: one screen, the tallest tree in the valley. |
+| 387-399 | sparkling trees (hide eggs) and the treetop star |
+| 400-437 | T15: enough small enemies to give the diamonds (they are the only place diamonds come from) |
+| 438-461 | golden eggs, in waves from left to right |
+| 462-476 | lanterns along the path (sunset level) |
+| 477-485 | painting |
+| 486-504 | The decor of the second game: as many kinds, with the same ways of reacting, but the things of a jungle at night. |
+| 505-550 | One picture of a kind of decor, drawn once and cached. v = which of the 4 looks it has. |
+| 551-625 | The decor of the second game (the jungle at night). Glowing things get a soft halo of their own color. |
+| 626-882 | Second game: a rock with little crystals growing on it, a big glowing mushroom, a torch, a totem with a rainbow pinwheel. |
+| 883-894 | A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). |
+| 895-905 | The door of the hideout: an arched wooden door with a rainbow knob. x = middle, y = the ground line. |
+| 906-1067 | Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). |
+| 1068-1161 | The boss arena: one screen, the tallest tree in the valley. |
 
-## 07-play.js (1054 linii)
+## 07-play.js (1080 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 2-18 | GAMEPLAY: heroes, powers, eggs, stars, enemies, wind, butterfly, boss |
 | 19-22 | Which button an ability sits on for this hero: 1 = ✕ (the first power), 2 = □ (the second). Decides the word and the hint. |
 | 23-44 | Builds chapter idx: a level (its number inside the game is ch.n) or a big fight. L.ch remembers the chapter. |
-| 45-52 | the egg quota (docs/27-cota-de-oua.md) |
-| 53-98 | L1: the hero gives one of his quota eggs to the friend. Returns true when an egg left. |
-| 99-155 | C14: when a player joins in the middle of a level, what the friend holds over the limit goes to him. |
-| 156-177 | particles |
-| 178-202 | collisions |
-| 203-222 | eggs and stars |
-| 223-236 | Second game only: crystals come in seven colors. One of each color = a rainbow: a few bonus crystals for the team. |
-| 237-264 | The order on a level: wave 1, wave 2, MIDDLE FIGHT (after the second-to-last wave), wave 3, NEST FIGHT, then the nest opens. |
-| 265-314 | How many seconds the friend has. After a few restarts of the same chapter the children get more time (the safety net). |
-| 315-330 | rescue: the friend helps a hero who was hit |
-| 331-354 | □ pressed. The first hero must stand close (a hug, healing hands). The second one may stand far: he sends a magic ball. |
-| 355-362 | A small enemy loses one of its hits. true = that was the last one: it disappears, another one comes later. |
-| 363-405 | powers |
-| 406-407 | The gloves shake the controller in three short beats (0, 0.28 and 0.56 s), so they feel different in the hand. |
-| 408-423 | A stomp (or the claws) next to the big tree, or next to George's throne, shakes it. |
-| 424-446 | This hero can throw again: everything of his is home, or his cooldown is over. |
-| 447-590 | A second press while his things are still out (inside the cooldown) calls back everything of HIS. The friend's stay out. |
-| 591-611 | The spin (claws, gloves, or Bubu's stomp) of one hero, on its own button. |
-| 612-640 | The throw (balls or bones) of one hero, on its own button. |
-| 641-772 | One ball in the air. Returns false when the ball has come home to Leo and can go. |
-| 773-773 | boss: Ciori in the tallest tree (first game), George on his stone throne (second game) |
-| 774-844 | Where the ball must land. Ciori: the nest in the tree. George: George himself, while he lies dizzy on the ground. |
-| 845-882 | second game: big birds that pick a hero up and carry him a little way (it does not hurt) |
-| 883-1054 | Thrown things (pinecones, mud balls) fly in an arc and land on a marked spot. |
+| 45-51 | the egg quota (docs/27-cota-de-oua.md) |
+| 52-96 | L1: the hero gives one of his quota eggs to the friend. Returns true when an egg left. |
+| 97-147 | C14: when a player joins in the middle of a level, what the friend holds over his quota goes to him, up to the newcomer's quota. |
+| 148-169 | particles |
+| 170-194 | collisions |
+| 195-213 | eggs and stars |
+| 214-241 | Second game only: crystals come in seven colors. One of each color = a rainbow: a few bonus crystals for the team. |
+| 242-244 | T15: diamonds from enemies, George from diamonds (docs/28-t15-george-de-doua-ori.md) |
+| 245-252 | George comes when the team has half of what it needs (the middle fight) and again when it has all of it (the nest fight). |
+| 253-261 | A defeated small enemy leaves diamonds: the only place they come from. Thrown enemies too; nothing else. |
+| 262-282 | A snail crawls out of a glowing tree. It is a small enemy like the robots: it chases, it can be beaten, it comes back after a while. |
+| 283-332 | How many seconds the friend has. After a few restarts of the same chapter the children get more time (the safety net). |
+| 333-348 | rescue: the friend helps a hero who was hit |
+| 349-372 | □ pressed. The first hero must stand close (a hug, healing hands). The second one may stand far: he sends a magic ball. |
+| 373-381 | A small enemy loses one of its hits. true = that was the last one: it disappears, another one comes later. |
+| 382-424 | powers |
+| 425-426 | The gloves shake the controller in three short beats (0, 0.28 and 0.56 s), so they feel different in the hand. |
+| 427-442 | A stomp (or the claws) next to the big tree, or next to George's throne, shakes it. |
+| 443-465 | This hero can throw again: everything of his is home, or his cooldown is over. |
+| 466-609 | A second press while his things are still out (inside the cooldown) calls back everything of HIS. The friend's stay out. |
+| 610-630 | The spin (claws, gloves, or Bubu's stomp) of one hero, on its own button. |
+| 631-659 | The throw (balls or bones) of one hero, on its own button. |
+| 660-796 | One ball in the air. Returns false when the ball has come home to Leo and can go. |
+| 797-797 | boss: Ciori in the tallest tree (first game), George on his stone throne (second game) |
+| 798-868 | Where the ball must land. Ciori: the nest in the tree. George: George himself, while he lies dizzy on the ground. |
+| 869-906 | second game: big birds that pick a hero up and carry him a little way (it does not hurt) |
+| 907-1080 | Thrown things (pinecones, mud balls) fly in an arc and land on a marked spot. |
 
-## 075-duel.js (378 linii)
+## 075-duel.js (431 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 2-29 | MINI-FIGHTS: when the last eggs of a level are collected, one of Ciori's |
-| 30-52 | kind 'mid': the middle fight, the same as before. kind 'nest': the harder one at the nest, bigger and quicker. |
-| 53-62 | Who the guardian goes after: the bravest player who is not hidden in the nest. |
-| 63-64 | While a hero waits for the friend's help the fight rests: the guardian finishes what it was doing, hurts nobody and starts no new attack. |
-| 65-66 | Nothing touches a hero hidden in the nest. A player on "Ușor" who only helps (the guardian is after the friend) is spared too. |
-| 67-183 | A tired guardian can always be hit. On "Ușor" every hit counts at any time, except on a guardian that is only waiting for a hero to be helped up. |
-| 184-251 | the three attack patterns |
-| 252-340 | drawing the guardians |
-| 341-354 | Things on the ground during a mini-fight: where the next attack will land, shadows. (The shelter ring is in drawNestShelter.) |
-| 355-378 | Things above everything: flying guardians, thrown pinecones, leaves, hearts. |
+| 30-53 | kind 'mid': the middle fight, the same as before. kind 'nest': the harder one at the nest, bigger and quicker. |
+| 54-63 | Who the guardian goes after: the bravest player who is not hidden in the nest. |
+| 64-65 | While a hero waits for the friend's help the fight rests: the guardian finishes what it was doing, hurts nobody and starts no new attack. |
+| 66-67 | Nothing touches a hero hidden in the nest. A player on "Ușor" who only helps (the guardian is after the friend) is spared too. |
+| 68-116 | A tired guardian can always be hit. On "Ușor" every hit counts at any time, except on a guardian that is only waiting for a hero to be helped up. |
+| 117-118 | T15: what George throws (docs/28-t15-george-de-doua-ori.md, section 4) |
+| 119-129 | n bones and balls, at the heroes: they land in a red circle and daze, like the pinecones. |
+| 130-145 | n small enemies, thrown near the heroes. follow = the ones of his last heart: they keep after Boon and Killer and never give up. |
+| 146-153 | The middle fight (T15): a few bones and balls, two at a time, every few seconds. |
+| 154-161 | The nest fight (T15): what he throws depends on the hearts he has left. Called after every heart he loses. |
+| 162-236 | George is beaten: his thrown enemies go with him (each one in a puff of dust, without diamonds). |
+| 237-304 | the three attack patterns |
+| 305-393 | drawing the guardians |
+| 394-407 | Things on the ground during a mini-fight: where the next attack will land, shadows. (The shelter ring is in drawNestShelter.) |
+| 408-431 | Things above everything: flying guardians, thrown pinecones, leaves, hearts. |
 
-## 08-draw.js (915 linii)
+## 08-draw.js (920 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 2-42 | DRAWING THE GAME: world, heroes, effects, HUD |
 | 43-173 | Boon's claws while they spin: rainbow slashes that run around him, on a soft shield. |
-| 174-394 | Small enemies show how many hits they still take, once they were hit. |
-| 395-504 | The helper arrow: a soft arrow next to a hero that shows where to go and, in a small bubble, what waits there. |
-| 505-546 | How far the level is: eggs in groups, then the guardian, then the nest. |
-| 547-558 | The round picture of a hero (the one painted after the children's drawings) in a ring of his color; r = the radius of the ring. |
-| 559-568 | A round green tick, painted: the quota is found. |
-| 569-589 | The corner badge: portrait, name, difficulty and, when the level has a quota, "found / quota" in green (done) or red (still missing). 300 x 108, inside the band (16 to 124). |
-| 590-590 | "We wait for X in the nest": it used to be written in the world, over the nest. Now it is a banner in the band. |
-| 591-605 | "Ajută-l pe Boon! ○" while a friend is down and the seconds are running. It comes before any other banner. |
-| 606-857 | The card in the middle, with what a banner says when there is one. A banner never comes down over the world. |
-| 858-867 | The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. |
-| 868-875 | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
-| 876-891 | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
-| 892-915 | George's arena (the last level of the second game) |
+| 174-396 | Small enemies show how many hits they still take, once they were hit. |
+| 397-496 | The helper arrow: a soft arrow next to a hero that shows where to go and, in a small bubble, what waits there. |
+| 497-550 | How far the level is: eggs in groups, then the guardian, then the nest. |
+| 551-562 | The round picture of a hero (the one painted after the children's drawings) in a ring of his color; r = the radius of the ring. |
+| 563-572 | A round green tick, painted: the quota is found. |
+| 573-594 | The corner badge: portrait, name, difficulty and, when the level has a quota, "found / quota" in green (done) or red (still missing). 300 x 108, inside the band (16 to 124). |
+| 595-595 | "We wait for X in the nest": it used to be written in the world, over the nest. Now it is a banner in the band. |
+| 596-610 | "Ajută-l pe Boon! ○" while a friend is down and the seconds are running. It comes before any other banner. |
+| 611-862 | The card in the middle, with what a banner says when there is one. A banner never comes down over the world. |
+| 863-872 | The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. |
+| 873-880 | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
+| 881-896 | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
+| 897-920 | George's arena (the last level of the second game) |
 
-## 09-screens.js (963 linii)
+## 09-screens.js (964 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -261,11 +271,11 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 411-431 | level story card |
 | 432-468 | The pictures on the story card of the second game. Returns false for a picture that is the same in both games. |
 | 469-469 | level end |
-| 470-601 | Three little medals give the bigger player something extra to aim for. |
-| 602-625 | pause |
-| 626-804 | settings |
-| 805-819 | After a restart: send each hero's sounds to the speaker chosen last time, if Chrome still shows it. |
-| 820-963 | the Sunset Festival |
+| 470-602 | Three little medals give the bigger player something extra to aim for. |
+| 603-626 | pause |
+| 627-805 | settings |
+| 806-820 | After a restart: send each hero's sounds to the speaker chosen last time, if Chrome still shows it. |
+| 821-964 | the Sunset Festival |
 
 ## 10-main.js (150 linii)
 

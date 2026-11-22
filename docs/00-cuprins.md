@@ -45,7 +45,7 @@ Anexele din `anexe/` sunt liste generate din cod. Ele sunt mereu exacte, pentru 
 | 25 | [Nivelurile 7 - 12](25-niveluri-7-12.md) | **Specificatie.** Povestea, mecanismele de colaborare, cele sase niveluri, George, Sala Tronului, texte, sunete |
 | 26 | [Limba personajelor](26-limba-personajelor.md) | **Specificatie (T13).** Fiecare erou are propria limba, cu cam 1000 de cuvinte generate, fraze, balon cu traducerea si Dictionar |
 | 27 | [Cota de oua si cristale](27-cota-de-oua.md) | **Gata (T14, 22 noiembrie 2026).** Fiecare erou are de gasit un numar pe nivel, tine cel mult 150%, ii da prietenului cu L1; insigna verde / rosie |
-| 28 | [George vine de doua ori](28-t15-george-de-doua-ori.md) | **Specificatie (T15).** George vine la jumatatea cotei si la cota intreaga, maximul de diamante dispare, iar in lupta de la cuib arunca inamici mici cu 3 inimi. Analiza variantelor in G2. |
+| 28 | [George vine de doua ori](28-t15-george-de-doua-ori.md) | **Gata (T15, 22 noiembrie 2026).** George vine la jumatatea cotei si la cota intreaga, maximul de diamante dispare, iar in lupta de la cuib arunca inamici mici cu 3 inimi. Analiza variantelor in G2. |
 
 ## Anexe generate
 

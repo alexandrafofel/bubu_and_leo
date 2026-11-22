@@ -1,6 +1,7 @@
 # 28. George vine de doua ori, cu diamante comune (sarcina T15)
 
-> Specificatie, nu cod. Decizii luate pe 22 noiembrie 2026, dupa raspunsurile proprietarei la cele 7 intrebari. Nimic din T15 nu e implementat inca.
+> Status: **implementat pe 22 noiembrie 2026** (sarcinile T15.1 - T15.7). Deciziile au fost luate in aceeasi zi, dupa raspunsurile proprietarei la cele 7 intrebari si la a doua runda.
+> Ce iese din cod si unde codul se abate de la hartie: sectiunea 14, la sfarsit.
 > Inlocuieste versiunea din aceeasi zi, cu maximul de diamante si "padurea care nu seaca".
 
 ---
@@ -229,3 +230,23 @@ Fiecare verificare e pusa sa pice, ca la `tests/cota.js` (`MUTA=n`).
 - Daca oasele si mingile se citesc ca atac, fara sa sperie.
 - Daca inamicii care urmaresc sunt prea multi pentru doi copii deodata.
 - Daca mini-George, care nu loveste, e "prea prietenos" sau se simte ca o pedeapsa.
+
+---
+
+## 14. Ce s-a implementat si unde codul se abate (22 noiembrie 2026)
+
+Codul e in `src/07-play.js` (`teamNeed`, `teamFound`, `updateGeorge`, `dropGems`, `addSnail`), `src/075-duel.js` (`georgeBones`, `georgeEnemies`, `updateGeorgeMid`, `georgeNestThrows`, `georgeClearThrown`), `src/06-level.js` (inamicii pe harta, Micul George), `src/055-lupta.js` (`drawMiniGeorge`) si `src/08-draw.js` (bara de sus, insigna). Reglajele sunt in `CONFIG.lupta` (`fieldEnemies`, `treeSnails`, `enemyDrop`, `miniGeorge`, `george`).
+
+| Ce | Pe hartie | In cod | De ce |
+|---|---|---|---|
+| Totalul echipei | Camp `P.teamFound` | Functie `teamFound()`: `found[0] + found[1] + diamantele in zbor` | Un diamant dat cu L1 e in aer cateva zecimi de secunda; altfel totalul ar cobori si ar urca la loc. |
+| Cat trebuie echipei | 30 | `teamNeed()`: `q` ori numarul de jucatori (15 cand joaca unul singur) | Cu un singur jucator, cota celuilalt se socoteste gasita (C13). George vine la 8 si la 15. |
+| Inamicii de pe harta | `fieldEnemies`: melci, roboti, altii | `fieldEnemies` numara roboti + melcii copacilor (`treeSnails` = 2 de copac) + conurile. Robotii completeaza ce lipseste | Un singur numar de reglat. |
+| Ce lasa un inamic | 1 diamant | 1 diamant (`enemyDrop`), de la orice inamic mic: robot, melc, con, pasare, Micul George, inamic aruncat | Toti mor prin `hurtSmall`; un singur loc. |
+| Prima parte a inamicilor de la cuib | Tabelul 7.2 | `N <= 2 ? N : floor(N / 2)` la jumatate, restul la ultima inima | Formula da exact tabelul (2+0, 2+2, 2+3, 3+3, 4+4, 5+5). |
+| Bannerele aruncarilor | `george.throw`, `george.last` | `ban.gthrow`, `ban.glast` | Bannerele mici din banda citesc `ban.<fel>`. |
+| `mini.name` | Text nou | Nu a fost adaugat | Numele nu apare nicaieri pe ecran. |
+| Unde aterizeaza George la mijloc | Nespecificat | Langa eroi, la 420 de unitati in dreapta lor | Vine cand au strans jumatate, oriunde ar fi pe harta; nu cade peste ei. |
+| Cuibul | Se deschide dupa George | `openNest()` doar la sfarsitul luptei de la cuib; valurile doar aprind copacii | Ca pe hartie. Fara lupte (`CONFIG.duel.enabled = false`), cuibul se deschide la cota echipei. |
+| **In plus**: jocul cu un singur jucator | Nespecificat | Ce culege eroul care nu joaca se numara la cel care joaca | Greseala gasita de botul care merge singur: eroul care nu joaca lua diamante, George venea, dar cota celui care juca nu se umplea si nivelul nu se mai termina. |
+| **In plus**: Micul George la inceputul nivelului | 3 inimi | `startPlay` pune `maxHp`, nu numarul general | Greseala gasita de `tests/george.js`: pornea cu 2 inimi. |

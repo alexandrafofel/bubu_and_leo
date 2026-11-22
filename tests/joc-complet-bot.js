@@ -16,7 +16,7 @@ const { BALANSEAZA } = require('./common.js');
   await page.mouse.click(900, 500); await page.waitForTimeout(400);
   await page.evaluate((GAME) => {
     const G = __game, I = G.Input, orig = I.poll; let f = 0;
-    window.bot = { on: true, log: [], rescues: 0, downs: 0, given: 0 };
+    window.bot = { on: true, log: [], rescues: 0, downs: 0, given: 0, hunts: 0 };
     I.poll = function (dt) {
       orig(dt); if (!bot.on) return; f++;
       const S = I.slots, st = G.Game.state, P = G.P;
@@ -47,14 +47,17 @@ const { BALANSEAZA } = require('./common.js');
       }
       if (f % 6) return;
       if (f % 48 === 0 && P.q && G.quotaState(0).ok !== G.quotaState(1).ok) { const n0 = P.gifts.length; const did = balanseaza(); if (P.gifts.length > n0) bot.given++; if (did) return; }   // one is done, the other is not: share (T14.10)
-      // the quota (T14.2): a full hero cannot take any more, so his friend goes and fetches the eggs left on the ground
-      const take = P.q && P.found[0] >= P.cap && P.found[1] < P.cap ? l : h;
+      // the quota: the first hero fetches; once he is over his quota and the friend is short, the friend fetches too (T15: no upper limit)
+      const take = P.q && P.found[0] > P.q && P.found[1] < P.q && f % 12 < 6 ? l : h;
       let best = null, bd = 1e9;
       for (const e of P.eggs) if (e.delay <= 0 && e.state === 'idle' && !(e.wait > 0)) { const d = Math.hypot(e.x - take.x, e.y - take.y); if (d < bd) { bd = d; best = e; } }
       if (best) { take.x = best.x - 20; take.y = best.y; return; }
       if (P.duel && !P.duel.over) { h.x = P.duel.x - 130; h.y = P.duel.y; h.dizzy = 0; if (h.cd <= 0 && P.duel.z < 60) S[0].aP = true; return; }
       const tr = L.dynTrees.find(t => t.spark && t.spark.active && !t.spark.done);
       if (tr) { h.x = tr.cx; h.y = tr.cy + tr.cr + 60; if (h.cd <= 0) S[0].aP = true; return; }
+      // T15: diamonds come only from defeated small enemies, so the first hero goes after the nearest one (robots, tree snails, Little George)
+      if (P.q) { let be = null, bd2 = 1e9; for (const b of L.beetles) if (b.state !== 'dead') { const d2 = Math.hypot(b.x - h.x, b.y - h.y); if (d2 < bd2) { bd2 = d2; be = b; } }
+        if (be) { h.x = be.x - 120; h.y = be.y; h.dizzy = 0; if (h.cd <= 0) S[0].aP = true; bot.hunts++; return; } }
       const st2 = P.stars.find(s => !s.got && !s.hidden && s.kind !== 'islet'); if (st2 && f % 60 === 0) { h.x = st2.x - 10; h.y = st2.y; }
     };
   }, GAME);

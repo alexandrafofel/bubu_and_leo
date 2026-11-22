@@ -31,7 +31,7 @@ function buildLevel(idx) {
 function makeHero(k, x, y) {
   return { k, x, y, px: x, py: y, vx: 0, vy: 0, face: 1, ax: 1, ay: 0, walk: 0, moving: false, dizzy: 0, inv: 0, boost: 0, squash: 0, z: 0, cd: 0,
     stompT: -1, charge: 0, charging: false, kickT: 0, inMud: false, mudT: 0, tagT: 5, t: Math.random() * 5,
-    down: false, downT: 0, downLeft: 0, downTick: null, hurried: false, callT: 0, small: 1, spinT: -1, spinNo: 0, shield: false, carried: null, hugT: 0, reachHint: 0, fullT: 0, tooFarT: 0, giveT: 0, numT: 0, noT: 0,
+    down: false, downT: 0, downLeft: 0, downTick: null, hurried: false, callT: 0, small: 1, spinT: -1, spinNo: 0, shield: false, carried: null, hugT: 0, reachHint: 0, tooFarT: 0, giveT: 0, numT: 0, noT: 0,
     run: false, runIdle: 0, runT: 0, runRest: 0, runWord: -99, ghosts: [], ghostT: 0,         // run (L3): ghosts = the trail left behind
     throwCd: 0, homeState: 'held', home: { x, y, z: 0, spin: 0 }, chargeHold: 0,               // the thrown things (balls or bones): cooldown, whether they are all home, and the one kept at hand
     spinBeat: 0, spinLook: null, duelSweep: 0, bossSweep: 0,                                    // the spin (claws or gloves)
@@ -47,8 +47,7 @@ function isJoined(k) { return !!Input.slots[k].joined; }
 function bothJoined() { return isJoined(0) && isJoined(1); }
 function quotaOn() { return !!(CONFIG.quota.on && P && P.q > 0 && !P.L.boss); }
 function quotaOk(k) { return !isJoined(k) || P.found[k] >= P.q; }
-function canTake(e, k) { return !bothJoined() || P.found[k] < P.cap; }      // alone there is no limit
-function quotaState(k) { return { found: P.found[k], q: P.q, cap: P.cap, ok: quotaOk(k) }; }
+function quotaState(k) { return { found: P.found[k], q: P.q, ok: quotaOk(k), extra: Math.max(0, P.found[k] - P.q) }; }      // no upper limit (T15): extra = how many over the quota
 function flying(to) { let n = 0; for (const g of P.gifts) if (g.to === to) n++; return n; }      // eggs on their way to a hero
 /* L1: the hero gives one of his quota eggs to the friend. Returns true when an egg left. */
 function giveEgg(k) {
@@ -56,7 +55,6 @@ function giveEgg(k) {
   const h = P.heroes[k], f = P.heroes[1 - k], Q = CONFIG.quota;
   if (!isJoined(1 - k) || h.down || h.dizzy > 0 || h.carried || P.done) return false;
   if (P.found[k] < 1) { Snd.play('no', 0, k); h.noT = 0.5; return false; }                                      // nothing to give: the number shakes
-  if (P.found[1 - k] + flying(1 - k) >= P.cap) { capHint(1 - k); return false; }                                 // the friend is full: "Plin!" over him
   if (dist(h.x, h.y, f.x, f.y) > Q.giveRange) { h.tooFarT = 1.4; h.reachHint = 1.4; Snd.play('no', 0, k); return false; }
   sendEgg(k, 1 - k, false); Snd.talk(k, 'together');
   return true;
@@ -92,17 +90,17 @@ function updateAutoGive(dt) {
   P.autoT = 0;
   const k = quotaOk(0) ? 1 : 0, g = 1 - k;                              // k is short, g gives
   if (P.found[g] <= P.q) return;                                        // only what is over his own quota moves
-  if (P.found[k] + flying(k) >= P.cap) return;
+  if (P.found[k] + flying(k) >= P.q) return;                            // the short one has enough already on its way
   sendEgg(g, k, true);
   P.banner = { kind: 'auto', t: 3, name: CONFIG.heroes[g].name };
 }
-/* C14: when a player joins in the middle of a level, what the friend holds over the limit goes to him. */
+/* C14: when a player joins in the middle of a level, what the friend holds over his quota goes to him, up to the newcomer's quota. */
 function updateJoinQuota() {
   for (let k = 0; k < 2; k++) {
     const now = isJoined(k);
     if (now && !P.wasJoined[k] && quotaOn()) {
       const f = 1 - k;
-      while (P.found[f] > P.cap && P.found[k] + flying(k) < P.cap) sendEgg(f, k, true);
+      while (P.found[f] > P.q && P.found[k] + flying(k) < P.q) sendEgg(f, k, true);
     }
     P.wasJoined[k] = now;
   }
@@ -113,15 +111,9 @@ function sendEgg(from, to, auto) {                   // one egg leaves `from` an
   P.gifts.push({ from, to, t: 0, x0: h.x, y0: h.y - 50, x: h.x, y: h.y - 50, z: 0, seed: Math.random() * 10, auto: !!auto });
   Snd.play('give', 0, from); Input.rumble(from, 0.1, 0.3, 60);
 }
-function capHint(k, e) {                       // "Plin!": a small balloon over the full hero, a soft no, and the egg hops a little
-  const h = P.heroes[k];
-  if (e) e.hop = 0.4;
-  if (h.fullT > 0) return;
-  h.fullT = 1.2; Snd.play('no', 0, k);
-}
 function startPlay(L) {
   const bs = !!L.boss;
-  P = { L, q: L.q || 0, cap: Math.ceil(CONFIG.quota.cap * (L.q || 0)), found: [0, 0], gifts: [], needT: 0, autoT: 0, quotaMsg: [false, false], wasJoined: [isJoined(0), isJoined(1)], eggs: [], stars: L.stars, parts: [], rings: [], wave: -1, time: 0, sinceEgg: 0, levelEggs: 0, levelStars: 0, combo: 0, comboT: 0,
+  P = { L, q: L.q || 0, found: [0, 0], gifts: [], needT: 0, autoT: 0, quotaMsg: [false, false], wasJoined: [isJoined(0), isJoined(1)], eggs: [], stars: L.stars, parts: [], rings: [], wave: -1, time: 0, sinceEgg: 0, levelEggs: 0, levelStars: 0, combo: 0, comboT: 0,
     cam: { x: L.spawn.x, y: L.spawn.y, zoom: 1 }, shake: 0, wind: { t: CONFIG.windEvery * 0.7, state: 'calm', dir: 1, power: 0 },
     bfly: null, bflyT: 20 + Math.random() * 12, bflyCount: 0, crow: null, nestOpen: false, nestT: 0, done: false, doneT: 0, banner: null,
     tut: [{ moved: 0, used: false, used2: false, ran: false }, { moved: 0, used: false, used2: false, ran: false }], runHint: 0, runHintDone: false, nextWaveT: -1, waveNeed: 1, waveGot: 0, duel: null, hits: 0, hintCharge: 0, rumbleT: 0, bounceT: 0, glint: 0,
@@ -129,7 +121,7 @@ function startPlay(L) {
     flock: [], kickNo: 0, midFought: false, nestFought: false, rustleT: 0, boss: null,                                                         // the balls in the air (one kick = many balls)
     heal: [], rescues: 0, rainbow: [], rainbows: 0 };                                                                                                         // magic balls on their way to a friend; the colors of crystals collected so far
   for (const s of P.stars) { s.got = false; s.z = 0; s.pop = 0; }
-  for (const e of L.beetles) e.hp = CONFIG.smallEnemy.hits;
+  for (const e of L.beetles) e.hp = e.maxHp || CONFIG.smallEnemy.hits;      // Little George has his own 3 hearts (T15)
   for (const e of L.cones) e.hp = CONFIG.smallEnemy.hits;
   if (L.cave) P.eggs.push(makeEgg(L.cave.egg.x, L.cave.egg.y, { big: true, value: CONFIG.giantEggValue, r: 44, req: false }));
   if (bs) {
@@ -202,9 +194,8 @@ function collide(L, e, r, isBall) {
 
 /* ---------- eggs and stars ---------- */
 function collectEgg(e, k) {
-  if (e.goal && quotaOn() && !canTake(e, k)) { e.pull = null; capHint(k, e); return; }      // full: the egg stays on the ground for the friend
   const i = P.eggs.indexOf(e); if (i >= 0) P.eggs.splice(i, 1);
-  if (e.goal && quotaOn()) P.found[k]++;
+  if (e.goal && quotaOn()) P.found[!isJoined(k) && isJoined(1 - k) ? 1 - k : k]++;      // alone: what the hero who is not playing picks up counts for the one who plays (T15)
   Game.team.eggs += e.value; P.levelEggs += e.value; P.sinceEgg = 0; if (e.req) P.waveGot++;
   P.combo = P.comboT > 0 ? P.combo + 1 : 0; P.comboT = 1.3;
   if (e.big) {
@@ -234,24 +225,51 @@ function collectStar(s, k) {
   Snd.play('star', 0, k); Snd.talk(k, 'star'); burst(s.x, s.y - 20, 26, { kind: 'petal', cols: PETALS, speed: 230, life: 1.3, g: 90, up: 60 }); burst(s.x, s.y - 20, 16, { speed: 200, life: 0.9 });
   Input.rumble(k, 0.3, 0.7, 160);
 }
-/* The order on a level: wave 1, wave 2, MIDDLE FIGHT (after the second-to-last wave), wave 3, NEST FIGHT, then the nest opens. */
+/* The order on a level: wave 1, wave 2, MIDDLE FIGHT (after the second-to-last wave), wave 3, NEST FIGHT, then the nest opens.
+   With the quota (T15) the waves only light the next glowing trees, and George comes from the diamonds (updateGeorge). */
 function checkWave() {
   const L = P.L; if (L.boss || P.nestOpen || P.nextWaveT >= 0) return;
   if (P.eggs.some(e => e.req)) return;
   if (L.trees.some(t => t.spark && t.spark.active && !t.spark.done)) return;
   if (P.duel && !P.duel.over) return;                                     // a mini-fight is on
+  if (quotaOn()) { if (P.wave < L.NW - 1) P.nextWaveT = 1.0; return; }
   if (CONFIG.duel.enabled && !P.midFought && P.wave === L.NW - 2) { P.midFought = true; startDuel('mid'); return; }
   if (P.wave < L.NW - 1) { P.nextWaveT = 1.0; return; }
   if (CONFIG.duel.enabled && !P.nestFought) { P.nestFought = true; startDuel('nest'); return; }
   openNest();
 }
 function openNest() { P.nestOpen = true; P.banner = { kind: 'nest', t: 5 }; Snd.play('wave'); Snd.talk(0, 'nestOpen'); Snd.talk(1, 'nestOpen'); }
+/* ---------- T15: diamonds from enemies, George from diamonds (docs/28-t15-george-de-doua-ori.md) ---------- */
+function teamNeed() { return P.q * (bothJoined() ? 2 : 1); }                                  // alone, the friend's quota counts as found
+function teamFound() { return P.found[0] + P.found[1] + P.gifts.length; }                    // a diamond in the air still belongs to the team
+/* George comes when the team has half of what it needs (the middle fight) and again when it has all of it (the nest fight). */
+function updateGeorge() {
+  if (!quotaOn() || P.done || P.nestOpen || (P.duel && !P.duel.over)) return;
+  const n = teamFound(), need = teamNeed();
+  if (!CONFIG.duel.enabled) { if (n >= need) openNest(); return; }                          // without fights the nest opens with the diamonds
+  if (!P.midFought) { if (n >= Math.ceil(need / 2) && P.time >= CONFIG.lupta.george.minT) { P.midFought = true; startDuel('mid'); } return; }
+  if (!P.nestFought && n >= need) { P.nestFought = true; startDuel('nest'); }
+}
+/* A defeated small enemy leaves diamonds: the only place they come from. Thrown enemies too; nothing else. */
+function dropGems(e) {
+  if (!quotaOn()) return;
+  const n = e.drop != null ? e.drop : CONFIG.lupta.enemyDrop;
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * TAU, d = 26 + Math.random() * 22;
+    P.eggs.push(makeEgg(e.x + Math.cos(a) * d, e.y + Math.sin(a) * d * 0.6, { state: 'pop', sx: e.x, sy: e.y - 40, delay: i * 0.1, req: false, goal: true }));
+  }
+}
+/* A snail crawls out of a glowing tree. It is a small enemy like the robots: it chases, it can be beaten, it comes back after a while. */
+function addSnail(x, y, i) {
+  P.L.beetles.push({ hx: x, hy: y, x, y, vx: 0, vy: 0, state: 'wake', t: 0.7 + i * 0.25, face: Math.random() < 0.5 ? 1 : -1, seed: Math.random() * 10, r: 26, look: 'snail', born: 0.5, cool: 0, hp: CONFIG.smallEnemy.hits });
+}
 function shakeTree(t, power, byStomp) {
   const L = P.L;
   t.shake = Math.max(t.shake, 0.5 + power * 0.5);
   if (t.spark && t.spark.active && !t.spark.done) {
     t.spark.done = true; t.shake = 1; Snd.play('rustle'); Snd.play('pop');
-    t.spark.targets.forEach((p, i) => P.eggs.push(makeEgg(p.x, p.y, { state: 'pop', sx: t.cx, sy: t.cy - 20, delay: i * 0.12 })));
+    if (quotaOn()) t.spark.targets.slice(0, CONFIG.lupta.treeSnails).forEach((p, i) => addSnail(p.x, p.y, i));      // T15: the glowing tree hides snails, not diamonds
+    else t.spark.targets.forEach((p, i) => P.eggs.push(makeEgg(p.x, p.y, { state: 'pop', sx: t.cx, sy: t.cy - 20, delay: i * 0.12 })));
     burst(t.x, t.y, 16, { kind: 'leaf', cols: L.pal.canopy, speed: 200, life: 1.4, g: 120, size: 10 });
     checkWave();
   } else if (t.starTree && !t.starTree.got && t.starTree.hidden) {
@@ -354,8 +372,9 @@ function updateRescue(dt) {
 }
 /* A small enemy loses one of its hits. true = that was the last one: it disappears, another one comes later. */
 function hurtSmall(e) {
-  e.hp = (e.hp == null ? CONFIG.smallEnemy.hits : e.hp) - 1; e.flash = 0.4;
+  e.hp = (e.hp == null ? (e.maxHp || CONFIG.smallEnemy.hits) : e.hp) - 1; e.flash = 0.4;
   if (e.hp > 0) return false;
+  dropGems(e);
   Snd.play('poof'); burst(e.x, e.y - 20, 14, { kind: 'dust', cols: ['#FFF3E0', '#F3E2C0'], speed: 150, life: 0.6, size: 16, g: -30, drag: 2 }); burst(e.x, e.y - 20, 8, { speed: 190, life: 0.6 });
   return true;
 }
@@ -503,7 +522,7 @@ function updateHero(h, dt) {
   if (h.dizzyVoice && P.time >= h.dizzyVoice && h.dizzy > 0) { h.dizzyVoice = 0; Snd.talk(h.k, 'dizzy'); }
   if (h.wasDizzy && h.dizzy <= 0 && s.joined) Snd.talk(h.k, 'recover');
   h.wasDizzy = h.dizzy > 0;
-  h.hugT = Math.max(0, h.hugT - dt); h.reachHint = Math.max(0, h.reachHint - dt); h.fullT = Math.max(0, h.fullT - dt); h.tooFarT = Math.max(0, h.tooFarT - dt); h.giveT = Math.max(0, h.giveT - dt); h.numT = Math.max(0, h.numT - dt); h.noT = Math.max(0, h.noT - dt);
+  h.hugT = Math.max(0, h.hugT - dt); h.reachHint = Math.max(0, h.reachHint - dt); h.tooFarT = Math.max(0, h.tooFarT - dt); h.giveT = Math.max(0, h.giveT - dt); h.numT = Math.max(0, h.numT - dt); h.noT = Math.max(0, h.noT - dt);
   if (quotaOn() && (s.gP || (s.g && h.giveT <= 0))) { h.giveT = CONFIG.quota.giveEvery; giveEgg(h.k); }        // L1: give an egg to the friend (held down: again every giveEvery)
   h.small += ((h.down && isLupta() ? CONFIG.lupta.shrink : 1) - h.small) * Math.min(1, dt * 7);        // second game: a hero who was hit is tiny until the friend helps
   if (h.down) {                          // hit: waits for the friend. Nothing can hit a hero who is down.
@@ -675,7 +694,7 @@ function stepFlyBall(b, dt) {
       else { cn.state = 'stun'; cn.t = CONFIG.heroes[0].stunTime; Snd.play('thud'); burst(cn.x, cn.y - 20, 8, { kind: 'dot', cols: ['#9C6A46', '#D6AA78'], speed: 200, life: 0.6, g: 300, size: 7 }); }
     }
     if (L.birds) for (const bd of L.birds) if (bd.state === 'fly' && bd.kickHit !== b.kick && dist(bd.x, bd.y, b.x, b.y) < 62 + b.r) { bd.kickHit = b.kick; hitBird(bd); }
-    for (let j = P.eggs.length - 1; j >= 0; j--) { const e = P.eggs[j]; if (e.state === 'idle' && e.delay <= 0 && !(e.wait > 0) && dist(e.x, e.y, b.x, b.y) < e.r + b.r + 20) { if (e.goal && quotaOn() && !canTake(e, b.owner)) continue; collectEgg(e, b.owner); } }
+    for (let j = P.eggs.length - 1; j >= 0; j--) { const e = P.eggs[j]; if (e.state === 'idle' && e.delay <= 0 && !(e.wait > 0) && dist(e.x, e.y, b.x, b.y) < e.r + b.r + 20) { collectEgg(e, b.owner); } }
     for (const s of P.stars) if (!s.got && !s.hidden && !s.pop && dist(s.x, s.y, b.x, b.y) < 26 + b.r + 16) collectStar(s, b.owner);
     if (P.boss) bossBall(b);
     if (P.duel) duelBall(b);
@@ -698,7 +717,6 @@ function updateEggs(dt) {
     if (e.state === 'pop') { e.t += dt; const u = Math.min(1, e.t / 0.6); e.x = lerp(e.sx, e.tx == null ? (e.tx = e.x) : e.tx, u); e.y = lerp(e.sy, e.ty == null ? (e.ty = e.y) : e.ty, u); e.z = Math.sin(u * Math.PI) * 90; if (u >= 1) { e.state = 'idle'; e.z = 0; } continue; }
     if (e.wait > 0) { e.wait -= dt; continue; }
     if (e.hop > 0) { e.hop -= dt; e.z = e.hop > 0 ? Math.sin((1 - e.hop / 0.4) * Math.PI) * 16 : 0; }
-    if (e.pull && e.goal && quotaOn() && !canTake(e, e.pull.k)) e.pull = null;      // the pull skips a full hero
     if (e.pull) {                        // stomped eggs fly all the way to Bubu, so none gets stranded
       const dx = e.pull.x - e.x, dy = e.pull.y - e.y, m = Math.hypot(dx, dy) || 1, sp = 540 * dt;
       e.x += dx / m * Math.min(m, sp); e.y += dy / m * Math.min(m, sp);
@@ -707,7 +725,6 @@ function updateEggs(dt) {
       if (h.dizzy > 0 || h.carried) continue;
       const rad = (e.big ? 80 : D(h.k).pickupRadius) * help;
       if (dist(h.x, h.y, e.x, e.y) < rad) {
-        if (e.goal && quotaOn() && !canTake(e, h.k)) { capHint(h.k, e); continue; }      // full: maybe the friend can take it
         collectEgg(e, h.k); break;
       }
     }
@@ -729,9 +746,10 @@ function updateEnemies(dt) {
   for (const b of L.beetles) {
     b.flash = Math.max(0, (b.flash || 0) - dt); b.born = Math.max(0, (b.born || 0) - dt);
     if (b.state === 'dead') {              // gone after two hits: another one appears here after a while, when no hero stands close
+      if (b.thrown) continue;              // George's thrown enemies never come back (removed below)
       b.t -= dt;
       if (b.t <= 0 && P.heroes.every(h => dist(h.x, h.y, b.hx, b.hy) > 380)) {
-        b.x = b.hx; b.y = b.hy; b.state = 'sleep'; b.hp = CONFIG.smallEnemy.hits; b.cool = 2; b.born = 0.5; b.vx = b.vy = 0;
+        b.x = b.hx; b.y = b.hy; b.state = 'sleep'; b.hp = b.maxHp || CONFIG.smallEnemy.hits; b.cool = 2; b.born = 0.5; b.vx = b.vy = 0;
         burst(b.x, b.y - 20, 10, { kind: 'dust', cols: ['#FFF3E0'], speed: 120, life: 0.6, size: 14, g: -20, drag: 2 });
       }
       continue;
@@ -741,21 +759,27 @@ function updateEnemies(dt) {
     for (const h of P.heroes) { const d = dist(h.x, h.y, b.x, b.y); if (d < nd) { nd = d; near = h; } }
     const mul = enemyMul(b.x, b.y);
     b.px = b.x; b.py = b.y;
-    if (b.state === 'sleep') {
+    if (b.look === 'mini' && b.state !== 'stun' && b.state !== 'knock') {      // Little George: walks after the nearest hero, stops beside him, never hits
+      const M = CONFIG.lupta.miniGeorge, tx = nd < M.near ? near.x : b.hx, ty = nd < M.near ? near.y : b.hy, dx = tx - b.x, dy = ty - b.y, m = Math.hypot(dx, dy) || 1;
+      const stop = nd < M.near ? 90 : 6;
+      if (m > stop) { const sp = Math.min(m - stop, M.speed * mul * dt); b.x += dx / m * sp; b.y += dy / m * sp; b.face = dx > 0 ? 1 : -1; }
+      b.state = nd < M.near ? 'chase' : 'return';
+    } else if (b.state === 'sleep') {
       if (b.cool <= 0 && nd < CONFIG.beetleWakeRadius * D(near.k).wakeRadius && near.inv <= 0 && !near.safe) { b.state = 'wake'; b.t = 0.6; Snd.play('wake'); Snd.talk(near.k, 'beetleWake'); b.face = near.x > b.x ? 1 : -1; }
     } else if (b.state === 'wake') { if (b.t <= 0) { b.state = 'chase'; b.t = 5; } }
     else if (b.state === 'chase') {
-      const dx = near.x - b.x, dy = near.y - b.y, m = Math.hypot(dx, dy) || 1, sp = CONFIG.beetleSpeed * mul * dt;
+      const dx = near.x - b.x, dy = near.y - b.y, m = Math.hypot(dx, dy) || 1, sp = (b.chase || CONFIG.beetleSpeed * (b.look === 'snail' ? 0.7 : 1)) * mul * dt;      // snails are slower; George's last enemies have their own speed
       b.x += dx / m * sp; b.y += dy / m * sp; b.face = dx > 0 ? 1 : -1;
-      if (b.t <= 0 || nd > 560 || dist(b.x, b.y, b.hx, b.hy) > 440 || near.dizzy > 0 || near.safe) { b.state = 'return'; b.cool = 2; }
+      if (!b.follow && (b.t <= 0 || nd > 560 || dist(b.x, b.y, b.hx, b.hy) > 440 || near.dizzy > 0 || near.safe)) { b.state = 'return'; b.cool = 2; }      // George's thrown enemies keep after the heroes
     } else if (b.state === 'return') {
       const dx = b.hx - b.x, dy = b.hy - b.y, m = Math.hypot(dx, dy);
       if (m < 8) { b.state = 'sleep'; } else { const sp = CONFIG.beetleSpeed * 0.75 * dt; b.x += dx / m * Math.min(m, sp); b.y += dy / m * Math.min(m, sp); b.face = dx > 0 ? 1 : -1; }
     } else if (b.state === 'stun') { if (b.t <= 0) { b.state = 'return'; b.cool = 2.5; } }
     else if (b.state === 'knock') { b.x += b.vx * dt; b.y += b.vy * dt; b.vx *= 1 - Math.min(1, dt * 3); b.vy *= 1 - Math.min(1, dt * 3); if (b.t <= 0) { b.state = 'stun'; b.t = 3; } }
     if (b.state !== 'sleep') collide(L, b, 22, false);
-    if (b.state === 'chase' || b.state === 'wake') for (const h of P.heroes) if (!h.safe && dist(h.x, h.y, b.x, b.y) < b.r + HERO_R - 8 && h.dizzy <= 0 && h.inv <= 0) { hitHero(h, b.x, b.y); b.state = 'return'; b.cool = 3; }
+    if ((b.state === 'chase' || b.state === 'wake') && b.look !== 'mini') for (const h of P.heroes) if (!h.safe && dist(h.x, h.y, b.x, b.y) < b.r + HERO_R - 8 && h.dizzy <= 0 && h.inv <= 0) { hitHero(h, b.x, b.y); b.state = 'return'; b.cool = 3; }
   }
+  if (L.beetles.some(b => b.thrown && b.state === 'dead')) L.beetles = L.beetles.filter(b => !(b.thrown && b.state === 'dead'));      // George's thrown enemies do not come back
   const cs = CONFIG.pineconeSpeed * (L.def.coneSpeed || 1);
   for (const c of L.cones) {
     c.flash = Math.max(0, (c.flash || 0) - dt);
@@ -885,6 +909,7 @@ function stepProj(list, dt, spare) {
   for (let i = list.length - 1; i >= 0; i--) {
     const p = list[i]; p.t += dt; p.rot += dt * 9;
     if (p.dead) { list.splice(i, 1); continue; }
+    if (p.t >= p.dur && p.onLand) { p.onLand(p); list.splice(i, 1); continue; }      // T15: an enemy George threw lands and starts walking; it does not hit on landing
     if (p.t >= p.dur) {
       Snd.play('thud'); burst(p.tx, p.ty - 10, 12, { kind: 'dot', cols: ['#9C6A46', '#D6AA78', '#F3E2C0'], speed: 200, life: 0.6, g: 300, size: 7 });
       for (const h of P.heroes) if (dist(h.x, h.y, p.tx, p.ty) < 66 && !(spare && spare(h))) hitHero(h, p.tx, p.ty);
@@ -969,7 +994,8 @@ function updatePlay(dt) {
     if (act && Math.random() < dt * 7) { const a = Math.random() * TAU, dd = Math.random() * t.R; part(t.x + Math.cos(a) * dd, t.y + Math.sin(a) * dd * 0.9, { vy: -18, life: 0.9, max: 0.9, size: t.starTree ? 9 : 7, col: t.starTree ? '#FFD0C4' : '#FFE9A0', kind: 'spark' }); }
   }
   // waves, nest
-  if (P.nextWaveT >= 0) { P.nextWaveT -= dt; if (P.nextWaveT < 0) startWave(P.wave + 1); }
+  if (P.nextWaveT >= 0) { P.nextWaveT -= dt; if (P.nextWaveT < 0 && P.wave + 1 < L.NW) startWave(P.wave + 1); }      // never past the last wave
+  if (quotaOn()) { checkWave(); updateGeorge(); }                  // T15: the waves move on without diamonds; George comes from the diamonds
   updateDecor(dt);
   if (P.crow) { P.crow.t += dt; if (P.crow.t > 3.2) P.crow = null; }
   if (P.nestOpen && !P.done) {
