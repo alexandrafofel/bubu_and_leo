@@ -6,11 +6,11 @@ Status: **specificatie, neimplementata.** Nimic din acest capitol nu exista inca
 
 Cererea proprietarei, cuvant cu cuvant, este in `../prompts/05-cerere-16-noiembrie.md`. Promptul gata de lipit pentru cel care implementeaza este in `../prompts/06-prompt-partea-a-doua.md`.
 
-Specificatia are cinci capitole. Citeste-le in ordine. Promptul gata de lipit pentru fiecare dintre cele 32 de sarcini este in `../prompts/06-prompt-partea-a-doua.md`.
+Specificatia are cinci capitole. Citeste-le in ordine. Promptul gata de lipit pentru fiecare dintre cele 36 de sarcini este in `../prompts/06-prompt-partea-a-doua.md`.
 
 | Capitol | Ce contine |
 |---|---|
-| 23 (acesta) | Ce se cere, ce s-a hotarat, ce a ramas de intrebat, principiile luate din "It Takes Two", planul in 32 de sarcini, regulile din `CLAUDE.md` care se schimba. |
+| 23 (acesta) | Ce se cere, ce s-a hotarat, ce a ramas de intrebat, principiile luate din "It Takes Two", planul in 36 de sarcini, regulile din `CLAUDE.md` care se schimba. |
 | [24](24-sisteme-noi.md) | Sistemele noi, comune tuturor nivelurilor: butoane, fuga, a doua putere, cele 10 secunde, capitole si salvare, scrisul de sus, stilul grafic. |
 | [25](25-niveluri-7-12.md) | Povestea, mecanismele de colaborare, cele 6 niveluri noi, luptele cu George, lupta finala, texte, sunete, decor. |
 | [26](26-limba-personajelor.md) | Limba personajelor (T13): patru limbi de cam 1000 de cuvinte, generate, cu fraze, balon cu traducerea si Dictionar. |
@@ -107,9 +107,9 @@ Despre grafica, cinstit: "It Takes Two" este un joc 3D facut cu un motor mare. J
 
 ---
 
-## 5. Planul: 32 de sarcini (T6 si T14 impartite in cate zece subsarcini)
+## 5. Planul: 36 de sarcini (T6 si T14 impartite in cate zece subsarcini, T7 in cinci)
 
-Fiecare sarcina se poate termina, testa si trimite separat. T6 e impartit in zece subsarcini (T6.1 - T6.10), in ordinea: T6.1 intai; apoi T6.2, T6.3, T6.7 si T6.9 (independente intre ele); T6.4 dupa T6.2; T6.5 dupa T6.4; T6.6 dupa T6.3; T6.8 dupa T6.7; T6.10 ultima. T14 e impartit la fel (T14.1 - T14.10), in ordinea: T14.1 -> T14.2 -> T14.3 -> T14.4 -> T14.5; apoi T14.6 si T14.7 (independente intre ele); T14.8 dupa T14.4 si T14.7; T14.9 dupa tot codul; T14.10 ultima. Ordinea conteaza: fiecare se sprijina pe cea dinainte. Promptul gata de lipit pentru fiecare este in `../prompts/06-prompt-partea-a-doua.md`.
+Fiecare sarcina se poate termina, testa si trimite separat. T6 e impartit in zece subsarcini (T6.1 - T6.10), in ordinea: T6.1 intai; apoi T6.2, T6.3, T6.7 si T6.9 (independente intre ele); T6.4 dupa T6.2; T6.5 dupa T6.4; T6.6 dupa T6.3; T6.8 dupa T6.7; T6.10 ultima. T14 e impartit la fel (T14.1 - T14.10), in ordinea: T14.1 -> T14.2 -> T14.3 -> T14.4 -> T14.5; apoi T14.6 si T14.7 (independente intre ele); T14.8 dupa T14.4 si T14.7; T14.9 dupa tot codul; T14.10 ultima. T7 e impartit in cinci (T7.1 - T7.5, pe 23 noiembrie 2026), una dupa alta: T7.1 -> T7.2 -> T7.3 -> T7.4 -> T7.5. Ordinea conteaza: fiecare se sprijina pe cea dinainte. Promptul gata de lipit pentru fiecare este in `../prompts/06-prompt-partea-a-doua.md`.
 
 Inainte de orice sarcina si dupa fiecare: `./build.sh`, `node tools/gen-docs.js`, `tests/toate.sh`, capturi privite cu ochiul, documentatia mutata in capitolul potrivit.
 
@@ -130,7 +130,11 @@ Inainte de orice sarcina si dupa fiecare: `./build.sh`, `node tools/gen-docs.js`
 | T6.8 | Stralucirea lucrurilor care lumineaza (**facuta pe 22 noiembrie 2026**), apa (oglindire, doua randuri de valuri, sclipiri) si praful care pluteste in lumina (40 de puncte, scantei pe vulcan, spori in pestera). | 24, S7.5 (restul) | Se vad pe capturi. `CONFIG.look.motes` le regleaza. |
 | T6.9 | Greutatea miscarii (**facuta pe 22 noiembrie 2026**): oprirea scurta (`P.freeze`, 0.06 s), apropierea camerei cu 4%, anticiparea (0.15 s inapoi) si urmarea (`easeBack`, depasire 8%). | 24, S7.6 | Oprirea nu opreste desenul, doar `updatePlay`. Cu `CONFIG.look.freeze: 0` nu se intampla. |
 | T6.10 | (**facuta pe 22 noiembrie 2026**) `tests/stil-grafic.js` intreg, bugetul de timp din S7.7, capturile si lista de verificare S7.8, documentatia. | 24, S7.7 si S7.8 | `tests/stil-grafic.js` trece: sub 0.1% pixeli negri sau gri. `performanta.js` cel mult 20% peste valoarea de dinainte, in aceeasi rulare. Raspuns "da" la toate cele 8 intrebari din S7.8. `tests/toate.sh` trece intreg. |
-| T7 | Cadrul mecanismelor (benzi, porti, intrari) si nivelul 7. | 25, 3 si 4 | `tests/mecanisme.js` trece pentru nivelul 7, cu regulile G1 - G10. Botul termina nivelul. |
+| T7.1 | Cadrul mecanismelor: `src/065-mech.js`, `CONFIG.mech`, benzile in `genLevel` (verificarea cu portile deschise), `L.gates`, `L.inputs`, `updateMechs` cu regulile any, all, allWithin, seq. | 25, 2, 3.1 - 3.3 | `tests/mecanisme.js` (partea 1) trece pe o definitie de proba. Nivelurile 1 - 6 neschimbate. |
+| T7.2 | Placile (`plate`, plates1, plates2) si cusca stelutelor (`cage`): desen, sunet, vibratie, texte. | 25, 3.3, 3.4 | `tests/mecanisme.js` (partea 2) trece. Capturi privite. |
+| T7.3 | Regulile de siguranta G1 - G10, `mechSteps`, sageata si iconitele fiecarui erou. | 25, 3.6, 3.7 | Fiecare G1 - G10 verificata separat si stricata o data. `hud-acoperire.js` ramane 0%. |
+| T7.4 | Nivelul 7 (`canyon`): definitia, paleta, imaginile Krea (aprobate de proprietara), podul de lumina, pasarile, stelele, balansoarul, textele, `CONFIG.lupta.levels = 7`. | 25, 4, 8 - 10 | Nivelul se joaca pana la cuib. `numara-elemente.js` si `stil-grafic.js` trec pentru nivelul 7. |
+| T7.5 | Botii cu `mechSteps`, testele lungi, performanta, capturi, documentatia mutata. | 25, 11 | `nivele-bot-mers.js` termina nivelul 7 fara blocaj peste 20 s. `tests/toate.sh` trece intreg. |
 | T8 | Nivelurile 8 si 9 (tinte, benzi rulante, pluta). | 25, 4 | La fel, pentru 8 si 9. |
 | T9 | Nivelurile 10 si 11 (cristalul carat prin intuneric, bolovanul). | 25, 4 | La fel, pentru 10 si 11. |
 | T10 | Nivelul 12 si atacurile noi ale lui George. | 25, 4 si 5 | `mini-lupte-bot.js`: toate cele 144 de lupte castigate, niciuna peste 180 s. |
@@ -180,8 +184,12 @@ Starea e cea din `main` la 21 noiembrie 2026 (PR-urile #5 - #12 mergeate). **Mod
 | T6.8 | Facuta | T6.7 | Sonnet | 1 - 2 h |
 | T6.9 | Facuta | T6.1 | Sonnet | 1 - 1,5 h |
 | T6.10 | Facuta | T6.1 - T6.9 | Sonnet | 1,5 - 3 h |
-| T7 | De facut | T6.1 - T6.10 | Opus | 4 - 7 h |
-| T8 | De facut | T7 | Sonnet | 2 - 4 h |
+| T7.1 | De facut | T6, T14, T15, stilul Krea | Opus | 1,5 - 2,5 h |
+| T7.2 | De facut | T7.1 | Sonnet | 1 - 2 h |
+| T7.3 | De facut | T7.2 | Opus | 1,5 - 2,5 h |
+| T7.4 | De facut | T7.3 | Opus | 2 - 3 h |
+| T7.5 | De facut | T7.4 | Sonnet | 1,5 - 2,5 h |
+| T8 | De facut | T7.5 | Sonnet | 2 - 4 h |
 | T9 | De facut | T7 (si T8, ca ordine) | Sonnet | 2 - 4 h |
 | T10 | De facut | T9 | Sonnet | 2 - 4 h |
 | T11 | De facut | T10 | Sonnet | 2 - 3 h |
@@ -205,13 +213,13 @@ Starea e cea din `main` la 21 noiembrie 2026 (PR-urile #5 - #12 mergeate). **Mod
 | T15.6 | Facut (22 noiembrie 2026) | T15.5 | Opus | 2 - 3 h |
 | T15.7 | Facut (22 noiembrie 2026) | T15.1 - T15.6 | Sonnet | 2 - 3 h |
 
-Totaluri: T6.1 - T6.10 cam 12 - 22 h, T6 - T13 cam 29 - 53 h, T14.1 - T14.10 cam 11 - 21 h, in total cam 40 - 74 h.
+Totaluri: T7.1 - T7.5 cam 7,5 - 12,5 h (estimarea de dinainte pentru T7 intreg: 4 - 7 h; diferenta vine din build, teste, capturi, documentatie si PR la fiecare subsarcina, si din imaginile Krea ale nivelului). T6.1 - T6.10 cam 12 - 22 h, T6 - T13 cam 29 - 53 h, T14.1 - T14.10 cam 11 - 21 h, in total cam 40 - 74 h.
 
 Suma celor zece subsarcini ale lui T6 (12 - 22 h) e mai mare decat estimarea de dinainte pentru T6 intreg (4 - 8 h). Doua motive: estimarea de atunci era prea mica pentru tot ce cere S7 (lumina, unsprezece materiale, trei personaje repictate, trei planuri, harta de lumina, apa, praf, greutate, teste si documentatie), iar fiecare subsarcina are build, teste, capturi, documentatie si PR ale ei. Numarul mai mare e cel in care am mai multa incredere.
 
 Ce spune planul explicit despre dependente: T13 vine dupa T12 si T1; T14 vine dupa T1 si T2 si nu depinde de T13; ordinea T14.1 - T14.10 e in tabelul de mai sus. T7 - T12 sunt marcate "ordinea conteaza"; dependentele exacte dintre ele nu sunt scrise una cate una, deci coloana "Depinde de" le deduce din ordine. T14 poate merge in paralel cu T6 - T13, dar nu doua sarcini pe acelasi fisier in acelasi timp.
 
-De ce acest model: **Opus** pentru ce creeaza cadrul pe care stau altele (T6.1, T7), cere judecata vizuala (T6.4: un copil trebuie sa isi recunoasca desenul), tine o regula care nu se incalca (T6.6: planul din fata nu acopera un erou) sau are un buget de timp strans (T6.7) sau atinge toate caile unei reguli si cazuri care pot bloca nivelul (T14.2, T14.6); la T3 un nume ramas nerenumit a scapat testelor mici si l-a prins abia rularea completa. **Sonnet** pentru ce se aseaza pe un cadru sau un tipar gata facut. **Haiku** doar pentru T14.3 (campuri de input dupa un tipar existent); daca rateaza un nume sau un caz, se adauga o runda de reparat.
+De ce acest model: **Opus** pentru ce creeaza cadrul pe care stau altele (T6.1, T7.1), regulile prin care nimeni nu ramane blocat (T7.3), judecata vizuala cu imagini Krea de aprobat (T7.4), cere judecata vizuala (T6.4: un copil trebuie sa isi recunoasca desenul), tine o regula care nu se incalca (T6.6: planul din fata nu acopera un erou) sau are un buget de timp strans (T6.7) sau atinge toate caile unei reguli si cazuri care pot bloca nivelul (T14.2, T14.6); la T3 un nume ramas nerenumit a scapat testelor mici si l-a prins abia rularea completa. **Sonnet** pentru ce se aseaza pe un cadru sau un tipar gata facut. **Haiku** doar pentru T14.3 (campuri de input dupa un tipar existent); daca rateaza un nume sau un caz, se adauga o runda de reparat.
 
 ---
 

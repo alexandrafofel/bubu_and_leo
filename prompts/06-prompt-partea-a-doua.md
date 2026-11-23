@@ -2,7 +2,7 @@
 
 > **Un singur joc (18 noiembrie 2026).** "Bubu și Leo" a fost scos. Tot ce e specificat aici se implementeaza **doar in "Cea mai grea luptă"**. Unde scrie "ambele jocuri", "primul joc", variante `L:` sau teste pentru `bubu`, se citeste: un singur joc, textele lui (varianta `L:`), un singur rand de teste. Nu se mai scrie cod pentru primul joc.
 
-Update-ul e impartit in **32 de sarcini** (T6 si T14 au cate zece subsarcini: T6.1 - T6.10 si T14.1 - T14.10). Fiecare se poate termina, testa si trimite separat.
+Update-ul e impartit in **36 de sarcini** (T6 si T14 au cate zece subsarcini: T6.1 - T6.10 si T14.1 - T14.10; T7 are cinci: T7.1 - T7.5). T15 e separat, in `../docs/28-t15-george-de-doua-ori.md`. Fiecare se poate termina, testa si trimite separat.
 
 Cum folosesti fisierul:
 
@@ -30,7 +30,11 @@ Sarcinile merg in ordine: fiecare se sprijina pe cea dinainte. Dupa sarcina 5 jo
 | [T6.8](#t6-8) | Stralucire, apa, praf in lumina | 24, S7.5 |
 | [T6.9](#t6-9) | Greutatea miscarii: oprire, apropiere, anticipare | 24, S7.6 |
 | [T6.10](#t6-10) | Teste, buget de timp, capturi, documentatie | 24, S7.7, S7.8 |
-| [T7](#t7) | Mecanismele de colaborare si nivelul 7 | 25, 3 si 4 |
+| [T7.1](#t7-1) | Benzile si portile (cadrul) | 25, 2, 3.1 - 3.3 |
+| [T7.2](#t7-2) | Placile si cusca stelutelor | 25, 3.3, 3.4 |
+| [T7.3](#t7-3) | Nimeni nu ramane blocat: G1 - G10, mechSteps | 25, 3.6, 3.7 |
+| [T7.4](#t7-4) | Nivelul 7: Canionul Podurilor de Lumină | 25, 4, 8 - 10 |
+| [T7.5](#t7-5) | Boti, teste complete, documentatie | 25, 11 |
 | [T8](#t8) | Nivelurile 8 si 9 | 25, 4 |
 | [T9](#t9) | Nivelurile 10 si 11 | 25, 4 |
 | [T10](#t10) | Nivelul 12 si George cu puteri noi | 25, 4 si 5 |
@@ -63,7 +67,7 @@ De citit, in ordinea aceasta, inainte de orice sarcina:
 
 1. `CLAUDE.md`: regulile care nu se schimba si pasii de lucru.
 2. `docs/00-cuprins.md`, apoi `docs/02-arhitectura.md` si `docs/21-cea-mai-grea-lupta.md`.
-3. `docs/23-update-partea-a-doua.md`: cererea, hotararile, intrebarile deschise, principiile luate din "It Takes Two", planul in 32 de sarcini.
+3. `docs/23-update-partea-a-doua.md`: cererea, hotararile, intrebarile deschise, principiile luate din "It Takes Two", planul in 36 de sarcini.
 4. Capitolul de specificatie al sarcinii tale: `docs/24-sisteme-noi.md`, `docs/25-niveluri-7-12.md`, `docs/26-limba-personajelor.md` sau `docs/27-cota-de-oua.md`.
 5. `prompts/05-cerere-16-noiembrie.md`: cererea proprietarei, cuvant cu cuvant. **Daca specificatia si cererea spun lucruri diferite, cererea are dreptate: spune-i, nu alege singur.**
 
@@ -517,40 +521,152 @@ Nu face: niveluri noi si mecanisme (T7 - T12).
 ````
 
 <a id="t7"></a>
-## T7. Mecanismele de colaborare si nivelul 7
+## T7. Mecanismele de colaborare si nivelul 7 (impartit in 5 subsarcini)
+
+T7 e impartit in cinci sarcini, cu acelasi format ca restul. Ordinea: T7.1 -> T7.2 -> T7.3 -> T7.4 -> T7.5. Fiecare se verifica inainte de urmatoarea.
+
+Inainte de T7.1: T6.1 - T6.10, T14 si T15 sunt facute, iar stilul cu imagini Krea si inelul din luptele cu George (23 noiembrie 2026) sunt in `main`. Daca nu sunt, opreste-te.
+
+Ce s-a schimbat fata de `docs/25-niveluri-7-12.md`, si se aplica in toate cele cinci:
+
+- Diamantele vin doar din inamicii invinsi (T15, `docs/28-t15-george-de-doua-ori.md`). Unde specificatia scrie "valul 1 de cristale", citeste "prima treime a nivelului, cu inamicii ei".
+- George vine dupa diamantele echipei (la jumatatea cotei si la toata cota), nu intr-un loc anume de pe harta. O lupta poate porni oriunde, si de o parte si de alta a unei benzi. G9 (portile nu se schimba in lupta) ramane.
+- Personajele si piesele nivelurilor sunt imagini Krea (`art/krea/`, `tools/pack-art.py`, `drawArt`). Ce e nou pe nivelul 7 se face la fel, cu pictura pe canvas cand imaginea lipseste (`artOn() && artOk('nume')`).
+
+<a id="t7-1"></a>
+
+### T7.1 - Benzile si portile (cadrul)
 
 ````
 Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
-Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le. Citeste si inceputul sectiunii T7 din acelasi fisier: ce s-a schimbat fata de specificatie.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia: docs/25-niveluri-7-12.md, sectiunile 2, 3.1, 3.2 si 3.3. Principiile: docs/23-update-partea-a-doua.md, sectiunea 4. Cererea: "vreau sa ne inspiram din jocul It takes two (...) Cele doua personaje sa colaboreze, sa se ajute."
 
-Sarcina T7: cadrul in care cei doi eroi trebuie sa colaboreze, si primul nivel nou.
+Sarcina T7.1: cadrul pe care stau toate mecanismele nivelurilor 7 - 12. Nimic nu se vede inca in joc.
 
-Cererea: "vreau sa ne inspiram din jocul It takes two (...) Cele doua personaje sa colaboreze, sa se ajute."
+Ce faci:
+1. Fisier nou src/065-mech.js, pus in build.sh intre 06-level.js si 07-play.js. Verifica cu grep ca numele noi nu exista deja.
+2. Blocul CONFIG.mech din sectiunea 3.6, cu comentarii, in src/01-config.js.
+3. Benzile in genLevel (src/06-level.js), langa blocul `if (def.river)`: `bands` din definitie, mijlocul care serpuieste, celulele cu codul 2 (chasm, water, lava) sau 3 (wall), trecerea cu `crossing` la inaltimea drumului, steagul 8 si steagul nou 32 (poarta) pe celulele trecerii.
+4. Verificarea `reach` (si `keepEnough` / `fieldEnemies` din T15) se face cu portile deschise. Abia in startPlay celulele portii primesc codul benzii.
+5. `L.gates` si `L.inputs` cu campurile din 3.2. `updateMechs(dt)` chemata din updatePlay, dupa eroi si dupa obiectele aruncate: regulile any, all, allWithin (cu `window`) si seq (cu `gate.step`), `stay`, `gate.open` care merge lin in 0.5 s, celulele care se deschid peste 0.9 si se inchid sub 0.1. Miscarea portii foloseste mechMove si mechClick (T6.9).
+6. Prima deschidere a unei porti: bigHit(), sunetul gateOpen (cald, Web Audio), vibratie pe ambele controllere (rumble(k, 0.3, 0.6, 220)).
+7. Pe "Ușor": `window` si `stay` inmultite cu CONFIG.mech.easy, seq nu se reseteaza la o greseala.
+8. tests/mecanisme.js, partea intai, pe o definitie de proba facuta in test (nu in joc): banda inchisa la inceput si nu se poate trece; fiecare regula (any, all, allWithin, seq) deschide si inchide poarta cum scrie; reach trece cu portile deschise. Intrarile se pornesc direct din test (`input.on = true`). Adauga-l in tests/toate.sh.
 
-Specificatia: docs/25-niveluri-7-12.md, sectiunile 2, 3 si 4 (nivelul 7, "Canionul Podurilor de Lumină"). Principiile: docs/23-update-partea-a-doua.md, sectiunea 4.
+Gata cand: tests/mecanisme.js trece si fiecare verificare pica atunci cand regula ei e stricata. Nivelurile 1 - 6 nu se schimba deloc (nu au `bands`). ./build.sh, node tools/gen-docs.js si tests/toate.sh trec.
 
-Ce ai de facut:
-1. Fisier nou src/065-mech.js, pus in build.sh intre 06-level.js si 07-play.js.
-2. Benzi: doua fasii care taie harta de sus pana jos, la o treime si la doua treimi, fiecare cu o singura trecere. Se pun in genLevel, iar verificarea ca toate cristalele se pot culege se face cu portile deschise.
-3. Porti si intrari, cu regulile any, all, allWithin si seq. updateMechs(dt) chemata din updatePlay.
-4. Intrarile din sectiunea 3.4, pentru acest nivel doar placile: cum arata, cum suna, cum vibreaza.
-5. Cusca stelutelor de langa cuib: se deschide doar cand amandoi eroii o lovesc la cel mult 1.5 secunde unul de altul.
-6. OBLIGATORIU: toate regulile de siguranta G1 - G10 din sectiunea 3.6. Nimeni nu are voie sa ramana blocat, niciodata. Cat un erou asteapta ajutor, toate portile se deschid.
-7. mechSteps(gate): ce are de facut fiecare erou, acum. O folosesc sageata ajutatoare, indiciile si testele.
-8. Nivelul 7 intreg: definitia, paleta, podurile de lumina din sapte scanduri colorate, pasarile, textele, iconitele pentru povestea nivelului. CONFIG.lupta.levels devine 7.
-9. Povestea Partii a doua incepe aici: textul lvl.canyon.intro spune puterile noi, fuga si cele 10 secunde.
+Nu face: placile si cusca (T7.2), regulile G1 - G10 si mechSteps (T7.3), nivelul 7 (T7.4).
+````
 
-Gata cand:
-- tests/mecanisme.js trece pentru nivelul 7: poarta inchisa la inceput, nu se deschide cu un singur erou facandu-si partea, se deschide cu amandoi, fiecare regula G1 - G10 verificata separat, se deschide si cu un singur jucator, si se deschide singura dupa autoOpen daca nu se intampla nimic.
-- nivele-bot-mers.js termina nivelul 7, folosind mechSteps, fara blocaje mai lungi de 20 de secunde.
-- numara-elemente.js si celelalte teste de nivel trec pentru nivelul nou.
-- Ai capturi de la inceputul nivelului, de la poarta A si de la poarta B, privite.
-- tests/toate.sh trece pentru ambele jocuri.
+<a id="t7-2"></a>
 
-Nu face in aceasta sarcina: nivelurile 8 - 12, atacurile noi ale lui George, Sala Tronului.
+### T7.2 - Placile si cusca stelutelor
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le. Citeste si inceputul sectiunii T7 din acelasi fisier.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia: docs/25-niveluri-7-12.md, sectiunile 2 (pasul 6), 3.3 (plates1, plates2) si 3.4 (Placa si Cusca stelutelor). T7.1 e facuta.
+
+Sarcina T7.2: primele doua intrari, cele de pe nivelul 7.
+
+Ce faci:
+1. Placa (`plate`, raza 60): `on` cat un erou potrivit (`who`: -1 oricine, 0 Boon, 1 Killer) sta la mai putin de 55 de mijloc si nu e jos, dus de pasare sau pe pluta. Retetele plates1 (any, stay 1.5, o placa pe fiecare mal) si plates2 (all, stay 5, doua placi la 520 deasupra si dedesubtul trecerii).
+2. Desenul placii, in 055-lupta.js: disc de piatra cu urma pictata (laba turcoaz pentru Boon, talpa albastra pentru Killer, jumatate-jumatate pentru oricine). Apasata coboara 6 unitati, urma lumineaza, un inel de lumina urca. Lumina ei intra in collectLights, nu un gradient pe cadru. Adauga functiile noi in lista `names` din tests/stil-grafic.js.
+3. Sunetul plate (clic de piatra si clopotel; la eliberare acelasi clopotel, mai jos) si vibratia rumble(k, 0, 0.4, 60) pentru cel care a calcat. Al treilea argument al lui Snd.play e eroul.
+4. Cusca stelutelor (`cage`, raza 70, langa cuib, doar pe nivelurile cu `bands`): se deschide cand amandoi o lovesc, cu orice putere, la cel mult CONFIG.mech.cageWindow secunde unul de altul ("Bate palma!"). Daca loveste doar unul: cusca se clatina si deasupra apar fetele celor doi, cu cea care lipseste palpaind. Steluta zboara in HUD si se numara ca o stea ascunsa.
+5. Textele noi (romana si engleza) in STR, cu T('cheie'). Sunt deja scrise in docs/25-niveluri-7-12.md, sectiunea 8.
+6. tests/mecanisme.js, partea a doua: placa `who` 0 nu porneste cu Killer; plates1 se deschide cu un erou pe oricare placa si se inchide dupa 1.5 s; plates2 nu se deschide cu un singur erou, se deschide cu amandoi; cusca nu se deschide la o lovitura, se deschide la doua lovituri ale celor doi in fereastra, nu se deschide la 2 s distanta.
+
+Gata cand: verificarile noi trec si fiecare pica atunci cand regula ei e stricata. Capturi cu o placa libera, una apasata si cusca, privite cu ochiul (fara negru, fara gri). tests/toate.sh trece.
+
+Nu face: regulile G1 - G10 (T7.3). Tintele, manivelele, pluta (T8 si T9).
+````
+
+<a id="t7-3"></a>
+
+### T7.3 - Nimeni nu ramane blocat: G1 - G10 si mechSteps
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le. Citeste si inceputul sectiunii T7 din acelasi fisier.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia: docs/25-niveluri-7-12.md, sectiunile 3.6 si 3.7. T7.1 si T7.2 sunt facute.
+
+Sarcina T7.3: regulile de siguranta. Sunt obligatorii: nimeni nu are voie sa ramana blocat, niciodata.
+
+Ce faci:
+1. G1 - G10, fiecare in codul ei, cu un comentariu care spune numarul regulii:
+   - G1 poarta nu se inchide cat un erou sta pe celulele ei;
+   - G2 cand amandoi eroii jucati sunt dincolo de banda, poarta devine `fixed`;
+   - G3 cat un erou e jos (asteapta ajutor), toate portile se deschid si raman deschise; dupa ce se ridica, se inchid dupa `stay`;
+   - G4 dropHero (pasarile) pune eroul doar pe partea de unde l-a luat;
+   - G5 vantul, urletul lui George, loviturile si inamicii aruncati nu imping un erou intr-o banda (collide il opreste, ca la apa);
+   - G6 cu un singur jucator: intrarile celuilalt sunt mereu `on`, fara ferestre de timp, cusca la o lovitura;
+   - G7 autoOpen (180 s fara progres, socotit de cand un erou e la mai putin de 500 de poarta): poarta se deschide singura, cu mesajul "Poarta s-a deschis singură.";
+   - G8 dupa hintAfter (40 s) fara progres: fiecare erou primeste sageata spre intrarea lui (si cel cu sageata oprita) si iconita butonului deasupra intrarii;
+   - G9 in timpul unei lupte cu George (oricare din cele doua, si cu inelul de 10 lovituri) portile nu isi schimba starea;
+   - G10 la reinceperea nivelului ("Încă o dată!"), totul porneste de la zero.
+2. mechSteps(gate): pentru fiecare erou `{ x, y, act }`, cu act din 3.7. guideTarget(h) (08-draw.js) o foloseste: sageata fiecarui erou arata spre locul lui. drawHints deseneaza iconita butonului deasupra locului, in culoarea eroului, sub banda de sus (HUD_TOP).
+3. Textele noi in STR, romana si engleza.
+4. tests/mecanisme.js, partea a treia: fiecare regula G1 - G10 verificata separat, pe definitia de proba si cu placile din T7.2. Fiecare verificare pica atunci cand regula e stricata (scrie in docs/17-testare.md ce ai stricat pentru fiecare). Plus: mechSteps da un loc si o actiune pentru fiecare erou, la fiecare poarta inchisa.
+
+Gata cand: toate verificarile G1 - G10 trec si pica cand regula e stricata. tests/hud-acoperire.js cu STRICT=1 ramane la 0%. tests/toate.sh trece.
+
+Nu face: nivelul 7 (T7.4), botii (T7.5).
+````
+
+<a id="t7-4"></a>
+
+### T7.4 - Nivelul 7: Canionul Podurilor de Lumină
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le. Citeste si inceputul sectiunii T7 din acelasi fisier.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia: docs/25-niveluri-7-12.md, sectiunea 4, "Nivelul 7", si sectiunile 1, 8, 9 si 10 pentru ce tine de nivelul 7. Stilul: docs/05-pictura.md ("Imaginile Krea") si docs/24-sisteme-noi.md, S7. T7.1 - T7.3 sunt facute.
+
+Sarcina T7.4: primul nivel nou, intreg.
+
+Ce faci:
+1. Definitia `canyon` la LEVEL_DEFS_L, pozitia 6, cu `look: 'diorama'` si `bands` (plates1, plates2). Paleta `canyon` in PALS si in PALS_ART. CONFIG.lupta.levels devine 7. Capitolele (chapters()) si salvarea il primesc.
+2. Imaginile Krea ale nivelului, in acelasi stil cu nivelurile 1 - 6 (acuarela de carte pentru copii, fara negru, fara gri): doi copaci, o stanca rosiatica, un tufis, flori, un stalp de piatra din prapastie, balansoarul din trunchi, placa. Fundul prapastiei (#3A4A8A spre #6A7AC0, cu ceata) si podul de lumina din sapte scanduri colorate se picteaza pe canvas. Pune imaginile in art/krea/, ruleaza python3 tools/pack-art.py. Cere aprobarea proprietarei pe o foaie cu imaginile, inainte sa le pui in joc. Spune-i cate credite Krea costa (cam 33 - 44 pe imagine).
+3. Podul de lumina: cele sapte scanduri apar una dupa alta, de la malul placii apasate, si se sting la fel. Foloseste mechMove.
+4. Pasarile (2), robotii putini, vantul, cele trei stele (islet pe stalpul din prapastie, nook, treetop), balansoarul (cei doi la capete: se leagana si rad, nu da nimic).
+5. Inamicii mici (fieldEnemies, T15) se impart pe cele trei treimi, ca fiecare treime sa aiba de unde da diamante. Cota (15) si cele doua lupte cu George raman ca pe nivelurile 1 - 6.
+6. Textele nivelului (romana si engleza, din sectiunea 8), iconitele povestii, si textul lvl.canyon.intro: incepe Partea a doua, spune puterile noi, fuga si cele 10 secunde.
+7. Muzica: refoloseste 'l6' (cum scrie in definitie). Sunetele noi doar daca le cere sectiunea 9 pentru nivelul 7.
+8. Planul din fata (L.front) si harta de lumina (LM) merg pe nivelul 7. Planul din fata nu acopera niciodata un erou.
+
+Gata cand: nivelul 7 se joaca de la inceput la cuib cu doi jucatori pe tastatura. Capturi de la inceput, poarta A, poarta B, o lupta cu George si cusca, privite cu ochiul, cu lista S7.8. numara-elemente.js trece pentru nivelul 7. tests/stil-grafic.js are o captura a nivelului 7 sub 0.1% pixeli negri sau gri. tests/toate.sh trece.
+
+Nu face: botii si testele lungi (T7.5). Nivelurile 8 - 12.
+````
+
+<a id="t7-5"></a>
+
+### T7.5 - Boti, teste complete, documentatie
+
+````
+Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
+Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le. Citeste si inceputul sectiunii T7 din acelasi fisier.
+Jocul e "Cea mai grea luptă" (singurul joc). Specificatia: docs/25-niveluri-7-12.md, sectiunea 11. T7.1 - T7.4 sunt facute.
+
+Sarcina T7.5: nivelul 7 jucat de boti, toate testele si documentatia.
+
+Ce faci:
+1. tests/nivele-bot-mers.js: botii folosesc mechSteps si termina nivelul 7, fara blocaj mai lung de 20 de secunde. Si cu un singur jucator.
+2. tests/mecanisme.js, partea finala, pe nivelul 7 adevarat: fiecare poarta inchisa la inceput; nu se deschide cu un singur erou facandu-si partea; se deschide cu amandoi; se deschide cu un singur jucator (G6); se deschide singura dupa autoOpen (G7).
+3. tests/mini-lupte-bot.js si tests/joc-complet-bot.js trec cu 7 niveluri (joc-complet ajunge la lupta finala prin nivelul 7). tests/inel.js trece pe nivelul 7.
+4. tests/performanta.js: nivelul 7 cel mult 20% peste nivelul 6, in aceeasi rulare (minim cinci runde).
+5. tests/capturi-ecran.js: capturi p2_canyon_* (inceput, poarta A, poarta B, lupta, cusca).
+6. Documentatia se muta, nu se dubleaza: ce e facut din docs/25-niveluri-7-12.md (3.1 - 3.4 pentru placi si cusca, 3.6, 3.7, nivelul 7) trece in docs/09-niveluri.md, docs/10-gameplay.md, docs/12-desen-si-hud.md si docs/03-config.md, la timpul prezent. Decizii noi in docs/16-decizii.md, rezultatele in docs/17-testare.md, ce n-ai putut verifica in docs/19-limitari.md. In docs/23-update-partea-a-doua.md marchezi T7.1 - T7.5 facute. In CLAUDE.md: progresul, randurile noi din tabel (065-mech.js, CONFIG.mech) si capcanele noi.
+
+Gata cand: tests/toate.sh trece intreg, cu errors 0 si fara NEREUSIT. Fisierul jocului trimis proprietarei.
+
+Spune la final ce nu ai putut verifica: daca un copil de 6 ani intelege placile fara ajutor, daca 5 secunde la poarta B sunt destule fara fuga, cum se simt vibratiile, cum suna clopotelul.
 ````
 
 ---
+
 
 <a id="t8"></a>
 ## T8. Nivelurile 8 si 9

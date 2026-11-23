@@ -2,7 +2,7 @@
 
 > **Un singur joc (18 noiembrie 2026).** "Bubu și Leo" a fost scos. Tot ce e specificat aici se implementeaza **doar in "Cea mai grea luptă"**. Unde scrie "ambele jocuri", "primul joc", variante `L:` sau teste pentru `bubu`, se citeste: un singur joc, textele lui (varianta `L:`), un singur rand de teste. Nu se mai scrie cod pentru primul joc.
 
-Status: **specificatie, neimplementata.** Vezi `23-update-partea-a-doua.md` pentru cerere, hotarari si cele 32 de sarcini, si `24-sisteme-noi.md` pentru butoane, fuga, a doua putere, cele 10 secunde, capitole si stilul grafic.
+Status: **specificatie, neimplementata.** Vezi `23-update-partea-a-doua.md` pentru cerere, hotarari si cele 36 de sarcini, si `24-sisteme-noi.md` pentru butoane, fuga, a doua putere, cele 10 secunde, capitole si stilul grafic.
 
 Cuprins: 1. Povestea. 2. Cum arata un nivel nou. 3. Mecanismele (cadrul comun). 4. Cele sase niveluri. 5. George in mini-lupte. 6. Sala Tronului. 7. "Va urma" si finalul. 8. Texte. 9. Sunete. 10. Decor si numarul de elemente. 11. Teste.
 

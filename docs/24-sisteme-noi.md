@@ -2,7 +2,7 @@
 
 > **Un singur joc (18 noiembrie 2026).** "Bubu și Leo" a fost scos. Tot ce e specificat aici se implementeaza **doar in "Cea mai grea luptă"**. Unde scrie "ambele jocuri", "primul joc", variante `L:` sau teste pentru `bubu`, se citeste: un singur joc, textele lui (varianta `L:`), un singur rand de teste. Nu se mai scrie cod pentru primul joc.
 
-Status: **specificatie, neimplementata.** Vezi `23-update-partea-a-doua.md` pentru cerere, hotarari si cele 32 de sarcini, si `../prompts/06-prompt-partea-a-doua.md` pentru promptul fiecareia.
+Status: **specificatie, neimplementata.** Vezi `23-update-partea-a-doua.md` pentru cerere, hotarari si cele 36 de sarcini, si `../prompts/06-prompt-partea-a-doua.md` pentru promptul fiecareia.
 
 Sapte sisteme. Fiecare are: cerinta, ce e acum in cod, ce se face, valorile din `CONFIG`, cazurile de margine si testul.
 
