@@ -496,3 +496,18 @@ Hotararea de proces: `balanseaza()` sta in `tests/common.js` si cheama `giveEgg`
 | In lupta din mijloc George aterizeaza langa eroi | Lupta vine din diamante, nu dintr-un loc de pe harta: copiii pot fi oriunde. |
 | Ce culege eroul care nu joaca se numara la cel care joaca | Altfel, cu un singur copil, nivelul nu se mai putea termina (gasit de botul care merge singur). |
 | Botii vaneaza inamici | Diamantele vin doar de la ei; un bot care cauta diamante pe jos nu mai termina niciun nivel. |
+
+## Update 23 noiembrie 2026: stilul nou cu imagini Krea si inelul
+
+| Decizie | Motivul |
+|---|---|
+| Regula 1 se schimba: jocul are imagini, facute cu Krea, puse in fisier | Ceruta si aprobata de proprietara. Fisierul ramane unul singur si merge offline. |
+| Personaje din imagini, cu miscare simpla | Aleasa de proprietara. Arata exact ca in design; Krea nu face mai multe poze de mers care sa semene intre ele. |
+| Nivelurile pastreaza harta lor; Krea face piesele (copaci, pietre, flori, cuib) | Aleasa de proprietara. O imagine intreaga de nivel nu se potriveste cu drumul, apa si copacii de care se lovesc eroii. |
+| Decorul ramane 1700 de lucruri pe nivel, pictat in culoarea solului | Regula 9 cere peste 10.000 de elemente; solul trebuie sa fie calm. |
+| Micul George are cornul in dungi al lui George, mai mic | Ales de proprietara, in locul coroanei albastre propuse de Krea. |
+| Inelul cu 10 lovituri e in toate luptele cu George | Ales de proprietara: o singura regula. |
+| Pana la ameteala, eroul nu pierde diamante in lupta | Propus in design si aprobat. Altfel o lupta lunga ar goli cota. |
+| Bucatile rosii incep din fata inelului | Partea din spate e acoperita de erou; primele lovituri trebuie sa se vada. |
+| `george_bare`: George fara coroana, speriat | Cand pierde, coroana ii cade pe nisip; imaginea cu coroana ar fi aratat-o de doua ori. |
+| Gri aproape neutru tras spre violet la impachetare | Regula 4. Pietrele si torta din Krea aveau gri. |

@@ -75,6 +75,15 @@ const CONFIG = {
   nestHideSoundGap: 3,         // seconds between two "ih-ih" sounds when heroes keep stepping in and out
 
   // ---- Rescue: a hero who was hit cannot walk until the friend comes and presses □ (both games)
+  // The ring around each hero in the fights with George (mid, nest and the arena). Every hit makes one piece red;
+  // when all are red, the next hit makes him dizzy until the friend helps him. docs/10-gameplay.md, "Inelul"
+  ring: {
+    on: true,                  // false = the old rule: every hit in a fight with George makes the hero wait for the friend
+    hits: 10,                  // pieces of the ring = hits a hero takes in a fight before he gets dizzy
+    inv: 1.1,                  // seconds a hero cannot be hit again after a hit that only reddens a piece
+    red: '#E5484D',            // a warm red, not a bright one: it shows, but it does not scare
+    push: 200                  // how hard such a hit pushes the hero away (units per second)
+  },
   rescue: {
     enabled: true,             // false = the old rule: a hit hero gets up alone after a moment
     reachNear: 180,            // the first hero (Bubu, Boon) must stand this close to help: a hug, healing hands
@@ -212,7 +221,11 @@ const CONFIG = {
     squashStart: -0.1,     // stretch when a hero starts to walk (negative = taller), squash when he stops
     squashStop: 0.12,
     squashLand: 0.18,      // landing after a jump or a drop
-    squashRun: -0.16       // stretch when the run (L3) starts
+    squashRun: -0.16,      // stretch when the run (L3) starts
+    // the Krea pictures (docs/05-pictura.md, "Imaginile Krea"; CLAUDE.md, rule 1)
+    art: true,             // true = heroes, enemies and the things of levels 1 - 6 and the arena are the Krea pictures. false = the painted ones
+    artSize: { boon: 150, killer: 132, george: 270, mini: 92, robot: 74, snail: 70, bird: 92, soldier: 120 },   // how tall each picture is drawn, in world units (George: at scale 1)
+    calm: true             // true = the ground of levels 1 - 6 is calm (few small things, the colors of the Krea maps)
   },
 
   // ---- The second game, "Cea mai grea luptă" (invented by the children) ---------------------

@@ -29,6 +29,7 @@ const DUEL_DEFS_L = [
 const duelDefs = () => isLupta() ? DUEL_DEFS_L : DUEL_DEFS;
 /* kind 'mid': the middle fight, the same as before. kind 'nest': the harder one at the nest, bigger and quicker. */
 function startDuel(kind = 'nest') {
+  for (const h of P.heroes) h.ringHits = 0;                             // every fight with George starts with a whole ring
   const L = P.L, defs = duelDefs(), def = defs[L.idx % defs.length], hard = kind === 'nest', F = CONFIG.duel;
   let top = -1; for (let k = 0; k < 2; k++) if (Input.slots[k].joined) top = Math.max(top, rank(k)); if (top < 0) top = 1;
   const hpTab = hard ? ((isLupta() && CONFIG.lupta.duelFinalHp) || F.finalHp) : ((isLupta() && CONFIG.lupta.duelHp) || F.hp);      // George has his own table: a little tougher

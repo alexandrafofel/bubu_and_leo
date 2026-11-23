@@ -182,6 +182,7 @@ const TAIL0 = [0, 0, 0, 0], _tailPts = new Float32Array(8);
 /* BOON: the little one's hero. Round teal body, a dome of blue spikes on the back, long tan neck, small blue head,
    lime legs and a long lime tail. o.claw (0 to 1) = the claws are out and spinning. */
 function drawBoon(c, x, y, o) {
+  if (artOn() && artOk('boon')) return drawArtChar(c, 'boon', x, y, o, CONFIG.look.artSize.boon, 0.62);      // the Krea picture (CONFIG.look.art)
   const s = o.scale || 1, f = o.face || 1, t = o.t || 0;
   _fl = f;
   const step = o.moving ? Math.sin(o.walk || 0) : 0, hop = o.moving ? Math.abs(step) * 6 : 0;
@@ -232,6 +233,7 @@ function drawBoon(c, x, y, o) {
 
 /* KILLER: the big one's hero. A footballer all in blue, number 10, big red boots, a round head with big eyes and a wide grin. */
 function drawKiller(c, x, y, o) {
+  if (artOn() && artOk('killer')) return drawArtChar(c, 'killer', x, y, Object.assign({}, o, { face: 1 }), CONFIG.look.artSize.killer, 0.5);      // never mirrored: the 10 on his shirt would read 01
   const s = o.scale || 1, f = o.face || 1, t = o.t || 0;
   _fl = f;
   const step = o.moving ? Math.sin(o.walk || 0) : 0, hop = o.moving ? Math.abs(step) * 6 : 0;
@@ -303,6 +305,10 @@ function drawBallL(c, x, y, r, spin) {
    a striped horn-crown, thin brown legs and arms, a tail that turns from green to blue.
    mood: calm | angry | dizzy | scared */
 function drawGeorge(c, x, y, o) {
+  if (artOn() && artOk('george') && artOk('george_bare')) {       // the Krea picture faces left: mirrored. Without the crown he looks scared
+    const bare = !!o.noCrown, oo = Object.assign({}, o, { face: -(o.face || 1) });
+    return drawArtChar(c, bare ? 'george_bare' : 'george', x, y, oo, CONFIG.look.artSize.george * (bare ? 0.8 : 1), bare ? 0.6 : 0.55);
+  }
   const s = o.scale || 1, f = o.face || 1, t = o.t || 0, mood = o.mood || 'calm';
   _fl = f;
   const step = o.moving ? Math.sin(o.walk || 0) : 0, hop = o.moving ? Math.abs(step) * 5 : 0, sq = o.squash || 0;
@@ -389,6 +395,20 @@ function paintRobotBody(c, b, t) {
   else { c.beginPath(); c.moveTo(-9, -54); c.lineTo(-3, -50); c.moveTo(9, -54); c.lineTo(3, -50); c.stroke(); soft(c, -5, -48, 2.4, 2.4, '#FF9A4A', 1, 88); soft(c, 5, -48, 2.4, 2.4, '#FF9A4A', 1, 89); }
 }
 function drawRobot(c, b, t) {
+  if (artOn() && artOk('robot_sleep') && artOk('robot_awake')) {
+    const f = b.face || 1, h = CONFIG.look.artSize.robot, sl = b.state === 'sleep';
+    c.fillStyle = rgba(SHADOW, 0.24); c.beginPath(); c.ellipse(b.x, b.y + 2, 30, 10, 0, 0, TAU); c.fill();
+    c.save(); c.translate(b.x, b.y);
+    if (b.state === 'knock') { c.translate(0, -h / 2); c.rotate(t * 9); c.translate(0, h / 2); }
+    drawArtChar(c, sl ? 'robot_sleep' : 'robot_awake', 0, 0, { face: f, t: t + (b.seed || 0), moving: b.state === 'chase' || b.state === 'return', walk: t * 12 + (b.seed || 0) }, h, 0.5);
+    c.restore();
+    if (sl) {
+      const zs = sprite('zzzL', 30, 34, cc => { text(cc, 'z', 15, 17, 28, '#C4BEF0', { halo: 0, shadow: 0, weight: 'bold' }); });
+      for (let i = 0; i < 3; i++) { const p = ((t * 0.5 + i * 0.33 + b.seed) % 1), k = 0.6 + p * 0.6; c.globalAlpha = 0.9 * (1 - p); c.drawImage(zs, b.x + 20 * f + p * 26 - 15 * k, b.y - 70 - p * 44 - 17 * k, 30 * k, 34 * k); }
+      c.globalAlpha = 1;
+    } else if (b.state === 'wake') text(c, '!', b.x, b.y - 96, 52, '#FF9A4A', { weight: 'bold' });
+    return;
+  }
   const f = b.face || 1;
   c.fillStyle = rgba(SHADOW, 0.24); c.beginPath(); c.ellipse(b.x - 5 * f, b.y + 2, 32, 11, 0, 0, TAU); c.fill();
   c.save(); c.translate(b.x, b.y); c.scale(f, 1);
@@ -409,6 +429,13 @@ function drawRobot(c, b, t) {
 /* Little George (T15): George, small, in other colors (green and blue instead of pink and brown). He follows the nearest hero and never hits.
    Painted once per walk frame into a sprite (the colors come from a hue filter, applied only then), so a frame costs one drawImage. */
 function drawMiniGeorge(c, b, t) {
+  if (artOn() && artOk('mini')) {                                   // the Krea picture faces left: mirrored
+    c.fillStyle = rgba(SHADOW, 0.24); c.beginPath(); c.ellipse(b.x, b.y + 2, 30, 10, 0, 0, TAU); c.fill();
+    c.save(); c.translate(b.x, b.y);
+    if (b.state === 'knock') { c.translate(0, -40); c.rotate(t * 9); c.translate(0, 40); }
+    drawArtChar(c, 'mini', 0, 0, { face: -(b.face || 1), t: t + (b.seed || 0), moving: b.state === 'chase' || b.state === 'return', walk: t * 12 + (b.seed || 0) }, CONFIG.look.artSize.mini, 0.5);
+    c.restore(); return;
+  }
   const f = b.face || 1, moving = b.state === 'chase' || b.state === 'return', fr = moving ? ((t * 10 + (b.seed || 0)) | 0) % 8 : 0;
   c.fillStyle = rgba(SHADOW, 0.24); c.beginPath(); c.ellipse(b.x, b.y + 2, 30, 10, 0, 0, TAU); c.fill();
   const im = sprite('miniGeorge' + fr, 150, 170, cc => {
@@ -424,6 +451,13 @@ function drawMiniGeorge(c, b, t) {
 
 /* A sticky snail that crawls down its lane and leaves a shiny trail. o.state 'stun' = it hides in its shell. */
 function drawSnail(c, x, y, t, o) {
+  if (artOn() && artOk('melc')) {                                   // the Krea snail faces left; o.face turns it. Hidden in its shell: it shakes
+    const st = o && o.state === 'stun', k = ((o && o.r) || 26) / 26;
+    c.fillStyle = rgba('#F6B8DC', 0.3); c.beginPath(); c.ellipse(x, y - 34 * k, 13 * k, 40 * k, 0, 0, TAU); c.fill();          // the shiny trail behind
+    c.fillStyle = rgba(SHADOW, 0.24); c.beginPath(); c.ellipse(x, y + 3, 30 * k, 11 * k, 0, 0, TAU); c.fill();
+    drawArtChar(c, 'melc', x + (st ? Math.sin(t * 30) * 2 : 0), y, { face: -((o && o.face) || 1), t: t + ((o && o.seed) || 0), moving: !st, walk: t * 5, squash: st ? 0.12 : 0 }, CONFIG.look.artSize.snail * k, 0.55);
+    return;
+  }
   const st = o && o.state === 'stun', r = (o && o.r) || 26, k = r / 26, cr = Math.sin(t * 5 + ((o && o.seed) || 0)) * 2;
   c.fillStyle = rgba('#B7F0C0', 0.28); c.beginPath(); c.ellipse(x, y - 34 * k, 13 * k, 40 * k, 0, 0, TAU); c.fill();          // the slime trail behind (it crawls downward)
   c.fillStyle = rgba(SHADOW, 0.24); c.beginPath(); c.ellipse(x - 4, y + 4, r * 1.05, r * 0.42, 0, 0, TAU); c.fill();
@@ -449,6 +483,12 @@ function drawSnail(c, x, y, t, o) {
 
 /* A big jungle bird. It flies high: only its shadow touches the ground. o.grab = it carries a hero. o.spy = the small one that brings news to George. */
 function drawBird(c, x, y, o) {
+  if (artOn() && artOk('pasare')) {                                 // flapping: the picture squashes and stretches a little
+    const s = o.scale || 1, f = o.face || 1, t = o.t || 0, flap = Math.sin(t * 9);
+    c.save(); c.translate(x, y + Math.sin(t * 4.5) * 6); c.scale(s * f, s * (1 + flap * 0.06));
+    drawArt(c, 'pasare', 0, 46, CONFIG.look.artSize.bird * (o.spy ? 0.75 : 1), 0.5);
+    c.restore(); return;
+  }
   const s = o.scale || 1, f = o.face || 1, t = o.t || 0, flap = Math.sin(t * 9), body = o.spy ? '#7A6AC8' : '#8A5AC8', wing = o.spy ? '#5A4AA8' : '#6A3FA8';
   c.save(); c.translate(x, y + Math.sin(t * 4.5) * 6); c.scale(s * f, s);
   for (let i = 0; i < 3; i++) { c.save(); c.translate(-44, 4); c.rotate(-0.25 + i * 0.25); puff(c, -20, 0, 24, 7, [RAINBOW[0], RAINBOW[2], RAINBOW[4]][i], 70 + i, 0); c.restore(); }       // tail feathers
@@ -531,6 +571,13 @@ function drawSpear(c, x, y, ang, s) {
 }
 /* One of George's soldiers: a small lizard with a helmet and a spear. They stand around the arena. throwT > 0 = it just threw. */
 function drawSoldier(c, so, t) {
+  if (artOn() && artOk('soldier') && artOk('soldier_jump')) {       // cheering when George has lost: the jumping picture
+    const f = so.face || 1, bob = Math.abs(Math.sin(t * 3 + so.seed)) * 4, cheer = P && P.boss && P.boss.state === 'won';
+    c.fillStyle = rgba(SHADOW, 0.24); c.beginPath(); c.ellipse(so.x, so.y + 3, 26, 9, 0, 0, TAU); c.fill();
+    c.save(); c.translate(so.x, so.y - (cheer ? Math.abs(Math.sin(t * 7 + so.seed)) * 14 : bob));
+    drawArtChar(c, cheer ? 'soldier_jump' : 'soldier', 0, 0, { face: f, t: t + so.seed }, CONFIG.look.artSize.soldier, 0.45);
+    c.restore(); return;
+  }
   const f = so.face || 1, bob = Math.abs(Math.sin(t * 3 + so.seed)) * 4, body = so.col || '#6FA88A', thr = so.throwT > 0, cheer = P && P.boss && P.boss.state === 'won';
   c.fillStyle = rgba(SHADOW, 0.24); c.beginPath(); c.ellipse(so.x, so.y + 3, 26, 9, 0, 0, TAU); c.fill();
   c.save(); c.translate(so.x, so.y - (cheer ? Math.abs(Math.sin(t * 7 + so.seed)) * 14 : bob)); c.scale(f, 1);

@@ -594,3 +594,18 @@ Timpii botilor cu T15 (SwiftShader):
 Prima runda a aratat ca mutatiile 8 - 11 si 15 nu prindeau nimic: verificarile 8 - 10 comparau cu valoarea din `CONFIG` citita chiar atunci (o mutatie a configuratiei se compara cu ea insasi), iar 11 si 13 chemau `G.duelHit` si `G.collectEgg`, care tin originalul. Acum mutatiile strica codul, iar testul cheama functiile pe numele lor global, ca jocul. O verificare care se opreste cu o eroare pica cu mesajul erorii, nu opreste testul.
 
 `cota.js`: mutatiile 3 (limita de sus pusa inapoi) si 7 (`quotaState` gresit) au fost rescrise pentru T15 si pica la verificarile 3 si 9, respectiv 7.
+
+## Update 23 noiembrie 2026: `tests/inel.js`
+
+Verifica inelul din luptele cu George si imaginile Krea:
+
+- toate imaginile se decodeaza (`artReady()`), nivelurile au aspectul calm;
+- in afara luptei o lovitura il pune jos si scapa un diamant;
+- in lupta: 10 lovituri fac inelul rosu, eroul nu cade, nu pierde diamante;
+- a 11-a il ameteste si il pune sa astepte; ajutat, inelul e intreg;
+- singur in joc: ameteste, se ridica singur, inelul se goleste;
+- `CONFIG.ring.on = false` aduce regula veche; o lupta noua incepe cu inelul intreg.
+
+E in `toate.sh`, dupa `george.js`. `stil-grafic.js` are in lista si `drawArt`, `drawArtChar`, `drawHeroRing`.
+
+`zece-secunde.js`, verificarea 9c, se schimba tot pe 23 noiembrie 2026: un pixel negru sau gri se numara doar daca cel putin 4 din cei 8 vecini ai lui sunt si ei negri sau gri. Cu eroii din imagini, canvasul amesteca la margine doua culori opuse (gatul portocaliu al lui Boon langa cupola albastra) si iese cate un pixel gri. Asta nu e gri desenat; o pata gri sau neagra pica in continuare testul.

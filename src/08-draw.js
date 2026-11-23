@@ -124,13 +124,16 @@ function drawRunTrail(c, h) {
 }
 function drawHeroFull(c, h) {
   const cfg = CONFIG.heroes[h.k], fr = P.heroes[1 - h.k], fcfg = CONFIG.heroes[fr.k], t = P.time, top = heroTop(h.k) * h.small;
-  if (P.L.night) {                          // second game: a soft light around each hero, so they stand out in the dark jungle
-    const lg = c.createRadialGradient(h.x, h.y - 44, 12, h.x, h.y - 44, 170); lg.addColorStop(0, 'rgba(255,250,228,0.36)'); lg.addColorStop(0.5, rgba(cfg.color, 0.12)); lg.addColorStop(1, 'rgba(255,250,228,0)');
-    c.fillStyle = lg; c.beginPath(); c.arc(h.x, h.y - 44, 170, 0, TAU); c.fill();
+  if (artOn()) drawHeroRing(c, h, cfg);         // the disc and the ring of the new look; in a fight with George, the ring counts the hits
+  else {
+    if (P.L.night) {                          // second game: a soft light around each hero, so they stand out in the dark jungle
+      const lg = c.createRadialGradient(h.x, h.y - 44, 12, h.x, h.y - 44, 170); lg.addColorStop(0, 'rgba(255,250,228,0.36)'); lg.addColorStop(0.5, rgba(cfg.color, 0.12)); lg.addColorStop(1, 'rgba(255,250,228,0)');
+      c.fillStyle = lg; c.beginPath(); c.arc(h.x, h.y - 44, 170, 0, TAU); c.fill();
+    }
+    // colored ground ring so each player finds their hero at a glance
+    c.lineWidth = 6; c.strokeStyle = rgba(cfg.color, 0.85); c.beginPath(); c.ellipse(h.x, h.y + 2, 44, 17, 0, 0, TAU); c.stroke();
+    if (h.k === 1) { c.lineWidth = 3; c.strokeStyle = rgba(cfg.color2, 0.85); c.beginPath(); c.ellipse(h.x, h.y + 2, 37, 13, 0, 0, TAU); c.stroke(); }
   }
-  // colored ground ring so each player finds their hero at a glance
-  c.lineWidth = 6; c.strokeStyle = rgba(cfg.color, 0.85); c.beginPath(); c.ellipse(h.x, h.y + 2, 44, 17, 0, 0, TAU); c.stroke();
-  if (h.k === 1) { c.lineWidth = 3; c.strokeStyle = rgba(cfg.color2, 0.85); c.beginPath(); c.ellipse(h.x, h.y + 2, 37, 13, 0, 0, TAU); c.stroke(); }
   castShadow(c, h.x, h.y + 2, 70 * h.small, 50 * h.small, 11 + h.k, clamp(1 - h.z / 300, 0.35, 1));   // the cast shadow of S7.1 (smaller and paler in the air)
   if (h.down) {                            // hit: waits for the friend. A ring in the friend's color pulses around the hero.
     const pu = 0.5 + 0.5 * Math.sin(t * 6);
@@ -170,6 +173,26 @@ function drawHeroFull(c, h) {
     if (heroInWay(nx, ny, 160, 40, fr.k)) ny = Math.max(ny - 46, h.y - HERO_BOX + 22);                                      // never higher than the camera keeps free
     if (!heroInWay(nx, ny, 160, 40, fr.k)) text(c, cfg.name, nx, ny, 34, shade(cfg.color, -0.35), { title: true });
   }
+}
+/* The ring under a hero (the new look): a disc in his color, a ring around it, then a cream edge and a violet one.
+   In a fight with George (ringFight) the ring is cut in CONFIG.ring.hits pieces and every hit makes one red (h.ringHits).
+   When they are all red it pulses: the next hit makes him dizzy. A short red flash shows the piece that just turned. */
+function drawHeroRing(c, h, cfg) {
+  const R = CONFIG.ring, x = h.x, y = h.y + 2, rx = 56 * h.small, ry = 22 * h.small, t = P.time, col = cfg.color;
+  const fight = ringFight(), n = R.hits, hits = Math.min(n, h.ringHits || 0), full = fight && hits >= n;
+  c.fillStyle = rgba(shade(col, -0.12), fight ? 0.5 : 0.72); c.beginPath(); c.ellipse(x, y, rx, ry, 0, 0, TAU); c.fill();       // in a fight the disc is paler, so the red pieces read
+  c.fillStyle = rgba(shade(col, 0.35), 0.45); c.beginPath(); c.ellipse(x, y - 1, rx * 0.66, ry * 0.62, 0, 0, TAU); c.fill();
+  c.lineCap = 'butt'; c.lineWidth = 7 * h.small;
+  if (!fight) { c.strokeStyle = rgba(shade(col, 0.15), 0.95); c.beginPath(); c.ellipse(x, y, rx, ry, 0, 0, TAU); c.stroke(); }
+  else for (let i = 0; i < n; i++) {
+    // the pieces turn red from the front (under the hero's feet, where nothing covers them) toward the back, one side then the other
+    const q = i === 0 ? 0 : Math.ceil(i / 2) * (i % 2 ? 1 : -1), a0 = Math.PI / 2 + (q - 0.5) * TAU / n + 0.07, a1 = a0 + TAU / n - 0.14, red = i < hits;
+    const fl = red && i === hits - 1 && h.ringFlash > 0 ? h.ringFlash / 0.4 : 0;
+    c.strokeStyle = red ? rgba(mix(R.red, '#FFF3C0', fl * 0.6), full ? 0.75 + 0.25 * Math.sin(t * 9) : 1) : rgba(shade(col, 0.15), 0.95);
+    c.lineWidth = (10 + fl * 4) * h.small; c.beginPath(); c.ellipse(x, y, rx, ry, 0, a0, a1); c.stroke();
+  }
+  c.lineWidth = 3.5 * h.small; c.strokeStyle = 'rgba(255,246,226,0.95)'; c.beginPath(); c.ellipse(x, y, rx + 6, ry + 5, 0, 0, TAU); c.stroke();
+  c.lineWidth = 2.5 * h.small; c.strokeStyle = rgba('#7A5A9E', 0.9); c.beginPath(); c.ellipse(x, y, rx + 9.5, ry + 8, 0, 0, TAU); c.stroke();
 }
 /* Small enemies show how many hits they still take, once they were hit. */
 function drawSmallHp(c, e, x, y) {
