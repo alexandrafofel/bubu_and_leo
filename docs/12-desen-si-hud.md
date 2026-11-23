@@ -284,3 +284,12 @@ In toate nivelurile (nu doar pe cele cu `look: 'diorama'`): loviturile mari se s
 **Cost:** nimic masurabil (un calcul pe cadru). `performanta.js` ramane cum era.
 
 **T6.10:** capturile finale ro/en ale nivelului 3 si ale luptei cu George: `capturi/24-final-*.jpg` (lista S7.8 in `17-testare.md`).
+
+## Update 22 noiembrie 2026: T15 pe ecran
+
+- **Bara de sus** (`levelProgress`), cand nivelul are cota: cinci parti, in ordine: diamante pana la jumatate, George, diamante pana la cota, George, cuib. In stanga scrie cate diamante mai trebuie pana vine George (`× n`) sau, in lupta, cate inimi mai are el.
+- **Insigna**: `gasite / 15`; peste cota o bifa si `+n` mic, verde, deasupra ei. Ecranul de sfarsit de nivel arata la fel.
+- **Bannerul luptei**: al doilea rand e "George cel Rău s-a trezit!" la mijloc si "George cel Rău: ultima luptă!" la cuib (`ban.msg`). Bannerele mici "Ai grijă!" (`ban.gthrow`) si "Ultima inimă! Vin după voi!" (`ban.glast`).
+- **Micul George** (`drawMiniGeorge`, `055-lupta.js`): George, la 0.42 din marime, in verde si albastru. Culorile vin dintr-un filtru `hue-rotate`, aplicat doar cand se picteaza o data cele 8 imagini ale mersului (`sprite`); pe cadru e un singur `drawImage`.
+- **Melcii din copaci** se deseneaza cu `drawSnail`, ca melcii de pe benzi. `drawSleeper` alege dupa `b.look`.
+- **Lucrurile aruncate** (`drawProjs`): oase si mingi cu `drawThrown`, inamicii in aer ca un robot ghemuit care se roteste. Inimile inamicilor (`drawSmallHp`) folosesc `maxHp`.

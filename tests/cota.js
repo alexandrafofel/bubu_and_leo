@@ -34,7 +34,7 @@ const MUTA = +process.env.MUTA || 0;
       joined = [true, true]; go(idx || 0); const P = G.P, L = P.L;
       for (const b of L.beetles) { b.state = 'sleep'; b.cool = 999; } L.cones.length = 0; if (L.birds) L.birds.length = 0;
       P.heroes[1].x = P.heroes[0].x + 120; P.heroes[1].y = P.heroes[0].y;
-      for (const h of P.heroes) { h.vx = h.vy = 0; h.dizzy = 0; h.down = false; h.inv = 0; } step(3);
+      for (const h of P.heroes) { h.vx = h.vy = 0; h.dizzy = 0; h.down = false; h.inv = 0; } P.midFought = P.nestFought = true; step(3);      // T15: George stays away, these checks are about the quota
       return P;
     };
     window.inNest = () => { const P = G.P, L = P.L; P.heroes[0].x = L.nest.x - 30; P.heroes[1].x = L.nest.x + 30; P.heroes[0].y = P.heroes[1].y = L.nest.y; for (const h of P.heroes) { h.vx = h.vy = 0; h.dizzy = 0; h.down = false; } };
@@ -47,11 +47,11 @@ const MUTA = +process.env.MUTA || 0;
       const real = { hit: window.hitHero, wb: window.waitBanner };
       if (MUTA === 1) G.CONFIG.quota.perLevel = null;
       if (MUTA === 2) window.quotaOk = () => true;
-      if (MUTA === 3) window.canTake = () => true;
+      if (MUTA === 3) { const real = window.collectEgg; window.collectEgg = (e, k) => { if (e.goal && G.P.found[k] >= G.P.q) return; real(e, k); }; }      // brings the old upper limit back
       if (MUTA === 4) window.giveEgg = () => false;
       if (MUTA === 5) G.CONFIG.quota.giveRange = 1e9;
       if (MUTA === 6) window.quotaOk = () => false;
-      if (MUTA === 7) window.quotaState = (k) => ({ found: G.P.found[k], q: G.P.q, cap: G.P.cap, ok: G.P.found[k] < G.P.q });
+      if (MUTA === 7) window.quotaState = (k) => ({ found: G.P.found[k], q: G.P.q, ok: G.P.found[k] < G.P.q, extra: 0 });
       if (MUTA === 8) window.updateQuotaMsg = () => {};
       if (MUTA === 9) window.bothJoined = () => true;
       if (MUTA === 10) window.hitHero = (h, sx, sy) => { const f = G.P.found.slice(); real.hit(h, sx, sy); G.P.found = f; };
@@ -68,49 +68,47 @@ const MUTA = +process.env.MUTA || 0;
   const r1 = await page.evaluate(() => {
     const G = __game, C = G.CONFIG.quota, res = [];
     for (let n = 0; n < G.CONFIG.levels; n++) {
-      const q = C.perLevel && C.perLevel[n], cap = Math.ceil(C.cap * q); let bad = 0, made = 0;
-      for (let s = 0; s < 10; s++) { const L = G.genLevel(n, 1000 + n * 97 + s * 13); if (!L) continue; made++; if (L.totalEggs < 2 * q || L.totalEggs > 2 * cap) bad++; }
+      const q = C.perLevel && C.perLevel[n]; let bad = 0, made = 0;
+      for (let s = 0; s < 10; s++) { const L = G.genLevel(n, 1000 + n * 97 + s * 13); if (!L) continue; made++; if (L.totalEggs < 2 * q) bad++; }
       const B = G.buildLevel(n);
-      res.push({ n, q, made, bad, built: !!B && B.totalEggs >= 2 * q && B.totalEggs <= 2 * cap, L_q: B && B.q });
+      res.push({ n, q, made, bad, built: !!B && B.totalEggs >= 2 * q, L_q: B && B.q });
     }
     return res;
   });
-  ok(1, 'cota si ouale pe fiecare nivel (10 seminte): 2q <= oua <= 2 * cap', r1.every(r => r.q > 0 && r.made >= 1 && r.bad === 0 && r.built && r.L_q === r.q), JSON.stringify(r1.map(r => [r.n + 1, r.q, r.made, r.bad])));
+  ok(1, 'cota e 15 pe fiecare nivel si sunt destule diamante (10 seminte): oua >= 2q', r1.every(r => r.q === 15 && r.made >= 1 && r.bad === 0 && r.built && r.L_q === r.q), JSON.stringify(r1.map(r => [r.n + 1, r.q, r.made, r.bad])));
 
-  // ---------- 2. the example: quota 10, one hero 15, the other 7, both in the nest ----------
+  // ---------- 2. the example: one hero 5 over the quota, the other 3 short, both in the nest ----------
   const r2 = await page.evaluate(() => {
     const P = fresh(0), G = window.G, o = {};
-    P.found = [15, 7]; openNestNow(); inNest(); step(60 * 4);
+    P.found = [P.q + 5, P.q - 3]; openNestNow(); inNest(); step(60 * 4);
     const bn = G.waitBanner();
     o.notDone = P.done === false; o.banner = bn && bn.kind === 'need' && bn.name === G.CONFIG.heroes[1].name && bn.n === 3; o.bn = bn;
     return o;
   });
-  ok(2, 'cota 10, un erou 15 si altul 7, amandoi in cuib: nu se termina, bannerul "mai are nevoie de 3" pentru al doilea', r2.notDone && r2.banner, JSON.stringify(r2.bn));
+  ok(2, 'cota q, un erou q + 5 si altul q - 3, amandoi in cuib: nu se termina, bannerul "mai are nevoie de 3" pentru al doilea', r2.notDone && r2.banner, JSON.stringify(r2.bn));
 
-  // ---------- 3. an egg over the limit stays; the pull and the ball skip a full hero; the friend takes it ----------
+  // ---------- 3. no upper limit (T15): a hero over his quota still takes diamonds, by hand, by the pull and by the ball ----------
   const r3 = await page.evaluate(() => {
-    const P = fresh(0), G = window.G, a = P.heroes[0], b = P.heroes[1], o = {};
-    P.found = [P.cap, 0]; b.x = a.x + 900; b.y = a.y;
+    const P = fresh(0), G = window.G, a = P.heroes[0], b = P.heroes[1], o = {}, over = P.q + 5;
+    P.found = [over, 0]; b.x = a.x + 900; b.y = a.y;
     const e = window.makeEgg(a.x + 8, a.y, { state: 'idle' }); P.eggs.push(e); step(30);
-    o.stays = P.eggs.includes(e) && P.found[0] === P.cap; o.balloon = a.fullT > 0;
-    e.pull = a; step(3); o.pullDropped = e.pull === null && P.eggs.includes(e);
+    o.hand = !P.eggs.includes(e) && P.found[0] === over + 1; o.noBalloon = !('fullT' in a);
     const e2 = window.makeEgg(a.x + 40, a.y + 30, { state: 'idle' }); P.eggs.push(e2);
     P.flock.push(G.newBall(e2.x, e2.y, 0, 0, 1, 2, false, 1, 0, 0, 'ball')); step(10);
-    o.ballSkips = P.eggs.includes(e2) && P.found[0] === P.cap;
-    P.flock.length = 0; b.x = a.x + 12; b.y = a.y; step(30);
-    o.friendTakes = !P.eggs.includes(e) && P.found[1] >= 1 && P.found[0] === P.cap;
-    return o;
+    o.ball = !P.eggs.includes(e2) && P.found[0] === over + 2;
+    o.extra = G.quotaState(0).extra === 7 && G.quotaState(0).ok === true;
+    P.flock.length = 0; return o;
   });
-  ok(3, 'un ou peste limita ramane pe jos, apare "Plin!", tropaitul si mingea il ocolesc, prietenul il ia', r3.stays && r3.balloon && r3.pullDropped && r3.ballSkips && r3.friendTakes, JSON.stringify(r3));
+  ok(3, 'nu exista limita: un erou peste cota ia diamante cu mana si cu mingea, extra se numara, nu apare "Plin!"', r3.hand && r3.noBalloon && r3.ball && r3.extra, JSON.stringify(r3));
 
   // ---------- 4. L1 (controller, held, keyboard) ----------
   await page.evaluate(() => { fresh(0); pad(0, true); pad(1, true); });
   await page.evaluate(() => { const P = G.P; P.found = [8, 2]; btn(0, 4, true); step(1); btn(0, 4, false); step(10); });
   const r4a = await page.evaluate(() => { const P = G.P; const mid = P.gifts.length; step(40); return { mid, found: P.found.slice() }; });
-  await page.evaluate(() => { const P = G.P; P.found = [20, P.cap - 3]; step(30); btn(0, 4, true); step(60 * 2); btn(0, 4, false); step(60); });
-  const r4b = await page.evaluate(() => { const P = G.P; return { found: P.found.slice(), cap: P.cap }; });
-  ok(4, 'L1 (butonul 4, controller fals): da un ou care ajunge dupa 0.45 s; tinut apasat da mai multe si se opreste la limita prietenului',
-    r4a.mid === 1 && r4a.found[0] === 7 && r4a.found[1] === 3 && r4b.found[1] === r4b.cap && r4b.found[0] === 20 - 3, JSON.stringify([r4a, r4b]));
+  await page.evaluate(() => { const P = G.P; P.found = [3, 0]; step(30); btn(0, 4, true); step(60 * 2); btn(0, 4, false); step(60); });
+  const r4b = await page.evaluate(() => { const P = G.P; return { found: P.found.slice() }; });
+  ok(4, 'L1 (butonul 4, controller fals): da un diamant care ajunge dupa 0.45 s; tinut apasat da mai multe si se opreste cand nu mai are ce da',
+    r4a.mid === 1 && r4a.found[0] === 7 && r4a.found[1] === 3 && r4b.found[0] === 0 && r4b.found[1] === 3, JSON.stringify([r4a, r4b]));
   // the keyboard: key R (player 1), as set in CONFIG.keys
   await page.evaluate(() => { fresh(0); G.Opt.ctrl[0] = 'kb'; G.Input.slots[0].pad = null; fakePads[0] = null; G.Input.slots[0].joined = true; G.P.found = [6, 1]; step(2); });
   await page.keyboard.down('KeyR'); await page.evaluate(() => step(4)); await page.keyboard.up('KeyR');
@@ -128,13 +126,13 @@ const MUTA = +process.env.MUTA || 0;
   });
   ok(5, 'L1 prea departe nu da nimic (balon "Apropie-te"); fara oua nu da nimic si numarul se clatina', r5.farNothing && r5.farHint && r5.noneNothing && r5.shake, JSON.stringify(r5));
 
-  // ---------- 6. 10 / 10 each: the level ends within 4 seconds of both being in the nest ----------
+  // ---------- 6. q / q each: the level ends within 4 seconds of both being in the nest ----------
   const r6 = await page.evaluate(() => {
-    const P = fresh(0); P.found = [10, 10]; openNestNow(); inNest(); let t = 0;
+    const P = fresh(0); P.found = [P.q, P.q]; openNestNow(); inNest(); let t = 0;
     while (!P.done && t < 60 * 4) { step(1); inNest(); t++; }
     return { done: P.done, secs: +(t / 60).toFixed(2) };
   });
-  ok(6, 'amandoi cu 10 / 10: nivelul se termina in cel mult 4 secunde de la intrarea ambilor in cuib', r6.done && r6.secs <= 4, JSON.stringify(r6));
+  ok(6, 'amandoi cu cota intreaga: nivelul se termina in cel mult 4 secunde de la intrarea ambilor in cuib', r6.done && r6.secs <= 4, JSON.stringify(r6));
 
   // ---------- 7. the colors of the number, read from the picture ----------
   const readBadge = (k) => page.evaluate((k) => {
@@ -146,7 +144,7 @@ const MUTA = +process.env.MUTA || 0;
     const num = grab(bx + 138, by + 58, 124, 42), tick = grab(bx + 276 - 14, by + 78 - 14, 28, 28);
     return { green: hue(num, (r, g, b) => g > r + 30 && g > b + 15), red: hue(num, (r, g, b) => r > g + 60 && r > b + 60 && r > 110), tick: hue(tick, (r, g, b) => g > r + 30 && g > b + 15) };
   }, k);
-  await page.evaluate(() => { const P = fresh(0); P.found = [10, 4]; P.quotaMsg = [true, true]; for (const h of P.heroes) { h.numT = 0; h.noT = 0; } P.time = 1.5; step(1); });
+  await page.evaluate(() => { const P = fresh(0); P.found = [P.q, 4]; P.quotaMsg = [true, true]; for (const h of P.heroes) { h.numT = 0; h.noT = 0; } P.time = 1.5; step(1); });
   const c7a = await readBadge(0), c7b = await readBadge(1);
   ok(7, 'insigna: numarul e verde cand found >= q, rosu cand nu; bifa doar cand e gata (citit din captura)',
     c7a.green > 40 && c7a.red < 8 && c7a.tick > 25 && c7b.red > 40 && c7b.green < 8 && c7b.tick < 8, JSON.stringify([c7a, c7b]));
@@ -174,8 +172,8 @@ const MUTA = +process.env.MUTA || 0;
   const r9 = await page.evaluate(() => {
     joined = [true, false]; go(0); const P = G.P, L = P.L, a = P.heroes[0], o = {};
     for (const b of L.beetles) { b.state = 'sleep'; b.cool = 999; } L.cones.length = 0; step(5);
-    P.found = [P.cap, 0]; const e = window.makeEgg(a.x + 8, a.y, { state: 'idle' }); P.eggs.push(e); step(20);
-    o.noLimit = P.found[0] === P.cap + 1 && !P.eggs.includes(e); o.otherOk = G.quotaState(1).ok === true;
+    P.found = [P.q + 5, 0]; const e = window.makeEgg(a.x + 8, a.y, { state: 'idle' }); P.eggs.push(e); step(20);
+    o.noLimit = P.found[0] === P.q + 6 && !P.eggs.includes(e); o.otherOk = G.quotaState(1).ok === true;
     // the badge of the one who is not playing shows no counter (the pixels of the number area stay without red or green)
     P.found = [3, 0]; noEggs(); P.nestOpen = true; P.nestOpenT = 20; a.x = L.nest.x; a.y = L.nest.y; step(60 * 2); o.notYet = P.done === false;
     P.found = [P.q, 0]; step(60 * 2); o.ends = P.done === true;
@@ -192,7 +190,7 @@ const MUTA = +process.env.MUTA || 0;
     P.found = [4, 0]; G.hitHero(a, a.x - 50, a.y);
     const d = P.eggs.filter(x => x.dropped); o.dropped = P.found[0] === 3 && d.length === 1 && d[0].goal === true;
     for (const h of P.heroes) { h.down = false; h.dizzy = 0; }
-    a.x = 100; a.y = P.L.spawn.y; step(2); const e = d[0]; if (e) { e.wait = 0; e.state = 'idle'; e.delay = 0; b.x = e.x; b.y = e.y; } step(30);
+    const e = d[0]; if (e) { a.x = e.x + 700; a.y = e.y; } step(2); if (e) { e.wait = 0; e.state = 'idle'; e.delay = 0; b.x = e.x; b.y = e.y; } step(30);      // the hit hero far away, so only the friend can take it
     o.friendCounts = !!e && !P.eggs.includes(e) && P.found[1] === 1;
     return o;
   });
@@ -202,10 +200,10 @@ const MUTA = +process.env.MUTA || 0;
   const r11 = await page.evaluate(() => {
     joined = [true, false]; go(0); const P = G.P, L = P.L, o = {};
     for (const b of L.beetles) { b.state = 'sleep'; b.cool = 999; } L.cones.length = 0;
-    P.heroes[1].x = P.heroes[0].x + 120; P.heroes[1].y = P.heroes[0].y; P.found = [P.cap + 3, 0]; step(5);
-    joined = [true, true]; step(60 * 2); o.found = P.found.slice(); o.cap = P.cap; return o;
+    P.heroes[1].x = P.heroes[0].x + 120; P.heroes[1].y = P.heroes[0].y; P.found = [P.q + 3, 0]; step(5);
+    joined = [true, true]; step(60 * 2); o.found = P.found.slice(); o.q = P.q; return o;
   });
-  ok(11, 'al doilea jucator intra in mijlocul nivelului: ouale peste limita ale primului trec la el', r11.found[0] === r11.cap && r11.found[1] === 3, JSON.stringify(r11));
+  ok(11, 'al doilea jucator intra in mijlocul nivelului: diamantele peste cota ale primului trec la el', r11.found[0] === r11.q && r11.found[1] === 3, JSON.stringify(r11));
 
   // ---------- 12. the giant egg, the guardians' eggs and the rainbow raise the team total, not the quota ----------
   const r12 = await page.evaluate(() => {

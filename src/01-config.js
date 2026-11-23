@@ -46,12 +46,12 @@ const CONFIG = {
   decorPerLevel: 1700,         // small meadow things per level (grass, daisies, pebbles...). 6 x 1700 = 10,200 with the rest
   levelDuration: 360,          // target seconds per level. Egg count scales with it.
   eggsPerMinute: 10,           // pace used for the level time: a level lasts max(levelDuration, eggs / eggsPerMinute * 60) seconds (levelDurationOf)
-  // The egg quota: every hero has to find `perLevel[level]` eggs, and may hold at most `cap` x that (the rest stays on the ground for the friend).
+  // The diamond quota: every hero has to find `perLevel[level]` diamonds. There is no upper limit: a hero may take as many as he finds,
+  // and gives the extra to the friend with L1 (docs/28-t15-george-de-doua-ori.md).
   quota: {
     on: true,                                              // false = the old rule (60 eggs, no quota)
-    perLevel: [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65],   // eggs each hero must find, level 1 .. 12
-    cap: 1.5,                                              // how much a hero may hold, as a part of the quota (1.5 = 150%)
-    extra: 2.2,                                            // eggs on the map = quota * extra (between 2 and 2 * cap)
+    perLevel: [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],   // diamonds each hero must find, level 1 .. 12: the same everywhere, the enemies make it harder
+    extra: 2.2,                                            // diamonds on the map = quota * extra (at least 2: both heroes must be able to finish)
     giveRange: 420, giveEvery: 0.3, flyTime: 0.45,         // giving with L1 (later tasks): how near, how fast, how long an egg flies
     autoGive: 120,                                         // seconds in the nest after which the game moves eggs by itself (0 = never)
     autoEvery: 2                                           // seconds between two automatic moves
@@ -268,6 +268,21 @@ const CONFIG = {
     levels: 6,                         // levels of the second game that exist. Part Two (levels 7 - 12) raises it as each new level is made
     duelHp: [3, 3, 4, 5, 5, 6],        // hits George takes in the middle fight, per level (the first game: CONFIG.duel.hp)
     duelFinalHp: [5, 6, 6, 7, 8, 9],   // hits George takes at the nest, per level (the first game: CONFIG.duel.finalHp)
+    // T15 (docs/28-t15-george-de-doua-ori.md): diamonds come only from defeated small enemies, George comes at half and at all of the team's quota.
+    // The numbers per level are starting points, to be tuned while the children play.
+    fieldEnemies: [12, 14, 15, 15, 17, 18],   // small enemies on a level: robots, snails from the glowing trees and pinecones. Robots fill up the rest
+    treeSnails: 2,             // snails that crawl out of a glowing tree when it is shaken; like every small enemy they come back after a while
+    enemyDrop: 1,              // diamonds a defeated small enemy leaves on the ground
+    miniGeorge: { hp: 3, perLevel: [1, 1, 1, 2, 2, 2], speed: 110, near: 640, drop: 1 },   // Little George: follows the nearest hero (within `near`), never hits
+    george: {
+      minT: 20,                                // the middle fight never starts in the first seconds of a level
+      midThrows: [2, 3, 3, 4, 4, 5],           // bones and balls George throws in the middle fight, per level: they daze, like pinecones
+      nestEnemies: [2, 4, 5, 6, 8, 10],        // small enemies he throws in the nest fight, in all, per level (half at half his hearts, the rest at his last heart)
+      enemyHp: [2, 2, 3, 3, 3, 3],             // hearts of a thrown enemy, per level
+      chaseSpeed: 120,                         // how fast the enemies thrown at his last heart follow the heroes (a hero walks at about 150)
+      boneEvery: 2,                            // in the nest fight, above half his hearts: bones and balls thrown each time he loses a heart
+      flight: 0.9                              // seconds a thrown thing flies before it lands
+    },
     bossSize: 1.5,             // how big George is in his arena (in the mini-fights he grows from level to level, see DUEL_DEFS_L)
     shrink: 0.5,               // a hero who was hit is this small until the friend helps
     rainbowBonus: 5,           // crystals for the team when all seven colors were gathered

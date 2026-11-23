@@ -34,7 +34,8 @@ function startDuel(kind = 'nest') {
   const hpTab = hard ? ((isLupta() && CONFIG.lupta.duelFinalHp) || F.finalHp) : ((isLupta() && CONFIG.lupta.duelHp) || F.hp);      // George has his own table: a little tougher
   const base = hpTab[L.idx % hpTab.length];
   const hp = clamp((base || 3) + (top === 0 ? -1 : top === 2 ? 1 : 0), 2, 9);
-  const want = hard ? { x: L.nest.x - 320, y: L.nest.y - 30 } : { x: (L.spawn.x + L.nest.x) / 2, y: (L.spawn.y + L.nest.y) / 2 };
+  const mid2 = quotaOn() ? { x: (P.heroes[0].x + P.heroes[1].x) / 2 + 420, y: (P.heroes[0].y + P.heroes[1].y) / 2 } : { x: (L.spawn.x + L.nest.x) / 2, y: (L.spawn.y + L.nest.y) / 2 };      // T15: in the middle fight George comes to the heroes
+  const want = hard ? { x: L.nest.x - 320, y: L.nest.y - 30 } : mid2;
   const sc = (hard ? F.finalSize : 1) * (def.size || 1);
   const cells = L.reachCells(want.x, want.y, 0, hard ? 220 : 420, hard ? 0 : 8);
   // the nest guardian lands as close to its spot as it can; the middle one looks for the most open place near the middle (not the river bank, not a bridge)
@@ -45,7 +46,7 @@ function startDuel(kind = 'nest') {
   P.duel = { def, kind, hard, sc, pat: def.pats ? def.pats[0] : def.pat, cyc: 1, R: def.r * sc, x: sp.x, y: sp.y, px: sp.x, py: sp.y, z: 700, face: -1, hp, maxHp: hp, state: 'enter', t: 0, n: 0, tx: sp.x, ty: sp.y, sx: sp.x, sy: sp.y, ex: sp.x, ey: sp.y,
     dx: -1, dy: 0, kx: 0, ky: 0, len: 0, run: 0, target: -1, proj: [], shots: [], rings: [], over: false, home: sp, land: null, landed: false, threw: false, bonk: false,
     stagCd: 0, flash: 0, hintT: 0, tonkT: 0, tiredDur: 2, tStart: P.time };
-  P.banner = { kind: 'duel', t: 3.6, id: def.id, mid: !hard };
+  P.banner = { kind: 'duel', t: 3.6, id: def.id, mid: !hard, msg: quotaOn() ? (hard ? 'george.final' : 'george.half') : null };
   Snd.play('duel'); Snd.play('caw'); Snd.music(hard ? 'duel2' : 'duel'); P.crow = { x: -200, y: 300, t: 0 };
   Voice.say(T(hard ? 'duel.say' : 'duel.midSay', T('duel.' + def.id)));
   Input.rumble(0, 0.5, 0.5, 250); Input.rumble(1, 0.5, 0.5, 250);
@@ -83,8 +84,8 @@ function duelHit(k) {
   duelEggs(last ? CONFIG.duel.eggsAtEnd : CONFIG.duel.eggsPerHit);
   const dx = d.x - h.x, dy = d.y - h.y, m = Math.hypot(dx, dy) || 1; d.kx = dx / m * 420; d.ky = dy / m * 420;
   d.t = 0; d.land = null;
-  if (last) { d.state = 'flee'; Snd.play('flee'); for (const p of d.proj) p.dead = true; d.shots.length = 0; d.face = dx >= 0 ? 1 : -1; }
-  else d.state = 'hurt';
+  if (last) { d.state = 'flee'; Snd.play('flee'); for (const p of d.proj) p.dead = true; d.shots.length = 0; d.face = dx >= 0 ? 1 : -1; georgeClearThrown(); }
+  else { d.state = 'hurt'; georgeNestThrows(d); }
 }
 function duelBall(b) {
   const d = P.duel; if (d.over || d.state === 'enter' || d.state === 'flee' || d.state === 'hurt') return;
@@ -113,6 +114,57 @@ function duelLob(n, slow) {                                  // throws n pinecon
   }
   Snd.play('pop');
 }
+/* ---------- T15: what George throws (docs/28-t15-george-de-doua-ori.md, section 4) ---------- */
+function lvlOf(arr) { const a = arr || [0]; return a[Math.min(a.length - 1, P.L.idx)]; }
+/* n bones and balls, at the heroes: they land in a red circle and daze, like the pinecones. */
+function georgeBones(n) {
+  const d = P.duel, L = P.L, hs = P.heroes.filter((h, k) => isJoined(k) && !h.down);
+  if (!hs.length) return;
+  for (let i = 0; i < n; i++) {
+    const tg = hs[i % hs.length], a = Math.random() * TAU, rr = i < hs.length ? 0 : 90 + Math.random() * 140;
+    d.proj.push({ sx: d.x, sy: d.y - 40 - d.z, tx: clamp(tg.x + tg.vx * 0.5 + Math.cos(a) * rr, 60, L.W - 60), ty: clamp(tg.y + tg.vy * 0.5 + Math.sin(a) * rr * 0.7, L.top + 50, L.H - 50),
+      t: -i * 0.35, dur: CONFIG.lupta.george.flight * 1.4, rot: 0, kind: i % 2 ? 'ball' : 'bone' });
+  }
+  Snd.play('pop');
+}
+/* n small enemies, thrown near the heroes. follow = the ones of his last heart: they keep after Boon and Killer and never give up. */
+function georgeEnemies(n, follow) {
+  if (n <= 0) return;
+  const d = P.duel, L = P.L, Gc = CONFIG.lupta.george, hp = lvlOf(Gc.enemyHp), hs = P.heroes.filter((h, k) => isJoined(k));
+  for (let i = 0; i < n; i++) {
+    const tg = hs[i % hs.length] || P.heroes[0], a = Math.random() * TAU, rr = 200 + Math.random() * 140;
+    const sp = duelSnap(clamp(tg.x + Math.cos(a) * rr, 80, L.W - 80), clamp(tg.y + Math.sin(a) * rr * 0.7, L.top + 70, L.H - 70)) || { x: tg.x, y: tg.y };
+    d.proj.push({ sx: d.x, sy: d.y - 40 - d.z, tx: sp.x, ty: sp.y, t: -i * 0.25, dur: Gc.flight, rot: 0, kind: 'enemy',
+      onLand: p => {
+        P.L.beetles.push({ hx: p.tx, hy: p.ty, x: p.tx, y: p.ty, vx: 0, vy: 0, state: 'wake', t: 0.5, face: Math.random() < 0.5 ? 1 : -1, seed: Math.random() * 10, r: 28,
+          thrown: true, follow: !!follow, chase: follow ? Gc.chaseSpeed : 0, hp, maxHp: hp, born: 0.4, cool: 0 });
+        Snd.play('thud'); burst(p.tx, p.ty - 10, 12, { kind: 'dust', cols: ['#FFF3E0', '#F3E2C0'], speed: 160, life: 0.6, size: 14, g: -20, drag: 2 });
+      } });
+  }
+  Snd.play('pop'); P.banner = { kind: follow ? 'glast' : 'gthrow', t: 3 };
+}
+/* The middle fight (T15): a few bones and balls, two at a time, every few seconds. */
+function updateGeorgeMid(d, dt) {
+  if (!quotaOn() || d.hard || d.over || d.state === 'enter' || d.state === 'flee' || d.state === 'hurt') return;
+  if (d.midLeft == null) { d.midLeft = lvlOf(CONFIG.lupta.george.midThrows); d.volT = 2.5; }
+  if (d.midLeft <= 0) return;
+  d.volT -= dt; if (d.volT > 0) return;
+  const n = Math.min(2, d.midLeft); d.midLeft -= n; d.volT = 4; georgeBones(n);
+}
+/* The nest fight (T15): what he throws depends on the hearts he has left. Called after every heart he loses. */
+function georgeNestThrows(d) {
+  if (!quotaOn() || !d.hard || d.hp <= 0) return;
+  const H = d.maxHp, Gc = CONFIG.lupta.george, N = lvlOf(Gc.nestEnemies), first = N <= 2 ? N : Math.floor(N / 2);
+  if (d.hp > H / 2) { georgeBones(Gc.boneEvery); return; }                                // above half: bones and balls
+  if (!d.thrHalf) { d.thrHalf = true; georgeEnemies(first, false); }                     // at half: the first enemies
+  if (d.hp === 1 && !d.thrLast) { d.thrLast = true; georgeEnemies(N - first, true); }    // the last heart: the rest, and they follow the heroes
+}
+/* George is beaten: his thrown enemies go with him (each one in a puff of dust, without diamonds). */
+function georgeClearThrown() {
+  const L = P.L;
+  for (const b of L.beetles) if (b.thrown && b.state !== 'dead') burst(b.x, b.y - 20, 12, { kind: 'dust', cols: ['#FFF3E0', '#F3E2C0'], speed: 150, life: 0.6, size: 16, g: -30, drag: 2 });
+  L.beetles = L.beetles.filter(b => !b.thrown);
+}
 function duelSnap(x, y) {                                    // nearest spot a guardian can stand on
   const L = P.L; if (L.reach[L.ci(x, y)]) return { x, y };
   const cs = L.reachCells(x, y, 0, 260, 0); let best = null, bd = 1e9;
@@ -123,6 +175,7 @@ function updateDuel(dt) {
   const d = P.duel, L = P.L, def = d.def;
   d.t += dt; d.flash = Math.max(0, d.flash - dt); d.stagCd = Math.max(0, d.stagCd - dt); d.tonkT = Math.max(0, d.tonkT - dt); d.hintT = Math.max(0, d.hintT - dt);
   stepProj(d.proj, dt, duelSpares);
+  updateGeorgeMid(d, dt);
   for (let i = d.rings.length - 1; i >= 0; i--) { d.rings[i].t += dt; if (d.rings[i].t > 0.45) d.rings.splice(i, 1); }
   for (let i = d.shots.length - 1; i >= 0; i--) {
     const s = d.shots[i]; s.x += s.vx * dt; s.y += s.vy * dt; s.life -= dt; s.rot += dt * 8;
@@ -154,7 +207,7 @@ function updateDuel(dt) {
   if (st === 'flee') {
     d.z += 380 * dt; d.x += d.face * 420 * dt; d.y -= 60 * dt;
     if (Math.random() < dt * 20) part(d.x, d.y - d.z - 30, { life: 0.6, max: 0.6, size: 8, kind: 'spark' });
-    if (d.t > 1.7) { d.over = true; Snd.music(L.def.music); if (d.kind === 'nest') openNest(); else P.nextWaveT = 1.0; }   // after the middle fight the next wave comes
+    if (d.t > 1.7) { d.over = true; Snd.music(L.def.music); if (d.kind === 'nest') openNest(); else if (!quotaOn()) P.nextWaveT = 1.0; }   // after the middle fight the next wave comes (with the quota the waves go on by themselves, T15)
     return;
   }
   if (st === 'hurt') {

@@ -4,7 +4,7 @@
 
 Textele sunt in `STR` din src/015-lang.js. Cheia este numele folosit in cod: `T('cheie')`. `{0}` si `{1}` sunt locuri completate de cod (un nume, un numar).
 
-Total: 214 texte in romana si 213 in engleza.
+Total: 218 texte in romana si 217 in engleza.
 
 | Cheie | Linia (ro) | Romana | Engleza |
 |---|---|---|---|
@@ -20,7 +20,11 @@ Total: 214 texte in romana si 213 in engleza.
 | `t.press` | 33 | Apasă ✕ | Press ✕ |
 | `t.then` | 33 | apoi pornim! | then off we go! |
 | `t.onPad` | 33 | pe controller | on the controller |
-| `quota.full` | 34 | Plin! | Full! |
+| `george.half` | 34 | George cel Rău s-a trezit! | George the Bad woke up! |
+| `george.final` | 34 | George cel Rău: ultima luptă! | George the Bad: the last fight! |
+| `ban.gthrow` | 34 | Ai grijă! | Look out! |
+| `ban.glast` | 34 | Ultima inimă! Vin după voi! | His last heart! They come for you! |
+| `quota.extra` | 34 | +{0} | +{0} |
 | `quota.far` | 34 | Apropie-te de {0}! | Come closer to {0}! |
 | `quota.need` | 34 | {0} mai are nevoie de {1}! | {0} still needs {1}! |
 | `quota.auto` | 34 | {0} îți trimite un ou. | {0} sends you one. |

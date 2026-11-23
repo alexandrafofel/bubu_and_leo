@@ -418,3 +418,15 @@ Dupa `CONFIG.rescue.retryMercy` (3) reinceperi ale aceluiasi capitol, limita dev
 ## Update 22 noiembrie 2026: mesajele cotei (T14.8)
 
 `updateQuotaMsg` (in `updatePlay`) ridica `quotaDone` o data pe erou cand isi termina cota si prietenul inca nu, doar cu doi jucatori; daca amandoi termina odata ridica `quotaBoth`. Textul numeste prietenul si butonul (L1 sau tasta). Testele: `tests/cota.js`.
+
+## Update 22 noiembrie 2026: George vine dupa diamante (T15)
+
+Specificatia si abaterile: `28-t15-george-de-doua-ori.md`.
+
+- **Diamantele** vin doar din inamicii mici invinsi: `hurtSmall`, cand ia ultima inima, cheama `dropGems`, care lasa `enemyDrop` (1) diamant `goal`. Inamicii reapar dupa `CONFIG.smallEnemy.respawn` (22 s), deci padurea mai da cat timp se joaca.
+- **Copacii** care stralucesc, scuturati, scot melci (`addSnail`): inamici mici, mai incete decat robotii (70% din viteza), care reapar ca ceilalti.
+- **Micul George** urmareste cel mai apropiat erou (pana la `near`, 640) si se opreste langa el. Nu loveste niciodata. Are 3 inimi si lasa un diamant.
+- **Fara limita de sus**: un erou poate lua oricate diamante. Ce are peste cota se vede in insigna ca `+n` si se poate da cu L1.
+- **Cand vine George** (`updateGeorge`, la fiecare cadru): la jumatatea cotei echipei (`teamNeed()`, 30 cu doi jucatori) lupta din mijloc, dar nu in primele `minT` (20) secunde; la cota intreaga, lupta de la cuib. Valurile doar aprind copacii urmatori.
+- **Cuibul** se deschide doar la sfarsitul luptei de la cuib. Nivelul se termina cand George e invins, fiecare are 15 si amandoi sunt in cuib.
+- **Un singur jucator**: ce culege eroul care nu joaca se numara la cel care joaca.

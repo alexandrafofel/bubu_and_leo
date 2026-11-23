@@ -53,8 +53,7 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `levelDuration` | `360` |  |
 | `eggsPerMinute` | `10` |  |
 | `quota.on` | `true` |  |
-| `quota.perLevel` | `[10,15,20,25,30,35,40,45,50,55,60,65]` |  |
-| `quota.cap` | `1.5` |  |
+| `quota.perLevel` | `[15,15,15,15,15,15,15,15,15,15,15,15]` | Little George: follows the nearest hero (within `near`), never hits |
 | `quota.extra` | `2.2` |  |
 | `quota.giveRange` | `420` |  |
 | `quota.giveEvery` | `0.3` |  |
@@ -124,7 +123,7 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `boss.roarRadius` | `520` |  |
 | `boss.roarPush` | `1500` |  |
 | `duel.enabled` | `true` |  |
-| `duel.hp` | `[3,3,4,4,4,5]` |  |
+| `duel.hp` | `[3,3,4,4,4,5]` | Little George: follows the nearest hero (within `near`), never hits |
 | `duel.tiredTime` | `2.4` |  |
 | `duel.eggsPerHit` | `4` |  |
 | `duel.eggsAtEnd` | `8` |  |
@@ -216,14 +215,14 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `lupta.heroes.0.power2` | `"throw"` |  |
 | `lupta.heroes.0.color` | `"#2FBFA8"` |  |
 | `lupta.heroes.0.color2` | `"#B7D645"` |  |
-| `lupta.heroes.0.speed` | `330` |  |
+| `lupta.heroes.0.speed` | `330` | Little George: follows the nearest hero (within `near`), never hits |
 | `lupta.heroes.0.stompRadius` | `220` |  |
 | `lupta.heroes.0.pullRadius` | `300` |  |
 | `lupta.heroes.0.stompCooldown` | `1.25` |  |
 | `lupta.heroes.0.stunTime` | `2.8` |  |
 | `lupta.heroes.0.spinTime` | `0.85` |  |
 | `lupta.heroes.0.throw.look` | `"bone"` |  |
-| `lupta.heroes.0.throw.speed` | `700` |  |
+| `lupta.heroes.0.throw.speed` | `700` | Little George: follows the nearest hero (within `near`), never hits |
 | `lupta.heroes.0.throw.speedMax` | `1250` |  |
 | `lupta.heroes.0.throw.charge` | `0.9` |  |
 | `lupta.heroes.0.throw.n` | `8` |  |
@@ -236,7 +235,7 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `lupta.heroes.1.power2` | `"spin"` |  |
 | `lupta.heroes.1.color` | `"#3B6FE0"` |  |
 | `lupta.heroes.1.color2` | `"#E4583C"` |  |
-| `lupta.heroes.1.speed` | `350` |  |
+| `lupta.heroes.1.speed` | `350` | Little George: follows the nearest hero (within `near`), never hits |
 | `lupta.heroes.1.kickSpeed` | `760` |  |
 | `lupta.heroes.1.kickSpeedMax` | `1400` |  |
 | `lupta.heroes.1.chargeTime` | `0.9` |  |
@@ -257,9 +256,24 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `lupta.boss.throwEvery` | `[3,2.5,2.1,1.8,1.6,1.4]` |  |
 | `lupta.boss.roarRadius` | `520` |  |
 | `lupta.boss.roarPush` | `1500` |  |
-| `lupta.levels` | `6` | levels of the second game that exist. Part Two (levels 7 - 12) raises it as each new level is made |
-| `lupta.duelHp` | `[3,3,4,5,5,6]` | hits George takes in the middle fight, per level (the first game: CONFIG.duel.hp) |
-| `lupta.duelFinalHp` | `[5,6,6,7,8,9]` | hits George takes at the nest, per level (the first game: CONFIG.duel.finalHp) |
+| `lupta.levels` | `6` |  |
+| `lupta.duelHp` | `[3,3,4,5,5,6]` |  |
+| `lupta.duelFinalHp` | `[5,6,6,7,8,9]` |  |
+| `lupta.fieldEnemies` | `[12,14,15,15,17,18]` |  |
+| `lupta.treeSnails` | `2` |  |
+| `lupta.enemyDrop` | `1` |  |
+| `lupta.miniGeorge.hp` | `3` | Little George: follows the nearest hero (within `near`), never hits |
+| `lupta.miniGeorge.perLevel` | `[1,1,1,2,2,2]` | Little George: follows the nearest hero (within `near`), never hits |
+| `lupta.miniGeorge.speed` | `110` | Little George: follows the nearest hero (within `near`), never hits |
+| `lupta.miniGeorge.near` | `640` | Little George: follows the nearest hero (within `near`), never hits |
+| `lupta.miniGeorge.drop` | `1` | Little George: follows the nearest hero (within `near`), never hits |
+| `lupta.george.minT` | `20` | the middle fight never starts in the first seconds of a level |
+| `lupta.george.midThrows` | `[2,3,3,4,4,5]` | bones and balls George throws in the middle fight, per level: they daze, like pinecones |
+| `lupta.george.nestEnemies` | `[2,4,5,6,8,10]` | small enemies he throws in the nest fight, in all, per level (half at half his hearts, the rest at his last heart) |
+| `lupta.george.enemyHp` | `[2,2,3,3,3,3]` | hearts of a thrown enemy, per level |
+| `lupta.george.chaseSpeed` | `120` | how fast the enemies thrown at his last heart follow the heroes (a hero walks at about 150) |
+| `lupta.george.boneEvery` | `2` | in the nest fight, above half his hearts: bones and balls thrown each time he loses a heart |
+| `lupta.george.flight` | `0.9` | seconds a thrown thing flies before it lands |
 | `lupta.bossSize` | `1.5` | how big George is in his arena (in the mini-fights he grows from level to level, see DUEL_DEFS_L) |
 | `lupta.shrink` | `0.5` | a hero who was hit is this small until the friend helps |
 | `lupta.rainbowBonus` | `5` | crystals for the team when all seven colors were gathered |

@@ -535,6 +535,7 @@ function drawLevelEnd(c, t) {
     drawPort(c, k, gx - 118, y + 772, 30, false);
     fitText(c, qs.found + ' / ' + qs.q, gx - 70, y + 772, 44, 150, col, { align: 'left', halo: 0.12, haloCol: shade(col, -0.35), shadow: 0, weight: 'bold' });
     if (qs.ok) drawTick(c, gx + 112, y + 772, 20);
+    if (qs.extra > 0) text(c, T('quota.extra', qs.extra), gx + 140, y + 772, 30, QUOTA_GREEN, { align: 'left', halo: 0, shadow: 0, weight: 'bold' });      // found more than the quota
   }
   if (UI.lvlT > 1.5) prompt(c, pressText(), W / 2, y + ch - 52, 50, t);
 }

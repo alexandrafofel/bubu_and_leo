@@ -173,7 +173,7 @@ function drawHeroFull(c, h) {
 }
 /* Small enemies show how many hits they still take, once they were hit. */
 function drawSmallHp(c, e, x, y) {
-  const n = CONFIG.smallEnemy.hits; if (e.hp == null || e.hp >= n || e.hp <= 0) return;
+  const n = e.maxHp || CONFIG.smallEnemy.hits; if (e.hp == null || e.hp >= n || e.hp <= 0) return;
   for (let i = 0; i < n; i++) { heartPath(c, x + (i - (n - 1) / 2) * 20, y, 7); if (i < e.hp) { c.fillStyle = '#E2574C'; c.fill(); c.strokeStyle = 'rgba(255,246,226,0.9)'; c.lineWidth = 2; c.stroke(); } else { c.fillStyle = 'rgba(120,90,100,0.35)'; c.fill(); } }
 }
 function drawBossTargets(c) {
@@ -200,6 +200,8 @@ function drawProjs(c, list) {
   for (const p of list) {
     if (p.t < 0) continue; const u = p.t / p.dur, x = lerp(p.sx, p.tx, u), y = lerp(p.sy, p.ty, u) - Math.sin(u * Math.PI) * 260 + 26;
     if (p.kind === 'rock') drawRockProj(c, x, y, p.rot, 24);
+    else if (p.kind === 'bone' || p.kind === 'ball') drawThrown(c, x, y, 20, p.rot, p.kind);          // T15: George's bones and balls
+    else if (p.kind === 'enemy') drawRobot(c, { x, y: y + 30, face: 1, state: 'knock', seed: 0 }, p.rot * 0.15);   // T15: a small enemy, curled up in the air
     else if (p.kind === 'spear') drawSpear(c, x, y - 26, Math.atan2((p.ty - p.sy) - Math.cos(u * Math.PI) * 260 * Math.PI, p.tx - p.sx), 1);
     else drawCone(c, x, y, p.rot, 24, 0);
   }
@@ -407,10 +409,7 @@ function guideTarget(h) {
     if (h.k === 1 && bs.state === 'down') { const g = bossGoal(); return L.arena ? { x: g.x, y: g.y + 50, kind: 'ball' } : { x: L.nest.x, y: L.nest.y + 60, kind: 'ball' }; }
     return nearestEgg(h, false);
   }
-  if (quotaOn() && bothJoined() && P.found[h.k] >= P.cap) {          // a full hero takes no more eggs: he goes to the friend who still needs some, or to the nest
-    if (!quotaOk(1 - h.k)) return { x: o.x, y: o.y, kind: 'give' };
-    return P.nestOpen ? { x: L.nest.x, y: L.nest.y, kind: 'nest' } : null;
-  }
+  if (quotaOn() && bothJoined() && P.found[h.k] > P.q && !quotaOk(1 - h.k)) return { x: o.x, y: o.y, kind: 'give' };      // over his quota while the friend is short: go and give (T15: no upper limit)
   if (P.nestOpen) return nearestEgg(h, false, 700) || { x: L.nest.x, y: L.nest.y, kind: 'nest' };
   if (P.duel && !P.duel.over) {
     const d = P.duel, helper = rank(h.k) === 0 && Input.slots[o.k].joined && rank(o.k) > 0;     // the little one helps: eggs first, then the shelter
@@ -485,13 +484,6 @@ function drawHints(c, v) {
     fitText(c, T('quota.far', CONFIG.heroes[1 - h.k].name), sx, sy + 2, 28, 320, '#B9802E', { halo: 0, shadow: 0, weight: 'bold' });
     c.globalAlpha = 1;
   }
-  for (const h of P.heroes) if (h.fullT > 0 && !h.down) {          // "Plin!": the hero cannot hold more quota eggs
-    const sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 40, (h.y - v.tp) * v.z - 190 * v.z) - (1.2 - h.fullT) * 14;
-    c.globalAlpha = Math.min(1, h.fullT / 0.3);
-    card(c, sx - 62, sy - 26, 124, 52, '#FFF6E2', 40 + h.k);
-    text(c, T('quota.full'), sx, sy + 2, 30, '#B9802E', { halo: 0, shadow: 0, weight: 'bold' });
-    c.globalAlpha = 1;
-  }
   if (P.hintCharge > 0) { const h = P.heroes[1], sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 30, (h.y - v.tp) * v.z - 200 * v.z - 20), u = (t * 0.9) % 1; iconX(c, sx - 24, sy, 28, 0); c.strokeStyle = '#3F78C8'; c.lineWidth = 8; c.lineCap = 'round'; c.beginPath(); c.arc(sx + 34, sy, 20, -Math.PI / 2, -Math.PI / 2 + TAU * u); c.stroke(); }
   if (P.boss) {
     const bs = P.boss, sc = v.z;
@@ -504,6 +496,18 @@ function drawHints(c, v) {
 const pressLabel = k => Opt.ctrl[k] === 'kb' ? keyName(Opt.keys[k].a) : T('t.press');
 /* How far the level is: eggs in groups, then the guardian, then the nest. */
 function levelProgress() {
+  if (quotaOn() && CONFIG.duel.enabled) {          // T15: diamonds until George, George, diamonds until George, George again, the nest
+    const need = teamNeed(), half = Math.ceil(need / 2), got = teamFound(), n = 5;
+    let cur, frac = 0, left = 0, kind = 'eggs';
+    if (P.done) { cur = 4; frac = 1; kind = 'nest'; }
+    else if (P.nestOpen) { cur = 4; frac = 0.2; kind = 'nest'; }
+    else if (P.duel && !P.duel.over) { cur = P.duel.kind === 'mid' ? 1 : 3; frac = (P.duel.maxHp - P.duel.hp) / P.duel.maxHp; left = P.duel.hp; kind = 'duel'; }
+    else if (!P.midFought) { cur = 0; frac = got / half; left = half - got; }
+    else if (!P.nestFought) { cur = 2; frac = (got - half) / Math.max(1, need - half); left = need - got; }
+    else { cur = 3; frac = 1; kind = 'duel'; }
+    frac = clamp(frac, 0, 1); left = Math.max(0, left);
+    return { n, cur, frac, left, kind, midSeg: 1, fightSeg: 3, u: clamp((cur + frac) / n, 0, 1) };
+  }
   // the bar: wave 1, wave 2, middle fight, wave 3, nest fight, nest. Without mini-fights there are no fight segments.
   const NW = P.L.NW, on = CONFIG.duel.enabled, midSeg = on && NW >= 2 ? NW - 1 : -1, n = NW + (on ? 1 : 0) + (midSeg >= 0 ? 1 : 0) + 1;
   const seg = k => (midSeg >= 0 && k >= midSeg ? k + 1 : k);
@@ -584,6 +588,7 @@ function drawBadge(c, k, x, y) {
     fitText(c, qs.found + ' / ' + qs.q, 28, 0, 46, qs.ok ? 116 : 152, col, { align: 'left', halo: 0.12, haloCol: shade(col, -0.35), shadow: 0, weight: 'bold' });
     c.restore();
     if (qs.ok) drawTick(c, x + w - 24, by, 15);
+    if (qs.extra > 0) text(c, T('quota.extra', qs.extra), x + w - 24, y + 52, 22, QUOTA_GREEN, { halo: 0, shadow: 0, weight: 'bold' });      // over the quota: "+7", small, above the tick (T15: no upper limit)
   }
   if (h.boost > 0) drawButterfly(c, x + w - 32, y + 56, P.time, 0.62);
 }
@@ -634,7 +639,7 @@ function drawMidCard(c, ban) {
     const label = ban.kind === 'quotaBoth' ? T('quota.both') : ban.kind === 'need' ? T('quota.need', ban.name, ban.n === 1 ? T('quota.one') : T('quota.many', ban.n)) : ban.kind === 'auto' ? T('quota.auto', ban.name) : T('ban.' + ban.kind, ban.kind === 'wait' ? ban.name : isLupta() ? CONFIG.lupta.rainbowBonus : '');
     if (ban.kind === 'duel') {
       text(c, label, W / 2, y0 + 30, 40, '#C4573D', { title: true, halo: 0 });
-      text(c, T(ban.mid ? 'duel.mid' : 'duel.guard', T('duel.' + ban.id)), W / 2, y0 + 66, 26, '#7A4A52', { halo: 0, shadow: 0, weight: 'bold' });
+      text(c, ban.msg ? T(ban.msg) : T(ban.mid ? 'duel.mid' : 'duel.guard', T('duel.' + ban.id)), W / 2, y0 + 66, 26, '#7A4A52', { halo: 0, shadow: 0, weight: 'bold' });
     } else {
       text(c, label, W / 2, yc, 46, '#C4573D', { title: true, halo: 0 });
       const ex = W / 2 + cw / 2 - 54;                 // the little picture sits at the right edge of the card
