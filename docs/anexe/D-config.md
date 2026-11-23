@@ -89,6 +89,11 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `nestSafe` | `true` |  |
 | `nestSafeRadius` | `150` |  |
 | `nestHideSoundGap` | `3` |  |
+| `ring.on` | `true` |  |
+| `ring.hits` | `10` |  |
+| `ring.inv` | `1.1` |  |
+| `ring.red` | `"#E5484D"` |  |
+| `ring.push` | `200` |  |
 | `rescue.enabled` | `true` |  |
 | `rescue.reachNear` | `180` |  |
 | `rescue.reachFar` | `620` |  |
@@ -209,20 +214,30 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `look.squashStop` | `0.12` |  |
 | `look.squashLand` | `0.18` |  |
 | `look.squashRun` | `-0.16` |  |
+| `look.art` | `true` |  |
+| `look.artSize.boon` | `150` |  |
+| `look.artSize.killer` | `132` |  |
+| `look.artSize.george` | `270` |  |
+| `look.artSize.mini` | `92` |  |
+| `look.artSize.robot` | `74` |  |
+| `look.artSize.snail` | `70` |  |
+| `look.artSize.bird` | `92` |  |
+| `look.artSize.soldier` | `120` |  |
+| `look.calm` | `true` |  |
 | `lupta.villainName` | `"George cel Rău"` |  |
 | `lupta.heroes.0.name` | `"Boon"` |  |
 | `lupta.heroes.0.power` | `"spin"` |  |
 | `lupta.heroes.0.power2` | `"throw"` |  |
 | `lupta.heroes.0.color` | `"#2FBFA8"` |  |
 | `lupta.heroes.0.color2` | `"#B7D645"` |  |
-| `lupta.heroes.0.speed` | `330` | Little George: follows the nearest hero (within `near`), never hits |
+| `lupta.heroes.0.speed` | `330` |  |
 | `lupta.heroes.0.stompRadius` | `220` |  |
 | `lupta.heroes.0.pullRadius` | `300` |  |
 | `lupta.heroes.0.stompCooldown` | `1.25` |  |
 | `lupta.heroes.0.stunTime` | `2.8` |  |
 | `lupta.heroes.0.spinTime` | `0.85` |  |
 | `lupta.heroes.0.throw.look` | `"bone"` |  |
-| `lupta.heroes.0.throw.speed` | `700` | Little George: follows the nearest hero (within `near`), never hits |
+| `lupta.heroes.0.throw.speed` | `700` |  |
 | `lupta.heroes.0.throw.speedMax` | `1250` |  |
 | `lupta.heroes.0.throw.charge` | `0.9` |  |
 | `lupta.heroes.0.throw.n` | `8` |  |
@@ -235,7 +250,7 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `lupta.heroes.1.power2` | `"spin"` |  |
 | `lupta.heroes.1.color` | `"#3B6FE0"` |  |
 | `lupta.heroes.1.color2` | `"#E4583C"` |  |
-| `lupta.heroes.1.speed` | `350` | Little George: follows the nearest hero (within `near`), never hits |
+| `lupta.heroes.1.speed` | `350` |  |
 | `lupta.heroes.1.kickSpeed` | `760` |  |
 | `lupta.heroes.1.kickSpeedMax` | `1400` |  |
 | `lupta.heroes.1.chargeTime` | `0.9` |  |
@@ -262,11 +277,11 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `lupta.fieldEnemies` | `[12,14,15,15,17,18]` |  |
 | `lupta.treeSnails` | `2` |  |
 | `lupta.enemyDrop` | `1` |  |
-| `lupta.miniGeorge.hp` | `3` | Little George: follows the nearest hero (within `near`), never hits |
-| `lupta.miniGeorge.perLevel` | `[1,1,1,2,2,2]` | Little George: follows the nearest hero (within `near`), never hits |
-| `lupta.miniGeorge.speed` | `110` | Little George: follows the nearest hero (within `near`), never hits |
-| `lupta.miniGeorge.near` | `640` | Little George: follows the nearest hero (within `near`), never hits |
-| `lupta.miniGeorge.drop` | `1` | Little George: follows the nearest hero (within `near`), never hits |
+| `lupta.miniGeorge.hp` | `3` |  |
+| `lupta.miniGeorge.perLevel` | `[1,1,1,2,2,2]` |  |
+| `lupta.miniGeorge.speed` | `110` |  |
+| `lupta.miniGeorge.near` | `640` |  |
+| `lupta.miniGeorge.drop` | `1` |  |
 | `lupta.george.minT` | `20` | the middle fight never starts in the first seconds of a level |
 | `lupta.george.midThrows` | `[2,3,3,4,4,5]` | bones and balls George throws in the middle fight, per level: they daze, like pinecones |
 | `lupta.george.nestEnemies` | `[2,4,5,6,8,10]` | small enemies he throws in the nest fight, in all, per level (half at half his hearts, the rest at his last heart) |

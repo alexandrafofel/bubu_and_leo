@@ -164,11 +164,20 @@ const boot = require('./common.js');
     const cv = document.querySelector('canvas'), g = cv.getContext('2d');
     const sc = cv.width / 1920, x = Math.round((1920 - 900) / 2 * sc), y = Math.round(((1080 - 470) / 2 - 20) * sc);
     const w = Math.round(900 * sc), h = Math.round(470 * sc), d = g.getImageData(x, y, w, h).data;
-    let negru = 0, gri = 0, worst = null;
-    for (let i = 0; i < d.length; i += 4) {
+    // Din 23 noiembrie 2026 eroii sunt imagini Krea: unde doua culori opuse se ating (gatul portocaliu langa cupola albastra)
+    // canvasul le amesteca pe un pixel si iese gri. Asta nu e gri desenat. Un pixel se numara doar cand e intr-o pata:
+    // cel putin 4 din cei 8 vecini ai lui sunt si ei negri sau gri.
+    const kind = new Uint8Array(w * h);
+    for (let i = 0, p = 0; i < d.length; i += 4, p++) {
       const r = d[i], gg = d[i + 1], b = d[i + 2], mx = Math.max(r, gg, b), mn = Math.min(r, gg, b);
-      if (mx < 60) negru++;                                   // negru: niciodata
-      else if (mx - mn < 10 && mx < 120) { gri++; if (!worst) worst = [r, gg, b]; }      // gri fara nicio caldura
+      kind[p] = mx < 60 ? 1 : (mx - mn < 10 && mx < 120) ? 2 : 0;      // 1 negru: niciodata; 2 gri fara nicio caldura
+    }
+    let negru = 0, gri = 0, worst = null;
+    for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) {
+      const p = y * w + x; if (!kind[p]) continue;
+      let nb = 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if ((dx || dy) && kind[p + dy * w + dx]) nb++;
+      if (nb < 4) continue;
+      if (kind[p] === 1) negru++; else { gri++; if (!worst) worst = [d[p * 4], d[p * 4 + 1], d[p * 4 + 2]]; }
     }
     return { negru, gri, total: d.length / 4, worst };
   });

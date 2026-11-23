@@ -240,3 +240,45 @@ Aceleasi cadru si aceleasi reguli ca la eroi (placa pictata o data, model facut 
 ## Update 22 noiembrie 2026 (T6.10): cum se verifica stilul nou
 
 Testul permanent `tests/stil-grafic.js` (pixeli gri, fara gradienti pe cadru) si bugetul de timp din `tests/performanta.js` sunt descrise in `17-testare.md`. Functiile noi de desen ale stilului nou se adauga in lista `names` din test.
+
+## Update 23 noiembrie 2026: imaginile Krea
+
+Proprietara a aprobat pe 23 noiembrie 2026 schimbarea regulii 1: jocul foloseste imagini facute cu Krea.
+Fisierul ramane unul singur si merge offline. Imaginile sunt in el, ca WebP in `src/016-art-data.js`.
+
+### De unde vin
+
+- `art/krea/*.png`: imaginile decupate, fara fundal. Ele sunt sursa.
+- `tools/pack-art.py`: le face WebP (calitate 84), le trage putin spre violet pe cele aproape gri (regula 4) si scrie `src/016-art-data.js`. Fisierul generat nu se editeaza de mana.
+- `build.sh` pune `016-art-data.js` dupa `015-lang.js`. Jocul creste la ~1,5 MB.
+
+O imagine noua: o pui in `art/krea/`, rulezi `python3 tools/pack-art.py`, apoi `./build.sh`.
+
+### Ce sunt imagini
+
+- Eroii (`boon`, `killer`), George (`george`, `george_bare` fara coroana), Micul George (`mini`, cu cornul in dungi mai mic), robotii (`robot_sleep`, `robot_awake`), melcul (`melc`), pasarea (`pasare`), soldatii (`soldier`, `soldier_jump`).
+- Pe fiecare nivel: doi copaci (`lN_tree1`, `lN_tree2`), planta care straluceste (`lN_spark`), piatra, tufa, florile. Comune: cuibul, podul, pietrele din rau, torta, totemul, ciuperca, cristalul, groapa.
+
+Mingile, oasele, diamantele, stelele si arena raman pictate in cod.
+
+### Cum se deseneaza
+
+- `ART[nume]` e o `Image`. `artOk(nume)` spune daca s-a decodat. Pana atunci se deseneaza pictura veche, ca sa nu lipseasca nimic.
+- `drawArt(c, nume, x, y, inaltime, ax, flip)`: imaginea sta pe (x, y), cu talpa la `ax` din latime.
+- `drawArtChar(c, nume, x, y, o, inaltime, ax)`: un personaj cu miscare simpla. Sare putin si se leagana cand merge, respira pe loc, se turteste si se intinde, se clatina cand e ametit. Picioarele nu se misca separat.
+- `drawBoon`, `drawKiller`, `drawGeorge` si ceilalti intorc imaginea cand `artOn()` e adevarat. Asa o primesc si urmele din fuga, ecranele si insignele.
+- Marimile sunt in `CONFIG.look.artSize`.
+
+### Nivelurile calme
+
+`PALS_ART` (`06-level.js`) da fiecarui nivel culorile hartii Krea: solul, drumul crem, benzile melcilor, apa, stanca. `palOf(def)` le pune peste `PALS`.
+Cu `L.pal.art`, `paintLevel`:
+
+- picteaza copacii, pietrele, tufele, cuibul, podul, tortele si totemurile din imagini;
+- pune doar 60 de tufe de flori si niciuna din cele 900 de flori stralucitoare;
+- picteaza decorul (`L.decor`, tot 1700 de lucruri pe nivel) ca fire de iarba si pietricele in culoarea solului;
+- inlocuieste cerul cu trei randuri de copaci;
+- face pamantul lent un petic mai inchis al solului;
+- pune doar un graunte de hartie, fara lumina calda peste tot.
+
+Totul se opreste cu `CONFIG.look.art: false` (sau doar solul, cu `calm: false`).

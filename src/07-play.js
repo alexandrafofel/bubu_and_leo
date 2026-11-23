@@ -338,9 +338,24 @@ function countDown(h, dt) {
   }
   if (h.downLeft <= 0) Game.failLevel();
 }
+/* Is this a fight with George (the middle one, the one at the nest, or the arena)? Then the ring around each hero counts the hits. */
+function ringFight() {
+  if (!CONFIG.ring.on || !isLupta() || !P || !P.L) return false;
+  if (P.duel && !P.duel.over) return true;
+  return !!(P.L.arena && P.boss && P.boss.state !== 'won');
+}
 function hitHero(h, sx, sy) {
   if (h.down || h.dizzy > 0 || h.inv > 0 || P.done || h.safe || h.shield || h.carried) return;
   if (!Input.slots[h.k].joined) return;          // a hero nobody controls cannot lose eggs
+  if (ringFight() && (h.ringHits || 0) < CONFIG.ring.hits) {      // the ring: one piece turns red. No egg falls, he stays on his feet
+    const R = CONFIG.ring; h.ringHits = (h.ringHits || 0) + 1; h.ringFlash = 0.4; P.hits++;
+    if (P.duel && !P.duel.over) P.duel.downs = (P.duel.downs || 0) + 1;
+    h.inv = R.inv; h.squash = 0.22; h.charging = false; h.charge = 0; h.spinT = -1; h.stompT = -1;
+    const dx = h.x - sx, dy = h.y - sy, m = Math.hypot(dx, dy) || 1; h.vx = dx / m * R.push; h.vy = dy / m * R.push;
+    Snd.play('bonk', 0, h.k, 0.7); Input.rumble(h.k, 0.6, 0.4, 200); P.shake = Math.max(P.shake, 0.08);
+    burst(h.x, h.y - 10, 6, { speed: 110, life: 0.5, cols: [R.red, '#FFE08A'] });
+    return;
+  }
   P.hits++;
   if (P.duel && !P.duel.over) P.duel.downs = (P.duel.downs || 0) + 1;      // the guardian goes a little easier after every hit (CONFIG.duel.mercy)
   const d = D(h.k), L = P.L;
@@ -351,6 +366,7 @@ function hitHero(h, sx, sy) {
     h.downLeft = rescueLimit(); h.downTick = null; h.hurried = false;      // the ten seconds start now (0 = no limit)
     if (h.downLeft > 0) Input.rumble(1 - h.k, 0.6, 0.5, 300);              // the friend feels it too: come, quickly
   }
+  if (!h.down) h.ringHits = 0;                    // alone in the game he gets up by himself: the ring is whole again
   const dx = h.x - sx, dy = h.y - sy, m = Math.hypot(dx, dy) || 1; h.vx = dx / m * 260; h.vy = dy / m * 260;
   Snd.play('bonk', 0, h.k); Snd.talk(h.k, 'hurt'); h.dizzyVoice = P.time + 0.9; Input.rumble(h.k, 0.9, 0.6, 300); P.shake = Math.max(P.shake, 0.12);
   burst(h.x, h.y - 50, 8, { speed: 120, life: 0.6, cols: ['#FFE08A', '#FFF3C0'] });
@@ -370,6 +386,7 @@ const HEALS = ['#FFD0DC', '#FFF3C0', '#BFE8D0', '#FFE08A'];
 function getUp(h, by) {
   const ring = h.downLeft > 0;
   h.down = false; h.dizzy = 0; h.inv = CONFIG.rescue.safeAfter; h.squash = -0.18; h.wasDizzy = false; h.dizzyVoice = 0;
+  h.ringHits = 0;                                                        // helped up: the ring is whole again (CONFIG.ring)
   h.downLeft = 0; h.downTick = null; h.hurried = false;                 // the ten seconds stop here
   Snd.play('heal', 0, h.k);
   if (ring) for (let i = 0; i < 10; i++) {                              // the ring of beads breaks into sparks
@@ -569,7 +586,7 @@ function updateHero(h, dt) {
   }
   if (h.carried) { h.moving = false; return; }   // a bird is carrying this hero
   if (s.hP && s.joined && !h.down && h.dizzy <= 0 && !P.done) tryRescue(h);
-  h.kickT = Math.max(0, h.kickT - dt); h.squash += (0 - h.squash) * Math.min(1, dt * 9); h.tagT = Math.max(0, h.tagT - dt);
+  h.kickT = Math.max(0, h.kickT - dt); h.ringFlash = Math.max(0, (h.ringFlash || 0) - dt); h.squash += (0 - h.squash) * Math.min(1, dt * 9); h.tagT = Math.max(0, h.tagT - dt);
   if (!s.joined) {                       // nobody holds this controller: the hero follows a friend
     const o = P.heroes[1 - h.k]; let tx = o.x - o.face * 85, ty = o.y + 26; aP = aR = aH = false;
     if (P.boss && P.boss.state !== 'won') {
