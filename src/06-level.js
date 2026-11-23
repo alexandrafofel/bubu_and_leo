@@ -66,6 +66,28 @@ const PALS = {
   road:   { night: true, g0: '#5C417C', g1: '#4C366C', tints: RAINBOW, canopy: ['#B0589A', '#8A58B8', '#D8704A', '#5A6FC8', '#C8508A'], flowers: ['#FFD84A', '#FF9A5A', '#FF8AB8', '#7AF0C8'], path: '#A88AC4', trunk: '#5E3E6E', rock: '#A088C0' },
   sunset: { g0: '#D6B87E', g1: '#C5A674', tints: ['#E4A771', '#DB9C79', '#CBB47C', '#E2BB8C', '#D8A07A'], canopy: ['#D98A52', '#E2A04F', '#C96F4E', '#E6B65A', '#B98A5A'], flowers: ['#F3D36B', '#E58F6B', '#FBF3DE'], path: '#EECFA2', trunk: '#8A5A48', rock: '#C4A08E' }
 };
+/* The calm look of the Krea maps (CONFIG.look.art and CONFIG.look.calm): every level has its own ground color, a clean cream path,
+   and its things (trees, rocks, flowers) are Krea pictures (ART). These values are laid over PALS when the level is made (palOf).
+   tree: the pictures of the trees; spark: the glowing tree that hides crystals; rock, bush, flowers: the small things. */
+const PALS_ART = {
+  glade:  { g0: '#8E86D0', g1: '#807AC4', tints: ['#9890D6', '#8680C8', '#A29ADA'], path: '#EEE8F4', lane: '#F2A8D8', canopy: ['#4E5AA0', '#5A66AE', '#6A74B8'], flowers: ['#FFE58A', '#FFB0D0', '#C8B8FF'],
+            tree: ['l1_tree1', 'l1_tree2'], spark: 'l1_spark', rock: 'l1_rock', bush: 'l1_bush', flowers2: 'l1_flowers', band: '#6E6AA6' },
+  robots: { g0: '#5C6E3E', g1: '#4F6236', tints: ['#667846', '#56683A', '#6E8050'], path: '#EAE4C2', lane: '#F2B4D6', canopy: ['#3F6A3A', '#4E7A42', '#5A8A4A'], flowers: ['#FFE6B0', '#FFF4D8', '#FFD0A0'],
+            tree: ['l2_tree1', 'l2_tree2'], spark: 'l2_spark', rock: 'l2_rock', bush: 'l2_bush', flowers2: 'l2_flowers', band: '#3E5030' },
+  snails: { g0: '#EEC888', g1: '#E6BA76', tints: ['#F2D096', '#E4B472', '#EAC284'], path: '#FBF0DA', lane: '#F4A8D2', canopy: ['#6FA058', '#5E9050', '#7EAE62'], flowers: ['#C8A8F0', '#FFF4D8', '#F4A8C8'],
+            tree: ['l3_tree1', 'l3_tree2'], spark: 'l3_spark', rock: 'l3_rock', bush: 'l3_tree2', flowers2: 'l3_spark', band: '#C99A62',
+            water: ['#5A7FC0', '#7EA6E4', '#A6C6F2', '#E8F2FF'] },
+  ridge:  { g0: '#D8BEBA', g1: '#CCB0AE', tints: ['#E0C8C2', '#C8A8A8', '#D6BAB2'], path: '#F6ECE2', lane: '#F2A8D2', canopy: ['#B99AA4', '#A88C98', '#C8AAB0'], flowers: ['#FFE9A8', '#FFF6DC', '#F6C8D8'],
+            tree: ['l4_tree1', 'l4_tree2'], spark: 'l4_spark', rock: 'l4_rock', bush: 'l4_bush', flowers2: 'l4_spark', band: '#B4969C' },
+  vines:  { g0: '#8E7C48', g1: '#80703E', tints: ['#98864F', '#84743E', '#9C8C5A'], path: '#EADCB4', lane: '#F2B0D4', canopy: ['#4E8A44', '#5E9A4E', '#6AA858'], flowers: ['#F6B8D0', '#FFF0D0', '#FFE08A'],
+            tree: ['l5_tree1', 'l5_tree2'], spark: 'l5_spark', rock: 'l5_rock', bush: 'l5_bush', flowers2: 'l5_spark', band: '#6A5A34',
+            water: ['#4A6EA8', '#6A92D0', '#94B8EA', '#E4F0FF'], cliff: ['#B08058', '#8A6040', '#9E7050', '#BC9068', '#7A5236', '#A87C58', '#6A4630', '#D8B088', '#5E4030'] },
+  road:   { g0: '#6E4A62', g1: '#603E56', tints: ['#76526A', '#66445C', '#7E5A72'], path: '#E8DCCB', lane: '#E8A0CC', canopy: ['#3E5A3E', '#4A6648', '#567254'], flowers: ['#FFE070', '#FFF0B0', '#FFC860'],
+            tree: ['l6_tree1', 'l6_tree2'], spark: 'l6_spark', rock: 'l6_rock', bush: 'l6_bush', flowers2: 'l6_spark', band: '#4A3046',
+            water: ['#3E3A78', '#5A5AA8', '#8A8AD0', '#D8D8FF'] }
+};
+/* The palette of a level: PALS, with the calm Krea colors over it when the new look is on. */
+function palOf(def) { const base = PALS[def.pal], a = artOn() && CONFIG.look.calm && PALS_ART[def.pal]; return a ? Object.assign({}, base, a, { art: true }) : base; }
 const HERO_R = 27;                       // collision radius of the heroes
 const levelCount = id => clamp(((id || GAME) === 'lupta' ? CONFIG.lupta.levels : CONFIG.levels) | 0, 1, 12);
 const levelDefs = () => isLupta() ? LEVEL_DEFS_L : LEVEL_DEFS;
@@ -141,7 +163,7 @@ function genLevel(idx, seed) {
   const def = levelDef(idx), r = rng(seed), WW = 3200, WH = 1800, cols = WW / CS, rows = WH / CS;
   const NW = clamp(CONFIG.wavesPerLevel | 0, 1, 5);
   const top = def.cliff ? 520 : 280;
-  const L = { idx, def, seed, night: !!def.night, W: WW, H: WH, cols, rows, top, skyH: def.cliff ? 160 : 280, pal: PALS[def.pal], skyT: skyTOf(idx),
+  const L = { idx, def, seed, night: !!def.night, W: WW, H: WH, cols, rows, top, skyH: def.cliff ? 160 : 280, pal: palOf(def), skyT: skyTOf(idx),
     grid: new Uint8Array(cols * rows), flag: new Uint8Array(cols * rows), solids: [], trees: [], dynTrees: [], beetles: [], lanes: [], cones: [],
     bridges: [], stones: [], mills: [], lanterns: [], stars: [], waves: [], waterCells: [], sprites: [],
     spawn: { x: 240, y: 1080 }, nest: { x: 2950, y: 1040 }, NW, minZoom: 0.6 };
@@ -600,11 +622,26 @@ function paintDecorL(cc, type, v, r, pick) {
 }
 const decorSprite = (type, v) => sprite('dec-' + type + '-' + v, 96, 96, cc => paintDecor(cc, type, v, 7));
 function paintDecorStill(c, L) {                          // all the decor that stays put goes into the level picture, once
+  if (L.pal.art && artReady()) {                          // the calm look: small tufts and pebbles in the ground's own color, so nothing shouts
+    const P = L.pal; c.lineCap = 'round';
+    for (const d of L.decor) if (!d.live) {
+      const k = hash(d.x, d.y), dk = shade(P.g1, -0.22), lt = shade(P.g0, 0.22);
+      if (k < 0.6) { c.strokeStyle = rgba(k < 0.3 ? dk : lt, 0.55); c.lineWidth = 2.2; for (let i = -1; i <= 1; i++) { c.beginPath(); c.moveTo(d.x + i * 3, d.y); c.quadraticCurveTo(d.x + i * 5, d.y - 8 * d.s, d.x + i * 9, d.y - (13 + k * 8) * d.s); c.stroke(); } }
+      else { c.fillStyle = rgba(k < 0.8 ? dk : lt, 0.45); c.beginPath(); c.ellipse(d.x, d.y, 6 * d.s, 3.5 * d.s, d.rot, 0, TAU); c.fill(); }
+    }
+    return;
+  }
   for (const d of L.decor) if (!d.live) { c.save(); c.translate(d.x, d.y); c.rotate(d.rot); c.scale(d.s, d.s); c.drawImage(decorSprite(d.type, d.v), -48, -56, 96, 96); c.restore(); }
 }
 
 function paintTree(c, t, P, ox, oy) {
-  const x = t.x - (ox || 0), y = t.y - (oy || 0), R = t.R, col = P.canopy[t.ci], r = rng(t.seed * 13 + 1);
+  const x = t.x - (ox || 0), y = t.y - (oy || 0), R = t.R, col = P.canopy[t.ci % P.canopy.length], r = rng(t.seed * 13 + 1);
+  if (P.art && artReady()) {               // the calm look: the Krea tree of the level; a glowing tree is the level's glowing plant
+    const n = t.spark ? P.spark : P.tree[(t.seed | 0) % P.tree.length], im = ART[n], w = R * (t.spark ? 2.1 : 2.4);
+    wash(c, x - R * 0.2, y + R * 1.1, R * 0.95, R * 0.32, SHADOW, { a: 0.3, seed: t.seed, edge: 0 });
+    drawArt(c, n, x, y + R * 1.18, Math.min(w * im.naturalHeight / im.naturalWidth, R * 2.5), 0.5);
+    return;
+  }
   wash(c, x, y + R * 0.8, R * 0.17, R * 0.42, P.trunk, { a: 1, seed: t.seed, wob: 0.14, layers: 2 });
   wash(c, x - R * 0.05, y + R * 0.8, R * 0.08, R * 0.36, shade(P.trunk, -0.3), { a: 0.35, seed: t.seed + 9, edge: 0 });
   wash(c, x, y, R, R * 0.92, col, { a: 1.2, seed: t.seed + 1, wob: 0.16, n: 14, edgeA: 0.28 });
@@ -731,11 +768,12 @@ function cellBlobs(c, L, type, rad, col, alpha, seed, jit) {
 const NIGHT_HILLS = ['#5A56A8', '#4A4A98', '#3E4288'];
 function paintLevel(L) {
   const cv = makeCanvas(L.W, L.H), c = cv.getContext('2d'), P = L.pal, r = rng(L.seed + 999), G = L.grid, top = L.top, sl = 1 + L.skyT * 0.7, N = !!L.night;
+  const A = P.art && artReady();          // the calm Krea look: the things of the level are pictures, the ground has few small things
   const typeAt = (x, y) => G[L.ci(x, y)];
   // ground: gradient, then many wet washes
   let g = c.createLinearGradient(0, top, 0, L.H); g.addColorStop(0, P.g0); g.addColorStop(1, P.g1);
   c.fillStyle = g; c.fillRect(0, 0, L.W, L.H);
-  for (let i = 0; i < 110; i++) wash(c, r() * L.W, top - 40 + r() * (L.H - top + 40), 130 + r() * 280, 80 + r() * 190, P.tints[i % P.tints.length], { a: (N ? 0.07 : 0.1) + r() * (N ? 0.08 : 0.12), seed: i + 1, wob: 0.28, edge: 2, edgeA: 0.05 });
+  for (let i = 0; i < 110; i++) wash(c, r() * L.W, top - 40 + r() * (L.H - top + 40), 130 + r() * 280, 80 + r() * 190, P.tints[i % P.tints.length], { a: (N ? 0.07 : 0.1) + r() * (N ? 0.08 : 0.12) + (A ? 0.12 : 0), seed: i + 1, wob: 0.28, edge: 2, edgeA: 0.05 });
   if (L.def.key === 'hill') {            // terraced contour lines
     c.lineCap = 'round';
     for (let k = 0; k < 9; k++) { const pts = []; for (let x = -50; x <= L.W + 50; x += 80) pts.push([x, top + 120 + k * 165 + Math.sin(x / 420 + k * 1.7) * 70 + Math.sin(x / 150 + k) * 16]); brushLine(c, pts, 10, k % 2 ? '#B9A868' : '#F1DFA8', 0.28, k + 3); }
@@ -753,10 +791,10 @@ function paintLevel(L) {
   brushLine(c, pp, 120, shade(P.path, -0.18), 0.3, 11); brushLine(c, pp, 96, P.path, 0.75, 12); brushLine(c, pp, 56, shade(P.path, 0.4), 0.4, 13);
   for (const p of L.path) for (let k = 0; k < 2; k++) { const x = p[0] + (r() - 0.5) * 90, y = p[1] + (r() - 0.5) * 80; wash(c, x, y, 3 + r() * 5, 2.5 + r() * 3, r() < 0.5 ? shade(P.path, -0.3) : '#FFF6E0', { a: 0.4, seed: x, layers: 1, edge: 0 }); }
   // pinecone lanes: a worn track
-  for (const l of L.lanes) { const pts = []; for (let y = l.y0 - 60; y <= l.y1 + 40; y += 60) pts.push([l.x + Math.sin(y / 130) * 8, y]); brushLine(c, pts, 78, N ? '#58BF7A' : '#A8875E', 0.28, l.x); brushLine(c, pts, 40, N ? '#B7F0A0' : '#C9A878', N ? 0.3 : 0.25, l.x + 1); }      // second game: the shiny trail of the snails
+  for (const l of L.lanes) { const pts = []; for (let y = l.y0 - 60; y <= l.y1 + 40; y += 60) pts.push([l.x + Math.sin(y / 130) * 8, y]); brushLine(c, pts, A ? 56 : 78, A ? P.lane : N ? '#58BF7A' : '#A8875E', A ? 0.16 : 0.28, l.x); brushLine(c, pts, A ? 22 : 40, A ? '#FFE6F4' : N ? '#B7F0A0' : '#C9A878', A ? 0.18 : N ? 0.3 : 0.25, l.x + 1); }      // second game: the shiny trail of the snails
   // mud
   if (G.includes(1)) {
-    const SK = L.def.slowKind || 'mud', M = SLOW_COLS[SK];
+    const SK = L.def.slowKind || 'mud', M = A ? SLOW_COLS[SK].map((cl, i) => mix(shade(P.g1, [-0.32, -0.16, -0.04, -0.22, 0.04, 0.3][i]), cl, 0.3)) : SLOW_COLS[SK];      // the calm look: the slow ground is a darker patch of the level's own ground
     cellBlobs(c, L, 1, 33, M[0], 0.28, 21, 16); cellBlobs(c, L, 1, 27, M[1], 0.9, 22, 12); cellBlobs(c, L, 1, 20, M[2], 0.5, 23, 16);
     for (let i = 0; i < G.length; i++) if (G[i] === 1) {
       const x = (i % L.cols + 0.5) * CS, y = ((i / L.cols | 0) + 0.5) * CS;
@@ -770,7 +808,7 @@ function paintLevel(L) {
   // water
   if (L.waterCells.length) {
     // water by day; at night (second game) deep blue water, or a pit: dark, with a glowing rim and far little lights
-    const pit = !!L.def.pit, WC = pit ? ['#B09AFF', '#2E2862', '#3C3480', '#7A6AC8'] : N ? ['#27306E', '#3F74C4', '#62A0E4', '#BFE0FF'] : [mix(P.g1, '#7A6A52', 0.4), '#82B5AE', '#9CCBC0', '#CDE8DA'];
+    const pit = !!L.def.pit, WC = pit ? ['#B09AFF', '#2E2862', '#3C3480', '#7A6AC8'] : A && P.water ? P.water : N ? ['#27306E', '#3F74C4', '#62A0E4', '#BFE0FF'] : [mix(P.g1, '#7A6A52', 0.4), '#82B5AE', '#9CCBC0', '#CDE8DA'];
     cellBlobs(c, L, 2, 35, WC[0], pit ? 0.5 : 0.3, 41, 12); cellBlobs(c, L, 2, 29, WC[1], 1, 42, 9); cellBlobs(c, L, 2, 21, WC[2], 0.45, 43, 14);
     for (const i of L.waterCells) {
       const x = (i % L.cols + 0.5) * CS, y = ((i / L.cols | 0) + 0.5) * CS;
@@ -781,12 +819,14 @@ function paintLevel(L) {
   }
   for (const b of L.bridges) {
     wash(c, b.x - 10, b.y + 14, b.w / 2 + 6, b.h / 2 + 4, SHADOW, { a: 0.3, seed: 3, edge: 0 });
+    if (A) { c.drawImage(ART.bridge, b.x - b.w / 2 - 22, b.y - b.h / 2 - 26, b.w + 44, b.h + 52); continue; }
     for (let x = b.x - b.w / 2 + 14, k = 0; x < b.x + b.w / 2; x += 27, k++) wash(c, x, b.y + (hash(k, 4) - 0.5) * 6, 13, b.h / 2 - 4, k % 2 ? '#C99A6A' : '#B98858', { a: 1.1, seed: k + 5, wob: 0.05, n: 8, edgeA: 0.3 });
     for (const sy of [-1, 1]) brushLine(c, [[b.x - b.w / 2 - 6, b.y + sy * (b.h / 2 - 4)], [b.x, b.y + sy * (b.h / 2 + 2)], [b.x + b.w / 2 + 6, b.y + sy * (b.h / 2 - 4)]], 10, '#8E6244', 0.9, 7 + sy);
   }
   for (const s of L.stones) for (let k = 0; k < 6; k++) {
     const x = s.x - s.w / 2 + 34 + k * (s.w - 68) / 5, y = s.y + (k % 2 ? -18 : 18);
     wash(c, x - 5, y + 8, 40, 30, SHADOW, { a: 0.25, seed: k, edge: 0 });
+    if (A) { if (k % 3 === 0) drawArt(c, 'stones', x + (s.w - 68) / 5, y + 34, 70, 0.5); continue; }
     wash(c, x, y, 38, 30, P.rock, { a: 1.2, seed: k + 60, wob: 0.14, n: 9, edgeA: 0.3 });
     wash(c, x + 8, y - 8, 20, 12, '#FFF1D8', { a: 0.45, seed: k + 70, edge: 0 });
   }
@@ -796,8 +836,12 @@ function paintLevel(L) {
     c.strokeStyle = rgba(r() < 0.5 ? '#7E9A5E' : '#A9B878', 0.8); c.lineWidth = 2.5;
     for (let k = 0; k < 3; k++) { c.beginPath(); c.moveTo(x + k * 5, y); c.quadraticCurveTo(x + k * 5 + (r() - 0.5) * 10, y - 20, x + k * 5 + (r() - 0.5) * 16, y - 32 - r() * 16); c.stroke(); }
   }
-  // flowers and tufts
-  for (let i = 0; i < 900; i++) {
+  // flowers and tufts. The calm look: a few clumps of the level's flowers and some tufts in the ground's own color
+  if (A) for (let i = 0; i < 60; i++) {
+    const x = r() * L.W, y = top + 40 + r() * (L.H - top - 60); if (typeAt(x, y) !== 0) continue;
+    drawArt(c, P.flowers2, x, y, 30 + r() * 16, 0.5);
+  }
+  for (let i = 0; i < (A ? 0 : 900); i++) {
     const x = r() * L.W, y = top + 20 + r() * (L.H - top - 30); if (typeAt(x, y) !== 0) continue;
     if (i % 3 === 0) {
       c.strokeStyle = rgba(shade(P.g1, -0.3), 0.5); c.lineWidth = 2;
@@ -817,9 +861,12 @@ function paintLevel(L) {
   // long warm shadows, then everything solid
   paintDecorStill(c, L);
   for (const s of L.solids) wash(c, s.x - s.r * 0.5 * sl, s.y + s.r * 0.42, s.r * 1.08 * sl, s.r * 0.62, SHADOW, { a: 0.3, seed: s.seed, wob: 0.18, edge: 0 });
-  drawNest(c, L.nest.x, L.nest.y, 120, 17, 0);
-  for (const s of L.solids) { if (s.kind === 'rock') (N ? paintCrystalRock : paintRock)(c, s.x, s.y, s.r, P.rock, s.seed); else if (s.kind === 'hay') (N ? paintShroom : paintHay)(c, s.x, s.y, s.r, s.seed); }
-  for (const l of L.lanterns) { wash(c, l.x - 16, l.y + 4, 22, 8, SHADOW, { a: 0.3, seed: 2, edge: 0 }); (N ? paintTorch : paintLantern)(c, l.x, l.y); }
+  if (A) drawArt(c, 'nest', L.nest.x, L.nest.y + 96, 220, 0.5); else drawNest(c, L.nest.x, L.nest.y, 120, 17, 0);
+  for (const s of L.solids) {
+    if (A && (s.kind === 'rock' || s.kind === 'hay')) { const n = s.kind === 'rock' ? P.rock : P.bush, im = ART[n]; drawArt(c, n, s.x, s.y + s.r * 0.75, Math.min(s.r * 2.4 * im.naturalHeight / im.naturalWidth, s.r * 2.6), 0.5); continue; }
+    if (s.kind === 'rock') (N ? paintCrystalRock : paintRock)(c, s.x, s.y, s.r, P.rock, s.seed); else if (s.kind === 'hay') (N ? paintShroom : paintHay)(c, s.x, s.y, s.r, s.seed);
+  }
+  for (const l of L.lanterns) { wash(c, l.x - 16, l.y + 4, 22, 8, SHADOW, { a: 0.3, seed: 2, edge: 0 }); if (A) drawArt(c, 'torch', l.x, l.y + 8, 120, 0.5); else (N ? paintTorch : paintLantern)(c, l.x, l.y); }
   const trees = L.trees.slice().sort((a, b) => a.y - b.y);
   for (const t of trees) if (!t.dyn) paintTree(c, t, P);
   // sprites that are drawn every frame, sorted with the heroes
@@ -829,14 +876,18 @@ function paintLevel(L) {
     t.sprite = sc; L.sprites.push({ kind: 'tree', ref: t, y: t.y + t.R * 1.1 });
   }
   for (const m of L.mills) {
-    const sc = makeCanvas(160, 320); (N ? paintTotem : paintMillTower)(sc.getContext('2d'), 80, 280);
+    const sc = makeCanvas(160, 320); if (A) drawArt(sc.getContext('2d'), 'totem', 80, 290, 270, 0.5); else (N ? paintTotem : paintMillTower)(sc.getContext('2d'), 80, 280);
     m.sprite = sc; L.sprites.push({ kind: 'mill', ref: m, y: m.y + 10 });
   }
   // top band: sky and far hills, or the cliff with the waterfall
-  if (N) { paintNightSky(c, 0, 0, L.W, L.skyH + 40, L.seed, { sunR: L.def.cliff ? 46 : 62, clouds: 9 }); paintHills(c, 0, L.skyH + 20, L.W, L.def.cliff ? 110 : 170, 0, L.seed + 5, NIGHT_HILLS, true); }
+  if (A && !L.def.cliff) {                // the calm look: no sky, the ground goes on under a thick row of the level's trees
+    let g2 = c.createLinearGradient(0, 0, 0, top); g2.addColorStop(0, P.band); g2.addColorStop(1, P.g0); c.fillStyle = g2; c.fillRect(0, 0, L.W, top + 4);
+    for (let row = 0; row < 3; row++) for (let x = -60 + row * 70; x < L.W + 120; x += 150 + r() * 40) drawArt(c, P.tree[(x / 7 + row | 0) % P.tree.length], x, 140 + row * ((top - 120) / 3) + r() * 30, 190 + r() * 60, 0.5);
+  }
+  else if (N) { paintNightSky(c, 0, 0, L.W, L.skyH + 40, L.seed, { sunR: L.def.cliff ? 46 : 62, clouds: 9 }); paintHills(c, 0, L.skyH + 20, L.W, L.def.cliff ? 110 : 170, 0, L.seed + 5, NIGHT_HILLS, true); }
   else { paintSky(c, 0, 0, L.W, L.skyH + 40, L.skyT, L.seed, { sunR: L.def.cliff ? 46 : 62, clouds: 9 }); paintHills(c, 0, L.skyH + 20, L.W, L.def.cliff ? 110 : 170, L.skyT, L.seed + 5); }
   if (L.def.cliff) {
-    const y0 = L.skyH, y1 = top, CL = N ? ['#7E72B8', '#4E4486', '#6E62A8', '#9A8ED0', '#4A3F80', '#8478BC', '#3E356E', '#B9AEE6', '#3A3268'] : ['#CDAF98', '#93747E', '#B8948A', '#D9BFA6', '#8E6E7C', '#C4A090', '#7A5A6C', '#E9D2B8', '#7A5A6C'];
+    const y0 = L.skyH, y1 = top, CL = A && P.cliff ? P.cliff : N ? ['#7E72B8', '#4E4486', '#6E62A8', '#9A8ED0', '#4A3F80', '#8478BC', '#3E356E', '#B9AEE6', '#3A3268'] : ['#CDAF98', '#93747E', '#B8948A', '#D9BFA6', '#8E6E7C', '#C4A090', '#7A5A6C', '#E9D2B8', '#7A5A6C'];
     g = c.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, CL[0]); g.addColorStop(1, CL[1]);
     c.fillStyle = g; c.fillRect(0, y0, L.W, y1 - y0 + 6);
     for (let i = 0; i < 260; i++) { const x = r() * L.W, y = y0 + r() * (y1 - y0); wash(c, x, y, 40 + r() * 90, 20 + r() * 50, CL[2 + i % 4], { a: 0.22, seed: i, wob: 0.3, edge: 2, edgeA: 0.08 }); }
@@ -860,7 +911,7 @@ function paintLevel(L) {
     for (let i = 0; i < 16; i++) { const a = i / 16 * TAU, x = 1600 + Math.cos(a) * 186, y = 342 + Math.sin(a) * 112; if (Math.abs(x - 1620) < 90 && y > 400) continue; const cl = ['#E9B8C4', '#BFE0D4', '#F3D9A0', '#C8B8E0'][i % 4]; c.fillStyle = rgba(cl, 0.9); c.beginPath(); c.moveTo(x - 9, y + 8); c.lineTo(x, y - 20 - hash(i, 2) * 14); c.lineTo(x + 9, y + 8); c.closePath(); c.fill(); }
     c.restore();
     for (let x = 1480; x < 1760; x += 40) wash(c, x + r() * 20, top + 46, 30, 20, '#A99A94', { a: 0.5, seed: x, edge: 2 });   // wet stones behind the fall
-  } else {
+  } else if (!A) {
     for (let x = -20; x < L.W + 40; x += 42) {
       const y = top - 34 + r() * 26, col = P.canopy[r() * P.canopy.length | 0];
       wash(c, x, y, 46 + r() * 34, 30 + r() * 22, col, { a: 1.1, seed: x + 1, wob: 0.22, edgeA: 0.2 });
@@ -868,16 +919,20 @@ function paintLevel(L) {
       wash(c, x - 8, y + 14, 30, 14, shade(col, -0.35), { a: 0.3, seed: x + 3, edge: 0 });
     }
   }
-  // leafy frame along the other edges
-  for (let i = 0; i < 150; i++) {
+  // leafy frame along the other edges. The calm look: the level's bushes and trees
+  if (A) for (let i = 0; i < 70; i++) {
+    const e = i % 3, x = e === 0 ? r() * L.W : e === 1 ? -20 + r() * 50 : L.W + 20 - r() * 50, y = e === 0 ? L.H + 40 - r() * 30 : top + 60 + r() * (L.H - top);
+    drawArt(c, i % 4 ? P.bush : P.tree[i % 2], x, y, 110 + r() * 70, 0.5);
+  }
+  for (let i = 0; i < (A ? 0 : 150); i++) {
     const e = i % 3, col = P.canopy[i % P.canopy.length];
     const x = e === 0 ? r() * L.W : e === 1 ? -10 + r() * 26 : L.W + 10 - r() * 26, y = e === 0 ? L.H + 6 - r() * 22 : top + r() * (L.H - top);
     wash(c, x, y, 50 + r() * 40, 36 + r() * 26, shade(col, -0.1), { a: 0.95, seed: i + 5, wob: 0.22, edgeA: 0.2 });
     wash(c, x + 8, y - 10, 22, 14, shade(col, 0.35), { a: 0.35, seed: i + 6, edge: 0 });
   }
-  finishPaint(c, L.W, L.H, L.skyT, r, N);
+  finishPaint(c, L.W, L.H, L.skyT, r, N, A);
   L.bg = cv; L.skyTop = topColor(cv);
-  L.overlay = N ? makeOverlay('#C8D0FF', 0.1, 0.5, true) : makeOverlay(mix('#FFF4E0', '#FFC08C', L.skyT), 0.1 + L.skyT * 0.16, 0.42);
+  L.overlay = A ? makeOverlay('#FFF4E0', 0.03, 0.28, true) : N ? makeOverlay('#C8D0FF', 0.1, 0.5, true) : makeOverlay(mix('#FFF4E0', '#FFC08C', L.skyT), 0.1 + L.skyT * 0.16, 0.42);
   return finishLook(L);
 }
 /* A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). */
@@ -1054,7 +1109,8 @@ function frontLeaf(t, x, y, len, ang, col) {               // a long pointed lea
   t.strokeStyle = rgba(shade(col, 0.35), 0.6); t.lineWidth = Math.max(1.5, len * 0.025); t.beginPath(); t.moveTo(0, 0); t.lineTo(len * 0.92, 0); t.stroke();
   t.restore();
 }
-function finishPaint(c, w, h, skyT, r, night) {
+function finishPaint(c, w, h, skyT, r, night, calm) {
+  if (calm) { for (let i = 0; i < 3000; i++) { c.fillStyle = i % 2 ? 'rgba(110,70,90,0.05)' : 'rgba(255,250,235,0.07)'; c.beginPath(); c.arc(r() * w, r() * h, 0.6 + r() * 1.4, 0, TAU); c.fill(); } return; }      // the calm look: only a light paper grain
   for (let i = 0; i < 7000; i++) { c.fillStyle = i % 2 ? 'rgba(110,70,90,0.07)' : 'rgba(255,250,235,0.1)'; c.beginPath(); c.arc(r() * w, r() * h, 0.6 + r() * 1.6, 0, TAU); c.fill(); }
   for (let i = 0; i < 260; i++) { blobPath(c, r() * w, r() * h, 14 + r() * 50, 10 + r() * 36, i, 0.3, 11); c.strokeStyle = 'rgba(255,250,232,0.09)'; c.lineWidth = 2 + r() * 3; c.stroke(); }
   c.save(); c.globalCompositeOperation = 'soft-light';

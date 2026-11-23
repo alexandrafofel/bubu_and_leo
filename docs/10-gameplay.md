@@ -430,3 +430,16 @@ Specificatia si abaterile: `28-t15-george-de-doua-ori.md`.
 - **Cand vine George** (`updateGeorge`, la fiecare cadru): la jumatatea cotei echipei (`teamNeed()`, 30 cu doi jucatori) lupta din mijloc, dar nu in primele `minT` (20) secunde; la cota intreaga, lupta de la cuib. Valurile doar aprind copacii urmatori.
 - **Cuibul** se deschide doar la sfarsitul luptei de la cuib. Nivelul se termina cand George e invins, fiecare are 15 si amandoi sunt in cuib.
 - **Un singur jucator**: ce culege eroul care nu joaca se numara la cel care joaca.
+
+## Update 23 noiembrie 2026: inelul din luptele cu George
+
+Fiecare erou sta pe un disc in culoarea lui, cu un inel, o margine crem si una violet (`drawHeroRing`).
+In luptele cu George (cea din mijloc, cea de la cuib si arena, `ringFight()`) inelul are 10 bucati.
+
+- Fiecare lovitura, de la George sau de la ce arunca el, face o bucata rosie (`h.ringHits`). Bucatile se inrosesc din fata, de sub picioare, spre spate.
+- O astfel de lovitura il impinge putin si il apara `CONFIG.ring.inv` secunde. Nu cade si nu pierde diamante.
+- Cand tot inelul e rosu, inelul pulseaza. Urmatoarea lovitura e cea veche: eroul ameteste, scapa un diamant si asteapta prietenul. Merg si cele 10 secunde si "Încă o dată!".
+- Cand prietenul il ajuta (`getUp`), inelul e intreg din nou. Un copil care joaca singur se ridica singur si inelul se goleste.
+- Fiecare lupta cu George incepe cu inelul intreg (`startDuel`). In afara luptelor, o lovitura il pune jos ca inainte.
+
+Reglaje: `CONFIG.ring` (`on`, `hits`, `inv`, `red`, `push`).

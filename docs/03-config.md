@@ -350,3 +350,14 @@ T6.10: nu se adauga chei noi; testul `tests/stil-grafic.js` si bugetul din `perf
 | `george.chaseSpeed` | 120 | Viteza inamicilor de la ultima inima (un erou merge cu cam 150). |
 | `george.boneEvery` | 2 | Oase si mingi la fiecare inima pierduta peste jumatate. |
 | `george.flight` | 0.9 | Secunde cat zboara un lucru aruncat. |
+
+## Update 23 noiembrie 2026: `CONFIG.ring` si imaginile Krea
+
+- `ring.on` (true): inelul din luptele cu George. false = orice lovitura in lupta il pune jos.
+- `ring.hits` (10): cate lovituri primeste un erou intr-o lupta inainte sa ameteasca. Cerut de proprietara.
+- `ring.inv` (1.1 s): cat nu poate fi lovit din nou dupa o lovitura care doar inroseste o bucata. Fara el, un bolovan ar inrosi trei bucati deodata.
+- `ring.red` ('#E5484D'): rosu cald, nu aprins. Se vede, dar nu sperie.
+- `ring.push` (200): cat il impinge o astfel de lovitura.
+- `look.art` (true): eroii, inamicii si lucrurile nivelurilor 1 - 6 sunt imaginile Krea. false = pictura veche.
+- `look.artSize`: cat de inalt se deseneaza fiecare imagine, in unitati ale lumii. George la scara 1.
+- `look.calm` (true): solul calm al hartilor Krea. false = solul vechi, cu imaginile peste el.

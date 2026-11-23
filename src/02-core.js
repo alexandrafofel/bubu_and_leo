@@ -779,3 +779,33 @@ function paintCard(c, x, y, w, h, col, seed) {
   p(-w * 0.01, -h * 0.02, 0.93, shade(col, 0.5), 0.28);
   c.restore();
 }
+
+/* ---------- The Krea pictures (since 23 November 2026, CLAUDE.md rule 1; docs/05-pictura.md, "Imaginile Krea") ----------
+   ART_DATA (src/016-art-data.js, made by tools/pack-art.py) holds every picture as a WebP inside the file, so the game
+   still works offline. Each becomes an Image once. artOk(n) is false until the picture is decoded: the painted look is
+   drawn in the meantime, so nothing is ever missing. */
+const ART = {};
+for (const k in ART_DATA) { const im = new Image(); im.src = ART_DATA[k]; ART[k] = im; }
+const artOk = n => { const im = ART[n]; return !!(im && im.complete && im.naturalWidth); };
+const artOn = () => CONFIG.look.art && isLupta();
+const artReady = () => Object.keys(ART).every(artOk);
+/* A picture standing on (x, y): its bottom at y, ax = where its foot is across its width (0.5 = the middle).
+   h = how tall it is drawn. flip = -1 mirrors it. */
+function drawArt(c, n, x, y, h, ax, flip) {
+  const im = ART[n], w = h * im.naturalWidth / im.naturalHeight, a = ax == null ? 0.5 : ax;
+  if (flip === -1) { c.save(); c.translate(x, y); c.scale(-1, 1); c.drawImage(im, -a * w, -h, w, h); c.restore(); }
+  else c.drawImage(im, x - a * w, y - h, w, h);
+}
+/* A character as a Krea picture, with simple movement: a little hop and a sway while walking, breathing while still,
+   squash and stretch, and a wobble when dizzy. o = the same options the painted heroes get (heroOpts). */
+function drawArtChar(c, n, x, y, o, h, ax) {
+  const im = ART[n], s = o.scale || 1, f = o.face || 1, t = o.t || 0;
+  const step = o.moving ? Math.sin(o.walk || 0) : 0, hop = o.moving ? Math.abs(step) * 7 : 0;
+  const br = o.moving ? 0 : (0.5 + 0.5 * Math.sin(t * 2.4)) * CONFIG.look.breath, sq = o.squash || 0;
+  const tilt = (o.moving ? step * 0.06 : 0) + (o.dizzy ? Math.sin(t * 7) * 0.12 : 0) + (o.run ? 0.06 : 0) + (o.kick > 0 ? -0.12 * o.kick : 0);
+  const w = h * im.naturalWidth / im.naturalHeight, a = ax == null ? 0.5 : ax;
+  c.save(); c.translate(x, y - (o.z || 0) * s); c.scale(s * f, s);
+  c.translate(0, -hop); c.rotate(tilt); c.scale(1 + sq - br * 0.25, 1 + br - sq);
+  c.drawImage(im, -a * w, -h, w, h);
+  c.restore();
+}

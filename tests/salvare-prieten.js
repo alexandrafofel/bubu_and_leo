@@ -50,7 +50,7 @@ const boot = require('./common.js');
     P.eggs.length = 0; P.wave = P.L.NW - 1; for (const t of P.L.trees) if (t.spark) t.spark.done = true;
     a.x = P.L.nest.x - 600; a.y = P.L.nest.y + 100; b.x = P.L.nest.x - 900; b.y = P.L.nest.y + 100; step(3); G.startDuel('nest');
     const d = P.duel; n = 0; while (d.state !== 'move' && n < 400) { step(1); n++; }
-    b.inv = 0; G.hitHero(b, b.x + 60, b.y); step(5);
+    b.inv = 0; b.ringHits = G.CONFIG.ring.hits; G.hitHero(b, b.x + 60, b.y); step(5);      // inelul e plin: lovitura il pune jos (CONFIG.ring)
     const seen = {}; for (let i = 0; i < 60 * 8; i++) { step(1); seen[d.state] = 1; }
     out['lupta: paznicul asteapta cat un erou e lovit'] = Object.keys(seen).join() === 'move';
     const hp0 = d.hp; G.throwRing(b, 0, 1, 0); d.state = 'move'; out['lupta: paznicul nu poate fi lovit in acest timp'] = duelCanHurt(0, 'stomp') === false && d.hp === hp0;
