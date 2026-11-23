@@ -511,3 +511,12 @@ Hotararea de proces: `balanseaza()` sta in `tests/common.js` si cheama `giveEgg`
 | Bucatile rosii incep din fata inelului | Partea din spate e acoperita de erou; primele lovituri trebuie sa se vada. |
 | `george_bare`: George fara coroana, speriat | Cand pierde, coroana ii cade pe nisip; imaginea cu coroana ar fi aratat-o de doua ori. |
 | Gri aproape neutru tras spre violet la impachetare | Regula 4. Pietrele si torta din Krea aveau gri. |
+
+## T7 impartit in cinci (23 noiembrie 2026)
+
+| Hotarare | Motiv |
+|---|---|
+| T7 devine T7.1 - T7.5: cadrul, placile si cusca, regulile G1 - G10, nivelul 7, botii si documentatia | Ceruta de proprietara. Fiecare parte se verifica si se trimite separat, ca la T6 si T14. |
+| Regulile G1 - G10 au o sarcina a lor (T7.3), cu Opus | "Nimeni nu ramane blocat" e regula care nu se incalca. Fiecare regula se testeaza si se strica o data. |
+| Imaginile Krea ale nivelului 7 se aproba inainte sa intre in joc (T7.4) | La fel ca la nivelurile 1 - 6. Costa credite Krea. |
+| In T7, "valurile de cristale" din `25` se citesc "treimile nivelului, cu inamicii lor" | Din T15 diamantele vin doar din inamici, iar George vine dupa diamantele echipei, nu intr-un loc anume. |
