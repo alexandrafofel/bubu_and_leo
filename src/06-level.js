@@ -230,6 +230,27 @@ function genLevel(idx, seed) {
     for (const y of [top + 190, WH - 200]) if (Math.abs(y - L.bridgeY) > 330 && !(def.river === 'fall' && y < 900)) L.crossY.push(crossing(y, L.stones));
   }
 
+  // ---- bands (T7, levels 7 - 12): a chasm, water, lava or a wall from the top to the bottom --------------------------
+  // One crossing each, where the path meets the band. While the level is made the crossings are open (reach is checked
+  // with every gate open); startPlay closes them (closeGates, 065-mech.js). docs/25-niveluri-7-12.md, 3.1
+  L.gates = []; L.inputs = [];
+  (def.bands || []).forEach((b, bi) => {
+    const code = b.kind === 'wall' ? 3 : 2, g = { band: bi, at: b.at, W: WW, ph: r() * 6, half: b.w / 2, kind: b.kind, mech: b.mech, code, cells: [], inputs: [] };
+    for (let cy = top / CS | 0; cy < rows; cy++) {
+      const mx = bandX(g, (cy + 0.5) * CS);
+      for (let cx = 0; cx < cols; cx++) if (Math.abs((cx + 0.5) * CS - mx) < g.half) { const i = cy * cols + cx; if (G[i] < 2) G[i] = code; F[i] |= 1; }
+    }
+    let p = L.path[0];
+    for (const q of L.path) if (Math.abs(q[0] - bandX(g, q[1])) < Math.abs(p[0] - bandX(g, p[1]))) p = q;
+    const row0 = clamp(Math.round((p[1] - 60) / CS), (top / CS | 0) + 3, rows - 6), yc = (row0 + 1.5) * CS, mx = bandX(g, yc);
+    for (let cy = row0; cy < row0 + 3; cy++) for (let cx = (mx - g.half - 60) / CS | 0; cx <= (mx + g.half + 60) / CS; cx++) {
+      if (!inW(cx, cy)) continue;
+      const i = cy * cols + cx; if (G[i] === code) { G[i] = 0; g.cells.push(i); } F[i] |= 1 | 2 | 8 | 32;   // 32: a gate. No eggs, trees or decor on it
+    }
+    Object.assign(g, { kindGate: code === 3 ? 'door' : 'bridge', x: mx, y: yc, w: b.w + 120, h: 3 * CS, state: 'closed', open: 0, stayT: 0, step: 0, idleT: 0 });
+    L.gates.push(g);
+  });
+
   const pathFar = (x, y, d) => pathDist(x, y) >= d;
   const areaClear = (x, y, rad) => {
     for (let cy = (y - rad) / CS | 0; cy <= (y + rad) / CS; cy++) for (let cx = (x - rad) / CS | 0; cx <= (x + rad) / CS; cx++) {
@@ -387,6 +408,8 @@ function genLevel(idx, seed) {
     }
     return out;
   };
+  L.ci = ci;
+  if (L.gates.length && !placeMechInputs(L, r, mark)) return null;      // the plates, targets... of every gate (065-mech.js)
   const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = r() * (i + 1) | 0; const t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
 
   // ---- beetles ---------------------------------------------------------------

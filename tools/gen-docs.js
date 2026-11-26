@@ -15,7 +15,7 @@
 const fs = require('fs'), path = require('path');
 const ROOT = path.resolve(__dirname, '..'), SRC = path.join(ROOT, 'src'), OUT = path.join(ROOT, 'docs', 'anexe');
 fs.mkdirSync(OUT, { recursive: true });
-const ORDER = ['00-head.html', '01-config.js', '015-lang.js', '02-core.js', '03-audio.js', '04-input.js', '05-chars.js', '055-lupta.js', '06-level.js', '07-play.js', '075-duel.js', '08-draw.js', '09-screens.js', '10-main.js'];
+const ORDER = ['00-head.html', '01-config.js', '015-lang.js', '02-core.js', '03-audio.js', '04-input.js', '05-chars.js', '055-lupta.js', '06-level.js', '065-mech.js', '07-play.js', '075-duel.js', '08-draw.js', '09-screens.js', '10-main.js'];
 const files = ORDER.map(f => ({ f, lines: fs.readFileSync(path.join(SRC, f), 'utf8').split('\n') }));
 const md = s => String(s).replace(/\|/g, '\\|');
 const HEAD = '<!-- GENERAT AUTOMAT de tools/gen-docs.js. Nu edita de mana: ruleaza din nou scriptul. -->\n\n';

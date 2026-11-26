@@ -556,7 +556,9 @@ Ce faci:
 
 Gata cand: tests/mecanisme.js trece si fiecare verificare pica atunci cand regula ei e stricata. Nivelurile 1 - 6 nu se schimba deloc (nu au `bands`). ./build.sh, node tools/gen-docs.js si tests/toate.sh trec.
 
-Nu face: placile si cusca (T7.2), regulile G1 - G10 si mechSteps (T7.3), nivelul 7 (T7.4).
+Nu face: desenul placilor si cusca (T7.2), regulile G2 - G10 si mechSteps (T7.3), nivelul 7 (T7.4).
+
+Facut pe 26 noiembrie 2026, cu trei lucruri aprobate in plus: regula "cine trece nu poate fi si cel care deschide", testul de colaborare (un erou singur nu trece) si placa portii A la cel putin 700 de trecere.
 ````
 
 <a id="t7-2"></a>
@@ -568,7 +570,7 @@ Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
 Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le. Citeste si inceputul sectiunii T7 din acelasi fisier.
 Jocul e "Cea mai grea luptă" (singurul joc). Specificatia: docs/25-niveluri-7-12.md, sectiunile 2 (pasul 6), 3.3 (plates1, plates2) si 3.4 (Placa si Cusca stelutelor). T7.1 e facuta.
 
-Sarcina T7.2: primele doua intrari, cele de pe nivelul 7.
+Sarcina T7.2: primele doua intrari, cele de pe nivelul 7. Din T7.1 placa stie deja cand e apasata (inputRaw, cu regula "cine trece nu poate fi si cel care deschide") si unde se pune (MECH_RECIPES, placeMechInputs). Aici vine ce se vede, se aude si se simte, plus cusca.
 
 Ce faci:
 1. Placa (`plate`, raza 60): `on` cat un erou potrivit (`who`: -1 oricine, 0 Boon, 1 Killer) sta la mai putin de 55 de mijloc si nu e jos, dus de pasare sau pe pluta. Retetele plates1 (any, stay 1.5, o placa pe fiecare mal) si plates2 (all, stay 5, doua placi la 520 deasupra si dedesubtul trecerii).
@@ -596,7 +598,7 @@ Sarcina T7.3: regulile de siguranta. Sunt obligatorii: nimeni nu are voie sa ram
 
 Ce faci:
 1. G1 - G10, fiecare in codul ei, cu un comentariu care spune numarul regulii:
-   - G1 poarta nu se inchide cat un erou sta pe celulele ei;
+   - G1 poarta nu se inchide cat un erou sta pe celulele ei (facuta in T7.1, in stepGateOpen; aici doar se verifica in toate cazurile);
    - G2 cand amandoi eroii jucati sunt dincolo de banda, poarta devine `fixed`;
    - G3 cat un erou e jos (asteapta ajutor), toate portile se deschid si raman deschise; dupa ce se ridica, se inchid dupa `stay`;
    - G4 dropHero (pasarile) pune eroul doar pe partea de unde l-a luat;
@@ -628,7 +630,7 @@ Sarcina T7.4: primul nivel nou, intreg.
 
 Ce faci:
 1. Definitia `canyon` la LEVEL_DEFS_L, pozitia 6, cu `look: 'diorama'` si `bands` (plates1, plates2). Paleta `canyon` in PALS si in PALS_ART. CONFIG.lupta.levels devine 7. Capitolele (chapters()) si salvarea il primesc.
-2. Imaginile Krea ale nivelului, in acelasi stil cu nivelurile 1 - 6 (acuarela de carte pentru copii, fara negru, fara gri): doi copaci, o stanca rosiatica, un tufis, flori, un stalp de piatra din prapastie, balansoarul din trunchi, placa. Fundul prapastiei (#3A4A8A spre #6A7AC0, cu ceata) si podul de lumina din sapte scanduri colorate se picteaza pe canvas. Pune imaginile in art/krea/, ruleaza python3 tools/pack-art.py. Cere aprobarea proprietarei pe o foaie cu imaginile, inainte sa le pui in joc. Spune-i cate credite Krea costa (cam 33 - 44 pe imagine).
+2. Imaginile Krea ale nivelului, decupate din harta aleasa de proprietara, art/krea-ref/nivel7-harta.jpg (sau refacute cu ea ca referinta), in acelasi stil cu nivelurile 1 - 6 (acuarela de carte pentru copii, fara negru, fara gri): doi copaci, o stanca rosiatica, un tufis, flori, un stalp de piatra din prapastie, balansoarul din trunchi, placa. Fundul prapastiei (#3A4A8A spre #6A7AC0, cu ceata) si podul de lumina din sapte scanduri colorate se picteaza pe canvas. Pune imaginile in art/krea/, ruleaza python3 tools/pack-art.py. Cere aprobarea proprietarei pe o foaie cu imaginile, inainte sa le pui in joc. Spune-i cate credite Krea costa (cam 33 - 44 pe imagine).
 3. Podul de lumina: cele sapte scanduri apar una dupa alta, de la malul placii apasate, si se sting la fel. Foloseste mechMove.
 4. Pasarile (2), robotii putini, vantul, cele trei stele (islet pe stalpul din prapastie, nook, treetop), balansoarul (cei doi la capete: se leagana si rad, nu da nimic).
 5. Inamicii mici (fieldEnemies, T15) se impart pe cele trei treimi, ca fiecare treime sa aiba de unde da diamante. Cota (15) si cele doua lupte cu George raman ca pe nivelurile 1 - 6.

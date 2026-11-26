@@ -84,6 +84,20 @@ const CONFIG = {
     red: '#E5484D',            // a warm red, not a bright one: it shows, but it does not scare
     push: 200                  // how hard such a hit pushes the hero away (units per second)
   },
+  // ---- Co-op mechanisms of levels 7 - 12 (T7): bands cut the map, each crossing opens only when both heroes do their part.
+  // docs/25-niveluri-7-12.md, 3.1 - 3.6; src/065-mech.js
+  mech: {
+    autoOpen: 180,             // seconds without progress before a gate opens by itself (T7.3). 0 = never
+    hintAfter: 40,             // seconds without progress before both players get an arrow to their own switch (T7.3)
+    easy: 1.6,                 // on "Ușor": time windows and "stays open" times are this much longer
+    cageWindow: 1.5,           // both heroes must hit the star cage within this many seconds (T7.2)
+    openTime: 0.5,             // seconds a gate takes to open or close all the way
+    plateGap: 700,             // a plate that opens a gate for anyone ('any') stays at least this far from the crossing: nobody can step off and run over alone
+    nearGate: 150,             // 'any': the gate stays open after the plate is left only while a hero is on the crossing or this close to it
+    raftTurns: 3, raftBack: 140, raftDrift: 0.07,            // T8 - T9
+    orbSlow: 0.7, orbPass: 420, orbLight: 360,               // T9
+    boulderSpeed: 85, boulderBack: 120                       // T9
+  },
   rescue: {
     enabled: true,             // false = the old rule: a hit hero gets up alone after a moment
     reachNear: 180,            // the first hero (Bubu, Boon) must stand this close to help: a hug, healing hands

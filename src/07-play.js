@@ -124,6 +124,7 @@ function startPlay(L) {
   for (const s of P.stars) { s.got = false; s.z = 0; s.pop = 0; }
   for (const e of L.beetles) e.hp = e.maxHp || CONFIG.smallEnemy.hits;      // Little George has his own 3 hearts (T15)
   for (const e of L.cones) e.hp = CONFIG.smallEnemy.hits;
+  closeGates(L);                                                           // T7: every gate starts closed (and again after "Încă o dată!": the level is made anew)
   if (L.cave) P.eggs.push(makeEgg(L.cave.egg.x, L.cave.egg.y, { big: true, value: CONFIG.giantEggValue, r: 44, req: false }));
   if (bs) {
     P.boss = { phase: 0, state: 'up', t: 0, shakes: 0, throwT: 3, x: L.nest.x, y: L.nest.y, fx: 0, fy: 0, treeShake: 0, proj: [], cawT: 0, said: false, rings: [], sc: 1 };
@@ -1032,6 +1033,7 @@ function updatePlay(dt) {
   for (const h of P.heroes) updateHero(h, dt);
   updateRescue(dt);
   updateBall(dt);
+  updateMechs(dt);                       // T7: the gates of the bands, after the heroes and the thrown things
   updateEggs(dt);
   updateGifts(dt);
   updateJoinQuota();

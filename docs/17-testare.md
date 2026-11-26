@@ -609,3 +609,33 @@ Verifica inelul din luptele cu George si imaginile Krea:
 E in `toate.sh`, dupa `george.js`. `stil-grafic.js` are in lista si `drawArt`, `drawArtChar`, `drawHeroRing`.
 
 `zece-secunde.js`, verificarea 9c, se schimba tot pe 23 noiembrie 2026: un pixel negru sau gri se numara doar daca cel putin 4 din cei 8 vecini ai lui sunt si ei negri sau gri. Cu eroii din imagini, canvasul amesteca la margine doua culori opuse (gatul portocaliu al lui Boon langa cupola albastra) si iese cate un pixel gri. Asta nu e gri desenat; o pata gri sau neagra pica in continuare testul.
+
+## Update 26 noiembrie 2026: `tests/mecanisme.js` (T7.1)
+
+Partea 1, pe o definitie de proba facuta in test (nu in joc): o prapastie cu reteta `any` si un zid cu reteta `all`, cu intrari de felul `test`, pornite direct din test (`raw = true`).
+
+- doua benzi de sus pana jos, cu o trecere fiecare, steagul 32, codurile 2 si 3; cuibul se poate atinge; portile sunt inchise la inceput;
+- banda inchisa nu se poate trece; deschisa, eroul trece;
+- `any`: o intrare deschide; lasata, cu nimeni langa trecere, se inchide indata; cu un erou langa, mai sta 1.5 s;
+- `all`: una nu deschide, amandoua da, mai sta 5 s;
+- `allWithin` la 2 s una de alta deschide, la 5 s nu; `seq` in ordine gresita nu deschide, in ordine buna da;
+- "Ușor" lungeste timpul de 1.6 ori; G1: nu se inchide sub un erou; la reincepere portile sunt iar inchise.
+
+Testul de colaborare, cu placile adevarate (`plates1`, `plates2`): placile portii A stau la cel putin 700 de trecere; un erou de pe trecere nu apasa placa; un singur erou (prietenul e in joc, dar sta pe loc) incearca 60 s poarta A si 40 s poarta B, mergand si fugind, si nu trece; doi impreuna trec.
+
+Fiecare verificare a fost stricata o data, ca sa vedem ca pica:
+
+| Ce am stricat | Ce a picat |
+|---|---|
+| `any` mai sta deschisa si fara nimeni langa trecere | "se inchide indata" si "singur la poarta A" |
+| un erou de pe trecere apasa placa | "un erou de pe trecere nu apasa placa" |
+| `all` ca `any` | "o singura intrare nu deschide" si "singur la poarta B" |
+| `allWithin` fara fereastra | "la 5 s nu deschide" |
+| `seq` fara ordine | "ordinea gresita nu deschide" |
+| fara "Ușor" | "timpul de stat deschis e de 1.6 ori" |
+| fara G1 | "nu se inchide sub un erou" |
+| `plateGap` 250 | "placile stau la cel putin 700" si "singur la poarta A" |
+
+Fara `closeGates` testul trece: prima rulare a lui `updateMechs` inchide oricum celulele. `closeGates` ramane, pentru intrari si timpi.
+
+Primul jucator porneste pe "Ușor" (`CONFIG.defaultDifficulty`), deci testul pune intai ambii pe "Normal". E in `toate.sh`, dupa `inel.js`.
