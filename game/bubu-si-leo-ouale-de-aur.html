@@ -387,7 +387,7 @@ const STR = {
     'med.stars': 'Toate stelele', 'med.nohit': 'Fără nicio lovitură', 'med.sun': 'Înainte de apus',
     'pause.title': 'Pauză', 'pause.cont': 'Continuă', 'pause.set': 'Setări', 'pause.quit': 'Ieșire la meniu',
     'pause.lost': 'Controllerul lui {0} s-a deconectat. Apasă ✕ pe el.',
-    'ban.cage': 'Bate palma!', 'ban.more': 'Mai departe!', 'ban.nest': 'La cuib!', 'ban.giant': 'Oul uriaș!', 'ban.duel': 'Provocare!',
+    'ban.cage': 'Bate palma!', 'ban.gateAuto': 'Poarta s-a deschis singură.', 'mech.yours': 'Al tău', 'ban.more': 'Mai departe!', 'ban.nest': 'La cuib!', 'ban.giant': 'Oul uriaș!', 'ban.duel': 'Provocare!',
     'ban.wait': 'Îl așteptăm pe {0} în cuib!', 'ban.rainbow': 'Curcubeu!  +{0}',
     sorry1: 'Îmi pare rău! Voiam doar', sorry2: 'să vin și eu la festival.', sorryVoice: 'Îmi pare rău! Voiam doar să vin și eu la festival.',
     fest: 'Festivalul Apusului', 'fest.v1': 'Festivalul Apusului a început! {0} și-a cerut iertare și a rămas la petrecere.',
@@ -479,7 +479,7 @@ const STR = {
     'med.stars': 'All the stars', 'med.nohit': 'Never hit', 'med.sun': 'Before sunset',
     'pause.title': 'Pause', 'pause.cont': 'Continue', 'pause.set': 'Settings', 'pause.quit': 'Quit to menu',
     'pause.lost': "{0}'s controller disconnected. Press ✕ on it.",
-    'ban.cage': 'High five!', 'ban.more': 'Onward!', 'ban.nest': 'To the nest!', 'ban.giant': 'The giant egg!', 'ban.duel': 'Challenge!',
+    'ban.cage': 'High five!', 'ban.gateAuto': 'The gate opened by itself.', 'mech.yours': 'Yours', 'ban.more': 'Onward!', 'ban.nest': 'To the nest!', 'ban.giant': 'The giant egg!', 'ban.duel': 'Challenge!',
     'ban.wait': 'Waiting for {0} in the nest!', 'ban.rainbow': 'Rainbow!  +{0}',
     sorry1: 'I am sorry! I only wanted', sorry2: 'to come to the festival too.', sorryVoice: 'I am sorry! I only wanted to come to the festival too.',
     fest: 'The Sunset Festival', 'fest.v1': 'The Sunset Festival has begun! {0} said sorry and stayed for the party.',
@@ -4498,7 +4498,13 @@ function closeGates(L) {
     g.state = 'closed'; g.open = 0; g.vis = 0; g.moveTo = 0; g.moveT = 9; g.stayT = 0; g.step = 0; g.idleT = 0; g.opened = false; g.solid = true;
     for (const i of g.cells) L.grid[i] = g.code;
   }
-  for (const p of L.inputs || []) { p.on = p.raw = p.was = false; p.onT = 0; p.lastT = -99; p.n = 0; }
+  for (const p of L.inputs || []) { p.on = p.raw = p.was = p.realWas = false; p.onT = 0; p.lastT = -99; p.n = 0; p.sink = 0; }
+  // G10: on a restart everything starts from zero: the gates, the time without progress, the cage and its star
+  for (const g of L.gates || []) { g.pastN = 0; g.g3 = false; g.auto = false; }
+  if (L.cage) {
+    Object.assign(L.cage, { hit: [-99, -99], seen: [-1, -1], done: false, doneT: 0, by: -1, wobT: 0 });
+    for (const st of L.stars) if (st.kind === 'cage') st.hidden = true;
+  }
 }
 
 /* "Ușor": the easiest difficulty of the players who play. */
@@ -4544,51 +4550,140 @@ function plateBy(inp) {
   return -1;
 }
 
-/* Every frame, after the heroes and the thrown things (updatePlay). docs/25, 3.2. */
+/* ---------- helpers of the safety rules (T7.3, docs/25-niveluri-7-12.md, 3.6) ---------- */
+/* How many bands lie left of (x, y): two places with the same number are on the same side of every band. */
+function bandSide(L, x, y) { let n = 0; for (const g of L.gates || []) if (x > bandX(g, y)) n++; return n; }
+/* The hero who plays alone (0 or 1), or -1 when both play or nobody does. */
+function soloK() { const a = isJoined(0), b = isJoined(1); return a && !b ? 0 : b && !a ? 1 : -1; }
+/* G6: with one player, the inputs of the hero nobody plays are always pressed. An input for anyone (who -1) counts too:
+   alone, nobody could stand on it and cross at the same time. */
+function inputVirtual(inp, solo) { return solo >= 0 && (inp.who === -1 || inp.who === 1 - solo); }
+function mechDuel() { return !!(P.duel && !P.duel.over); }
+function heroPast(h, g) { return h.x > bandRight(g, h.y) + 60; }
+/* G8: the gate the players are stuck at: closed, and no progress for CONFIG.mech.hintAfter seconds. */
+function gateHinting(g) { const M = CONFIG.mech; return M.hintAfter > 0 && g.state === 'closed' && g.idleT >= M.hintAfter; }
+/* The gate in front of the heroes: the first one that is not fixed yet (G2 fixes every gate both have passed). */
+function frontGate(L) { for (const g of L.gates || []) if (g.state !== 'fixed') return g; return null; }
+
+/* Every frame, after the heroes and the thrown things (updatePlay). docs/25, 3.2 and 3.6. */
 function updateMechs(dt) {
   updateCage(dt);
   const L = P.L; if (!L.gates || !L.gates.length) return;
-  const M = CONFIG.mech, easy = mechEasy(), ef = easy ? M.easy : 1;
+  const M = CONFIG.mech, easy = mechEasy(), ef = easy ? M.easy : 1, solo = soloK();
   for (const inp of L.inputs) {
-    const now = inputRaw(inp);
+    const real = inputRaw(inp), now = real || inputVirtual(inp, solo);      // G6
     inp.rose = now && !inp.was; inp.fell = !now && inp.was; inp.was = now;
     if (inp.rose) inp.lastT = P.time;
     if (inp.kind === 'plate') {
-      if (inp.rose) { const k = plateBy(inp); Snd.play('plate'); Input.rumble(k, 0, 0.4, 60); }   // the one who stepped feels it (T7.2)
-      if (inp.fell) Snd.play('plateOff');
+      if (inp.rose && real) { const k = plateBy(inp); Snd.play('plate'); Input.rumble(k, 0, 0.4, 60); }   // the one who stepped feels it (T7.2)
+      if (inp.fell && inp.realWas) Snd.play('plateOff');
     }
+    inp.realWas = real;
     inp.onT = now ? inp.onT + dt : 0;
     inp.on = now;
-    inp.sink = (inp.sink || 0) + ((now ? 1 : 0) - (inp.sink || 0)) * Math.min(1, dt * 14);   // how far it sinks, for the drawing (T7.2)
+    inp.sink = (inp.sink || 0) + ((real ? 1 : 0) - (inp.sink || 0)) * Math.min(1, dt * 14);   // how far it sinks, for the drawing (T7.2): only a real foot
   }
+  const g3 = P.heroes.some(h => isJoined(h.k) && h.down);       // G3: a hero waits for help
+  const duel = mechDuel();
+  const players = P.heroes.filter(h => isJoined(h.k));
   for (const g of L.gates) {
     if (g.state === 'fixed') { stepGateOpen(L, g, dt, 1); continue; }
+    // G9: during a fight with George (either one, ring or not) no gate changes. G3 still opens them: nobody is left down behind a band
+    if (duel && !g3) { stepGateOpen(L, g, dt, g.state === 'open' ? 1 : 0); continue; }
+    // G2: both players are past the band: it stays open until the end of the level
+    if (players.length && players.every(h => heroPast(h, g))) { g.state = 'fixed'; stepGateOpen(L, g, dt, 1); continue; }
     const ins = g.inputs.map(id => L.inputs[id]);
+    // G7 and G8: the time without progress. It runs only while a hero is within 500 of the gate. Progress = one more hero past the band
+    const pastN = players.filter(h => heroPast(h, g)).length;
+    if (pastN > (g.pastN || 0)) g.idleT = 0;
+    g.pastN = pastN;
+    if (players.some(h => dist(h.x, h.y, g.x, g.y) < 500)) g.idleT += dt;
+    if (M.autoOpen > 0 && g.idleT >= M.autoOpen) {               // G7: it opens by itself
+      g.state = 'fixed'; g.auto = true; mechClick(g.x, g.y); Snd.play('gateOpen'); P.banner = { kind: 'gateAuto', t: 4 };
+      stepGateOpen(L, g, dt, 1); continue;
+    }
     let ruleOk = false;
     if (g.rule === 'any') ruleOk = ins.some(p => p.on);
     else if (g.rule === 'all') ruleOk = ins.length > 0 && ins.every(p => p.on);
     else if (g.rule === 'allWithin') {             // each input stays "on" for `window` seconds after it was touched
-      const w = g.window * ef;
-      ruleOk = ins.length > 0 && ins.every(p => p.on || P.time - p.lastT <= w);
+      const w = g.window * ef;                     // G6: alone there is no window, an input touched once stays touched
+      ruleOk = ins.length > 0 && ins.every(p => p.on || (solo >= 0 ? p.lastT > -50 : P.time - p.lastT <= w));
     } else if (g.rule === 'seq') {                 // the inputs in the order of g.inputs; g.step = the next one
       for (const p of ins) if (p.rose) {
         if (p === ins[g.step]) g.step++;
-        else if (!easy) g.step = p === ins[0] ? 1 : 0;   // a wrong one starts again (not on "Ușor")
+        else if (!easy && !inputVirtual(p, solo)) g.step = p === ins[0] ? 1 : 0;   // a wrong one starts again (not on "Ușor")
       }
+      while (g.step < ins.length && inputVirtual(ins[g.step], solo)) g.step++;      // G6: the other hero's turns are done
       if (g.step >= ins.length) { ruleOk = true; g.step = 0; }
     }
+    if (g3) { g.g3 = true; ruleOk = true; }        // G3: every gate opens and stays open while a hero is down
     if (ruleOk) {
       g.stayT = g.stay * ef;
-      if (g.state !== 'open') openGate(L, g);
+      if (g.state !== 'open') { if (g3) g.state = 'open'; else openGate(L, g); }
     } else if (g.state === 'open') {
       // 'any': the time to cross runs only while somebody is on the crossing or next to it. Otherwise it closes now:
-      // nobody can step off the plate and run over alone (docs/16-decizii.md, 26 November 2026)
-      const someone = g.rule !== 'any' || P.heroes.some(h => isJoined(h.k) && nearGate(h, g, M.nearGate));
+      // nobody can step off the plate and run over alone (docs/16-decizii.md, 26 November 2026). After G3 it always runs.
+      const someone = g.g3 || g.rule !== 'any' || P.heroes.some(h => isJoined(h.k) && nearGate(h, g, M.nearGate));
       g.stayT = someone ? g.stayT - dt : 0;
-      if (g.stayT <= 0) g.state = 'closed';
+      if (g.stayT <= 0) { g.state = 'closed'; g.g3 = false; }
     }
     stepGateOpen(L, g, dt, g.state === 'open' ? 1 : 0);
   }
+}
+
+/* What each hero has to do at gate g right now (3.7): [step of Boon, step of Killer], each { x, y, act, inp } or null
+   (a hero nobody plays, or nothing to do). act: 'stand' (on a plate, or wait there), 'throw', 'spin', 'push', 'carry',
+   'ride', 'cross'. The arrow (guideTarget), the hints (drawHints) and the bots (T7.5) use it. */
+function mechSteps(g) {
+  const L = P.L, out = [null, null];
+  if (!g || g.state === 'fixed') return out;
+  const ins = g.inputs.map(id => L.inputs[id]), solo = soloK();
+  const far = h => h.x > bandX(g, h.y);
+  const actOf = p => p.kind === 'target' ? 'throw' : p.kind === 'crank' ? 'spin' : p.kind === 'pedestal' ? 'carry' : p.kind === 'slot' ? 'push' : 'stand';
+  const at = (p, h) => ({ x: p.x, y: p.y, act: actOf(p), inp: p.id });
+  const cross = h => far(h) ? { x: g.x + g.w / 2 + 110, y: g.y, act: 'stand' } : { x: g.x - g.w / 2 - 70, y: g.y, act: 'cross' };   // wait by the crossing; once open, go
+  const go = h => far(h) ? { x: g.x + g.w / 2 + 110, y: g.y, act: 'stand' } : { x: g.x + g.w / 2 + 110, y: g.y, act: 'cross' };
+  const mine = (h, p) => (p.who === -1 || p.who === h.k) && (p.side === 'far') === far(h) && !inputVirtual(p, solo);
+  const hs = P.heroes.filter(h => isJoined(h.k));
+  const open = g.state === 'open';
+  const used = new Set();
+  const pick = h => {                      // the nearest free input of this hero, the next one of a sequence first
+    if (g.rule === 'seq' && ins[g.step] && mine(h, ins[g.step]) && !used.has(ins[g.step])) return ins[g.step];
+    let best = null, bd = 1e9;
+    for (const p of ins) if (mine(h, p) && !used.has(p)) { const d = dist(h.x, h.y, p.x, p.y) + (p.who === h.k ? 0 : 400); if (d < bd) { bd = d; best = p; } }
+    return best;
+  };
+  if (hs.length === 1) {                   // G6: alone, his own input (if he has one), then over
+    const h = hs[0], p = open ? null : pick(h);
+    out[h.k] = p && !p.on ? at(p, h) : go(h);
+    return out;
+  }
+  if (g.rule === 'any') {
+    const near = hs.filter(h => !far(h));
+    if (!near.length) return out;
+    // one presses, the other crosses. A hero on the far bank presses the far plate for the one left behind
+    let holder = null;
+    if (near.length === 1) holder = hs.find(h => far(h));
+    else { let bd = 1e9; for (const h of hs) { const p = pick(h); if (p) { const d = dist(h.x, h.y, p.x, p.y); if (d < bd) { bd = d; holder = h; } } } }
+    for (const h of hs) {
+      if (h === holder) { const p = pick(h); if (p) { used.add(p); out[h.k] = at(p, h); } else out[h.k] = cross(h); }
+      else out[h.k] = open ? go(h) : cross(h);
+    }
+    return out;
+  }
+  // all, allWithin, seq (and the kinds of T8 - T12): everyone to his own input; once it is open, everyone over
+  for (const h of hs) {
+    if (open) { out[h.k] = go(h); continue; }
+    const p = pick(h);
+    if (p) { used.add(p); out[h.k] = at(p, h); } else out[h.k] = cross(h);
+  }
+  return out;
+}
+/* The step of hero h at the gate in front, for the arrow (guideTarget). */
+function mechGuide(h) {
+  const L = P.L, g = frontGate(L); if (!g || !isJoined(h.k)) return null;
+  const st = mechSteps(g)[h.k]; if (!st) return null;
+  return { x: st.x, y: st.y, kind: st.act, hint: gateHinting(g) };
 }
 function openGate(L, g) {
   g.state = 'open';
@@ -4626,6 +4721,7 @@ function cageSwing(h, id) {
 function cageHitBy(cg, k) {
   const now = P.time, win = CONFIG.mech.cageWindow * cageEasy(), other = cg.hit[1 - k];
   cg.hit[k] = now;
+  if (soloK() >= 0) { cageOpen(cg, k); return; }       // G6: alone, one hit opens it
   if (now - other <= win) { cageOpen(cg, k); return; }
   cg.wobT = CONFIG.mech.cageWobble; Snd.play('click');
 }
@@ -5577,8 +5673,15 @@ function hitBird(bd) {
 }
 function dropHero(bd) {
   const h = bd.grab, L = P.L; if (!h) return;
-  if (!L.reach[L.ci(h.x, h.y)]) {            // never dropped into water, a pit or a tree: the nearest free place
-    let p = null, best = 1e9; for (const c of L.reachCells(h.x, h.y, 0, 360, 0)) { const dd = dist(c.x, c.y, h.x, h.y); if (dd < best) { best = dd; p = c; } }
+  // G4 (T7.3): never past a band: only on the side of every band the bird took him from (h.grabSide)
+  const side = h.grabSide == null ? -1 : h.grabSide, sideOk = (x, y) => side < 0 || !L.gates || !L.gates.length || bandSide(L, x, y) === side;
+  if (!L.reach[L.ci(h.x, h.y)] || L.grid[L.ci(h.x, h.y)] >= 2 || !sideOk(h.x, h.y)) {      // never dropped into water, a pit, a band or a tree: the nearest free place
+    let p = null, best = 1e9;
+    for (const R of [360, 1400]) {
+      for (const c of L.reachCells(h.x, h.y, 0, R, 0)) { if (L.grid[L.ci(c.x, c.y)] >= 2 || !sideOk(c.x, c.y)) continue; const dd = dist(c.x, c.y, h.x, h.y); if (dd < best) { best = dd; p = c; } }
+      if (p) break;
+    }
+    if (!p && h.grabX != null) p = { x: h.grabX, y: h.grabY };      // where he was taken from
     if (p) { h.x = p.x; h.y = p.y; }
   }
   h.carried = null; h.z = 0; h.squash = 0.25; h.inv = Math.max(h.inv, 1.5); h.vx = h.vy = 0; h.px = h.x; h.py = h.y; bd.grab = null; bd.rest = 4;
@@ -5602,7 +5705,7 @@ function updateBirds(dt) {
       bd.carryT -= dt; if (bd.carryT <= 0 || bd.x < 90 || bd.x > L.W - 90) dropHero(bd);
     } else if (bd.rest <= 0) for (const h of P.heroes) {
       if (!Input.slots[h.k].joined || h.down || h.safe || h.shield || h.carried || h.inv > 0 || P.done) continue;
-      if (dist(h.x, h.y, bd.x, bd.y) < 66) { bd.grab = h; h.carried = bd; bd.carryT = C.birdCarry; h.charging = false; h.charge = 0; h.stompT = -1; Snd.play('grab', 0, h.k); Snd.talk(h.k, 'wind'); Input.rumble(h.k, 0.4, 0.6, 250); break; }
+      if (dist(h.x, h.y, bd.x, bd.y) < 66) { bd.grab = h; h.carried = bd; h.grabSide = bandSide(L, h.x, h.y); h.grabX = h.x; h.grabY = h.y; bd.carryT = C.birdCarry; h.charging = false; h.charge = 0; h.stompT = -1; Snd.play('grab', 0, h.k); Snd.talk(h.k, 'wind'); Input.rumble(h.k, 0.4, 0.6, 250); break; }
     }
     if (bd.x < -260 || bd.x > L.W + 260) { if (bd.grab) dropHero(bd); bd.state = 'gone'; bd.t = lerp(C.birdEvery[0], C.birdEvery[1], Math.random()); }
   }
@@ -6655,7 +6758,9 @@ function guideTarget(h) {
     if (d.state === 'enter' || d.state === 'flee') return null;
     return { x: d.x, y: d.y, kind: duelCanHurt(h.k, h.k ? 'ball' : 'stomp') ? (h.k ? 'ball' : 'x') : 'wait' };
   }
-  const e = nearestEgg(h, true); if (e) return e;
+  const e = nearestEgg(h, true), mg = mechGuide(h);      // T7.3: at a band each hero goes to his own place (mechSteps)
+  if (mg && (mg.hint || !e || bandSide(L, e.x, e.y) !== bandSide(L, h.x, h.y))) return mg;
+  if (e) return e;
   let best = null, bd = 1e9;
   for (const t of L.dynTrees) if (t.spark && t.spark.active && !t.spark.done) { const dd = dist(h.x, h.y, t.cx, t.cy); if (dd < bd) { bd = dd; best = { x: t.cx, y: t.cy, kind: h.k ? 'ball' : 'x' }; } }
   return best;
@@ -6664,7 +6769,9 @@ function drawGuides(c) {
   const t = P.time;
   for (const h of P.heroes) {
     const fr = P.heroes[1 - h.k], help = fr.down && !h.down && Input.slots[h.k].joined;      // a friend who waits for help: the arrow shows the way to them, for every player
-    if (!help && (!Opt.guide[h.k] || !Input.slots[h.k].joined || h.dizzy > 0 || h.carried)) continue;
+    const mg = !help && Input.slots[h.k].joined ? mechGuide(h) : null, force = !!(mg && mg.hint);      // G8: stuck at a gate, the arrow shows even when it is turned off
+    if (!help && !force && (!Opt.guide[h.k] || !Input.slots[h.k].joined || h.dizzy > 0 || h.carried)) continue;
+    if (force && (h.dizzy > 0 || h.carried)) continue;
     const g = help ? { x: fr.x, y: fr.y, kind: 'help' } : guideTarget(h); if (!g) continue;
     const dx = g.x - h.x, dy = g.y - h.y, m = Math.hypot(dx, dy); if (m < (help ? (h.k === 0 ? CONFIG.rescue.reachNear : CONFIG.rescue.reachFar) : 130)) continue;
     const ux = dx / m, uy = dy / m, ang = Math.atan2(uy, ux), col = CONFIG.heroes[h.k].color, fade = clamp((m - 130) / 90, 0, 1);
@@ -6683,10 +6790,20 @@ function drawGuides(c) {
       else if (g.kind === 'help') iconO(c, ix, iy, 18, Math.sin(t * 8));
       else if (g.kind === 'give') iconL1(c, ix, iy, 18, Math.sin(t * 8));
       else if (g.kind === 'ball') drawBall(c, ix, iy, 14, t * 2);
+      else if (MECH_ACTS[g.kind]) drawMechAct(c, h.k, g.kind, ix, iy, 16, t);
       else text(c, '!', ix, iy + 2, 40, '#D9463C', { halo: 0, shadow: 0, weight: 'bold' });
     }
     c.globalAlpha = 1;
   }
+}
+/* The little picture of what a hero must do at a gate (T7.3): stand on it (an arrow down), cross (an arrow over),
+   or the button of the power it takes. */
+const MECH_ACTS = { stand: 1, cross: 1, throw: 1, spin: 1, push: 1, carry: 1, ride: 1, power1: 1, power2: 1 };
+function drawMechAct(c, k, act, x, y, r, t) {
+  if (act === 'stand') iconArrow(c, x, y - r * 0.2 + Math.sin(t * 6) * 3, Math.PI / 2, r * 1.2, '#FFF6E2');
+  else if (act === 'cross' || act === 'ride') iconArrow(c, x + Math.sin(t * 6) * 3, y, 0, r * 1.2, '#FFF6E2');
+  else if (act === 'power1' || act === 'power2') (act === 'power2' ? iconSq : iconX)(c, x, y, r, Math.sin(t * 6));
+  else { const kind = act === 'throw' ? 'throw' : 'spin', sl = hasAbil(k, kind) ? abilSlot(k, kind) : 1; (sl === 2 ? iconSq : iconX)(c, x, y, r, Math.sin(t * 6)); }
 }
 function drawHints(c, v) {
   const t = P.time, L = P.L, tg = hintTarget();
@@ -6714,6 +6831,19 @@ function drawHints(c, v) {
     if (!Input.slots[h.k].joined || !CONFIG.heroes[h.k].power2 || P.tut[h.k].used2 || !P.tut[h.k].used || h.down) continue;
     const sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 30, (h.y - v.tp) * v.z - (h.tagT > 0 ? 200 : 160) * v.z) + Math.sin(t * 5) * 5;
     iconSq(c, sx, sy, 24, Math.sin(t * 6));
+  }
+  // G8 (T7.3): stuck at a gate: above the place of each hero, his color and the button to press, under the band at the top
+  const fg = L.gates && L.gates.length ? frontGate(L) : null;
+  if (fg && gateHinting(fg)) {
+    const st = mechSteps(fg);
+    for (let k = 0; k < 2; k++) {
+      const s = st[k]; if (!s || s.act === 'cross') continue;
+      const sx = (s.x - v.l) * v.z, sy = Math.max(HUD_TOP + 60, (s.y - v.tp) * v.z - 120 * v.z) + Math.sin(t * 5 + k) * 6;
+      if (sx < 40 || sx > W - 40 || sy > H - 40) continue;
+      c.fillStyle = rgba(CONFIG.heroes[k].color, 0.9); c.beginPath(); c.arc(sx, sy, 34, 0, TAU); c.fill();
+      drawMechAct(c, k, s.act, sx, sy, 20, t);
+      text(c, T('mech.yours'), sx, sy + 56, 24, CONFIG.heroes[k].color, { halo: 0.2, weight: 'bold' });
+    }
   }
   for (const h of P.heroes) if (h.tooFarT > 0 && !h.down) {       // L1 pressed but the friend is too far: "come closer"
     const sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 40, (h.y - v.tp) * v.z - 190 * v.z);

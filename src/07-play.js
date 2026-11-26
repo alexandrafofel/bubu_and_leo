@@ -929,8 +929,15 @@ function hitBird(bd) {
 }
 function dropHero(bd) {
   const h = bd.grab, L = P.L; if (!h) return;
-  if (!L.reach[L.ci(h.x, h.y)]) {            // never dropped into water, a pit or a tree: the nearest free place
-    let p = null, best = 1e9; for (const c of L.reachCells(h.x, h.y, 0, 360, 0)) { const dd = dist(c.x, c.y, h.x, h.y); if (dd < best) { best = dd; p = c; } }
+  // G4 (T7.3): never past a band: only on the side of every band the bird took him from (h.grabSide)
+  const side = h.grabSide == null ? -1 : h.grabSide, sideOk = (x, y) => side < 0 || !L.gates || !L.gates.length || bandSide(L, x, y) === side;
+  if (!L.reach[L.ci(h.x, h.y)] || L.grid[L.ci(h.x, h.y)] >= 2 || !sideOk(h.x, h.y)) {      // never dropped into water, a pit, a band or a tree: the nearest free place
+    let p = null, best = 1e9;
+    for (const R of [360, 1400]) {
+      for (const c of L.reachCells(h.x, h.y, 0, R, 0)) { if (L.grid[L.ci(c.x, c.y)] >= 2 || !sideOk(c.x, c.y)) continue; const dd = dist(c.x, c.y, h.x, h.y); if (dd < best) { best = dd; p = c; } }
+      if (p) break;
+    }
+    if (!p && h.grabX != null) p = { x: h.grabX, y: h.grabY };      // where he was taken from
     if (p) { h.x = p.x; h.y = p.y; }
   }
   h.carried = null; h.z = 0; h.squash = 0.25; h.inv = Math.max(h.inv, 1.5); h.vx = h.vy = 0; h.px = h.x; h.py = h.y; bd.grab = null; bd.rest = 4;
@@ -954,7 +961,7 @@ function updateBirds(dt) {
       bd.carryT -= dt; if (bd.carryT <= 0 || bd.x < 90 || bd.x > L.W - 90) dropHero(bd);
     } else if (bd.rest <= 0) for (const h of P.heroes) {
       if (!Input.slots[h.k].joined || h.down || h.safe || h.shield || h.carried || h.inv > 0 || P.done) continue;
-      if (dist(h.x, h.y, bd.x, bd.y) < 66) { bd.grab = h; h.carried = bd; bd.carryT = C.birdCarry; h.charging = false; h.charge = 0; h.stompT = -1; Snd.play('grab', 0, h.k); Snd.talk(h.k, 'wind'); Input.rumble(h.k, 0.4, 0.6, 250); break; }
+      if (dist(h.x, h.y, bd.x, bd.y) < 66) { bd.grab = h; h.carried = bd; h.grabSide = bandSide(L, h.x, h.y); h.grabX = h.x; h.grabY = h.y; bd.carryT = C.birdCarry; h.charging = false; h.charge = 0; h.stompT = -1; Snd.play('grab', 0, h.k); Snd.talk(h.k, 'wind'); Input.rumble(h.k, 0.4, 0.6, 250); break; }
     }
     if (bd.x < -260 || bd.x > L.W + 260) { if (bd.grab) dropHero(bd); bd.state = 'gone'; bd.t = lerp(C.birdEvery[0], C.birdEvery[1], Math.random()); }
   }

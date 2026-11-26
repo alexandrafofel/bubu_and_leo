@@ -174,23 +174,29 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 988-1150 | Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). |
 | 1151-1244 | The boss arena: one screen, the tallest tree in the valley. |
 
-## 065-mech.js (236 linii)
+## 065-mech.js (332 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 1-23 | MECHANISMS (T7): the bands that cut a new level from top to bottom, and the gates |
 | 24-81 | The band's middle at height y, and its left and right edges there. |
-| 82-90 | startPlay: every gate is closed. The cells of the crossing get the code of the band back (2 or 3). |
-| 91-95 | "Ușor": the easiest difficulty of the players who play. |
-| 96-99 | A hero on the crossing of a gate (with his own size). |
-| 100-111 | A hero standing on the cells of the crossing itself (over the band), not on the land next to it. |
-| 112-123 | A hero who is crossing somewhere: on any crossing, or carried by a raft (T9). He cannot press anything. |
-| 124-133 | The hero who presses a plate (-1 = nobody). Only the one who is pressing gets the vibration (T7.2). |
-| 134-205 | Every frame, after the heroes and the thrown things (updatePlay). docs/25, 3.2. |
-| 206-225 | A power of hero h (spin or stomp; powerSweep calls this once per power id, and the spin every frame). |
-| 226-236 | Every frame: the wobble runs down, and a ball thrown by a hero counts once when it passes the cage. |
+| 82-96 | startPlay: every gate is closed. The cells of the crossing get the code of the band back (2 or 3). |
+| 97-101 | "Ușor": the easiest difficulty of the players who play. |
+| 102-105 | A hero on the crossing of a gate (with his own size). |
+| 106-117 | A hero standing on the cells of the crossing itself (over the band), not on the land next to it. |
+| 118-129 | A hero who is crossing somewhere: on any crossing, or carried by a raft (T9). He cannot press anything. |
+| 130-139 | The hero who presses a plate (-1 = nobody). Only the one who is pressing gets the vibration (T7.2). |
+| 140-140 | helpers of the safety rules (T7.3, docs/25-niveluri-7-12.md, 3.6) |
+| 141-142 | How many bands lie left of (x, y): two places with the same number are on the same side of every band. |
+| 143-149 | The hero who plays alone (0 or 1), or -1 when both play or nobody does. |
+| 150-151 | G8: the gate the players are stuck at: closed, and no progress for CONFIG.mech.hintAfter seconds. |
+| 152-154 | The gate in front of the heroes: the first one that is not fixed yet (G2 fixes every gate both have passed). |
+| 155-268 | Every frame, after the heroes and the thrown things (updatePlay). docs/25, 3.2 and 3.6. |
+| 269-300 | The step of hero h at the gate in front, for the arrow (guideTarget). |
+| 301-321 | A power of hero h (spin or stomp; powerSweep calls this once per power id, and the spin every frame). |
+| 322-332 | Every frame: the wobble runs down, and a ball thrown by a hero counts once when it passes the cage. |
 
-## 07-play.js (1136 linii)
+## 07-play.js (1143 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -225,8 +231,8 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 714-850 | One ball in the air. Returns false when the ball has come home to Leo and can go. |
 | 851-851 | boss: Ciori in the tallest tree (first game), George on his stone throne (second game) |
 | 852-923 | Where the ball must land. Ciori: the nest in the tree. George: George himself, while he lies dizzy on the ground. |
-| 924-961 | second game: big birds that pick a hero up and carry him a little way (it does not hurt) |
-| 962-1136 | Thrown things (pinecones, mud balls) fly in an arc and land on a marked spot. |
+| 924-968 | second game: big birds that pick a hero up and carry him a little way (it does not hurt) |
+| 969-1143 | Thrown things (pinecones, mud balls) fly in an arc and land on a marked spot. |
 
 ## 075-duel.js (432 linii)
 
@@ -249,25 +255,25 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 395-408 | Things on the ground during a mini-fight: where the next attack will land, shadows. (The shelter ring is in drawNestShelter.) |
 | 409-432 | Things above everything: flying guardians, thrown pinecones, leaves, hearts. |
 
-## 08-draw.js (947 linii)
+## 08-draw.js (974 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 2-42 | DRAWING THE GAME: world, heroes, effects, HUD |
 | 43-196 | Boon's claws while they spin: rainbow slashes that run around him, on a soft shield. |
 | 197-420 | Small enemies show how many hits they still take, once they were hit. |
-| 421-520 | The helper arrow: a soft arrow next to a hero that shows where to go and, in a small bubble, what waits there. |
-| 521-574 | How far the level is: eggs in groups, then the guardian, then the nest. |
-| 575-586 | The round picture of a hero (the one painted after the children's drawings) in a ring of his color; r = the radius of the ring. |
-| 587-596 | A round green tick, painted: the quota is found. |
-| 597-618 | The corner badge: portrait, name, difficulty and, when the level has a quota, "found / quota" in green (done) or red (still missing). 300 x 108, inside the band (16 to 124). |
-| 619-619 | "We wait for X in the nest": it used to be written in the world, over the nest. Now it is a banner in the band. |
-| 620-634 | "Ajută-l pe Boon! ○" while a friend is down and the seconds are running. It comes before any other banner. |
-| 635-888 | The card in the middle, with what a banner says when there is one. A banner never comes down over the world. |
-| 889-898 | The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. |
-| 899-906 | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
-| 907-922 | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
-| 923-947 | George's arena (the last level of the second game) |
+| 421-547 | The helper arrow: a soft arrow next to a hero that shows where to go and, in a small bubble, what waits there. |
+| 548-601 | How far the level is: eggs in groups, then the guardian, then the nest. |
+| 602-613 | The round picture of a hero (the one painted after the children's drawings) in a ring of his color; r = the radius of the ring. |
+| 614-623 | A round green tick, painted: the quota is found. |
+| 624-645 | The corner badge: portrait, name, difficulty and, when the level has a quota, "found / quota" in green (done) or red (still missing). 300 x 108, inside the band (16 to 124). |
+| 646-646 | "We wait for X in the nest": it used to be written in the world, over the nest. Now it is a banner in the band. |
+| 647-661 | "Ajută-l pe Boon! ○" while a friend is down and the seconds are running. It comes before any other banner. |
+| 662-915 | The card in the middle, with what a banner says when there is one. A banner never comes down over the world. |
+| 916-925 | The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. |
+| 926-933 | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
+| 934-949 | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
+| 950-974 | George's arena (the last level of the second game) |
 
 ## 09-screens.js (964 linii)
 

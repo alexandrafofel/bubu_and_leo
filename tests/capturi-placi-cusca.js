@@ -33,7 +33,19 @@ const boot = require('./common.js');
   await page.evaluate(() => { const T = window.__t72; cageSwing(T.b, 7002); });
   await step_(page, 40);
   await shot('p2_cusca_deschisa.png');
-  console.log('capturi scrise: p2_placa_libera, p2_placa_apasata, p2_cusca_inchisa, p2_cusca_clatinata, p2_cusca_deschisa');
+  // G8 (T7.3): blocati la poarta: sageata fiecaruia spre placa lui si iconita "Al tău" deasupra
+  await page.evaluate(() => { const G = __game, T = window.__t72, B = T.L.gates[0]; G.Game.goLevel(0); });
+  await step_(page, 5);
+  await page.evaluate(() => { const G = __game; G.UI.introT = 2; inp[0].aP = true; });
+  await step_(page, 3);
+  await page.evaluate(() => {
+    const G = __game, P = G.P, L = P.L, B = L.gates[0], a = P.heroes[0], b = P.heroes[1];
+    L.beetles.length = 0; L.cones.length = 0; if (L.birds) L.birds.length = 0;
+    a.x = B.x - 260; a.y = B.y - 40; b.x = B.x - 300; b.y = B.y + 60; B.idleT = 45;
+  });
+  await step_(page, 40);
+  await shot('p2_g8_indicii.png');
+  console.log('capturi scrise: p2_placa_libera, p2_placa_apasata, p2_cusca_inchisa, p2_cusca_clatinata, p2_cusca_deschisa, p2_g8_indicii');
   await done();
 })();
 async function step_(page, n) { await page.evaluate(n => step(n), n); }

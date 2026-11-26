@@ -202,6 +202,137 @@ const boot = require('./common.js');
   check('cusca: amandoi in 1.5 s o deschid, steluta e stransa', c3.cageBoth.done === true && c3.cageBoth.by === 1 && c3.cageBoth.star === 1, c3.cageBoth);
   check('sunetele placilor si cuștii exista', c3.sounds.every(Boolean), c3.sounds);
 
+  // ---------- partea a patra (T7.3): regulile de siguranta G1 - G10 si mechSteps ----------
+  const g = await page.evaluate(() => {
+    const G = __game, out = {}, orig = LEVEL_DEFS_L[0], M = G.CONFIG.mech, keepM = Object.assign({}, M);
+    LEVEL_DEFS_L[0] = Object.assign({}, orig, { bands: [{ at: 0.335, kind: 'chasm', w: 200, mech: 'plates1' }, { at: 0.665, kind: 'chasm', w: 200, mech: 'plates2' }], cage: true, lanes: [0, 0, 0], pond: false, stars: ['nook', 'nook', 'nook'], beetles: [0, 0, 0] });
+    G.Game.diff[0] = G.Game.diff[1] = 'normal';
+    const fresh = () => {
+      joined[0] = joined[1] = true; go(0); step(3);
+      const P = G.P, L = P.L; L.beetles.length = 0; L.cones.length = 0; if (L.birds) L.birds.length = 0; G.CONFIG.lupta.george.on = false;
+      for (const h of P.heroes) h.inv = 0;
+      return { P, L, A: L.gates[0], B: L.gates[1], a: P.heroes[0], b: P.heroes[1] };
+    };
+    const sec = s => step(Math.round(s * 60));
+    const put = (h, x, y) => { h.x = h.px = x; h.y = h.py = y; h.vx = h.vy = 0; };
+    const solid = g => g.cells.every(i => __game.P.L.grid[i] === g.code), free = g => g.cells.every(i => __game.P.L.grid[i] === 0);
+    const cellXY = (L, i) => ({ x: (i % L.cols + 0.5) * 40, y: ((i / L.cols | 0) + 0.5) * 40 });
+    let Z;
+    // mechSteps: la fiecare poarta inchisa, un loc si o actiune pentru fiecare erou
+    Z = fresh(); { const { L, A, B, a, b } = Z;
+      put(a, A.x - 500, A.y - 80); put(b, A.x - 520, A.y + 80); step(2);
+      const sA = mechSteps(A), pA = A.inputs.map(i => L.inputs[i]);
+      out.stepsA = sA.map(s => s && s.act).sort().join(',');
+      out.stepsAplate = sA.some(s => s && s.act === 'stand' && pA.some(p => p.x === s.x && p.y === s.y));
+      const q = pA[0]; put(a, q.x, q.y); put(b, A.x - A.w / 2 - 60, A.y); step(30);
+      const sO = mechSteps(A); out.stepsOpen = { a: sO[0] && sO[0].act, b: sO[1] && sO[1].act, bx: sO[1] && sO[1].x > bandRight(A, A.y), open: A.state };
+      // poarta B: amandoi trec de A ca sa ajunga la ea (G2 o fixeaza pe A)
+      put(a, B.x - 500, B.y); put(b, B.x - 520, B.y + 60); step(2);
+      const sB = mechSteps(B), pB = B.inputs.map(i => L.inputs[i]);
+      out.stepsB = sB.map(s => s && s.act).join(',');
+      out.stepsBown = pB.every(p => { const s = sB[p.who]; return s && s.x === p.x && s.y === p.y; });
+    }
+    // G1: poarta 'any' lasata nu se inchide sub un erou de pe celulele ei
+    Z = fresh(); { const { L, A, a, b } = Z, q = L.inputs[A.inputs[0]];
+      put(a, q.x, q.y); sec(0.8); const c = cellXY(L, A.cells[Math.floor(A.cells.length / 2)]);
+      put(b, c.x, c.y); put(a, q.x, q.y - 250); sec(3);
+      out.g1 = { free: free(A), on: onGateCells(b, A) };
+      put(b, A.x - A.w / 2 - 200, A.y); sec(2.5); out.g1after = solid(A);
+    }
+    // G2: amandoi dincolo de banda -> fixed, ramane deschisa
+    Z = fresh(); { const { L, A, a, b } = Z, q = L.inputs[A.inputs[0]];
+      put(a, q.x, q.y); sec(0.8);
+      put(a, bandRight(A, A.y) + 160, A.y); put(b, bandRight(A, A.y) + 200, A.y + 60); sec(0.3);
+      out.g2state = A.state; sec(8); out.g2open = free(A);
+    }
+    // G3: un erou jos -> toate portile deschise; ridicat -> se inchid dupa stay
+    Z = fresh(); { const { P, A, B, a, b } = Z;
+      put(a, A.x - 400, A.y); put(b, A.x - 450, A.y + 80); step(2);
+      hitHero(a, a.x - 40, a.y); out.g3down = a.down; sec(1);
+      out.g3open = free(A) && free(B);
+      a.down = false; a.dizzy = 0; a.downLeft = 0; sec(2.2); out.g3A = solid(A); out.g3Bmid = free(B); sec(3.8); out.g3B = solid(B);
+    }
+    // G4: pasarea il lasa doar pe partea de unde l-a luat
+    Z = fresh(); { const { L, A, a } = Z;
+      put(a, A.x - 400, A.y + 100); const side0 = bandSide(L, a.x, a.y);
+      a.grabSide = side0; a.grabX = a.x; a.grabY = a.y; const bd = { grab: a }; a.carried = bd;
+      put(a, bandRight(A, A.y) + 300, A.y + 100); dropHero(bd);
+      out.g4 = { side0, side: bandSide(L, a.x, a.y), carried: !!a.carried };
+    }
+    // G5: vantul si o lovitura nu imping un erou in banda
+    Z = fresh(); { const { P, L, A, a, b } = Z, y = A.y + 360;
+      put(a, bandLeft(A, y) - 60, y); put(b, L.spawn.x, L.spawn.y);
+      P.wind.state = 'blow'; P.wind.dir = 1; P.wind.power = 1;
+      for (let f = 0; f < 240; f++) { P.wind.power = 1; P.wind.dir = 1; if (f % 30 === 0) a.vx = 2400; step(1); }
+      out.g5 = { x: Math.round(a.x), edge: Math.round(bandLeft(A, a.y)), ok: a.x < bandX(A, a.y) };
+      P.wind.power = 0;
+    }
+    // G6: un singur jucator
+    Z = fresh(); joined[1] = false; step(3); { const { L, A, B, a, b } = Z, P = G.P;
+      put(a, A.x - 400, A.y); sec(1); out.g6A = free(A);
+      const qb = L.inputs[B.inputs.find(i => L.inputs[i].who === 0)]; put(a, qb.x, qb.y); sec(1); out.g6B = free(B);
+      B.rule = 'allWithin'; B.window = 1; B.stay = 0.2; B.state = 'closed'; put(a, qb.x, qb.y - 300); sec(4); out.g6within = free(B);
+      const cg = L.cage; put(a, cg.x - 90, cg.y); step(2); cageSwing(a, 8101); out.g6cage = cg.done;
+    }
+    joined[1] = true;
+    // G7, G8: fara progres langa poarta B -> sageata si iconita la hintAfter, deschidere singura la autoOpen
+    Z = fresh(); { const { P, L, B, a, b } = Z;
+      M.autoOpen = 6; M.hintAfter = 2;
+      put(a, B.x - 600 - 700, B.y); put(b, B.x - 650 - 700, B.y + 60); sec(3); out.g7far = B.idleT;
+      put(a, B.x - 300, B.y); put(b, B.x - 320, B.y + 80); sec(1.5); out.g8before = gateHinting(B);
+      sec(1); out.g8 = gateHinting(B);
+      const gt = guideTarget(a), mine = L.inputs[B.inputs.find(i => L.inputs[i].who === 0)];
+      out.g8arrow = !!gt && gt.x === mine.x && gt.y === mine.y && gt.kind === 'stand';
+      G.Opt.guide[0] = false; out.g8force = !!(mechGuide(a) && mechGuide(a).hint); G.Opt.guide[0] = true;
+      sec(4); out.g7 = { state: B.state, banner: P.banner && P.banner.kind, free: free(B) };
+      M.autoOpen = keepM.autoOpen; M.hintAfter = keepM.hintAfter;
+    }
+    // G9: in lupta cu George portile nu isi schimba starea
+    Z = fresh(); { const { P, L, B, a, b } = Z;
+      startDuel('mid'); step(2); for (const h of P.heroes) h.inv = 999;
+      const q0 = L.inputs[B.inputs.find(i => L.inputs[i].who === 0)], q1 = L.inputs[B.inputs.find(i => L.inputs[i].who === 1)];
+      for (let f = 0; f < 90; f++) { put(a, q0.x, q0.y); put(b, q1.x, q1.y); step(1); }
+      out.g9 = { duel: !!(P.duel && !P.duel.over), state: B.state, solid: solid(B) };
+      P.duel.over = true; for (let f = 0; f < 60; f++) { put(a, q0.x, q0.y); put(b, q1.x, q1.y); step(1); }
+      out.g9after = free(B);
+    }
+    // G10: la reincepere totul de la zero
+    Z = fresh(); { const { L, A, B } = Z;
+      A.state = 'fixed'; A.idleT = 99; L.cage.done = true; step(40);
+      closeGates(L); out.g10close = { gates: L.gates.every(g => g.state === 'closed' && g.idleT === 0 && !g.g3), cage: !L.cage.done && L.cage.hit[0] < 0, star: L.stars.filter(x => x.kind === 'cage').every(x => x.hidden) };
+      A.state = 'fixed'; L.cage.done = true; step(10);
+      G.Game.goLevel(0); step(5); G.UI.introT = 2; inp[0].aP = true; step(3);
+      const L2 = G.P.L, A2 = L2.gates[0], cg = L2.cage;
+      out.g10 = { state: L2.gates.map(g => g.state).join(','), idle: L2.gates.every(g => g.idleT < 1), solid: L2.gates.every(g => g.cells.every(i => L2.grid[i] === g.code)), cage: !cg.done, star: L2.stars.filter(s => s.kind === 'cage').every(s => s.hidden) };
+    }
+    G.CONFIG.lupta.george.on = true; LEVEL_DEFS_L[0] = orig; Object.assign(M, keepM);
+    return out;
+  });
+  console.log(JSON.stringify(g));
+  check('mechSteps: la poarta A unul sta pe placa, celalalt asteapta sa treaca', g.stepsA === 'cross,stand' && g.stepsAplate, [g.stepsA, g.stepsAplate]);
+  check('mechSteps: la poarta B fiecare la placa lui', g.stepsB === 'stand,stand' && g.stepsBown, [g.stepsB, g.stepsBown]);
+  check('mechSteps: poarta deschisa, cel de pe placa sta, celalalt trece', g.stepsOpen.a === 'stand' && g.stepsOpen.b === 'cross' && g.stepsOpen.bx, g.stepsOpen);
+  check('G1: poarta any nu se inchide sub un erou', g.g1.free && g.g1.on, g.g1);
+  check('G1: se inchide dupa ce pleaca', g.g1after);
+  check('G2: amandoi dincolo -> fixed, ramane deschisa', g.g2state === 'fixed' && g.g2open, [g.g2state, g.g2open]);
+  check('G3: un erou jos -> toate portile deschise', g.g3down && g.g3open, [g.g3down, g.g3open]);
+  check('G3: dupa ridicare se inchid dupa stay', g.g3A && g.g3Bmid && g.g3B, [g.g3A, g.g3Bmid, g.g3B]);
+  check('G4: pasarea il lasa pe partea de unde l-a luat', g.g4.side === g.g4.side0 && !g.g4.carried, g.g4);
+  check('G5: vantul si loviturile nu il imping in banda', g.g5.ok, g.g5);
+  check('G6: singur, poarta any e deschisa', g.g6A);
+  check('G6: singur, placa celuilalt e apasata', g.g6B);
+  check('G6: singur, fara fereastra de timp', g.g6within);
+  check('G6: singur, cusca la o lovitura', g.g6cage);
+  check('G7: departe de poarta nu se numara', g.g7far < 0.5, g.g7far);
+  check('G8: inainte de hintAfter fara iconite', !g.g8before);
+  check('G8: dupa hintAfter iconite si sageata spre locul lui', g.g8 && g.g8arrow, [g.g8, g.g8arrow]);
+  check('G8: sageata si cu sageata oprita', g.g8force);
+  check('G7: dupa autoOpen se deschide singura, cu mesaj', g.g7.state === 'fixed' && g.g7.banner === 'gateAuto' && g.g7.free, g.g7);
+  check('G9: in lupta portile nu se schimba', g.g9.duel && g.g9.state === 'closed' && g.g9.solid, g.g9);
+  check('G9: dupa lupta merg din nou', g.g9after);
+  check('G10: closeGates pune totul la zero (si cusca)', g.g10close.gates && g.g10close.cage && g.g10close.star, g.g10close);
+  check('G10: la reincepere totul de la zero', g.g10.state === 'closed,closed' && g.g10.idle && g.g10.solid && g.g10.cage && g.g10.star, g.g10);
+
   console.log(bad.length ? 'NEREUSIT: ' + bad.join(', ') : 'mecanisme OK');
   await done();
 })();

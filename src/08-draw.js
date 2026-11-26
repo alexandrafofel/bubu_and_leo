@@ -441,7 +441,9 @@ function guideTarget(h) {
     if (d.state === 'enter' || d.state === 'flee') return null;
     return { x: d.x, y: d.y, kind: duelCanHurt(h.k, h.k ? 'ball' : 'stomp') ? (h.k ? 'ball' : 'x') : 'wait' };
   }
-  const e = nearestEgg(h, true); if (e) return e;
+  const e = nearestEgg(h, true), mg = mechGuide(h);      // T7.3: at a band each hero goes to his own place (mechSteps)
+  if (mg && (mg.hint || !e || bandSide(L, e.x, e.y) !== bandSide(L, h.x, h.y))) return mg;
+  if (e) return e;
   let best = null, bd = 1e9;
   for (const t of L.dynTrees) if (t.spark && t.spark.active && !t.spark.done) { const dd = dist(h.x, h.y, t.cx, t.cy); if (dd < bd) { bd = dd; best = { x: t.cx, y: t.cy, kind: h.k ? 'ball' : 'x' }; } }
   return best;
@@ -450,7 +452,9 @@ function drawGuides(c) {
   const t = P.time;
   for (const h of P.heroes) {
     const fr = P.heroes[1 - h.k], help = fr.down && !h.down && Input.slots[h.k].joined;      // a friend who waits for help: the arrow shows the way to them, for every player
-    if (!help && (!Opt.guide[h.k] || !Input.slots[h.k].joined || h.dizzy > 0 || h.carried)) continue;
+    const mg = !help && Input.slots[h.k].joined ? mechGuide(h) : null, force = !!(mg && mg.hint);      // G8: stuck at a gate, the arrow shows even when it is turned off
+    if (!help && !force && (!Opt.guide[h.k] || !Input.slots[h.k].joined || h.dizzy > 0 || h.carried)) continue;
+    if (force && (h.dizzy > 0 || h.carried)) continue;
     const g = help ? { x: fr.x, y: fr.y, kind: 'help' } : guideTarget(h); if (!g) continue;
     const dx = g.x - h.x, dy = g.y - h.y, m = Math.hypot(dx, dy); if (m < (help ? (h.k === 0 ? CONFIG.rescue.reachNear : CONFIG.rescue.reachFar) : 130)) continue;
     const ux = dx / m, uy = dy / m, ang = Math.atan2(uy, ux), col = CONFIG.heroes[h.k].color, fade = clamp((m - 130) / 90, 0, 1);
@@ -469,10 +473,20 @@ function drawGuides(c) {
       else if (g.kind === 'help') iconO(c, ix, iy, 18, Math.sin(t * 8));
       else if (g.kind === 'give') iconL1(c, ix, iy, 18, Math.sin(t * 8));
       else if (g.kind === 'ball') drawBall(c, ix, iy, 14, t * 2);
+      else if (MECH_ACTS[g.kind]) drawMechAct(c, h.k, g.kind, ix, iy, 16, t);
       else text(c, '!', ix, iy + 2, 40, '#D9463C', { halo: 0, shadow: 0, weight: 'bold' });
     }
     c.globalAlpha = 1;
   }
+}
+/* The little picture of what a hero must do at a gate (T7.3): stand on it (an arrow down), cross (an arrow over),
+   or the button of the power it takes. */
+const MECH_ACTS = { stand: 1, cross: 1, throw: 1, spin: 1, push: 1, carry: 1, ride: 1, power1: 1, power2: 1 };
+function drawMechAct(c, k, act, x, y, r, t) {
+  if (act === 'stand') iconArrow(c, x, y - r * 0.2 + Math.sin(t * 6) * 3, Math.PI / 2, r * 1.2, '#FFF6E2');
+  else if (act === 'cross' || act === 'ride') iconArrow(c, x + Math.sin(t * 6) * 3, y, 0, r * 1.2, '#FFF6E2');
+  else if (act === 'power1' || act === 'power2') (act === 'power2' ? iconSq : iconX)(c, x, y, r, Math.sin(t * 6));
+  else { const kind = act === 'throw' ? 'throw' : 'spin', sl = hasAbil(k, kind) ? abilSlot(k, kind) : 1; (sl === 2 ? iconSq : iconX)(c, x, y, r, Math.sin(t * 6)); }
 }
 function drawHints(c, v) {
   const t = P.time, L = P.L, tg = hintTarget();
@@ -500,6 +514,19 @@ function drawHints(c, v) {
     if (!Input.slots[h.k].joined || !CONFIG.heroes[h.k].power2 || P.tut[h.k].used2 || !P.tut[h.k].used || h.down) continue;
     const sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 30, (h.y - v.tp) * v.z - (h.tagT > 0 ? 200 : 160) * v.z) + Math.sin(t * 5) * 5;
     iconSq(c, sx, sy, 24, Math.sin(t * 6));
+  }
+  // G8 (T7.3): stuck at a gate: above the place of each hero, his color and the button to press, under the band at the top
+  const fg = L.gates && L.gates.length ? frontGate(L) : null;
+  if (fg && gateHinting(fg)) {
+    const st = mechSteps(fg);
+    for (let k = 0; k < 2; k++) {
+      const s = st[k]; if (!s || s.act === 'cross') continue;
+      const sx = (s.x - v.l) * v.z, sy = Math.max(HUD_TOP + 60, (s.y - v.tp) * v.z - 120 * v.z) + Math.sin(t * 5 + k) * 6;
+      if (sx < 40 || sx > W - 40 || sy > H - 40) continue;
+      c.fillStyle = rgba(CONFIG.heroes[k].color, 0.9); c.beginPath(); c.arc(sx, sy, 34, 0, TAU); c.fill();
+      drawMechAct(c, k, s.act, sx, sy, 20, t);
+      text(c, T('mech.yours'), sx, sy + 56, 24, CONFIG.heroes[k].color, { halo: 0.2, weight: 'bold' });
+    }
   }
   for (const h of P.heroes) if (h.tooFarT > 0 && !h.down) {       // L1 pressed but the friend is too far: "come closer"
     const sx = (h.x - v.l) * v.z, sy = Math.max(HUD_TOP + 40, (h.y - v.tp) * v.z - 190 * v.z);

@@ -658,3 +658,32 @@ Partea a treia pune o definitie de proba cu o banda `plates2` si `cage: true`. V
 Capturile sunt in `tests/capturi-placi-cusca.js` (se ruleaza din `tests/out/`): `p2_placa_libera`, `p2_placa_apasata`, `p2_cusca_inchisa`, `p2_cusca_clatinata`, `p2_cusca_deschisa`. Nu intra in `toate.sh`; se privesc cu ochiul.
 
 `tests/stil-grafic.js` are acum si `drawPlate`, `drawCage`, `drawMechs` in lista de functii fara gradienti.
+
+## Update 26 noiembrie 2026: partea a patra din `tests/mecanisme.js` (T7.3)
+
+Fiecare regula G1 - G10 si `mechSteps` sunt verificate separat, pe definitia de proba cu `plates1`, `plates2` si cusca. Pentru G7 si G8 testul pune `autoOpen` 6 s si `hintAfter` 2 s, apoi le pune la loc.
+
+Fiecare regula a fost stricata o data, pe o copie a proiectului, si testul a picat la verificarea ei:
+
+| Regula | Ce s-a stricat | Verificarea care pica |
+|---|---|---|
+| G1 | `stepGateOpen` nu mai tine poarta deschisa sub un erou | "G1: poarta any nu se inchide sub un erou" |
+| G2 | poarta nu mai devine `fixed` | "G2: amandoi dincolo -> fixed" |
+| G3 | un erou jos nu mai deschide portile | "G3: un erou jos -> toate portile deschise" |
+| G4 | `dropHero` uita partea de unde l-a luat | "G4: pasarea il lasa pe partea de unde l-a luat" |
+| G5 | `collide` lasa eroul sa intre in celulele 2 | "G5: vantul si loviturile nu il imping in banda" |
+| G6 | `inputVirtual` intoarce mereu fals | "G6: singur, poarta any e deschisa" |
+| G6 (cusca) | cusca cere doi si cand joaca unul | "G6: singur, cusca la o lovitura" |
+| G7 | poarta nu se mai deschide singura | "G7: dupa autoOpen se deschide singura" |
+| G7 (500) | timpul curge si departe de poarta | "G7: departe de poarta nu se numara" |
+| G8 | `gateHinting` intoarce mereu fals | "G8: dupa hintAfter iconite si sageata" |
+| G8 (oprita) | `mechGuide` nu mai spune ca sunt indicii | "G8: sageata si cu sageata oprita" |
+| G9 | portile se schimba in lupta | "G9: in lupta portile nu se schimba" |
+| G10 | `closeGates` nu mai pune cusca la loc | "G10: closeGates pune totul la zero (si cusca)" |
+| `mechSteps` | la "oricine" nimeni nu mai sta pe placa | "mechSteps: la poarta A unul sta pe placa" |
+
+La G10 nivelul se construieste din nou la fiecare reincepere, deci totul porneste oricum de la zero. `closeGates` e a doua plasa; testul o cheama direct, altfel stricarea ei nu s-ar vedea.
+
+Scriptul care face asta (copiaza proiectul, strica, construieste, ruleaza testul, patru odata) nu e in depozit; ia cam 15 minute.
+
+Captura indiciilor G8: `p2_g8_indicii.png`, din `tests/capturi-placi-cusca.js`. `tests/hud-acoperire.js` cu `STRICT=1`: 0%.
