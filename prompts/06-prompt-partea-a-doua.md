@@ -565,6 +565,8 @@ Facut pe 26 noiembrie 2026, cu trei lucruri aprobate in plus: regula "cine trece
 
 ### T7.2 - Placile si cusca stelutelor
 
+Facuta (26 noiembrie 2026): vezi docs/10-gameplay.md, docs/05-pictura.md, docs/06-sunet.md si docs/17-testare.md (partea a treia din tests/mecanisme.js). Steluta din cusca nu zboara inca spre bara de sus (docs/16-decizii.md).
+
 ````
 Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
 Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le. Citeste si inceputul sectiunii T7 din acelasi fisier.

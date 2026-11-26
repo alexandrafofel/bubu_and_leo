@@ -462,3 +462,15 @@ Reglaje: `CONFIG.ring` (`on`, `hits`, `inv`, `red`, `push`).
 - Pe "Ușor" (daca macar unul dintre jucatori e pe Ușor): `window` si `stay` se inmultesc cu `CONFIG.mech.easy` (1.6).
 - Placa (`plate`) e apasata cat un erou potrivit (`who`: -1 oricine, 0 Boon, 1 Killer), cu jucator, sta la mai putin de 55 de mijlocul ei si nu e jos, dus de pasare sau pe trecere. Desenul ei vine in T7.2.
 - Regulile G2 - G10 (nimeni nu ramane blocat) vin in T7.3. Pana atunci niciun nivel din joc nu are benzi.
+
+## Update 26 noiembrie 2026: placile si cusca stelutelor (T7.2)
+
+**Placa** (`plate`). Cand un erou potrivit (`who`) sta la mai putin de 55 de mijlocul ei (regula din T7.1, neschimbata), placa coboara `plateDown` unitati, un inel de lumina urca din ea, iar cel care a calcat primeste vibratie (`rumble(k, 0, 0.4, 60)`). Cand e lasata, se aude `plateOff`. Sunetul si vibratia le face `updateMechs`, cu `plateBy(inp)`, care spune cine a calcat.
+
+**Cusca stelutelor** (`cage`). Se face cu `L.cage`, creat de `genLevel` doar cand definitia nivelului are `cage: true` (nicio definitie reala nu o are inca; cusca vine pe nivelul 12, si in T7.4 nu apare pe nivelul 7). Cusca are o steluta inauntru, in `L.stars` cu `kind: 'cage'` si `hidden`.
+
+- O putere a unui erou (`powerSweep`: lovitura, rotirea) sau o minge aruncata de el (`updateCage`) care ajunge la cel mult `cageReach` de cusca e o lovitura. Un obiect sau o putere se numara o singura data.
+- Daca al doilea erou a lovit in ultimele `cageWindow` secunde (`easy` pe Ușor), cusca se deschide: `cageOpen` marcheaza steluta, `collectStar` o numara, apare bannerul "Bate palma!" (`ban.cage`) si ambii primesc vibratie.
+- Daca a lovit doar unul, cusca se clatina `cageWobble` secunde si deasupra apar fetele celor doi. Cel care nu a lovit inca palpaie.
+
+Steluta nu zboara inca spre bara de sus: `collectStar` o numara cu o explozie de petale, la cusca. Zborul spre HUD nu exista in joc (nici pentru stelele de pe copaci) si se face separat.

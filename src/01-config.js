@@ -91,6 +91,9 @@ const CONFIG = {
     hintAfter: 40,             // seconds without progress before both players get an arrow to their own switch (T7.3)
     easy: 1.6,                 // on "Ușor": time windows and "stays open" times are this much longer
     cageWindow: 1.5,           // both heroes must hit the star cage within this many seconds (T7.2)
+    cageReach: 150,            // a power of a hero (or a ball he threw) this close to the cage counts as a hit on it (T7.2)
+    cageWobble: 0.6,           // seconds the cage shakes, and the faces of both heroes show, after one hero alone hit it (T7.2)
+    plateDown: 6,              // a plate that is stepped on sinks this many units; the ring of light rises from it (T7.2)
     openTime: 0.5,             // seconds a gate takes to open or close all the way
     plateGap: 700,             // a plate that opens a gate for anyone ('any') stays at least this far from the crossing: nobody can step off and run over alone
     nearGate: 150,             // 'any': the gate stays open after the plate is left only while a hero is on the crossing or this close to it

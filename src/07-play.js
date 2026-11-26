@@ -439,6 +439,7 @@ function powerSweep(h, id) {
   const L = P.L, cfg = abil(h.k, 'spin'), R = cfg.radius;
   const stun = cfg.stun * (rank(h.k) === 0 ? 1.3 : 1);
   let stunned = 0;
+  cageSwing(h, id);                                   // T7.2: a power this close to the star cage is a hit on it
   for (const b of L.beetles) if (b.state !== 'dead' && b.sweep !== id && dist(b.x, b.y, h.x, h.y) < R + b.r) {
     b.sweep = id; stunned++;
     if (hurtSmall(b)) { b.state = 'dead'; b.t = CONFIG.smallEnemy.respawn; } else { b.state = 'stun'; b.t = stun; }

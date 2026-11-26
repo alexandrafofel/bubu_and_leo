@@ -530,3 +530,11 @@ Hotararea de proces: `balanseaza()` sta in `tests/common.js` si cheama `giveEgg`
 | La inchidere, celulele trecerii se inchid indata (nu la `open < 0.1`) | Jumatatea de secunda in care podul se stinge ajungea, la limita, unui copil care fuge. Podul se stinge doar in desen. Sub un erou nu se inchid niciodata (G1). |
 | Un test de colaborare in `mecanisme.js`: un erou singur, cu prietenul in joc dar stand, nu trece de nicio poarta, nici fugind | Orice poarta noua (T8 - T12) trebuie sa ceara doi. Testul o prinde daca nu. |
 | Harta nivelului 7: varianta 1 de la Krea ("cristale"), `art/krea-ref/nivel7-harta.jpg` | Aleasa de proprietara pe 26 noiembrie 2026. Se folosesc piese decupate din ea (placi, felinare, stalpi, balansoar, cusca), iar solul si prapastia se picteaza in culorile ei. Nivelul ramane generat ca celelalte (T7.4). |
+
+## Update 26 noiembrie 2026: placile si cusca (T7.2)
+
+- **Cusca se deschide la o lovitura a fiecaruia, in fereastra.** Ca in specificatie (3.4): amandoi, cu orice putere, la cel mult `cageWindow` unul de altul. Un singur erou doar o clatina, ca sa vada cine lipseste.
+- **O lovitura se numara o singura data.** Rotirea trimite lovituri in fiecare cadru cu acelasi `id`; `cageSwing` tine minte `id`-ul fiecarui erou.
+- **Mingile aruncate numara ca lovitura.** Specificatia spune "cu orice putere". Mingea care trece pe langa cusca, la cel mult `cageReach`, numara o data.
+- **Medalioanele cuștii raman cum sunt**: labe si talpi, nu semnele lui Boon si Killer. Aprobat de proprietara, ca sa nu se refaca cusca.
+- **Steluta nu zboara inca spre HUD.** Stelele din joc nu zboara spre bara de sus, deci nu s-a construit unul doar pentru cusca. Se face o data, pentru toate stelele, cand se aduna cu jocul principal.

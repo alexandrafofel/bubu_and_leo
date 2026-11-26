@@ -639,3 +639,22 @@ Fiecare verificare a fost stricata o data, ca sa vedem ca pica:
 Fara `closeGates` testul trece: prima rulare a lui `updateMechs` inchide oricum celulele. `closeGates` ramane, pentru intrari si timpi.
 
 Primul jucator porneste pe "Ușor" (`CONFIG.defaultDifficulty`), deci testul pune intai ambii pe "Normal". E in `toate.sh`, dupa `inel.js`.
+
+## Update 26 noiembrie 2026: partea a treia din `tests/mecanisme.js` (T7.2)
+
+Partea a treia pune o definitie de proba cu o banda `plates2` si `cage: true`. Verifica:
+
+| Verificare | Ce dovedeste |
+|---|---|
+| placa turcoaz nu o apasa Killer | `who` 0 |
+| placa turcoaz o apasa Boon | `who` 0 apasa |
+| placa se scufunda cand e calcata, si se ridica cand e lasata | `sink` |
+| cusca: un singur erou nu o deschide, o clatina | fereastra si clatinarea |
+| aceeasi lovitura, de 10 ori, se numara o singura data | `seen` |
+| al doilea erou dupa 2 s nu deschide | fereastra de 1.5 s |
+| amandoi in 1.5 s deschid cusca, steluta e stransa | `cageOpen` |
+| sunetele `plate`, `plateOff`, `cage` exista | `fx2` |
+
+Capturile sunt in `tests/capturi-placi-cusca.js` (se ruleaza din `tests/out/`): `p2_placa_libera`, `p2_placa_apasata`, `p2_cusca_inchisa`, `p2_cusca_clatinata`, `p2_cusca_deschisa`. Nu intra in `toate.sh`; se privesc cu ochiul.
+
+`tests/stil-grafic.js` are acum si `drawPlate`, `drawCage`, `drawMechs` in lista de functii fara gradienti.

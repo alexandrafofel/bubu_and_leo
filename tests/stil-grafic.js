@@ -193,7 +193,7 @@ const boot = require('./common.js');
     G.Opt.lang = 'ro'; setLanguage('ro'); CONFIG.look.preview = false;
     // codul stilului nou, care ruleaza la fiecare cadru: niciun createRadialGradient, createPattern sau shadowBlur
     // (picatorii care se pun in sprite() si matPattern, care face pattern-ul o singura data, sunt in afara listei)
-    const names = ['lit', 'drawArt', 'drawArtChar', 'drawHeroRing', 'litGloss', 'castShadow', 'litTube', 'litPuff', 'litClaws', 'litTeeth', 'eyeLit', 'sewNumber', 'matFill', 'drawLightMap', 'collectLights', 'addLight',
+    const names = ['lit', 'drawArt', 'drawArtChar', 'drawHeroRing', 'drawPlate', 'drawCage', 'drawMechs', 'litGloss', 'castShadow', 'litTube', 'litPuff', 'litClaws', 'litTeeth', 'eyeLit', 'sewNumber', 'matFill', 'drawLightMap', 'collectLights', 'addLight',
       'drawFront', 'updateFront', 'frontOffset', 'heroScreenBox', 'drawMotes', 'drawWater', 'fillWaves', 'holdBreath', 'bigHit', 'kickZoom', 'mechMove', 'mechClick', 'easeBack',
       'heroMotion', 'tailStep', 'tailFollow', 'blinkOn', 'drawRunTrail', 'drawGeorgeBoss', 'drawBoon', 'drawKiller', 'drawGeorge', 'drawGlove'];
     const miss = [], hit = [];
