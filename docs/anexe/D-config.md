@@ -98,6 +98,9 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `mech.hintAfter` | `40` |  |
 | `mech.easy` | `1.6` |  |
 | `mech.cageWindow` | `1.5` |  |
+| `mech.cageReach` | `150` |  |
+| `mech.cageWobble` | `0.6` |  |
+| `mech.plateDown` | `6` |  |
 | `mech.openTime` | `0.5` |  |
 | `mech.plateGap` | `700` |  |
 | `mech.nearGate` | `150` |  |

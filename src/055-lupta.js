@@ -542,6 +542,43 @@ function drawSecretStar(c, x, y, r, t, z) {
   const g = c.createRadialGradient(-r * 0.2, -r * 0.3, 1, 0, 0, r * 1.15); g.addColorStop(0, '#FFFDF0'); g.addColorStop(1, '#FFD86A'); c.fillStyle = g; c.fill();
   c.restore();
 }
+/* The stone plate (T7.2, 3.4): a painted print on a stone, sunk when a hero stands on it, a ring of light rising from it.
+   who: -1 anyone (both prints cut in half), 0 Boon's green claw, 1 Killer's blue ice print. */
+function drawPlate(c, p, t) {
+  const name = p.who === 0 ? 'plate_turq' : p.who === 1 ? 'plate_ice' : 'plate_both';
+  const sink = (p.sink || 0) * CONFIG.mech.plateDown;
+  if (p.on) {                                          // the ring rises while it is pressed
+    const u = (t * 1.2) % 1;
+    c.strokeStyle = rgba('#FFF3C0', (1 - u) * 0.8); c.lineWidth = 6 * (1 - u) + 2;
+    c.beginPath(); c.ellipse(p.x, p.y + 14, 50 + u * 50, 22 + u * 24, 0, 0, TAU); c.stroke();
+  }
+  if (artOn() && artOk(name)) drawArt(c, name, p.x, p.y + 44 + sink, 150, 0.5);
+  else { c.fillStyle = '#D9A07E'; c.beginPath(); c.ellipse(p.x, p.y + 16 + sink, 62, 30, 0, 0, TAU); c.fill(); }
+}
+/* The star cage (T7.2, 3.4): shut with the star inside, open when both heroes hit it. One hero alone only shakes it,
+   and above it the two faces show up: the one who has not hit yet blinks. */
+function drawCage(c, cg, t) {
+  const open = cg.done, name = open ? 'cage_open' : 'cage_shut', h = open ? 250 : 240;
+  const wob = cg.wobT > 0 ? Math.sin(t * 40) * cg.wobT * 9 : 0;
+  c.fillStyle = rgba(SHADOW, 0.2); c.beginPath(); c.ellipse(cg.x + 4, cg.y + 8, 86, 22, 0, 0, TAU); c.fill();
+  if (artOn() && artOk(name)) drawArt(c, name, cg.x + wob, cg.y + 10, h, 0.5);
+  else { c.strokeStyle = '#E8C36A'; c.lineWidth = 8; c.beginPath(); c.ellipse(cg.x, cg.y, 60, 40, 0, 0, TAU); c.stroke(); }
+  if (cg.wobT > 0) {
+    const win = CONFIG.mech.cageWindow * cageEasy();
+    for (let k = 0; k < 2; k++) {
+      const fx = cg.x + (k === 0 ? -46 : 46), fy = cg.y - h - 6, missing = P.time - cg.hit[k] > win;
+      c.globalAlpha = missing ? 0.45 + 0.4 * Math.sin(t * 9) : 1;
+      c.fillStyle = rgba(CONFIG.heroes[k].color, 0.95); c.beginPath(); c.arc(fx, fy, 26, 0, TAU); c.fill();
+      c.fillStyle = SHADOW; c.beginPath(); c.arc(fx - 9, fy - 4, 4, 0, TAU); c.arc(fx + 9, fy - 4, 4, 0, TAU); c.fill();
+      c.globalAlpha = 1;
+    }
+  }
+}
+function drawMechs(c, t) {
+  const L = P.L; if (!L) return;
+  for (const p of L.inputs || []) if (p.kind === 'plate') drawPlate(c, p, t);
+  if (L.cage) drawCage(c, L.cage, t);
+}
 /* The helper of the second game: a little rocket. Whoever touches it makes both heroes fast. */
 function drawRocket(c, x, y, t, s) {
   c.save(); c.translate(x, y); c.scale(s || 1, s || 1); c.rotate(-0.5 + Math.sin(t * 3) * 0.25);

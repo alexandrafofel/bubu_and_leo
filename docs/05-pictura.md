@@ -282,3 +282,19 @@ Cu `L.pal.art`, `paintLevel`:
 - pune doar un graunte de hartie, fara lumina calda peste tot.
 
 Totul se opreste cu `CONFIG.look.art: false` (sau doar solul, cu `calm: false`).
+
+## Update 26 noiembrie 2026 (T7.2): placile si cusca in `art/krea/`
+
+Cinci imagini noi, decupate din foaia Krea (foaia Krea din T7.2, varianta 1 pentru placi si pentru cusca), cu fundalul crem scos prin distanta de culoare:
+
+| Nume | Ce e | Folosire |
+|---|---|---|
+| `plate_turq` | Placa cu laba turcoaz | placa lui Boon (`who` 0) |
+| `plate_ice` | Placa cu talpa de gheata | placa lui Killer (`who` 1) |
+| `plate_both` | Jumatate turcoaz, jumatate gheata | placa oricui (`who` -1) |
+| `cage_shut` | Cusca inchisa, cu steluta inauntru | cusca, pana se deschide |
+| `cage_open` | Cusca deschisa, gratiile desfacute | cusca, dupa lovitura comuna |
+
+Desenul (`drawPlate`, `drawCage`, `drawMechs`, in `055-lupta.js`) cade pe o desenare simpla daca imaginea lipseste (`artOn() && artOk(...)`). Nu are gradienti. Lumina placii apasate si a cuștii deschise intra in `collectLights`.
+
+Cele doua medalioane de pe cusca au labele lui Boon si talpa lui Killer, cum le-a aprobat proprietara. Nu s-a refacut cusca.

@@ -376,3 +376,13 @@ T6.10: nu se adauga chei noi; testul `tests/stil-grafic.js` si bugetul din `perf
 | `raftTurns`, `raftBack`, `raftDrift`, `orbSlow`, `orbPass`, `orbLight`, `boulderSpeed`, `boulderBack` | | pentru pluta, cristalul si bolovanul (T8 - T9) |
 
 Retetele (`plates1`, `plates2`, apoi cele din T8 - T12) sunt in `MECH_RECIPES`, in `065-mech.js`.
+
+## Update 26 noiembrie 2026 (T7.2): `CONFIG.mech`, cusca si placile
+
+| Cheie | Valoare | Ce face |
+|---|---|---|
+| `cageReach` | `150` | O putere a unui erou (sau o minge aruncata de el) la cel mult atat de cusca stelutelor e o lovitura asupra ei. |
+| `cageWobble` | `0.6` | Cate secunde se clatina cusca, si apar fetele celor doi, dupa o lovitura a unuia singur. |
+| `plateDown` | `6` | Cu cate unitati coboara o placa apasata. |
+
+`cageWindow` (1.5 s) si `easy` (1.6) sunt deja din T7.1 si se folosesc si pentru cusca.

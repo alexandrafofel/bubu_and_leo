@@ -329,3 +329,11 @@ Cuvant nou pentru amandoi eroii: `hurry` ("repede!"), spus o data de prieten can
 ## Update 26 noiembrie 2026 (T7.1): `gateOpen`
 
 O poarta care se deschide prima oara: patru note de marimba care urca (do, mi, sol, do), un suflu moale de aer (zgomot prin trece-jos la 700 Hz) si un clopotel sus la sfarsit. Inainte de el se aude `click` (`mechClick`).
+
+## Update 26 noiembrie 2026 (T7.2): `plate`, `plateOff`, `cage`
+
+- `plate`: un clic de piatra (zgomot filtrat, banda 1400 - 3200) si un clopotel. Se aude cand o placa e calcata.
+- `plateOff`: acelasi clopotel, mai jos. Se aude cand placa e lasata.
+- `cage`: doua clicuri de lacat, apoi un arpegiu vesel (patru clopotele). Se aude cand cusca se deschide.
+
+Toate sunt in `fx2` (`03-audio.js`), deci merg doar in "Cea mai grea luptă".

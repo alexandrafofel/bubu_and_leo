@@ -118,27 +118,35 @@ function heroCrossing(h) {
 /* Whether an input is pressed right now, before the rule of its gate. Kinds without their own code yet
    ('test', and the ones of T8 - T12) keep the value someone else gave them in inp.raw. */
 function inputRaw(inp) {
-  if (inp.kind === 'plate') {
-    for (const h of P.heroes) {
-      if (!isJoined(h.k) || h.down || h.carried || heroCrossing(h)) continue;   // the one who crosses cannot be the one who opens
-      if (inp.who >= 0 && inp.who !== h.k) continue;
-      if (dist(h.x, h.y, inp.x, inp.y) < 55) return true;
-    }
-    return false;
-  }
+  if (inp.kind === 'plate') return plateBy(inp) >= 0;
   return !!inp.raw;
+}
+/* The hero who presses a plate (-1 = nobody). Only the one who is pressing gets the vibration (T7.2). */
+function plateBy(inp) {
+  for (const h of P.heroes) {
+    if (!isJoined(h.k) || h.down || h.carried || heroCrossing(h)) continue;   // the one who crosses cannot be the one who opens
+    if (inp.who >= 0 && inp.who !== h.k) continue;
+    if (dist(h.x, h.y, inp.x, inp.y) < 55) return h.k;
+  }
+  return -1;
 }
 
 /* Every frame, after the heroes and the thrown things (updatePlay). docs/25, 3.2. */
 function updateMechs(dt) {
+  updateCage(dt);
   const L = P.L; if (!L.gates || !L.gates.length) return;
   const M = CONFIG.mech, easy = mechEasy(), ef = easy ? M.easy : 1;
   for (const inp of L.inputs) {
     const now = inputRaw(inp);
     inp.rose = now && !inp.was; inp.fell = !now && inp.was; inp.was = now;
     if (inp.rose) inp.lastT = P.time;
+    if (inp.kind === 'plate') {
+      if (inp.rose) { const k = plateBy(inp); Snd.play('plate'); Input.rumble(k, 0, 0.4, 60); }   // the one who stepped feels it (T7.2)
+      if (inp.fell) Snd.play('plateOff');
+    }
     inp.onT = now ? inp.onT + dt : 0;
     inp.on = now;
+    inp.sink = (inp.sink || 0) + ((now ? 1 : 0) - (inp.sink || 0)) * Math.min(1, dt * 14);   // how far it sinks, for the drawing (T7.2)
   }
   for (const g of L.gates) {
     if (g.state === 'fixed') { stepGateOpen(L, g, dt, 1); continue; }
@@ -190,4 +198,38 @@ function stepGateOpen(L, g, dt, to) {
   g.vis = to ? Math.max(0, Math.min(1.1, m)) : Math.max(0, 1 - m);
   if (g.solid && g.open > 0.9) { g.solid = false; for (const i of g.cells) L.grid[i] = 0; }
   else if (!g.solid && !to && g.open < 0.9) { g.solid = true; for (const i of g.cells) L.grid[i] = g.code; }
+}
+
+/* ---------- the star cage (T7.2, docs/25-niveluri-7-12.md, 3.4) ----------
+   Both heroes must hit it, with any power, within cageWindow of each other. One alone only shakes it. */
+function cageEasy() { return mechEasy() ? CONFIG.mech.easy : 1; }
+/* A power of hero h (spin or stomp; powerSweep calls this once per power id, and the spin every frame). */
+function cageSwing(h, id) {
+  const cg = P.L.cage; if (!cg || cg.done || !isJoined(h.k) || h.down) return;
+  if (cg.seen[h.k] === id) return;                     // one power is one hit, however many frames it lasts
+  if (dist(h.x, h.y, cg.x, cg.y) > CONFIG.mech.cageReach) return;
+  cg.seen[h.k] = id; cageHitBy(cg, h.k);
+}
+function cageHitBy(cg, k) {
+  const now = P.time, win = CONFIG.mech.cageWindow * cageEasy(), other = cg.hit[1 - k];
+  cg.hit[k] = now;
+  if (now - other <= win) { cageOpen(cg, k); return; }
+  cg.wobT = CONFIG.mech.cageWobble; Snd.play('click');
+}
+function cageOpen(cg, k) {
+  cg.done = true; cg.doneT = P.time; cg.by = k;
+  const s = P.L.stars.find(x => x.kind === 'cage' && !x.got);
+  if (s) { s.hidden = false; collectStar(s, k); }
+  Snd.play('cage'); P.banner = { kind: 'cage', t: 3 };
+  for (let j = 0; j < 2; j++) if (isJoined(j)) Input.rumble(j, 0.4, 0.6, 200);
+}
+/* Every frame: the wobble runs down, and a ball thrown by a hero counts once when it passes the cage. */
+function updateCage(dt) {
+  const cg = P.L && P.L.cage; if (!cg) return;
+  cg.wobT = Math.max(0, cg.wobT - dt);
+  if (cg.done) return;
+  for (const f of P.flock) {
+    if (cg.done) break;
+    if (f.state === 'fly' && !f.cageHit && isJoined(f.owner) && dist(f.x, f.y, cg.x, cg.y) < CONFIG.mech.cageReach) { f.cageHit = true; cageHitBy(cg, f.owner); }
+  }
 }

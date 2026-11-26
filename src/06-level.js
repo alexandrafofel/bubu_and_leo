@@ -410,6 +410,10 @@ function genLevel(idx, seed) {
   };
   L.ci = ci;
   if (L.gates.length && !placeMechInputs(L, r, mark)) return null;      // the plates, targets... of every gate (065-mech.js)
+  if (def.cage) {                                                        // the star cage next to the nest (T7.2): only where a definition asks for one
+    L.cage = { x: L.nest.x - 250, y: L.nest.y + 40, hit: [-99, -99], seen: [-1, -1], done: false, doneT: 0, by: -1, wobT: 0 };
+    L.stars.push({ x: L.cage.x, y: L.cage.y - 70, kind: 'cage', hidden: true, region: 0, z: 0 });
+  }
   const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = r() * (i + 1) | 0; const t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
 
   // ---- beetles ---------------------------------------------------------------

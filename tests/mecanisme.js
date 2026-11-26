@@ -156,6 +156,52 @@ const boot = require('./common.js');
   check('singur la poarta A: nu trece, nici fugind (60 s)', !s.soloA.passed && s.soloA.tries >= 4, s.soloA);
   check('singur la poarta B: nu trece', !s.soloB.passed, s.soloB);
   check('impreuna la poarta A: unul pe placa, celalalt trece', s.together.x > s.together.edge, s.together);
+  // ---------- partea a treia (T7.2): placile cu cine calca, sunetul, cusca ----------
+  const c3 = await page.evaluate(() => {
+    const G = __game, out = {}, orig = LEVEL_DEFS_L[0];
+    LEVEL_DEFS_L[0] = Object.assign({}, orig, { bands: [{ at: 0.335, kind: 'chasm', w: 200, mech: 'plates2' }], cage: true, lanes: [0, 0, 0], pond: false, stars: ['nook', 'nook', 'nook'], beetles: [0, 0, 0] });
+    G.Game.diff[0] = G.Game.diff[1] = 'normal';
+    go(0); step(3);
+    const P = G.P, L = P.L, [A] = L.gates, a = P.heroes[0], b = P.heroes[1], cg = L.cage;
+    L.beetles.length = 0; L.cones.length = 0; if (L.birds) L.birds.length = 0; G.CONFIG.lupta.george.on = false;
+    const sec = s => step(Math.round(s * 60));
+    const tur = L.inputs[A.inputs[0]], ice = L.inputs[A.inputs[1]];
+    // 1. placa turcoaz (who 0): Boon o apasa, Killer nu
+    a.x = tur.x; a.y = tur.y; b.x = L.spawn.x; b.y = L.spawn.y; step(2);
+    out.turBoon = tur.on;
+    b.x = tur.x; b.y = tur.y; a.x = L.spawn.x; a.y = L.spawn.y; step(2);
+    out.turKiller = tur.on;
+    // 2. apasata: se scufunda; lasata: se ridica, si se aude clopotelul (fell)
+    a.x = tur.x; a.y = tur.y; b.x = L.spawn.x; b.y = L.spawn.y; sec(0.5); out.sinkDown = tur.sink;
+    a.x = L.spawn.x; a.y = L.spawn.y - 300; sec(0.6); out.sinkUp = tur.sink;
+    // 3. cusca: un singur erou o loveste: nu se deschide, se clatina
+    a.x = cg.x - 90; a.y = cg.y; b.x = L.spawn.x; b.y = L.spawn.y - 300; step(2);
+    cageSwing(a, 9001); out.cageOne = { done: cg.done, wob: cg.wobT > 0 };
+    // 4. aceeasi lovitura numarata o singura data (10 cadre cu acelasi id)
+    for (let i = 0; i < 10; i++) cageSwing(a, 9001); out.cageDup = { done: cg.done, hit: cg.hit[0] > 0 };
+    // 5. al doilea erou lovind dupa mai mult de 1.5 s nu deschide
+    sec(2); b.x = cg.x + 90; b.y = cg.y; step(2); cageSwing(b, 9002); out.cageLate = cg.done;
+    // 6. cu amandoi in fereastra (1.5 s): se deschide, steluta e stransa
+    const starGot0 = L.stars.filter(s => s.kind === 'cage' && s.got).length;
+    cg.hit = [-99, -99]; cg.done = false; cg.wobT = 0;
+    cageSwing(a, 9003); sec(0.5); cageSwing(b, 9004);
+    out.cageBoth = { done: cg.done, by: cg.by, star: L.stars.filter(s => s.kind === 'cage' && s.got).length - starGot0, banner: P.banner && P.banner.kind };
+    // 7. sunetele noi exista
+    out.sounds = ['plate', 'plateOff', 'cage'].map(n => Snd.names2().includes(n));
+    // 8. pentru captura: placa apasata si cusca deschisa; apoi se vede placa libera
+    return out;
+  });
+  console.log(JSON.stringify(c3));
+  check('placa turcoaz nu o apasa Killer', c3.turKiller === false, c3.turKiller);
+  check('placa turcoaz o apasa Boon', c3.turBoon === true, c3.turBoon);
+  check('placa se scufunda cand e calcata', c3.sinkDown > 0.5, c3.sinkDown);
+  check('placa se ridica cand e lasata', c3.sinkUp < 0.5, c3.sinkUp);
+  check('cusca: un singur erou nu o deschide, o clatina', c3.cageOne.done === false && c3.cageOne.wob === true, c3.cageOne);
+  check('cusca: aceeasi lovitura numarata o singura data', c3.cageDup.done === false, c3.cageDup);
+  check('cusca: al doilea erou dupa 2 s nu deschide', c3.cageLate === false, c3.cageLate);
+  check('cusca: amandoi in 1.5 s o deschid, steluta e stransa', c3.cageBoth.done === true && c3.cageBoth.by === 1 && c3.cageBoth.star === 1, c3.cageBoth);
+  check('sunetele placilor si cuștii exista', c3.sounds.every(Boolean), c3.sounds);
+
   console.log(bad.length ? 'NEREUSIT: ' + bad.join(', ') : 'mecanisme OK');
   await done();
 })();

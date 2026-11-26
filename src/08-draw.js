@@ -280,6 +280,7 @@ function drawWorld(c) {
   for (const g of P.gifts) drawEgg(c, g.x, g.y + 50, 17, t, g.seed, 50 + g.z, (g.seed | 0) % 7, false);      // the same painted egg, in the air
   for (const s of P.stars) if (!s.got && !s.hidden) drawStar(c, s.x, s.y, 26, t, s.z);
   drawGuides(c);
+  drawMechs(c, t);                                                   // plates and the star cage (T7.2, 055-lupta.js)
   // everything that stands up, sorted by depth
   _sorted.length = 0;
   for (const h of P.heroes) _sorted.push({ y: h.y, k: 0, o: h });
@@ -730,6 +731,8 @@ function addLight(x, y, r, col, a, glow) {
 function collectLights(L) {
   _lights.length = 0;
   for (const h of P.heroes) addLight(h.x, h.y - 70, 150, mix(CONFIG.heroes[h.k].color, '#FFF6E0', 0.5), 0.45);
+  for (const p of L.inputs || []) if (p.kind === 'plate' && p.on) addLight(p.x, p.y, 110, '#FFF0C0', 0.5);      // a pressed plate glows (T7.2)
+  if (L.cage && L.cage.done) addLight(L.cage.x, L.cage.y - 90, 150, '#FFE9A8', 0.6, true);                      // the open cage shines
   for (const e of P.eggs) if (e.delay <= 0 && e.state === 'idle' && !(e.big && L.cave && L.cave.reveal < 0.05)) addLight(e.x, e.y, 50, '#FFE6A8', 0.7);
   for (const s of P.stars) if (!s.got && !s.hidden) addLight(s.x, s.y, 60, '#FFF0B8', 0.7, true);
   for (const f of P.flock) addLight(f.x, f.y - 16, 70, '#FFE8C0', 0.6);
