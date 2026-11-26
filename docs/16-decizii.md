@@ -538,3 +538,11 @@ Hotararea de proces: `balanseaza()` sta in `tests/common.js` si cheama `giveEgg`
 - **Mingile aruncate numara ca lovitura.** Specificatia spune "cu orice putere". Mingea care trece pe langa cusca, la cel mult `cageReach`, numara o data.
 - **Medalioanele cuștii raman cum sunt**: labe si talpi, nu semnele lui Boon si Killer. Aprobat de proprietara, ca sa nu se refaca cusca.
 - **Steluta nu zboara inca spre HUD.** Stelele din joc nu zboara spre bara de sus, deci nu s-a construit unul doar pentru cusca. Se face o data, pentru toate stelele, cand se aduna cu jocul principal.
+
+## Update 26 noiembrie 2026: regulile de siguranta (T7.3)
+
+- **G3 trece inaintea lui G9.** In lupta cu George portile nu se schimba, cu o exceptie: cand un erou e jos, toate se deschid. Altfel Boon, care ajuta doar de aproape, ar ramane de partea cealalta si nivelul ar reincepe.
+- **Progresul la o poarta e inca un erou trecut de banda.** Nu doar o placa apasata. Asa doi copii care apasa placa, dar nu reusesc sa treaca, primesc totusi indiciile si, la nevoie, poarta deschisa singura.
+- **G6: si intrarile pentru oricine sunt apasate cand joaca unul singur.** Singur, nu poti sta pe placa si trece in acelasi timp. Pe nivelul 7 asta inseamna ca poarta A e deschisa pentru un copil singur, iar la poarta B isi apasa doar placa lui.
+- **G3 deschide fara oprirea mare si fara sunet.** Nu e o reusita a copiilor, doar o plasa de siguranta.
+- **Poarta deschisa singura (G7) ramane deschisa** (`fixed`), ca o poarta trecuta de amandoi.

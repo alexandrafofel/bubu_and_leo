@@ -474,3 +474,24 @@ Reglaje: `CONFIG.ring` (`on`, `hits`, `inv`, `red`, `push`).
 - Daca a lovit doar unul, cusca se clatina `cageWobble` secunde si deasupra apar fetele celor doi. Cel care nu a lovit inca palpaie.
 
 Steluta nu zboara inca spre bara de sus: `collectStar` o numara cu o explozie de petale, la cusca. Zborul spre HUD nu exista in joc (nici pentru stelele de pe copaci) si se face separat.
+
+## Update 26 noiembrie 2026: nimeni nu ramane blocat la o poarta (T7.3)
+
+Regulile G1 - G10 din `docs/25-niveluri-7-12.md`, 3.6. Fiecare are in cod un comentariu cu numarul ei (`065-mech.js`, `07-play.js`).
+
+| Regula | Cum merge in joc |
+|---|---|
+| G1 | Poarta nu se inchide cat un erou sta pe celulele ei (`stepGateOpen`, `onGateCells`). Merge in toate cazurile: la "oricine" care se inchide indata, dupa `stay`, dupa G3. |
+| G2 | Cand toti jucatorii sunt la mai mult de 60 dincolo de marginea din dreapta a benzii, poarta devine `fixed` si ramane deschisa. |
+| G3 | Cat un erou e jos, toate portile se deschid (fara oprirea mare a jocului si fara sunet). Dupa ce se ridica, fiecare se inchide dupa `stay`-ul ei, chiar daca nimeni nu e langa trecere. |
+| G4 | Pasarea tine minte de ce parte a benzilor l-a luat pe erou (`h.grabSide`, `bandSide`). Il lasa doar pe aceeasi parte, pe o celula libera. Daca nu gaseste loc la 1400, il pune unde l-a luat. |
+| G5 | Vantul, loviturile si orice impingere trec prin viteza eroului si prin `collide`, la fel ca apa. Banda e celula 2 sau 3, deci eroul se opreste la margine. |
+| G6 | Cu un singur jucator, intrarile celuilalt erou si intrarile pentru oricine (`who` -1) sunt mereu apasate (`inputVirtual`). Fereastra de timp nu mai exista: o intrare atinsa o data ramane atinsa. In `seq`, randurile celuilalt sunt sarite. Cusca se deschide la o lovitura. |
+| G7 | Timpul fara progres (`g.idleT`) curge doar cat un jucator e la mai putin de 500 de poarta. Progres = inca un erou trecut de banda. La `autoOpen` (180 s) poarta devine `fixed` si apare "Poarta s-a deschis singură." |
+| G8 | La `hintAfter` (40 s) fara progres, cu poarta inchisa (`gateHinting`), fiecare erou primeste sageata spre locul lui, si cel cu sageata oprita. Deasupra locului apare un cerc in culoarea eroului, cu ce are de facut si "Al tău". |
+| G9 | In lupta cu George (oricare, cu inelul sau fara) portile nu isi schimba starea. G3 trece inaintea ei. |
+| G10 | La reincepere (`closeGates`, din `startPlay`): porti inchise, timpul fara progres la zero, cusca inchisa, steluta ei ascunsa. |
+
+**`mechSteps(gate)`** spune pentru fiecare erou `{ x, y, act, inp }`. La "oricine" (`any`): unul sta pe placa (`stand`), celalalt asteapta la trecere (`cross`); cand poarta e deschisa, cel de pe placa sta, celalalt trece. Daca unul a trecut deja, el sta pe placa de pe malul lui, iar celalalt trece. La celelalte reguli fiecare merge la intrarea lui, apoi toti trec. Un erou fara jucator nu are pas.
+
+**Sageata.** `guideTarget` arata spre pasul eroului (`mechGuide`) cand ii arata indiciile (G8) sau cand diamantul cel mai apropiat e dincolo de banda. Altfel ramane spre diamante. Iconita pasului: o sageata in jos pentru `stand`, o sageata spre dreapta pentru `cross`, butonul puterii (✕ sau □) pentru `throw` si `spin`.

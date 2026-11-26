@@ -591,6 +591,8 @@ Nu face: regulile G1 - G10 (T7.3). Tintele, manivelele, pluta (T8 si T9).
 
 ### T7.3 - Nimeni nu ramane blocat: G1 - G10 si mechSteps
 
+Facuta (26 noiembrie 2026): vezi docs/10-gameplay.md (tabelul G1 - G10), docs/16-decizii.md si docs/17-testare.md (partea a patra din tests/mecanisme.js, cu mutatiile).
+
 ````
 Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
 Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le. Citeste si inceputul sectiunii T7 din acelasi fisier.

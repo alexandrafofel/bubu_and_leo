@@ -4,7 +4,7 @@
 
 Fiecare functie, functie sageata si metoda din cod, in ordinea din fisier. Coloana "Comentariul din cod" este textul scris chiar langa functie. Explicatiile pe larg sunt in capitolele din docs/.
 
-Total: 649 intrari.
+Total: 666 intrari.
 
 ## 01-config.js
 
@@ -409,21 +409,37 @@ Nicio functie.
 | 33 | `ok(x, y, rad)` | functie sageata |  |
 | 40 | `sideOk(g, x, y, side, rad)` | functie sageata |  |
 | 83 | `closeGates(L)` | functie | startPlay: every gate is closed. The cells of the crossing get the code of the band back (2 or 3). |
-| 92 | `mechEasy()` | functie | "Ușor": the easiest difficulty of the players who play. |
-| 97 | `onGate(h, g)` | functie | A hero on the crossing of a gate (with his own size). |
-| 101 | `onGateCells(h, g)` | functie | A hero standing on the cells of the crossing itself (over the band), not on the land next to it. |
-| 109 | `nearGate(h, g, d)` | functie |  |
-| 113 | `heroCrossing(h)` | functie | A hero who is crossing somewhere: on any crossing, or carried by a raft (T9). He cannot press anything. |
-| 120 | `inputRaw(inp)` | functie | Whether an input is pressed right now, before the rule of its gate. Kinds without their own code yet ('test', and the ones of T8 - T12) keep the value someone else gave them in inp.raw. |
-| 125 | `plateBy(inp)` | functie | The hero who presses a plate (-1 = nobody). Only the one who is pressing gets the vibration (T7.2). |
-| 135 | `updateMechs(dt)` | functie | Every frame, after the heroes and the thrown things (updatePlay). docs/25, 3.2. |
-| 180 | `openGate(L, g)` | functie |  |
-| 192 | `stepGateOpen(L, g, dt, to)` | functie | g.open goes smoothly to 1 or 0 in CONFIG.mech.openTime. The cells are free once it is open above 0.9. When it closes, the cells close at once (the bridge fades in the drawing): a hero who left the plate cannot run over in the half second the bridge takes to fade. They never close under a hero (G1). |
-| 205 | `cageEasy()` | functie | ---------- the star cage (T7.2, docs/25-niveluri-7-12.md, 3.4) ---------- Both heroes must hit it, with any power, within cageWindow of each other. One alone only shakes it. |
-| 207 | `cageSwing(h, id)` | functie | A power of hero h (spin or stomp; powerSweep calls this once per power id, and the spin every frame). |
-| 213 | `cageHitBy(cg, k)` | functie |  |
-| 219 | `cageOpen(cg, k)` | functie |  |
-| 227 | `updateCage(dt)` | functie | Every frame: the wobble runs down, and a ball thrown by a hero counts once when it passes the cage. |
+| 98 | `mechEasy()` | functie | "Ușor": the easiest difficulty of the players who play. |
+| 103 | `onGate(h, g)` | functie | A hero on the crossing of a gate (with his own size). |
+| 107 | `onGateCells(h, g)` | functie | A hero standing on the cells of the crossing itself (over the band), not on the land next to it. |
+| 115 | `nearGate(h, g, d)` | functie |  |
+| 119 | `heroCrossing(h)` | functie | A hero who is crossing somewhere: on any crossing, or carried by a raft (T9). He cannot press anything. |
+| 126 | `inputRaw(inp)` | functie | Whether an input is pressed right now, before the rule of its gate. Kinds without their own code yet ('test', and the ones of T8 - T12) keep the value someone else gave them in inp.raw. |
+| 131 | `plateBy(inp)` | functie | The hero who presses a plate (-1 = nobody). Only the one who is pressing gets the vibration (T7.2). |
+| 142 | `bandSide(L, x, y)` | functie | How many bands lie left of (x, y): two places with the same number are on the same side of every band. |
+| 144 | `soloK()` | functie | The hero who plays alone (0 or 1), or -1 when both play or nobody does. |
+| 147 | `inputVirtual(inp, solo)` | functie | G6: with one player, the inputs of the hero nobody plays are always pressed. An input for anyone (who -1) counts too: alone, nobody could stand on it and cross at the same time. |
+| 148 | `mechDuel()` | functie |  |
+| 149 | `heroPast(h, g)` | functie |  |
+| 151 | `gateHinting(g)` | functie | G8: the gate the players are stuck at: closed, and no progress for CONFIG.mech.hintAfter seconds. |
+| 153 | `frontGate(L)` | functie | The gate in front of the heroes: the first one that is not fixed yet (G2 fixes every gate both have passed). |
+| 156 | `updateMechs(dt)` | functie | Every frame, after the heroes and the thrown things (updatePlay). docs/25, 3.2 and 3.6. |
+| 224 | `mechSteps(g)` | functie | What each hero has to do at gate g right now (3.7): [step of Boon, step of Killer], each { x, y, act, inp } or null (a hero nobody plays, or nothing to do). act: 'stand' (on a plate, or wait there), 'throw', 'spin', 'push', 'carry', 'ride', 'cross'. The arrow (guideTarget), the hints (drawHints) and the bots (T7.5) use it. |
+| 228 | `far(h)` | functie sageata |  |
+| 229 | `actOf(p)` | functie sageata |  |
+| 230 | `at(p, h)` | functie sageata |  |
+| 231 | `cross(h)` | functie sageata | wait by the crossing; once open, go |
+| 232 | `go(h)` | functie sageata |  |
+| 233 | `mine(h, p)` | functie sageata |  |
+| 237 | `pick(h)` | functie sageata | the nearest free input of this hero, the next one of a sequence first |
+| 270 | `mechGuide(h)` | functie | The step of hero h at the gate in front, for the arrow (guideTarget). |
+| 275 | `openGate(L, g)` | functie |  |
+| 287 | `stepGateOpen(L, g, dt, to)` | functie | g.open goes smoothly to 1 or 0 in CONFIG.mech.openTime. The cells are free once it is open above 0.9. When it closes, the cells close at once (the bridge fades in the drawing): a hero who left the plate cannot run over in the half second the bridge takes to fade. They never close under a hero (G1). |
+| 300 | `cageEasy()` | functie | ---------- the star cage (T7.2, docs/25-niveluri-7-12.md, 3.4) ---------- Both heroes must hit it, with any power, within cageWindow of each other. One alone only shakes it. |
+| 302 | `cageSwing(h, id)` | functie | A power of hero h (spin or stomp; powerSweep calls this once per power id, and the spin every frame). |
+| 308 | `cageHitBy(cg, k)` | functie |  |
+| 315 | `cageOpen(cg, k)` | functie |  |
+| 323 | `updateCage(dt)` | functie | Every frame: the wobble runs down, and a ball thrown by a hero counts once when it passes the cage. |
 
 ## 07-play.js
 
@@ -505,11 +521,11 @@ Nicio functie.
 | 872 | `updateBoss(dt)` | functie |  |
 | 925 | `hitBird(bd)` | functie | ---------- second game: big birds that pick a hero up and carry him a little way (it does not hurt) ---------- |
 | 930 | `dropHero(bd)` | functie |  |
-| 939 | `updateBirds(dt)` | functie |  |
-| 963 | `stepProj(list, dt, spare)` | functie | Thrown things (pinecones, mud balls) fly in an arc and land on a marked spot. |
-| 979 | `updateDecor(dt)` | functie | The reacting decor. Grass, clover, daisies, reeds, dandelions and leaves send up a little puff of leaves, petals or seeds and rustle when a hero walks past (a stomp makes the dandelions and leaves jump). Snails pull in and a ladybug flies off and comes back. Only what is near a hero or a ball reacts. |
-| 1006 | `updatePlay(dt)` | functie |  |
-| 1127 | `camTarget(L, a, b)` | functie | Where the camera wants to be for two heroes: no side effects, so a test can ask the game itself. Rules: both heroes on screen; nothing of a hero (name included) above the band at the top (HUD_TOP, 08-draw.js); the camera may look up to HUD_TOP + 20 screen pixels above the top edge of the world, and that strip is painted sky. |
+| 946 | `updateBirds(dt)` | functie |  |
+| 970 | `stepProj(list, dt, spare)` | functie | Thrown things (pinecones, mud balls) fly in an arc and land on a marked spot. |
+| 986 | `updateDecor(dt)` | functie | The reacting decor. Grass, clover, daisies, reeds, dandelions and leaves send up a little puff of leaves, petals or seeds and rustle when a hero walks past (a stomp makes the dandelions and leaves jump). Snails pull in and a ladybug flies off and comes back. Only what is near a hero or a ball reacts. |
+| 1013 | `updatePlay(dt)` | functie |  |
+| 1134 | `camTarget(L, a, b)` | functie | Where the camera wants to be for two heroes: no side effects, so a test can ask the game itself. Rules: both heroes on screen; nothing of a hero (name included) above the band at the top (HUD_TOP, 08-draw.js); the camera may look up to HUD_TOP + 20 screen pixels above the top edge of the world, and that strip is painted sky. |
 
 ## 075-duel.js
 
@@ -576,40 +592,41 @@ Nicio functie.
 | 412 | `hintTarget()` | functie |  |
 | 422 | `nearestEgg(h, reqOnly, maxD)` | functie | The helper arrow: a soft arrow next to a hero that shows where to go and, in a small bubble, what waits there. |
 | 427 | `guideTarget(h)` | functie |  |
-| 449 | `drawGuides(c)` | functie |  |
-| 477 | `drawHints(c, v)` | functie |  |
-| 520 | `pressLabel(k)` | functie sageata |  |
-| 522 | `levelProgress()` | functie | How far the level is: eggs in groups, then the guardian, then the nest. |
-| 537 | `seg(k)` | functie sageata |  |
-| 546 | `drawProgress(c)` | functie |  |
-| 576 | `drawPort(c, k, cx, cy, r, dizzy)` | functie | The round picture of a hero (the one painted after the children's drawings) in a ring of his color; r = the radius of the ring. |
-| 588 | `drawTick(c, x, y, r)` | functie | A round green tick, painted: the quota is found. |
-| 598 | `drawBadge(c, k, x, y)` | functie | The corner badge: portrait, name, difficulty and, when the level has a quota, "found / quota" in green (done) or red (still missing). 300 x 108, inside the band (16 to 124). |
-| 621 | `downBanner()` | functie | "Ajută-l pe Boon! ○" while a friend is down and the seconds are running. It comes before any other banner. |
-| 625 | `waitBanner()` | functie |  |
-| 636 | `drawMidCard(c, ban)` | functie | The card in the middle, with what a banner says when there is one. A banner never comes down over the world. |
-| 705 | `drawHUD(c)` | functie |  |
-| 720 | `lightSprite(col)` | functie |  |
-| 727 | `addLight(x, y, r, col, a, glow)` | functie |  |
-| 731 | `collectLights(L)` | functie |  |
-| 749 | `drawLightMap(c, v)` | functie |  |
-| 777 | `waterSpark()` | functie |  |
-| 784 | `drawWater(c, L, t, l, tp, vw, vh)` | functie |  |
-| 802 | `moteKind(L)` | functie |  |
-| 804 | `moteSprite(col)` | functie |  |
-| 810 | `moteInit(L)` | functie |  |
-| 818 | `drawMotes(c, v)` | functie |  |
-| 845 | `heroScreenBox(h, v)` | functie |  |
-| 849 | `frontOffset(L, v)` | functie |  |
-| 853 | `updateFront(L, v)` | functie | the alphas: called while drawing, from the time that passed in the game |
-| 870 | `drawFront(c, v)` | functie |  |
-| 880 | `drawPlay(c)` | functie |  |
-| 890 | `drawEdgePulse(c)` | functie | The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. |
-| 900 | `drawNestShelter(c)` | functie | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
-| 908 | `drawDecor(c, l, tp, vw, vh)` | functie | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
-| 924 | `drawArenaBack(c)` | functie | the torches of fire around the arena |
-| 928 | `drawThrone(c)` | functie |  |
-| 935 | `drawGeorgeBoss(c, o, t)` | functie |  |
+| 451 | `drawGuides(c)` | functie |  |
+| 485 | `drawMechAct(c, k, act, x, y, r, t)` | functie |  |
+| 491 | `drawHints(c, v)` | functie |  |
+| 547 | `pressLabel(k)` | functie sageata |  |
+| 549 | `levelProgress()` | functie | How far the level is: eggs in groups, then the guardian, then the nest. |
+| 564 | `seg(k)` | functie sageata |  |
+| 573 | `drawProgress(c)` | functie |  |
+| 603 | `drawPort(c, k, cx, cy, r, dizzy)` | functie | The round picture of a hero (the one painted after the children's drawings) in a ring of his color; r = the radius of the ring. |
+| 615 | `drawTick(c, x, y, r)` | functie | A round green tick, painted: the quota is found. |
+| 625 | `drawBadge(c, k, x, y)` | functie | The corner badge: portrait, name, difficulty and, when the level has a quota, "found / quota" in green (done) or red (still missing). 300 x 108, inside the band (16 to 124). |
+| 648 | `downBanner()` | functie | "Ajută-l pe Boon! ○" while a friend is down and the seconds are running. It comes before any other banner. |
+| 652 | `waitBanner()` | functie |  |
+| 663 | `drawMidCard(c, ban)` | functie | The card in the middle, with what a banner says when there is one. A banner never comes down over the world. |
+| 732 | `drawHUD(c)` | functie |  |
+| 747 | `lightSprite(col)` | functie |  |
+| 754 | `addLight(x, y, r, col, a, glow)` | functie |  |
+| 758 | `collectLights(L)` | functie |  |
+| 776 | `drawLightMap(c, v)` | functie |  |
+| 804 | `waterSpark()` | functie |  |
+| 811 | `drawWater(c, L, t, l, tp, vw, vh)` | functie |  |
+| 829 | `moteKind(L)` | functie |  |
+| 831 | `moteSprite(col)` | functie |  |
+| 837 | `moteInit(L)` | functie |  |
+| 845 | `drawMotes(c, v)` | functie |  |
+| 872 | `heroScreenBox(h, v)` | functie |  |
+| 876 | `frontOffset(L, v)` | functie |  |
+| 880 | `updateFront(L, v)` | functie | the alphas: called while drawing, from the time that passed in the game |
+| 897 | `drawFront(c, v)` | functie |  |
+| 907 | `drawPlay(c)` | functie |  |
+| 917 | `drawEdgePulse(c)` | functie | The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. |
+| 927 | `drawNestShelter(c)` | functie | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
+| 935 | `drawDecor(c, l, tp, vw, vh)` | functie | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
+| 951 | `drawArenaBack(c)` | functie | the torches of fire around the arena |
+| 955 | `drawThrone(c)` | functie |  |
+| 962 | `drawGeorgeBoss(c, o, t)` | functie |  |
 
 ## 09-screens.js
 
