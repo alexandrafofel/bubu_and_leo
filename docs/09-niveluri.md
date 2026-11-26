@@ -78,6 +78,7 @@ Nivelul are 80 x 45 de celule de 40 (`CS`). Fiecare celula are un tip in `L.grid
 | 4 | pestera |
 | 8 | pod sau pietre de trecere |
 | 16 | culoar de conuri |
+| 32 | trecerea unei benzi (poarta), T7 |
 
 `L.ci(x, y)` da celula unui punct.
 
@@ -188,3 +189,21 @@ Greutatea fiecarui fel este in `DECOR_WEIGHT`. Cele care reactioneaza (`DECOR_RE
 Cand nivelul are cota, `genLevel` nu mai pune diamante in valuri: `L.waves` are cate o lista goala pe val, iar `L.totalEggs = 2 * q` (cat trebuie echipei). Copacii care stralucesc raman, dar ascund melci (`treeSnails`), nu diamante.
 
 Dupa copaci, nivelul primeste destui inamici mici ca sa dea diamantele: daca robotii, melcii copacilor si conurile sunt mai putini decat `CONFIG.lupta.fieldEnemies[nivel]`, se mai pun roboti, pe rand in fiecare val, cu aceleasi reguli ca robotii de pana acum (departe de start, de cuib si de drum). Apoi vin Micii George (`miniGeorge.perLevel`), tot ca intrari in `L.beetles`, cu `look: 'mini'`, 3 inimi si `maxHp`.
+
+## Update 26 noiembrie 2026: benzile (T7.1)
+
+Un nivel cu `bands` in definitie (nivelurile 7 - 12, din T7.4) are benzi care taie harta de sus pana jos. Nivelurile 1 - 6 nu au.
+
+```js
+bands: [{ at: 0.335, kind: 'chasm', w: 200, mech: 'plates1' }, { at: 0.665, kind: 'chasm', w: 200, mech: 'plates2' }]
+```
+
+- `kind`: `chasm`, `water`, `lava` dau celule cu codul 2 (eroii nu trec, obiectele aruncate zboara peste). `wall` da codul 3 (nu trece nimic).
+- Mijlocul benzii serpuieste: `bandX(g, y) = at * 3200 + 40 * sin(y / 260 + faza)`. Marginile: `bandLeft`, `bandRight` (`065-mech.js`).
+- `genLevel` taie benzile imediat dupa drum. Fiecare banda are o singura trecere, unde o taie drumul: 3 randuri inalte, lata cat banda plus 60 de fiecare parte. Celulele trecerii au steagurile 1, 2, 8 si 32: acolo nu se pun copaci, oua, inamici sau decor.
+- Verificarea ca totul se poate atinge (`reach`) se face cu trecerile deschise. Abia dupa ea `placeMechInputs` pune intrarile (placile) dupa reteta. Daca o intrare nu are loc bun, `genLevel` incearca urmatoarea samanta.
+- O placa pentru oricine (`any`, poarta A a nivelului 7) sta pe drum, la cel putin `CONFIG.mech.plateGap` (700) de trecere. Placile cu `dy` stau langa banda, deasupra sau dedesubtul trecerii.
+- `startPlay` inchide toate portile (`closeGates`): celulele trecerii primesc codul benzii. La "Încă o dată!" nivelul se face din nou, deci portile sunt iar inchise.
+- Fiecare poarta e in `L.gates`, fiecare intrare in `L.inputs`. Campurile: `docs/25-niveluri-7-12.md`, 3.2.
+
+Harta aleasa pentru nivelul 7 e `art/krea-ref/nivel7-harta.jpg` (varianta 1, 26 noiembrie 2026). E doar o referinta: nu intra in joc. Din ea se fac piesele nivelului in T7.4.

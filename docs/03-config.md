@@ -361,3 +361,18 @@ T6.10: nu se adauga chei noi; testul `tests/stil-grafic.js` si bugetul din `perf
 - `look.art` (true): eroii, inamicii si lucrurile nivelurilor 1 - 6 sunt imaginile Krea. false = pictura veche.
 - `look.artSize`: cat de inalt se deseneaza fiecare imagine, in unitati ale lumii. George la scara 1.
 - `look.calm` (true): solul calm al hartilor Krea. false = solul vechi, cu imaginile peste el.
+
+## Update 26 noiembrie 2026 (T7.1): `CONFIG.mech`
+
+| Camp | Implicit | Ce face |
+|---|---|---|
+| `autoOpen` | 180 | secunde fara progres dupa care o poarta se deschide singura (T7.3). 0 = niciodata |
+| `hintAfter` | 40 | secunde fara progres dupa care fiecare jucator primeste sageata spre intrarea lui (T7.3) |
+| `easy` | 1.6 | pe "Ușor", ferestrele de timp si timpul de stat deschis sunt de atatea ori mai lungi |
+| `cageWindow` | 1.5 | cusca stelutelor: secundele intre loviturile celor doi (T7.2) |
+| `openTime` | 0.5 | secunde in care o poarta se deschide sau se inchide de tot |
+| `plateGap` | 700 | o placa pentru oricine (`any`) sta cel putin atat de departe de trecere |
+| `nearGate` | 150 | la `any`, poarta mai sta deschisa dupa ce placa e lasata doar cat un erou e pe trecere sau atat de aproape |
+| `raftTurns`, `raftBack`, `raftDrift`, `orbSlow`, `orbPass`, `orbLight`, `boulderSpeed`, `boulderBack` | | pentru pluta, cristalul si bolovanul (T8 - T9) |
+
+Retetele (`plates1`, `plates2`, apoi cele din T8 - T12) sunt in `MECH_RECIPES`, in `065-mech.js`.

@@ -108,7 +108,7 @@ input = { id, kind: 'plate',     // 'plate' | 'target' | 'crank' | 'pedestal' | 
    - `all`: deschisa cat toate sunt `on`.
    - `allWithin`: se deschide cand toate au devenit `on` la cel mult `window` secunde una de alta. Intrarile de acest fel raman `on` cate `window` secunde dupa ce au fost atinse.
    - `seq`: intrarile trebuie atinse in ordinea din `inputs`. `gate.step` arata care urmeaza.
-3. Cand regula nu mai e adevarata, poarta mai sta deschisa `stay` secunde, apoi se inchide.
+3. Cand regula nu mai e adevarata, poarta mai sta deschisa `stay` secunde, apoi se inchide. La `any`, aceste secunde curg doar cat un erou e pe trecere sau la cel mult `nearGate` (150) de ea; altfel poarta se inchide indata (decizia din 26 noiembrie 2026: cine trece nu poate fi si cel care deschide).
 4. `gate.open` merge lin spre 1 sau 0 (0.5 secunde). Celulele devin libere (cod 0) cand `open > 0.9` si se inchid (cod 2 sau 3) cand `open < 0.1`.
 5. Regulile de siguranta (3.6).
 
@@ -118,7 +118,7 @@ Cand o poarta se deschide prima oara: oprire scurta, camera se apropie putin (`2
 
 | Reteta | Nivel | Intrari | Regula | Pe scurt |
 |---|---|---|---|---|
-| `plates1` | 7, A | o placa pe malul apropiat, una pe cel indepartat, amandoua pentru oricine | `any`, `stay: 1.5` | Tu stai, eu trec. Apoi eu stau, tu treci. |
+| `plates1` | 7, A | o placa pe malul apropiat, una pe cel indepartat, amandoua pentru oricine, pe drum, la cel putin `plateGap` (700) de trecere | `any`, `stay: 1.5` | Tu stai, eu trec. Apoi eu stau, tu treci. |
 | `plates2` | 7, B | doua plăci pe malul apropiat: una turcoaz (Boon), una albastra (Killer), fiecare la 520 de trecere | `all`, `stay: 5` | Apasam amandoi, apoi fugim. |
 | `targets1` | 8, A | doua tinte pe zid: una turcoaz, una albastra | `allWithin`, `window: 4` | Fiecare isi loveste tinta. |
 | `targets2` | 8, B | patru tinte pe zid, culori pe rand | `seq` | Pe rand, cum arata luminile. |
@@ -135,7 +135,7 @@ Pe **Ușor** (dificultatea cea mai usoara dintre cei doi jucatori): `window` si 
 
 ### 3.4 Intrarile, una cate una
 
-**Placa** (`plate`, raza 60). `on` cat un erou potrivit (`who`) sta la mai putin de 55 de mijlocul ei si nu e jos, dus de pasare sau pe pluta.
+**Placa** (`plate`, raza 60). `on` cat un erou potrivit (`who`), cu jucator, sta la mai putin de 55 de mijlocul ei si nu e jos, dus de pasare, pe pluta sau pe o trecere (facut in T7.1).
 
 - Arata: un disc de piatra (`stone`) in pamant, cu o urma pictata: laba cu trei degete, turcoaz, pentru Boon; talpa de gheata, albastra, pentru Killer; jumatate-jumatate pentru oricine. Apasata: coboara 6 unitati, urma lumineaza, un inel de lumina urca.
 - Sunet: `plate` (un clic de piatra si un clopotel). La eliberare, acelasi clopotel, mai jos.
@@ -220,6 +220,7 @@ mech: {
   orbSlow: 0.7, orbPass: 420, orbLight: 360,
   boulderSpeed: 85, boulderBack: 120
 },
+// T7.1 a adaugat: openTime 0.5, plateGap 700, nearGate 150 (docs/03-config.md)
 ```
 
 ### 3.7 Sageata, indiciile, botul
@@ -259,6 +260,8 @@ Paletele noi se adauga in `PALS`, cu aceleasi campuri ca cele de acum (`g0`, `g1
   bands: [{ at: 0.335, kind: 'chasm', w: 200, mech: 'plates1' }, { at: 0.665, kind: 'chasm', w: 200, mech: 'plates2' }],
   stars: ['islet', 'nook', 'treetop'], toy: 'seesaw' },
 ```
+
+Harta aleasa (26 noiembrie 2026): `art/krea-ref/nivel7-harta.jpg`, varianta 1 de la Krea. Piesele nivelului se decupeaza din ea; solul si prapastia se picteaza in culorile ei.
 
 Paleta `canyon`: `g0 '#E8B48A'`, `g1 '#D99A78'`, `canopy ['#6FB08A', '#8AC07A', '#4F9A8A', '#B8C86A']`, `flowers ['#FF8AB8', '#FFD84A', '#FFFFFF', '#B09AFF']`, `path '#F6D9B0'`, `trunk '#8A5A6A'`, `rock '#C98A7A'`. Fundul prapastiei: `#3A4A8A` spre `#6A7AC0`, cu ceata.
 

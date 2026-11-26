@@ -325,3 +325,7 @@ Cuvinte noi pentru Boon si pentru Killer: `power2` si `power2Big` (a doua putere
 | `retry` | cand nivelul reincepe | Trei note de marimba care coboara (do, sol, mi) si un clopotel la sfarsit. Blande, nu o alarma: nu e o pedeapsa. |
 
 Cuvant nou pentru amandoi eroii: `hurry` ("repede!"), spus o data de prieten cand mai sunt 3 secunde.
+
+## Update 26 noiembrie 2026 (T7.1): `gateOpen`
+
+O poarta care se deschide prima oara: patru note de marimba care urca (do, mi, sol, do), un suflu moale de aer (zgomot prin trece-jos la 700 Hz) si un clopotel sus la sfarsit. Inainte de el se aude `click` (`mechClick`).

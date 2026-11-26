@@ -460,6 +460,8 @@ const Snd = (() => {
     tick(b, t, v) { osc(b, 'sine', v > 0.5 ? 880 : 660, t, 0.14, 0.004, 0.05, { f2: v > 0.5 ? 760 : 580, gt: 0.04 }); },
     // a mechanism clicks before it moves (T6.9): a short soft wooden "tic" with a spark of air
     click(b, t) { osc(b, 'triangle', 1250, t, 0.12, 0.002, 0.045, { f2: 900, gt: 0.04 }); noise(b, t, 0.04, 0.001, 0.05, 'bandpass', 2600, 1800, 2.0); },
+    // a gate opens for the first time (T7.1): a warm rising marimba arpeggio of four notes, a soft breath of air and one high bell
+    gateOpen(b, t) { [0, 4, 7, 12].forEach((d, i) => marimba(b, mtof(60 + d), t + 0.06 + i * 0.09, 0.26)); noise(b, t, 0.5, 0.08, 0.45, 'lowpass', 700, 260); chime(b, mtof(84), t + 0.42, 0.09); },
     retry(b, t) { [72, 67, 64].forEach((n, i) => marimba(b, mtof(n), t + i * 0.16, 0.3)); chime(b, mtof(79), t + 0.42, 0.1); }
   };
   /* Running (L3) in the first game too: the same short soft whoosh. */

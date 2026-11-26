@@ -443,3 +443,22 @@ In luptele cu George (cea din mijloc, cea de la cuib si arena, `ringFight()`) in
 - Fiecare lupta cu George incepe cu inelul intreg (`startDuel`). In afara luptelor, o lovitura il pune jos ca inainte.
 
 Reglaje: `CONFIG.ring` (`on`, `hits`, `inv`, `red`, `push`).
+
+## Update 26 noiembrie 2026: portile benzilor (T7.1)
+
+`updateMechs(dt)` (`065-mech.js`) ruleaza in `updatePlay`, dupa eroi si dupa obiectele aruncate. Pentru fiecare intrare afla daca e apasata (`on`), apoi aplica regula portii:
+
+| Regula | Poarta e deschisa |
+|---|---|
+| `any` | cat macar o intrare e apasata |
+| `all` | cat toate sunt apasate |
+| `allWithin` | cand toate au fost atinse la cel mult `window` secunde una de alta |
+| `seq` | cand intrarile au fost atinse in ordine; una gresita o ia de la capat (nu pe "Ușor") |
+
+- Cand regula nu mai e adevarata, poarta mai sta deschisa `stay` secunde, apoi se inchide.
+- **Cine trece nu poate fi si cel care deschide.** Un erou de pe o trecere (sau de pe pluta, T9) nu apasa nicio intrare. La regula `any`, cele `stay` secunde curg doar cat un erou e pe trecere sau la cel mult `CONFIG.mech.nearGate` (150) de ea. Altfel poarta se inchide indata. Asa nimeni nu poate sa apese placa, sa fuga si sa treaca singur.
+- `g.open` merge lin spre 1 sau 0 in `CONFIG.mech.openTime` (0.5 s). Celulele se deschid peste 0.9. La inchidere se inchid indata (podul se stinge in desen), dar niciodata sub un erou (G1).
+- Prima deschidere a unei porti: `mechClick`, `bigHit()` (oprire scurta, camera se apropie), sunetul `gateOpen`, vibratie pe ambele controllere (`rumble(k, 0.3, 0.6, 220)`).
+- Pe "Ușor" (daca macar unul dintre jucatori e pe Ușor): `window` si `stay` se inmultesc cu `CONFIG.mech.easy` (1.6).
+- Placa (`plate`) e apasata cat un erou potrivit (`who`: -1 oricine, 0 Boon, 1 Killer), cu jucator, sta la mai putin de 55 de mijlocul ei si nu e jos, dus de pasare sau pe trecere. Desenul ei vine in T7.2.
+- Regulile G2 - G10 (nimeni nu ramane blocat) vin in T7.3. Pana atunci niciun nivel din joc nu are benzi.

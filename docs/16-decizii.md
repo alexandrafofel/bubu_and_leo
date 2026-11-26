@@ -520,3 +520,13 @@ Hotararea de proces: `balanseaza()` sta in `tests/common.js` si cheama `giveEgg`
 | Regulile G1 - G10 au o sarcina a lor (T7.3), cu Opus | "Nimeni nu ramane blocat" e regula care nu se incalca. Fiecare regula se testeaza si se strica o data. |
 | Imaginile Krea ale nivelului 7 se aproba inainte sa intre in joc (T7.4) | La fel ca la nivelurile 1 - 6. Costa credite Krea. |
 | In T7, "valurile de cristale" din `25` se citesc "treimile nivelului, cu inamicii lor" | Din T15 diamantele vin doar din inamici, iar George vine dupa diamantele echipei, nu intr-un loc anume. |
+
+## T7.1: colaborarea la porti (26 noiembrie 2026)
+
+| Hotarare | Motiv |
+|---|---|
+| Cine trece nu poate fi si cel care deschide: un erou de pe trecere nu apasa nicio intrare; la `any`, poarta mai sta deschisa dupa ce placa e lasata doar cat un erou e pe trecere sau langa ea (`nearGate`, 150) | Cu specificatia veche (stay 1.5 s, fuga cam 990 de unitati pe secunda) un copil putea apasa placa, fugi si trece singur. Aprobat de proprietara: jocul e despre colaborarea piticilor. |
+| Placa pentru oricine sta la cel putin 700 de trecere (`plateGap`) | Nici fugind nu ajungi la trecere pana se inchide. Cu 250 testul a aratat ca se poate trece singur. |
+| La inchidere, celulele trecerii se inchid indata (nu la `open < 0.1`) | Jumatatea de secunda in care podul se stinge ajungea, la limita, unui copil care fuge. Podul se stinge doar in desen. Sub un erou nu se inchid niciodata (G1). |
+| Un test de colaborare in `mecanisme.js`: un erou singur, cu prietenul in joc dar stand, nu trece de nicio poarta, nici fugind | Orice poarta noua (T8 - T12) trebuie sa ceara doi. Testul o prinde daca nu. |
+| Harta nivelului 7: varianta 1 de la Krea ("cristale"), `art/krea-ref/nivel7-harta.jpg` | Aleasa de proprietara pe 26 noiembrie 2026. Se folosesc piese decupate din ea (placi, felinare, stalpi, balansoar, cusca), iar solul si prapastia se picteaza in culorile ei. Nivelul ramane generat ca celelalte (T7.4). |
