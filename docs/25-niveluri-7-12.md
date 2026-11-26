@@ -61,29 +61,11 @@ Totul sta intr-un fisier nou, `src/065-mech.js`, pus in `build.sh` intre `06-lev
 
 ### 3.1 Banda
 
-In definitia nivelului:
-
-```js
-bands: [
-  { at: 0.335, kind: 'chasm', w: 200, mech: 'plates1' },   // band A
-  { at: 0.665, kind: 'chasm', w: 200, mech: 'plates2' }    // band B
-],
-```
-
-| Camp | Ce este |
-|---|---|
-| `at` | Unde e mijlocul benzii, ca parte din latimea hartii. 0.335 si 0.665 cad pe granitele dintre cele trei zone ale valurilor (`region(k)` in `genLevel`). |
-| `kind` | `chasm` (prapastie), `water` (lac, sant), `lava`: celule cu codul 2. Eroii nu trec, obiectele aruncate zboara peste. `wall` (zid): celule cu codul 3. Nu trece nimic. |
-| `w` | Latimea, in unitati. Mijlocul benzii serpuieste usor, ca raul de acum: `x(y) = at * W + 40 * sin(y / 260 + faza)`. |
-| `mech` | Reteta mecanismului (3.3). |
-
-In `genLevel`, benzile se pun imediat dupa drum, langa blocul `if (def.river)` (nivelurile noi nu au `river`). Trecerea se face cu aceeasi functie ca la rau (`crossing`): un dreptunghi de 3 randuri inalt, lat cat banda plus 60 de fiecare parte, la inaltimea la care drumul (`L.path`) taie banda. Celulele trecerii primesc codul 0 si steagul 8 (pod) plus un steag nou, 32 (poarta), ca sa nu se puna acolo cristale, copaci sau decor.
-
-O stea de felul `islet`, pe un nivel cu benzi si fara iaz, se pune in mijlocul unei benzi care nu e zid, la cel putin 250 de trecere: se ia doar cu un obiect aruncat.
-
-Verificarea ca toate cristalele se pot culege (`reach`) se face **cu portile deschise**. Abia in `startPlay`, celulele fiecarei porti primesc codul benzii (2 sau 3). De aici le schimba doar mecanismul.
+**Facut (T7.1, 26 noiembrie 2026).** Descrierea, la timpul prezent, e in `09-niveluri.md` ("Benzile") si in `03-config.md` (`CONFIG.mech`).
 
 ### 3.2 Poarta si intrarile
+
+**Facut pentru placi (T7.1, T7.2).** Poarta, starile ei si regulile `any`, `all`, `allWithin`, `seq` sunt in `10-gameplay.md`. Ce urmeaza aici ramane specificatie pentru intrarile din T8 - T12 (tinte, manivele, piedestale, scobituri).
 
 ```js
 // one per band, in L.gates
@@ -116,6 +98,8 @@ Cand o poarta se deschide prima oara: oprire scurta, camera se apropie putin (`2
 
 ### 3.3 Retetele
 
+**Facute: `plates1` si `plates2` (nivelul 7), descrise in `09-niveluri.md`.** Celelalte retete din tabel sunt inca specificatie.
+
 | Reteta | Nivel | Intrari | Regula | Pe scurt |
 |---|---|---|---|---|
 | `plates1` | 7, A | o placa pe malul apropiat, una pe cel indepartat, amandoua pentru oricine, pe drum, la cel putin `plateGap` (700) de trecere | `any`, `stay: 1.5` | Tu stai, eu trec. Apoi eu stau, tu treci. |
@@ -135,11 +119,7 @@ Pe **Ușor** (dificultatea cea mai usoara dintre cei doi jucatori): `window` si 
 
 ### 3.4 Intrarile, una cate una
 
-**Placa** (`plate`, raza 60). `on` cat un erou potrivit (`who`), cu jucator, sta la mai putin de 55 de mijlocul ei si nu e jos, dus de pasare, pe pluta sau pe o trecere (facut in T7.1).
-
-- Arata: un disc de piatra (`stone`) in pamant, cu o urma pictata: laba cu trei degete, turcoaz, pentru Boon; talpa de gheata, albastra, pentru Killer; jumatate-jumatate pentru oricine. Apasata: coboara 6 unitati, urma lumineaza, un inel de lumina urca.
-- Sunet: `plate` (un clic de piatra si un clopotel). La eliberare, acelasi clopotel, mai jos.
-- Vibratie pentru cel care a calcat: `rumble(k, 0, 0.4, 60)`.
+**Facute: placa si cusca stelutelor (T7.2), descrise in `10-gameplay.md` si `05-pictura.md`.** Mai jos raman doar intrarile care nu exista inca.
 
 **Tinta** (`target`, raza 46). Devine `on` cand o loveste un obiect aruncat de eroul potrivit (`b.owner === who`) sau rotirea lui, daca sta la mai putin de `radius`.
 
@@ -157,7 +137,6 @@ Pe **Ușor** (dificultatea cea mai usoara dintre cei doi jucatori): `window` si 
 
 **Scobitura** (`slot`). `on` cand bolovanul a ajuns in ea (3.5).
 
-**Cusca stelutelor** (`cage`, raza 70, langa cuib). Numara loviturile fiecarui erou. Se deschide cand amandoi au lovit-o la cel mult 1.5 s unul de altul. Daca doar unul loveste, cusca se clatina si deasupra ei apar cele doua fete ale eroilor, cu cea care lipseste palpaind.
 
 ### 3.5 Obiectele care se misca
 
@@ -194,43 +173,11 @@ Deci: A urca, B invarte manivela de aici de trei ori. A coboara dincolo. Pluta s
 
 ### 3.6 Reguli de siguranta: nimeni nu ramane blocat
 
-Acestea sunt obligatorii. Testul `mecanisme.js` le verifica pe fiecare.
-
-| Nr | Regula |
-|---|---|
-| G1 | O poarta nu se inchide cat un erou sta pe celulele ei. |
-| G2 | Cand amandoi eroii jucati sunt dincolo de banda (x mai mare decat marginea ei din dreapta plus 60), poarta devine `fixed`: ramane deschisa pana la sfarsitul nivelului. |
-| G3 | Cat un erou e jos (asteapta ajutor), toate portile se deschid si raman deschise. Pluta merge singura la malul prietenului. Altfel Boon, care ajuta doar de aproape, nu ar putea ajunge. |
-| G4 | Pasarile nu lasa niciodata un erou dincolo de o banda inchisa (`dropHero` cauta loc doar pe partea de unde l-a luat). |
-| G5 | Vantul, urletul lui George si loviturile nu pot impinge un erou intr-o banda (`collide` il opreste, ca la apa). |
-| G6 | Cu un singur jucator, intrarile celuilalt erou sunt socotite mereu `on`, ferestrele de timp nu exista, bolovanul merge cu un singur impingator, cusca se deschide la o lovitura. |
-| G7 | Daca la o poarta nu se intampla nimic `autoOpen` (180) secunde, poarta se deschide singura, cu mesajul "Poarta s-a deschis singură." Numaratoarea porneste cand un erou ajunge la mai putin de 500 de poarta. |
-| G8 | Dupa 40 de secunde fara progres la o poarta, fiecare erou primeste sageata spre intrarea lui (si cel cu sageata oprita) si iconita butonului de apasat deasupra intrarii. |
-| G9 | In timpul unei mini-lupte portile nu isi schimba starea. |
-| G10 | La reinceperea nivelului, totul porneste de la zero: porti inchise, pluta la mal, bolovanul la loc. |
-
-```js
-// ---- Co-op mechanisms of levels 7 - 12
-mech: {
-  autoOpen: 180,         // seconds without progress before a gate opens by itself. 0 = never
-  hintAfter: 40,         // seconds without progress before both players get an arrow to their own switch
-  easy: 1.6,             // on "Ușor": time windows and "stays open" times are this much longer
-  cageWindow: 1.5,       // both heroes must hit the star cage within this many seconds
-  raftTurns: 3, raftBack: 140, raftDrift: 0.07,
-  orbSlow: 0.7, orbPass: 420, orbLight: 360,
-  boulderSpeed: 85, boulderBack: 120
-},
-// T7.1 a adaugat: openTime 0.5, plateGap 700, nearGate 150 (docs/03-config.md)
-```
+**Facut (T7.3, 26 noiembrie 2026).** Regulile G1 - G10, cum merg in joc, sunt in `10-gameplay.md` ("Portile si regulile lor"). Orice poarta noua (T8 - T12) le respecta; testul e partea a patra din `tests/mecanisme.js`.
 
 ### 3.7 Sageata, indiciile, botul
 
-Fiecare reteta stie in orice moment ce are de facut fiecare erou. O functie, `mechSteps(gate)`, intoarce pentru fiecare erou `{ x, y, act }`, unde `act` este `'stand'`, `'power1'`, `'power2'`, `'spin'`, `'throw'`, `'push'`, `'carry'`, `'ride'` sau `'cross'`.
-
-- `guideTarget(h)` (`08-draw.js`) o foloseste: sageata fiecarui erou arata spre locul **lui**.
-- `drawHints` deseneaza iconita butonului deasupra locului, in culoarea eroului.
-- Eroul fara jucator (G6) nu are nevoie de ea.
-- Testele o folosesc ca sa joace nivelurile cu boti.
+**Facut (T7.3 si T7.5).** `mechSteps`, sageata si indiciile sunt in `12-desen-si-hud.md` ("Sageata si indiciile la porti") si in `10-gameplay.md`. Botii care o folosesc sunt in `tests/nivele-bot-mers.js` (`17-testare.md`).
 
 ---
 
@@ -242,28 +189,7 @@ Paletele noi se adauga in `PALS`, cu aceleasi campuri ca cele de acum (`g0`, `g1
 
 ### Nivelul 7: Canionul Podurilor de Lumină (`canyon`)
 
-**Ideea:** poduri de lumina peste o prapastie. Tu stai pe placa, eu trec.
-
-| | |
-|---|---|
-| Locul | Un platou inalt, la rasarit. Prima raza de soare dupa sase niveluri de noapte: cer roz si auriu, stanci rosiatice, prapastii adanci cu ceata albastra pe fund. |
-| Banda A | `chasm`, `plates1`. Podul e facut din sapte scanduri de lumina, cate una de fiecare culoare a curcubeului. Apar una dupa alta, de la malul placii apasate. |
-| Banda B | `chasm`, `plates2`. Placile sunt la 520 deasupra si dedesubtul trecerii. Dupa ce le apasa amandoi, podul ramane 5 secunde. Mergand, abia ajung. Fugind (L3), ajung usor. Aici se invata fuga. |
-| Inamici | 2 pasari mari (pot lua un erou de pe placa: e de ras, nu de plans, vezi G4). Roboti putini. Vant. |
-| Invata | Placile. A doua putere (iconita □ deasupra eroilor). Fuga. |
-| Stele | Una pe un stalp de piatra din prapastie (se ia cu un obiect aruncat). Una intr-un cotlon. Una in coroana unui copac. |
-| Jucaria nivelului | Un balansoar urias dintr-un trunchi cazut. Daca cei doi stau la capete, se leagana si rad. Nu da nimic. |
-
-```js
-{ key: 'canyon', music: 'l6', pal: 'canyon', look: 'diorama', ambient: '#FFE9D6', icons: ['plate', 'bridge', 'star'],
-  trees: 22, rocks: 26, beetles: [0, 1, 2], lanes: [0, 0, 1], conesPerLane: 1, coneSpeed: 0.55, mud: [0, 0, 0], sparkle: [1, 1, 2], wind: 0.7, birds: 2,
-  bands: [{ at: 0.335, kind: 'chasm', w: 200, mech: 'plates1' }, { at: 0.665, kind: 'chasm', w: 200, mech: 'plates2' }],
-  stars: ['islet', 'nook', 'treetop'], toy: 'seesaw' },
-```
-
-Harta aleasa (26 noiembrie 2026): `art/krea-ref/nivel7-harta.jpg`, varianta 1 de la Krea. Piesele nivelului se decupeaza din ea; solul si prapastia se picteaza in culorile ei.
-
-Paleta `canyon`: `g0 '#E8B48A'`, `g1 '#D99A78'`, `canopy ['#6FB08A', '#8AC07A', '#4F9A8A', '#B8C86A']`, `flowers ['#FF8AB8', '#FFD84A', '#FFFFFF', '#B09AFF']`, `path '#F6D9B0'`, `trunk '#8A5A6A'`, `rock '#C98A7A'`. Fundul prapastiei: `#3A4A8A` spre `#6A7AC0`, cu ceata.
+**Facut (T7.4 si T7.5, 26 - 27 noiembrie 2026).** Nivelul, asa cum este in joc, e descris in `09-niveluri.md` ("Nivelul 7"), imaginile in `05-pictura.md`, deciziile in `16-decizii.md`.
 
 ### Nivelul 8: Atelierul lui George (`works`)
 

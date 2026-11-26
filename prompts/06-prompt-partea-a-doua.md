@@ -653,6 +653,8 @@ Nu face: botii si testele lungi (T7.5). Nivelurile 8 - 12.
 
 ### T7.5 - Boti, teste complete, documentatie
 
+Facuta (27 noiembrie 2026): vezi docs/17-testare.md (rezultatele), docs/16-decizii.md (George pe partea eroilor, lupta de la jumatate nu in cuib) si docs/19-limitari.md.
+
 ````
 Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
 Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le. Citeste si inceputul sectiunii T7 din acelasi fisier.

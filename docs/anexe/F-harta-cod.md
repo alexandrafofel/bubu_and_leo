@@ -236,26 +236,26 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 924-968 | second game: big birds that pick a hero up and carry him a little way (it does not hurt) |
 | 969-1143 | Thrown things (pinecones, mud balls) fly in an arc and land on a marked spot. |
 
-## 075-duel.js (432 linii)
+## 075-duel.js (441 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 2-29 | MINI-FIGHTS: when the last eggs of a level are collected, one of Ciori's |
-| 30-54 | kind 'mid': the middle fight, the same as before. kind 'nest': the harder one at the nest, bigger and quicker. |
-| 55-64 | Who the guardian goes after: the bravest player who is not hidden in the nest. |
-| 65-66 | While a hero waits for the friend's help the fight rests: the guardian finishes what it was doing, hurts nobody and starts no new attack. |
-| 67-68 | Nothing touches a hero hidden in the nest. A player on "Ușor" who only helps (the guardian is after the friend) is spared too. |
-| 69-117 | A tired guardian can always be hit. On "Ușor" every hit counts at any time, except on a guardian that is only waiting for a hero to be helped up. |
-| 118-119 | T15: what George throws (docs/28-t15-george-de-doua-ori.md, section 4) |
-| 120-130 | n bones and balls, at the heroes: they land in a red circle and daze, like the pinecones. |
-| 131-146 | n small enemies, thrown near the heroes. follow = the ones of his last heart: they keep after Boon and Killer and never give up. |
-| 147-154 | The middle fight (T15): a few bones and balls, two at a time, every few seconds. |
-| 155-162 | The nest fight (T15): what he throws depends on the hearts he has left. Called after every heart he loses. |
-| 163-237 | George is beaten: his thrown enemies go with him (each one in a puff of dust, without diamonds). |
-| 238-305 | the three attack patterns |
-| 306-394 | drawing the guardians |
-| 395-408 | Things on the ground during a mini-fight: where the next attack will land, shadows. (The shelter ring is in drawNestShelter.) |
-| 409-432 | Things above everything: flying guardians, thrown pinecones, leaves, hearts. |
+| 30-61 | kind 'mid': the middle fight, the same as before. kind 'nest': the harder one at the nest, bigger and quicker. |
+| 62-71 | Who the guardian goes after: the bravest player who is not hidden in the nest. |
+| 72-73 | While a hero waits for the friend's help the fight rests: the guardian finishes what it was doing, hurts nobody and starts no new attack. |
+| 74-75 | Nothing touches a hero hidden in the nest. A player on "Ușor" who only helps (the guardian is after the friend) is spared too. |
+| 76-124 | A tired guardian can always be hit. On "Ușor" every hit counts at any time, except on a guardian that is only waiting for a hero to be helped up. |
+| 125-126 | T15: what George throws (docs/28-t15-george-de-doua-ori.md, section 4) |
+| 127-137 | n bones and balls, at the heroes: they land in a red circle and daze, like the pinecones. |
+| 138-153 | n small enemies, thrown near the heroes. follow = the ones of his last heart: they keep after Boon and Killer and never give up. |
+| 154-161 | The middle fight (T15): a few bones and balls, two at a time, every few seconds. |
+| 162-169 | The nest fight (T15): what he throws depends on the hearts he has left. Called after every heart he loses. |
+| 170-246 | George is beaten: his thrown enemies go with him (each one in a puff of dust, without diamonds). |
+| 247-314 | the three attack patterns |
+| 315-403 | drawing the guardians |
+| 404-417 | Things on the ground during a mini-fight: where the next attack will land, shadows. (The shelter ring is in drawNestShelter.) |
+| 418-441 | Things above everything: flying guardians, thrown pinecones, leaves, hearts. |
 
 ## 08-draw.js (975 linii)
 

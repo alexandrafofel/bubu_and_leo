@@ -62,6 +62,7 @@ const { BALANSEAZA } = require('./common.js');
     };
   }, GAME);
   let last = '', out = [], seen = {};
+  const nCh = await page.evaluate(() => chapters().length);
   for (let iter = 0; iter < 400; iter++) {
     const r = await page.evaluate(() => {
       const G = __game; let n = 0; const st0 = G.Game.state + ':' + G.Game.levelIdx;
@@ -73,12 +74,14 @@ const { BALANSEAZA } = require('./common.js');
     seen[r.st.split(':')[0]] = true;
     if (r.st !== last) { console.log(JSON.stringify(r)); last = r.st; if (/^(intro|levelEnd|ending)/.test(r.st)) { await page.evaluate(() => { for (let i = 0; i < 70; i++) { __game.Game.t += 1 / 60; if (__game.Game.state === 'intro') __game.UI.introT += 0; } __game.draw(); }); } }
     if (iter % 12 === 11) console.log('  ..', JSON.stringify(r));
-    if (r.st.startsWith('title') && seen.ending) break;
+    if (/^levelEnd:7$/.test(r.st)) seen.l7 = true;
+    // T7.5: after the ending, "Continuă" leads to level 7 (Part Two); the game ends at the start screen after the last chapter that exists
+    if (r.st.startsWith('title') && seen.ending && (seen.l7 || nCh <= 7)) break;
     if (errs.length) break;
   }
   const info = await page.evaluate(() => ({ game: __game.GAME, downs: bot.downs, pressed: bot.rescues, given: bot.given }));
   console.log('joc', info.game, '| eroi loviti care au asteptat ajutor:', info.downs, '| apasari pe cerc:', info.pressed, '| oua date:', info.given);
-  console.log(seen.ending && last.startsWith('title') && info.game === GAME ? 'joc-complet OK (' + GAME + ')' : 'NEREUSIT: jocul nu a ajuns la final');
+  console.log(seen.ending && last.startsWith('title') && (seen.l7 || nCh <= 7) && info.game === GAME ? 'joc-complet OK (' + GAME + (nCh > 7 ? ', cu nivelul 7' : '') + ')' : 'NEREUSIT: jocul nu a ajuns la final' + (nCh > 7 && !seen.l7 ? ' (nivelul 7 nu s-a terminat)' : ''));
   console.log('errors', errs.length); errs.slice(0, 6).forEach(e => console.log(e));
   console.log('save', await page.evaluate(() => localStorage.getItem(__game.CONFIG.saveKey)));
   await browser.close();

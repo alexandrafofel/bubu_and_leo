@@ -5,11 +5,12 @@ const boot = require('./common.js');
   const { page, done } = await boot();
   const bad = [];
   const check = (lbl, ok, extra) => { console.log((ok ? 'ok   ' : 'GRESIT ') + lbl + (extra !== undefined ? ' ' + JSON.stringify(extra) : '')); if (!ok) bad.push(lbl); };
-  const r = await page.evaluate(() => {
+  for (const ch of [0, 7]) {      // nivelul 1 si nivelul 7 (T7.5: capitolul 7)
+  const r = await page.evaluate((ch) => {
     const G = __game, out = {};
     const hit = (h) => { h.inv = 0; h.dizzy = 0; window.hitHero(h, h.x - 50, h.y); };
     out.art = { ready: artReady(), n: Object.keys(ART).length };
-    go(0); step(3); let P = G.P;
+    go(ch); step(3); let P = G.P; P.L.beetles.length = 0; if (P.L.birds) P.L.birds.length = 0;
     out.calm = !!P.L.pal.art;
     // 1. in afara luptei: o lovitura il pune jos (regula veche)
     const a = P.heroes[0], b = P.heroes[1];
@@ -36,8 +37,9 @@ const boot = require('./common.js');
     // 8. desenul: inelul se deseneaza in lupta fara erori
     step(10);
     return out;
-  });
+  }, ch);
   console.log(JSON.stringify(r));
+  const check0 = check; { const check = (lbl, ok, extra) => check0('[nivelul ' + (ch === 0 ? 1 : 7) + '] ' + lbl, ok, extra);
   check('toate imaginile Krea sunt gata', r.art.ready && r.art.n >= 50, r.art);
   check('nivelurile au aspectul calm', r.calm);
   check('in afara luptei o lovitura il pune jos', r.outside.down && r.outside.found === 4 && r.outside.ring === 0, r.outside);
@@ -49,6 +51,7 @@ const boot = require('./common.js');
   check('singur: ameteste, se ridica singur, inel intreg', !r.solo.down && r.solo.dizzy && r.solo.ring === 0, r.solo);
   check('ring.on false: regula veche', r.off.down, r.off);
   check('lupta noua: inel intreg', r.newFight === 0, r.newFight);
+  } }
   console.log(bad.length ? 'NEREUSIT: ' + bad.join(', ') : 'inel OK');
   await done();
 })();

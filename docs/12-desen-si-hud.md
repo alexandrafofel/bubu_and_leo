@@ -294,7 +294,9 @@ In toate nivelurile (nu doar pe cele cu `look: 'diorama'`): loviturile mari se s
 - **Melcii din copaci** se deseneaza cu `drawSnail`, ca melcii de pe benzi. `drawSleeper` alege dupa `b.look`.
 - **Lucrurile aruncate** (`drawProjs`): oase si mingi cu `drawThrown`, inamicii in aer ca un robot ghemuit care se roteste. Inimile inamicilor (`drawSmallHp`) folosesc `maxHp`.
 
-## Update 26 noiembrie 2026: sageata si indiciile la porti (T7.3)
+## Sageata si indiciile la porti
+
+Facute in T7.3 (26 noiembrie 2026); mutate aici din `25-niveluri-7-12.md`, 3.7.
 
 - `guideTarget` foloseste `mechGuide(h)`: la o banda, sageata fiecarui erou arata spre locul lui (`mechSteps`).
 - Cand jucatorii stau 40 s la o poarta fara progres (G8), sageata apare si la cel care a oprit-o, iar `drawHints` deseneaza deasupra locului fiecaruia un cerc in culoarea lui, cu `drawMechAct` (ce are de facut) si textul "Al tău". Cercul nu urca peste banda de sus (`HUD_TOP + 60`).

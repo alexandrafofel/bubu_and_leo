@@ -6050,15 +6050,22 @@ function startDuel(kind = 'nest') {
   const base = hpTab[L.idx % hpTab.length];
   const hp = clamp((base || 3) + (top === 0 ? -1 : top === 2 ? 1 : 0), 2, 9);
   const mid2 = quotaOn() ? { x: (P.heroes[0].x + P.heroes[1].x) / 2 + 420, y: (P.heroes[0].y + P.heroes[1].y) / 2 } : { x: (L.spawn.x + L.nest.x) / 2, y: (L.spawn.y + L.nest.y) / 2 };      // T15: in the middle fight George comes to the heroes
-  const want = hard ? { x: L.nest.x - 320, y: L.nest.y - 30 } : mid2;
+  // T7.5: on a level with bands George fights on the side of the heroes (of Boon, who hits from close, when they are apart):
+  // the gates do not change during a fight (G9), so a George past a chasm could never be reached
+  const gated = !!(L.gates && L.gates.length), fk = isJoined(0) ? 0 : 1, side = gated ? bandSide(L, P.heroes[fk].x, P.heroes[fk].y) : -1;
+  let want = hard ? { x: L.nest.x - 320, y: L.nest.y - 30 } : mid2;
+  if (side >= 0 && bandSide(L, want.x, want.y) !== side) want = { x: P.heroes[fk].x + (hard ? 260 : 0), y: P.heroes[fk].y };
   const sc = (hard ? F.finalSize : 1) * (def.size || 1);
-  const cells = L.reachCells(want.x, want.y, 0, hard ? 220 : 420, hard ? 0 : 8);
+  let cells = L.reachCells(want.x, want.y, 0, hard ? 220 : 420, hard ? 0 : 8);
+  // the middle fight never lands in the nest: a hero in it is hidden, so George would have nobody to fight and nobody could hit him
+  if (!hard) { const out = cells.filter(c => dist(c.x, c.y, L.nest.x, L.nest.y) > (CONFIG.nestSafeRadius || 0) + 160); if (out.length) cells = out; }
+  if (side >= 0) { const own = c => bandSide(L, c.x, c.y) === side && L.grid[L.ci(c.x, c.y)] < 2; cells = cells.filter(own); if (!cells.length) cells = L.reachCells(P.heroes[fk].x, P.heroes[fk].y, 120, 520, 0).filter(own); }
   // the nest guardian lands as close to its spot as it can; the middle one looks for the most open place near the middle (not the river bank, not a bridge)
-  const room = c => hard ? 0 : L.reachCells(c.x, c.y, 0, 280, 0).length * 6;
+  const room = c => hard ? 0 : L.reachCells(c.x, c.y, 0, 280, 0).length * 6 - L.solids.filter(so => dist(so.x, so.y, c.x, c.y) < 240 + so.r).length * 90;   // open ground: no trees or rocks between George and the heroes (T7.5)
   for (const c of cells) c.w = room(c) - dist(c.x, c.y, want.x, want.y) - (!hard && L.grid[L.ci(c.x, c.y)] === 1 ? 500 : 0);   // and not in the mud
   cells.sort((a, b) => b.w - a.w);
   const sp = cells.length ? cells[0] : want;
-  P.duel = { def, kind, hard, sc, pat: def.pats ? def.pats[0] : def.pat, cyc: 1, R: def.r * sc, x: sp.x, y: sp.y, px: sp.x, py: sp.y, z: 700, face: -1, hp, maxHp: hp, state: 'enter', t: 0, n: 0, tx: sp.x, ty: sp.y, sx: sp.x, sy: sp.y, ex: sp.x, ey: sp.y,
+  P.duel = { side, def, kind, hard, sc, pat: def.pats ? def.pats[0] : def.pat, cyc: 1, R: def.r * sc, x: sp.x, y: sp.y, px: sp.x, py: sp.y, z: 700, face: -1, hp, maxHp: hp, state: 'enter', t: 0, n: 0, tx: sp.x, ty: sp.y, sx: sp.x, sy: sp.y, ex: sp.x, ey: sp.y,
     dx: -1, dy: 0, kx: 0, ky: 0, len: 0, run: 0, target: -1, proj: [], shots: [], rings: [], over: false, home: sp, land: null, landed: false, threw: false, bonk: false,
     stagCd: 0, flash: 0, hintT: 0, tonkT: 0, tiredDur: 2, tStart: P.time };
   P.banner = { kind: 'duel', t: 3.6, id: def.id, mid: !hard, msg: quotaOn() ? (hard ? 'george.final' : 'george.half') : null };
@@ -6084,7 +6091,7 @@ const duelSpares = h => h.safe || duelWaiting() || (rank(h.k) === 0 && P.duel.ta
 const duelCanHurt = (k, how) => P.duel.state === 'tired' || (how === 'ball' && P.duel.state === 'stag') || ((rank(k) === 0 || (CONFIG.duel.mercy > 0 && (P.duel.downs || 0) >= CONFIG.duel.mercyMax)) && !duelWaiting());
 function duelEggs(n) {
   const d = P.duel, L = P.L;
-  const cells = L.reachCells(d.x, d.y, 90, 330, 2);
+  const cells = L.reachCells(d.x, d.y, 90, 330, 2).filter(c => d.side == null || d.side < 0 || (bandSide(L, c.x, c.y) === d.side && L.grid[L.ci(c.x, c.y)] < 2));   // T7.5: not past a band
   for (let i = 0; i < n; i++) {
     const p = cells.length ? cells.splice(Math.random() * cells.length | 0, 1)[0] : { x: clamp(d.x + (Math.random() - 0.5) * 400, 60, L.W - 60), y: clamp(d.y + (Math.random() - 0.5) * 300, L.top + 60, L.H - 60) };
     P.eggs.push(makeEgg(p.x, p.y, { state: 'pop', sx: d.x, sy: d.y - 40 - d.z, req: false, delay: i * 0.06 }));
@@ -6148,7 +6155,7 @@ function georgeEnemies(n, follow) {
   const d = P.duel, L = P.L, Gc = CONFIG.lupta.george, hp = lvlOf(Gc.enemyHp), hs = P.heroes.filter((h, k) => isJoined(k));
   for (let i = 0; i < n; i++) {
     const tg = hs[i % hs.length] || P.heroes[0], a = Math.random() * TAU, rr = 200 + Math.random() * 140;
-    const sp = duelSnap(clamp(tg.x + Math.cos(a) * rr, 80, L.W - 80), clamp(tg.y + Math.sin(a) * rr * 0.7, L.top + 70, L.H - 70)) || { x: tg.x, y: tg.y };
+    const sp = duelSnap(clamp(tg.x + Math.cos(a) * rr, 80, L.W - 80), clamp(tg.y + Math.sin(a) * rr * 0.7, L.top + 70, L.H - 70), L.gates && L.gates.length ? bandSide(L, tg.x, tg.y) : -1) || { x: tg.x, y: tg.y };   // T7.5: on the hero's side of the bands
     d.proj.push({ sx: d.x, sy: d.y - 40 - d.z, tx: sp.x, ty: sp.y, t: -i * 0.25, dur: Gc.flight, rot: 0, kind: 'enemy',
       onLand: p => {
         P.L.beetles.push({ hx: p.tx, hy: p.ty, x: p.tx, y: p.ty, vx: 0, vy: 0, state: 'wake', t: 0.5, face: Math.random() < 0.5 ? 1 : -1, seed: Math.random() * 10, r: 28,
@@ -6180,10 +6187,12 @@ function georgeClearThrown() {
   for (const b of L.beetles) if (b.thrown && b.state !== 'dead') burst(b.x, b.y - 20, 12, { kind: 'dust', cols: ['#FFF3E0', '#F3E2C0'], speed: 150, life: 0.6, size: 16, g: -30, drag: 2 });
   L.beetles = L.beetles.filter(b => !b.thrown);
 }
-function duelSnap(x, y) {                                    // nearest spot a guardian can stand on
-  const L = P.L; if (L.reach[L.ci(x, y)]) return { x, y };
-  const cs = L.reachCells(x, y, 0, 260, 0); let best = null, bd = 1e9;
-  for (const c of cs) { const dd = dist(c.x, c.y, x, y); if (dd < bd) { bd = dd; best = c; } }
+function duelSnap(x, y, side) {                              // nearest spot a guardian can stand on. side (T7.5): only on that side of the bands
+  const L = P.L, sd = side == null ? (P.duel && P.duel.side != null ? P.duel.side : -1) : side;
+  const ok = (cx, cy) => sd < 0 || (bandSide(L, cx, cy) === sd && L.grid[L.ci(cx, cy)] < 2);
+  if (L.reach[L.ci(x, y)] && ok(x, y)) return { x, y };
+  const cs = L.reachCells(x, y, 0, sd < 0 ? 260 : 700, 0); let best = null, bd = 1e9;
+  for (const c of cs) { if (!ok(c.x, c.y)) continue; const dd = dist(c.x, c.y, x, y); if (dd < bd) { bd = dd; best = c; } }
   return best;
 }
 function updateDuel(dt) {
@@ -8486,7 +8495,7 @@ function update(dt) {
     }
   } else if (st === 'levelEnd') {
     UI.lvlT += dt; stepParts(dt);
-    if (UI.lvlT > 1.5 && pressedGo()) { Snd.play('ok'); Game.goLevel(Game.levelIdx + 1); }
+    if (UI.lvlT > 1.5 && pressedGo()) { Snd.play('ok'); if (Game.levelIdx + 1 < chapters().length) Game.goLevel(Game.levelIdx + 1); else Game.toTitle(); }   // T7.5: after the last chapter that exists (now level 7), back to the start screen
   } else if (st === 'ending') updateEnding(dt);
   UI.click = null; UI.hover = null; UI.spkLostT = Math.max(0, UI.spkLostT - dt);
   // the mouse pointer hides while the heroes are walking

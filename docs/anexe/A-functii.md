@@ -4,7 +4,7 @@
 
 Fiecare functie, functie sageata si metoda din cod, in ordinea din fisier. Coloana "Comentariul din cod" este textul scris chiar langa functie. Explicatiile pe larg sunt in capitolele din docs/.
 
-Total: 673 intrari.
+Total: 674 intrari.
 
 ## 01-config.js
 
@@ -540,41 +540,42 @@ Nicio functie.
 |---|---|---|---|
 | 29 | `duelDefs()` | functie sageata |  |
 | 31 | `startDuel(kind = 'nest')` | functie | kind 'mid': the middle fight, the same as before. kind 'nest': the harder one at the nest, bigger and quicker. |
-| 43 | `room(c)` | functie sageata | the nest guardian lands as close to its spot as it can; the middle one looks for the most open place near the middle (not the river bank, not a bridge) |
-| 56 | `duelFighter()` | functie | Who the guardian goes after: the bravest player who is not hidden in the nest. |
-| 66 | `duelWaiting()` | functie sageata | While a hero waits for the friend's help the fight rests: the guardian finishes what it was doing, hurts nobody and starts no new attack. |
-| 68 | `duelSpares(h)` | functie sageata | Nothing touches a hero hidden in the nest. A player on "Ușor" who only helps (the guardian is after the friend) is spared too. |
-| 70 | `duelCanHurt(k, how)` | functie sageata | A tired guardian can always be hit. On "Ușor" every hit counts at any time, except on a guardian that is only waiting for a hero to be helped up. |
-| 71 | `duelEggs(n)` | functie |  |
-| 79 | `duelHit(k)` | functie |  |
-| 91 | `duelBall(b)` | functie |  |
-| 101 | `duelStomp(h)` | functie |  |
-| 110 | `duelLob(n, slow)` | functie | throws n pinecones: the first where the target is going, the rest around |
-| 119 | `lvlOf(arr)` | functie | ---------- T15: what George throws (docs/28-t15-george-de-doua-ori.md, section 4) ---------- |
-| 121 | `georgeBones(n)` | functie | n bones and balls, at the heroes: they land in a red circle and daze, like the pinecones. |
-| 132 | `georgeEnemies(n, follow)` | functie | n small enemies, thrown near the heroes. follow = the ones of his last heart: they keep after Boon and Killer and never give up. |
-| 148 | `updateGeorgeMid(d, dt)` | functie | The middle fight (T15): a few bones and balls, two at a time, every few seconds. |
-| 156 | `georgeNestThrows(d)` | functie | The nest fight (T15): what he throws depends on the hearts he has left. Called after every heart he loses. |
-| 164 | `georgeClearThrown()` | functie | George is beaten: his thrown enemies go with him (each one in a puff of dust, without diamonds). |
-| 169 | `duelSnap(x, y)` | functie | nearest spot a guardian can stand on |
-| 175 | `updateDuel(dt)` | functie |  |
-| 196 | `go(st)` | functie sageata |  |
-| 197 | `cycle()` | functie sageata | George takes turns with his tricks |
-| 198 | `tire()` | functie sageata |  |
-| 259 | `plan()` | functie sageata |  |
-| 297 | `duelSwoop(tg)` | functie | fly in a straight line through the place where the target stands |
-| 307 | `heartPath(c, x, y, s)` | functie | ---------- drawing the guardians ---------- |
-| 313 | `beetle(c, d, t, mood)` | metoda | the Beetle King: a big grumpy beetle with a tiny crown |
-| 320 | `owl(c, d, t, mood)` | metoda |  |
-| 334 | `crab(c, d, t, mood)` | metoda |  |
-| 351 | `whirl(c, d, t, mood)` | metoda | a little whirlwind with eyes |
-| 362 | `frog(c, d, t, mood)` | metoda |  |
-| 375 | `chick(c, d, t, mood)` | metoda | Ciorel, Ciori's little nephew |
-| 378 | `george(c, d, t, mood)` | metoda | George cel Rău (second game): the same painter as the boss, the size comes from the level |
-| 382 | `drawDuelBoss(c)` | functie |  |
-| 396 | `drawDuelGround(c)` | functie | Things on the ground during a mini-fight: where the next attack will land, shadows. (The shelter ring is in drawNestShelter.) |
-| 398 | `red(a)` | functie sageata |  |
-| 410 | `drawDuelTop(c)` | functie | Things above everything: flying guardians, thrown pinecones, leaves, hearts. |
+| 50 | `room(c)` | functie sageata | open ground: no trees or rocks between George and the heroes (T7.5) |
+| 63 | `duelFighter()` | functie | Who the guardian goes after: the bravest player who is not hidden in the nest. |
+| 73 | `duelWaiting()` | functie sageata | While a hero waits for the friend's help the fight rests: the guardian finishes what it was doing, hurts nobody and starts no new attack. |
+| 75 | `duelSpares(h)` | functie sageata | Nothing touches a hero hidden in the nest. A player on "Ușor" who only helps (the guardian is after the friend) is spared too. |
+| 77 | `duelCanHurt(k, how)` | functie sageata | A tired guardian can always be hit. On "Ușor" every hit counts at any time, except on a guardian that is only waiting for a hero to be helped up. |
+| 78 | `duelEggs(n)` | functie |  |
+| 86 | `duelHit(k)` | functie |  |
+| 98 | `duelBall(b)` | functie |  |
+| 108 | `duelStomp(h)` | functie |  |
+| 117 | `duelLob(n, slow)` | functie | throws n pinecones: the first where the target is going, the rest around |
+| 126 | `lvlOf(arr)` | functie | ---------- T15: what George throws (docs/28-t15-george-de-doua-ori.md, section 4) ---------- |
+| 128 | `georgeBones(n)` | functie | n bones and balls, at the heroes: they land in a red circle and daze, like the pinecones. |
+| 139 | `georgeEnemies(n, follow)` | functie | n small enemies, thrown near the heroes. follow = the ones of his last heart: they keep after Boon and Killer and never give up. |
+| 155 | `updateGeorgeMid(d, dt)` | functie | The middle fight (T15): a few bones and balls, two at a time, every few seconds. |
+| 163 | `georgeNestThrows(d)` | functie | The nest fight (T15): what he throws depends on the hearts he has left. Called after every heart he loses. |
+| 171 | `georgeClearThrown()` | functie | George is beaten: his thrown enemies go with him (each one in a puff of dust, without diamonds). |
+| 176 | `duelSnap(x, y, side)` | functie | nearest spot a guardian can stand on. side (T7.5): only on that side of the bands |
+| 178 | `ok(cx, cy)` | functie sageata |  |
+| 184 | `updateDuel(dt)` | functie |  |
+| 205 | `go(st)` | functie sageata |  |
+| 206 | `cycle()` | functie sageata | George takes turns with his tricks |
+| 207 | `tire()` | functie sageata |  |
+| 268 | `plan()` | functie sageata |  |
+| 306 | `duelSwoop(tg)` | functie | fly in a straight line through the place where the target stands |
+| 316 | `heartPath(c, x, y, s)` | functie | ---------- drawing the guardians ---------- |
+| 322 | `beetle(c, d, t, mood)` | metoda | the Beetle King: a big grumpy beetle with a tiny crown |
+| 329 | `owl(c, d, t, mood)` | metoda |  |
+| 343 | `crab(c, d, t, mood)` | metoda |  |
+| 360 | `whirl(c, d, t, mood)` | metoda | a little whirlwind with eyes |
+| 371 | `frog(c, d, t, mood)` | metoda |  |
+| 384 | `chick(c, d, t, mood)` | metoda | Ciorel, Ciori's little nephew |
+| 387 | `george(c, d, t, mood)` | metoda | George cel Rău (second game): the same painter as the boss, the size comes from the level |
+| 391 | `drawDuelBoss(c)` | functie |  |
+| 405 | `drawDuelGround(c)` | functie | Things on the ground during a mini-fight: where the next attack will land, shadows. (The shelter ring is in drawNestShelter.) |
+| 407 | `red(a)` | functie sageata |  |
+| 419 | `drawDuelTop(c)` | functie | Things above everything: flying guardians, thrown pinecones, leaves, hearts. |
 
 ## 08-draw.js
 

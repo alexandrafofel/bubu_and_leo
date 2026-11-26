@@ -229,3 +229,12 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - Micul George e mic (0.42 din George). Pe un televizor mare poate fi greu de vazut; marimea se schimba in `drawMiniGeorge`.
 - Pe primele 20 de secunde (`minT`), daca echipa are deja jumatate, bara de sus arata `× 0` pana vine George.
 - Nimic nu a fost incercat pe un Mac, cu controllere, cu copii.
+
+## T7 (26 - 27 noiembrie 2026): ce nu s-a putut verifica
+
+- **Daca un copil de 6 ani intelege placile fara ajutor.** Botii stiu unde e placa lor (`mechSteps`). Un copil vede placa cu urma lui si, dupa 40 s, cercul "Al tău". Nu stim daca ajunge.
+- **Daca 5 secunde la poarta B sunt destule fara fuga.** Botul trece in 5 s mergand, dar pe drumul cel mai scurt si fara sa se uite in jur. Pe "Ușor" sunt 8 s.
+- **Cum se simt vibratiile** placii (`rumble(k, 0, 0.4, 60)`), ale cuștii si ale portii, in mana, pe un DualShock 4.
+- **Cum suna clopotelul** placii si cele sapte note ale podului, pe difuzoarele unui Mac.
+- **Daca balansoarul ii face sa rada** si daca nu ii tine prea mult pe loc.
+- **Ordinea capitolelor**: nivelul 7 vine dupa finalul primei parti. "Va urma" si Sala Tronului (T11 - T12) nu exista inca.
