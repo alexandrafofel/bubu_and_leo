@@ -53,7 +53,7 @@ Total: 40 efecte.
 
 Cat se joaca "Cea mai grea luptă", efectele de mai jos iau locul celor cu acelasi nume din `fx`. Un nume care nu e in `fx` exista doar in al doilea joc.
 
-Total: 39 efecte.
+Total: 40 efecte.
 
 | Linia | Nume | Grup | Comentariul din cod | Cod |
 |---|---|---|---|---|
@@ -63,36 +63,37 @@ Total: 39 efecte.
 | 424 | `stomp` | personaje | Boon's claws: three quick swishes | `stomp(b, t) { for (let i = 0; i < 3; i++) noise(b, t + i * 0.09, 0.24, 0.015, 0.1, 'bandpass', 900, 2800, 1.4); osc(b, 'sine', 150, t, 0.4, 0.01, 0.4, { f2: 95, ...` |
 | 425 | `kick` | personaje | Killer's kick: a springy "boing" | `kick(b, t, p) { const f = 250 + (p \|\| 0) * 70; osc(b, 'sine', f, t, 0.45, 0.004, 0.2, { f2: f * 2.1, gt: 0.12 }); osc(b, 'triangle', f * 1.5, t + 0.02, 0.14, 0. ...` |
 | 426 | `plate` | lume | a stone plate clicks, a little bell rings (T7.2) | `plate(b, t) { noise(b, t, 0.2, 0.004, 0.05, 'bandpass', 1400, 3200, 1.2); chime(b, mtof(91), t + 0.03, 0.07); },     // a stone plate clicks, a little bell ring ...` |
-| 427 | `plateOff` | lume | let go: the same bell, lower | `plateOff(b, t) { chime(b, mtof(84), t, 0.06); },                                                                       // let go: the same bell, lower` |
-| 428 | `cage` | lume | the lock clicks twice, then a happy arpeggio (T7.2) | `cage(b, t) { noise(b, t, 0.18, 0.004, 0.04, 'bandpass', 1800, 3600, 1.5); noise(b, t + 0.12, 0.18, 0.004, 0.04, 'bandpass', 1800, 3600, 1.5); [0, 4, 7, 12].forE ...` |
-| 429 | `bounce` | personaje |  | `bounce(b, t) { osc(b, 'sine', 380, t, 0.15, 0.003, 0.1, { f2: 640, gt: 0.08 }); },` |
-| 430 | `bonk` | personaje | a hero shrinks | `bonk(b, t) { osc(b, 'sine', 760, t, 0.4, 0.01, 0.36, { f2: 170, gt: 0.34 }); osc(b, 'triangle', 380, t + 0.03, 0.14, 0.01, 0.3, { f2: 110, lp: 1600 }); },       ...` |
-| 431 | `heal` | personaje | a hero grows back | `heal(b, t) { osc(b, 'sine', 180, t, 0.36, 0.01, 0.34, { f2: 760, gt: 0.3 }); [0, 7, 12].forEach((d, i) => chime(b, mtof(79 + d), t + 0.24 + i * 0.06, 0.1)); },  ...` |
-| 432 | `drop` | personaje |  | `drop(b, t) { chime(b, mtof(84), t, 0.1); chime(b, mtof(79), t + 0.08, 0.09); chime(b, mtof(72), t + 0.16, 0.08); },` |
-| 433 | `squelch` | personaje |  | `squelch(b, t) { noise(b, t, 0.18, 0.015, 0.14, 'lowpass', 800, 260); osc(b, 'sine', 190, t, 0.18, 0.01, 0.12, { f2: 120 }); },` |
-| 434 | `step` | personaje |  | `step(b, t, x) {` |
-| 439 | `wake` | lume | a robot switches on: beep-beep | `wake(b, t) { osc(b, 'triangle', 880, t, 0.16, 0.004, 0.09, { lp: 2800 }); osc(b, 'triangle', 1175, t + 0.13, 0.16, 0.004, 0.12, { lp: 2800 }); },                ...` |
-| 440 | `stun` | lume | a robot runs down | `stun(b, t) { osc(b, 'triangle', 880, t, 0.16, 0.004, 0.34, { f2: 220, gt: 0.32, lp: 2600 }); },                                                                  ...` |
-| 441 | `poof` | lume |  | `poof(b, t) { noise(b, t, 0.2, 0.01, 0.22, 'lowpass', 1400, 300); [988, 740, 494].forEach((f, i) => osc(b, 'triangle', f, t + i * 0.07, 0.1, 0.004, 0.07, { lp: 2 ...` |
-| 442 | `caw` | lume | George's roar: low and warm, never harsh | `caw(b, t) { growl(b, t, 150, 88, 0.75, 0.42, 21); },                                                                                                             ...` |
-| 443 | `pop` | lume |  | `pop(b, t) { osc(b, 'sine', 520, t, 0.22, 0.003, 0.12, { f2: 940, gt: 0.1 }); },` |
-| 444 | `rustle` | lume |  | `rustle(b, t) { noise(b, t, 0.3, 0.02, 0.45, 'lowpass', 420, 150); },` |
-| 445 | `butterfly` | lume | the rocket | `butterfly(b, t) { noise(b, t, 0.22, 0.05, 0.6, 'bandpass', 400, 2600, 1.1); osc(b, 'sine', 220, t, 0.2, 0.03, 0.55, { f2: 990, gt: 0.5 }); },                    ...` |
-| 446 | `wave` | lume |  | `wave(b, t) { [0, 3, 7, 10].forEach((d, i) => marimba(b, mtof(62 + d), t + i * 0.11, 0.28)); chime(b, mtof(86), t + 0.44, 0.1); },` |
-| 447 | `win` | lume |  | `win(b, t) { [0, 5, 7, 12, 7, 12, 17, 19, 24].forEach((d, i) => { marimba(b, mtof(62 + d), t + i * 0.12, 0.3); if (i % 2 === 0) chime(b, mtof(86 + d), t + i * 0. ...` |
-| 448 | `lantern` | lume | a torch catches fire | `lantern(b, t) { noise(b, t, 0.2, 0.02, 0.28, 'lowpass', 1100, 320); osc(b, 'sine', 330, t, 0.1, 0.01, 0.2, { f2: 210 }); },                                      ...` |
-| 449 | `warn` | lume |  | `warn(b, t) { osc(b, 'triangle', 392, t, 0.2, 0.005, 0.12, { lp: 1800 }); osc(b, 'triangle', 392, t + 0.16, 0.2, 0.005, 0.12, { lp: 1800 }); },` |
-| 450 | `tonk` | lume |  | `tonk(b, t) { osc(b, 'triangle', 660, t, 0.2, 0.002, 0.08, { f2: 540, lp: 2400 }); osc(b, 'sine', 1320, t, 0.05, 0.002, 0.05); },` |
-| 451 | `squeak` | lume | George got hit | `squeak(b, t, p) { const f = 300 * (p \|\| 1); voc(b, t, f * 1.3, f * 0.7, 0.28, 0.13, 1000, 600); },                                                               ...` |
-| 452 | `tired` | lume |  | `tired(b, t) { growl(b, t, 130, 80, 0.5, 0.2, 9); },` |
-| 453 | `duel` | lume |  | `duel(b, t) { [0, 0, 3].forEach((d, i) => marimba(b, mtof(50 + d), t + i * 0.14, 0.32)); growl(b, t + 0.35, 150, 90, 0.7, 0.4, 21); },` |
-| 454 | `flee` | lume |  | `flee(b, t) { for (let i = 0; i < 5; i++) voc(b, t + i * 0.11, 520 - i * 50, 380 - i * 40, 0.08, 0.09, 1200, 800); },` |
-| 455 | `goal` | lume |  | `goal(b, t) { [0, 7, 12, 17].forEach((d, i) => marimba(b, mtof(64 + d), t + i * 0.08, 0.34)); chime(b, mtof(88), t + 0.3, 0.12); },` |
-| 456 | `dash` | personaje | starting to run: a short soft "whoosh" going up | `dash(b, t) { noise(b, t, 0.16, 0.015, 0.17, 'bandpass', 500, 2100, 1.1); osc(b, 'sine', 330, t, 0.1, 0.01, 0.16, { f2: 760, gt: 0.14 }); },      // starting to  ...` |
-| 458 | `bone` | personaje |  | `bone(b, t, v) { for (let i = 0; i < 3; i++) osc(b, 'triangle', 180 - i * 20, t + i * 0.055, 0.12 + (v \|\| 0) * 0.05, 0.008, 0.09, { f2: 140 - i * 14, gt: 0.08, t ...` |
-| 459 | `tock` | personaje |  | `tock(b, t) { osc(b, 'sine', 520, t, 0.16, 0.004, 0.06, { f2: 430, gt: 0.05 }); noise(b, t, 0.07, 0.002, 0.03, 'bandpass', 1500, 900, 2.2); },` |
-| 461 | `gloves` | personaje |  | `gloves(b, t) { for (let i = 0; i < 2; i++) noise(b, t + i * 0.12, 0.14, 0.012, 0.13, 'bandpass', 500, 1400, 1.2); osc(b, 'sine', 900, t + 0.1, 0.09, 0.01, 0.08, ...` |
-| 463 | `tick` | lume |  | `tick(b, t, v) { osc(b, 'sine', v > 0.5 ? 880 : 660, t, 0.14, 0.004, 0.05, { f2: v > 0.5 ? 760 : 580, gt: 0.04 }); },` |
-| 465 | `click` | lume |  | `click(b, t) { osc(b, 'triangle', 1250, t, 0.12, 0.002, 0.045, { f2: 900, gt: 0.04 }); noise(b, t, 0.04, 0.001, 0.05, 'bandpass', 2600, 1800, 2.0); },` |
-| 467 | `gateOpen` | lume |  | `gateOpen(b, t) { [0, 4, 7, 12].forEach((d, i) => marimba(b, mtof(60 + d), t + 0.06 + i * 0.09, 0.26)); noise(b, t, 0.5, 0.08, 0.45, 'lowpass', 700, 260); chime( ...` |
-| 468 | `retry` | lume |  | `retry(b, t) { [72, 67, 64].forEach((n, i) => marimba(b, mtof(n), t + i * 0.16, 0.3)); chime(b, mtof(79), t + 0.42, 0.1); }` |
+| 427 | `bridge` | lume | a plank of light appears: one glass note of a scale (T7.4) | `bridge(b, t, n) { const d = [0, 2, 4, 5, 7, 9, 11][(n \|\| 0) % 7]; chime(b, mtof(79 + d), t, 0.07); osc(b, 'sine', mtof(91 + d), t, 0.02, 0.003, 0.25); },   // a ...` |
+| 428 | `plateOff` | lume | let go: the same bell, lower | `plateOff(b, t) { chime(b, mtof(84), t, 0.06); },                                                                       // let go: the same bell, lower` |
+| 429 | `cage` | lume | the lock clicks twice, then a happy arpeggio (T7.2) | `cage(b, t) { noise(b, t, 0.18, 0.004, 0.04, 'bandpass', 1800, 3600, 1.5); noise(b, t + 0.12, 0.18, 0.004, 0.04, 'bandpass', 1800, 3600, 1.5); [0, 4, 7, 12].forE ...` |
+| 430 | `bounce` | personaje |  | `bounce(b, t) { osc(b, 'sine', 380, t, 0.15, 0.003, 0.1, { f2: 640, gt: 0.08 }); },` |
+| 431 | `bonk` | personaje | a hero shrinks | `bonk(b, t) { osc(b, 'sine', 760, t, 0.4, 0.01, 0.36, { f2: 170, gt: 0.34 }); osc(b, 'triangle', 380, t + 0.03, 0.14, 0.01, 0.3, { f2: 110, lp: 1600 }); },       ...` |
+| 432 | `heal` | personaje | a hero grows back | `heal(b, t) { osc(b, 'sine', 180, t, 0.36, 0.01, 0.34, { f2: 760, gt: 0.3 }); [0, 7, 12].forEach((d, i) => chime(b, mtof(79 + d), t + 0.24 + i * 0.06, 0.1)); },  ...` |
+| 433 | `drop` | personaje |  | `drop(b, t) { chime(b, mtof(84), t, 0.1); chime(b, mtof(79), t + 0.08, 0.09); chime(b, mtof(72), t + 0.16, 0.08); },` |
+| 434 | `squelch` | personaje |  | `squelch(b, t) { noise(b, t, 0.18, 0.015, 0.14, 'lowpass', 800, 260); osc(b, 'sine', 190, t, 0.18, 0.01, 0.12, { f2: 120 }); },` |
+| 435 | `step` | personaje |  | `step(b, t, x) {` |
+| 440 | `wake` | lume | a robot switches on: beep-beep | `wake(b, t) { osc(b, 'triangle', 880, t, 0.16, 0.004, 0.09, { lp: 2800 }); osc(b, 'triangle', 1175, t + 0.13, 0.16, 0.004, 0.12, { lp: 2800 }); },                ...` |
+| 441 | `stun` | lume | a robot runs down | `stun(b, t) { osc(b, 'triangle', 880, t, 0.16, 0.004, 0.34, { f2: 220, gt: 0.32, lp: 2600 }); },                                                                  ...` |
+| 442 | `poof` | lume |  | `poof(b, t) { noise(b, t, 0.2, 0.01, 0.22, 'lowpass', 1400, 300); [988, 740, 494].forEach((f, i) => osc(b, 'triangle', f, t + i * 0.07, 0.1, 0.004, 0.07, { lp: 2 ...` |
+| 443 | `caw` | lume | George's roar: low and warm, never harsh | `caw(b, t) { growl(b, t, 150, 88, 0.75, 0.42, 21); },                                                                                                             ...` |
+| 444 | `pop` | lume |  | `pop(b, t) { osc(b, 'sine', 520, t, 0.22, 0.003, 0.12, { f2: 940, gt: 0.1 }); },` |
+| 445 | `rustle` | lume |  | `rustle(b, t) { noise(b, t, 0.3, 0.02, 0.45, 'lowpass', 420, 150); },` |
+| 446 | `butterfly` | lume | the rocket | `butterfly(b, t) { noise(b, t, 0.22, 0.05, 0.6, 'bandpass', 400, 2600, 1.1); osc(b, 'sine', 220, t, 0.2, 0.03, 0.55, { f2: 990, gt: 0.5 }); },                    ...` |
+| 447 | `wave` | lume |  | `wave(b, t) { [0, 3, 7, 10].forEach((d, i) => marimba(b, mtof(62 + d), t + i * 0.11, 0.28)); chime(b, mtof(86), t + 0.44, 0.1); },` |
+| 448 | `win` | lume |  | `win(b, t) { [0, 5, 7, 12, 7, 12, 17, 19, 24].forEach((d, i) => { marimba(b, mtof(62 + d), t + i * 0.12, 0.3); if (i % 2 === 0) chime(b, mtof(86 + d), t + i * 0. ...` |
+| 449 | `lantern` | lume | a torch catches fire | `lantern(b, t) { noise(b, t, 0.2, 0.02, 0.28, 'lowpass', 1100, 320); osc(b, 'sine', 330, t, 0.1, 0.01, 0.2, { f2: 210 }); },                                      ...` |
+| 450 | `warn` | lume |  | `warn(b, t) { osc(b, 'triangle', 392, t, 0.2, 0.005, 0.12, { lp: 1800 }); osc(b, 'triangle', 392, t + 0.16, 0.2, 0.005, 0.12, { lp: 1800 }); },` |
+| 451 | `tonk` | lume |  | `tonk(b, t) { osc(b, 'triangle', 660, t, 0.2, 0.002, 0.08, { f2: 540, lp: 2400 }); osc(b, 'sine', 1320, t, 0.05, 0.002, 0.05); },` |
+| 452 | `squeak` | lume | George got hit | `squeak(b, t, p) { const f = 300 * (p \|\| 1); voc(b, t, f * 1.3, f * 0.7, 0.28, 0.13, 1000, 600); },                                                               ...` |
+| 453 | `tired` | lume |  | `tired(b, t) { growl(b, t, 130, 80, 0.5, 0.2, 9); },` |
+| 454 | `duel` | lume |  | `duel(b, t) { [0, 0, 3].forEach((d, i) => marimba(b, mtof(50 + d), t + i * 0.14, 0.32)); growl(b, t + 0.35, 150, 90, 0.7, 0.4, 21); },` |
+| 455 | `flee` | lume |  | `flee(b, t) { for (let i = 0; i < 5; i++) voc(b, t + i * 0.11, 520 - i * 50, 380 - i * 40, 0.08, 0.09, 1200, 800); },` |
+| 456 | `goal` | lume |  | `goal(b, t) { [0, 7, 12, 17].forEach((d, i) => marimba(b, mtof(64 + d), t + i * 0.08, 0.34)); chime(b, mtof(88), t + 0.3, 0.12); },` |
+| 457 | `dash` | personaje | starting to run: a short soft "whoosh" going up | `dash(b, t) { noise(b, t, 0.16, 0.015, 0.17, 'bandpass', 500, 2100, 1.1); osc(b, 'sine', 330, t, 0.1, 0.01, 0.16, { f2: 760, gt: 0.14 }); },      // starting to  ...` |
+| 459 | `bone` | personaje |  | `bone(b, t, v) { for (let i = 0; i < 3; i++) osc(b, 'triangle', 180 - i * 20, t + i * 0.055, 0.12 + (v \|\| 0) * 0.05, 0.008, 0.09, { f2: 140 - i * 14, gt: 0.08, t ...` |
+| 460 | `tock` | personaje |  | `tock(b, t) { osc(b, 'sine', 520, t, 0.16, 0.004, 0.06, { f2: 430, gt: 0.05 }); noise(b, t, 0.07, 0.002, 0.03, 'bandpass', 1500, 900, 2.2); },` |
+| 462 | `gloves` | personaje |  | `gloves(b, t) { for (let i = 0; i < 2; i++) noise(b, t + i * 0.12, 0.14, 0.012, 0.13, 'bandpass', 500, 1400, 1.2); osc(b, 'sine', 900, t + 0.1, 0.09, 0.01, 0.08, ...` |
+| 464 | `tick` | lume |  | `tick(b, t, v) { osc(b, 'sine', v > 0.5 ? 880 : 660, t, 0.14, 0.004, 0.05, { f2: v > 0.5 ? 760 : 580, gt: 0.04 }); },` |
+| 466 | `click` | lume |  | `click(b, t) { osc(b, 'triangle', 1250, t, 0.12, 0.002, 0.045, { f2: 900, gt: 0.04 }); noise(b, t, 0.04, 0.001, 0.05, 'bandpass', 2600, 1800, 2.0); },` |
+| 468 | `gateOpen` | lume |  | `gateOpen(b, t) { [0, 4, 7, 12].forEach((d, i) => marimba(b, mtof(60 + d), t + 0.06 + i * 0.09, 0.26)); noise(b, t, 0.5, 0.08, 0.45, 'lowpass', 700, 260); chime( ...` |
+| 469 | `retry` | lume |  | `retry(b, t) { [72, 67, 64].forEach((n, i) => marimba(b, mtof(n), t + i * 0.16, 0.3)); chime(b, mtof(79), t + 0.42, 0.1); }` |

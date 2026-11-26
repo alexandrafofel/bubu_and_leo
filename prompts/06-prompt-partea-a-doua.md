@@ -625,6 +625,8 @@ Nu face: nivelul 7 (T7.4), botii (T7.5).
 
 ### T7.4 - Nivelul 7: Canionul Podurilor de Lumină
 
+Facuta (26 noiembrie 2026): vezi docs/09-niveluri.md, docs/05-pictura.md si docs/16-decizii.md. Capturile: tests/capturi-nivel7.js.
+
 ````
 Lucrezi la depozitul GitHub alexandrafofel/bubu_and_leo.
 Citeste intai prompts/06-prompt-partea-a-doua.md, sectiunile "Context" si "Reguli de lucru", si respecta-le. Citeste si inceputul sectiunii T7 din acelasi fisier.

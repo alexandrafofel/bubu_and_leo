@@ -207,3 +207,19 @@ bands: [{ at: 0.335, kind: 'chasm', w: 200, mech: 'plates1' }, { at: 0.665, kind
 - Fiecare poarta e in `L.gates`, fiecare intrare in `L.inputs`. Campurile: `docs/25-niveluri-7-12.md`, 3.2.
 
 Harta aleasa pentru nivelul 7 e `art/krea-ref/nivel7-harta.jpg` (varianta 1, 26 noiembrie 2026). E doar o referinta: nu intra in joc. Din ea se fac piesele nivelului in T7.4.
+
+## Update 26 noiembrie 2026: nivelul 7, Canionul Podurilor de Lumină (T7.4)
+
+Primul nivel al Partii a doua. In `LEVEL_DEFS_L`, pozitia 6, cu cheia `canyon`. `CONFIG.lupta.levels` e 7, deci `chapters()` il pune dupa lupta mare, in Partea a doua.
+
+| Ce | Cum |
+|---|---|
+| Definitia | `look: 'diorama'`, `pal: 'canyon'`, `music: 'l5'` (muzica nivelului 6: cheia `'l6'` din specificatie nu exista), `wind: 0.7`, `birds: 2`, `beetles: [0, 1, 2]`, `stars: ['islet', 'nook', 'treetop']`, `toy: 'seesaw'`, `cage: true`. |
+| Benzile | Doua prapastii (`chasm`, latime 200), la 0.335 si 0.665: `plates1` si `plates2`. |
+| Prapastia | Celulele ei au codul 2 (ca apa), dar si bitul 64 in `L.flag`: nu intra in `L.waterCells` (fara valuri si oglindire). Le picteaza `paintChasm`, o data: albastru adanc la pereti (`#3A4A8A`), mai deschis la mijloc (`#6A7AC0`), ceata, luminite, buza de stanca somon. Trecerea e pictata tot ca prapastie; podul se deseneaza peste ea. |
+| Stalpul | Steaua `islet` sta pe un stalp de piatra in prima prapastie, la cel putin 380 de trecere. Se ia doar cu un lucru aruncat (eroii nu ajung la ea). |
+| Balansoarul | `L.toy`, in treimea din mijloc, langa drum. `placeMechInputs` nu pune o placa la mai putin de 320 de el. |
+| Inamicii | Pe nivelurile cu benzi, `place` ii imparte pe treimi pe rand: fiecare treime are de unde da diamante. Cota (15) si cele doua lupte cu George sunt ca pe nivelul 6 (al saptelea numar din `duelHp`, `duelFinalHp`, `fieldEnemies`, `miniGeorge.perLevel`, `midThrows`, `nestEnemies`, `enemyHp`). |
+| Paleta | `PALS.canyon` (cu `chasm`) si `PALS_ART.canyon` (imaginile `l7_*`). |
+
+Capcana: in `PALS_ART`, `rock`, `bush`, `tree`... sunt nume de imagini, nu culori. Cine are nevoie de culoarea stancii o ia din `PALS[def.pal]`. Prima pictura a prapastiei a iesit neagra la margini din cauza asta.
