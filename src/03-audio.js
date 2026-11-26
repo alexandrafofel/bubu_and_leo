@@ -424,6 +424,7 @@ const Snd = (() => {
     stomp(b, t) { for (let i = 0; i < 3; i++) noise(b, t + i * 0.09, 0.24, 0.015, 0.1, 'bandpass', 900, 2800, 1.4); osc(b, 'sine', 150, t, 0.4, 0.01, 0.4, { f2: 95, gt: 0.35 }); chime(b, mtof(88), t + 0.05, 0.05); },   // Boon's claws: three quick swishes
     kick(b, t, p) { const f = 250 + (p || 0) * 70; osc(b, 'sine', f, t, 0.45, 0.004, 0.2, { f2: f * 2.1, gt: 0.12 }); osc(b, 'triangle', f * 1.5, t + 0.02, 0.14, 0.003, 0.08, { lp: 2000 }); },                        // Killer's kick: a springy "boing"
     plate(b, t) { noise(b, t, 0.2, 0.004, 0.05, 'bandpass', 1400, 3200, 1.2); chime(b, mtof(91), t + 0.03, 0.07); },     // a stone plate clicks, a little bell rings (T7.2)
+    bridge(b, t, n) { const d = [0, 2, 4, 5, 7, 9, 11][(n || 0) % 7]; chime(b, mtof(79 + d), t, 0.07); osc(b, 'sine', mtof(91 + d), t, 0.02, 0.003, 0.25); },   // a plank of light appears: one glass note of a scale (T7.4)
     plateOff(b, t) { chime(b, mtof(84), t, 0.06); },                                                                       // let go: the same bell, lower
     cage(b, t) { noise(b, t, 0.18, 0.004, 0.04, 'bandpass', 1800, 3600, 1.5); noise(b, t + 0.12, 0.18, 0.004, 0.04, 'bandpass', 1800, 3600, 1.5); [0, 4, 7, 12].forEach((d, i) => chime(b, mtof(79 + d), t + 0.22 + i * 0.07, 0.1)); },   // the lock clicks twice, then a happy arpeggio (T7.2)
     bounce(b, t) { osc(b, 'sine', 380, t, 0.15, 0.003, 0.1, { f2: 640, gt: 0.08 }); },

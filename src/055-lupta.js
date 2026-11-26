@@ -574,8 +574,34 @@ function drawCage(c, cg, t) {
     }
   }
 }
+/* The bridge of light of a chasm (T7.4): seven planks, one for every color of the rainbow. They appear one after the
+   other from the bank of the plate that was pressed, and go out the same way (g.vis comes from mechMove). */
+function drawBridge(c, g, t) {
+  const v = g.vis || 0; if (v <= 0.01) return;
+  const x0 = g.x - g.half - 22, span = g.half * 2 + 44, pw = span / 7, hh = g.h - 10;
+  for (let j = 0; j < 7; j++) {
+    const u = clamp(v * 8 - j, 0, 1); if (u <= 0) continue;
+    const pos = g.fromRight ? 6 - j : j, x = x0 + pos * pw + pw / 2, s = 0.55 + 0.45 * easeOut(u);
+    const col = mix(RAINBOW[pos], '#FFF6E0', 0.3), y = g.y + Math.sin(t * 2 + pos) * 1.5;
+    c.globalAlpha = 0.85 * u;
+    c.fillStyle = col; c.beginPath(); c.roundRect(x - pw * 0.44, y - hh / 2 * s, pw * 0.88, hh * s, 7); c.fill();
+    c.fillStyle = rgba('#FFFDF0', 0.55); c.beginPath(); c.roundRect(x - pw * 0.3, y - hh / 2 * s + 6, pw * 0.18, hh * s - 12, 4); c.fill();
+  }
+  c.globalAlpha = 1;
+}
+/* The seesaw of level 7 (T7.4): the Krea picture, rocking around its log. */
+function drawToy(c, toy) {
+  if (!toy || toy.kind !== 'seesaw') return;
+  c.fillStyle = rgba(SHADOW, 0.18); c.beginPath(); c.ellipse(toy.x, toy.y + 14, 150, 26, 0, 0, TAU); c.fill();
+  c.save(); c.translate(toy.x, toy.y); c.rotate(toy.ang || 0);
+  if (artOn() && artOk('seesaw')) drawArt(c, 'seesaw', 0, 52, 170, 0.5);
+  else { c.fillStyle = '#C8925E'; c.fillRect(-150, -14, 300, 22); c.fillStyle = '#9A6A48'; c.beginPath(); c.arc(0, 14, 22, 0, TAU); c.fill(); }
+  c.restore();
+}
 function drawMechs(c, t) {
   const L = P.L; if (!L) return;
+  for (const g of L.gates || []) if (g.kind === 'chasm') drawBridge(c, g, t);
+  if (L.toy) drawToy(c, L.toy);
   for (const p of L.inputs || []) if (p.kind === 'plate') drawPlate(c, p, t);
   if (L.cage) drawCage(c, L.cage, t);
 }

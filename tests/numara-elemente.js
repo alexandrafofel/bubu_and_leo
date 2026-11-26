@@ -4,7 +4,7 @@ const boot = require('./common.js');
   const { page, done } = await boot();
   const r = await page.evaluate(() => {
     const G = __game, out = [];
-    for (let i = 0; i <= 6; i++) {
+    for (let i = 0; i < chapters().length; i++) {      // toate capitolele: nivelurile 1 - 6, lupta mare, apoi nivelurile Partii a doua (T7.4: nivelul 7)
       const L = G.buildLevel(i), row = { nivel: i, liste: {} };
       for (const [k, v] of Object.entries(L)) if (Array.isArray(v) && v.length && typeof v[0] === 'object') row.liste[k] = v.length;
       row.obiecte = Object.values(row.liste).reduce((a, b) => a + b, 0);

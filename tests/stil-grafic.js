@@ -186,14 +186,14 @@ const boot = require('./common.js');
       G.Opt.lang = lang; setLanguage(lang);
       for (const prev of [false, true]) {
         CONFIG.look.preview = prev;
-        for (let lv = 0; lv <= 6; lv++) { go(lv); step(120); out.scenes[lang + (prev ? ' diorama ' : ' acuarela ') + lv] = +grey().toFixed(4); }
+        for (let lv = 0; lv < chapters().length; lv++) {    /* T7.4: si nivelul 7 */ go(lv); step(120); out.scenes[lang + (prev ? ' diorama ' : ' acuarela ') + lv] = +grey().toFixed(4); }
       }
     }
     CONFIG.look.preview = true; go(2); step(30); G.startDuel(); step(90); out.scenes['mini-lupta'] = +grey().toFixed(4);
     G.Opt.lang = 'ro'; setLanguage('ro'); CONFIG.look.preview = false;
     // codul stilului nou, care ruleaza la fiecare cadru: niciun createRadialGradient, createPattern sau shadowBlur
     // (picatorii care se pun in sprite() si matPattern, care face pattern-ul o singura data, sunt in afara listei)
-    const names = ['lit', 'drawArt', 'drawArtChar', 'drawHeroRing', 'drawPlate', 'drawCage', 'drawMechs', 'litGloss', 'castShadow', 'litTube', 'litPuff', 'litClaws', 'litTeeth', 'eyeLit', 'sewNumber', 'matFill', 'drawLightMap', 'collectLights', 'addLight',
+    const names = ['lit', 'drawArt', 'drawArtChar', 'drawHeroRing', 'drawPlate', 'drawCage', 'drawMechs', 'drawBridge', 'drawToy', 'litGloss', 'castShadow', 'litTube', 'litPuff', 'litClaws', 'litTeeth', 'eyeLit', 'sewNumber', 'matFill', 'drawLightMap', 'collectLights', 'addLight',
       'drawFront', 'updateFront', 'frontOffset', 'heroScreenBox', 'drawMotes', 'drawWater', 'fillWaves', 'holdBreath', 'bigHit', 'kickZoom', 'mechMove', 'mechClick', 'easeBack',
       'heroMotion', 'tailStep', 'tailFollow', 'blinkOn', 'drawRunTrail', 'drawGeorgeBoss', 'drawBoon', 'drawKiller', 'drawGeorge', 'drawGlove'];
     const miss = [], hit = [];
@@ -207,8 +207,26 @@ const boot = require('./common.js');
     return out;
   });
   const worst = Object.entries(z.scenes).sort((a, b) => b[1] - a[1])[0];
-  check('pe fiecare captura (' + Object.keys(z.scenes).length + ': ro si en, acuarela si diorama, nivelurile 1 - 6 si lupta, mini-lupta) sub 0.1% pixeli negri sau gri (R = G = B sub 200)', worst[1] < 0.1, { cel_mai_rau: worst });
+  check('pe fiecare captura (' + Object.keys(z.scenes).length + ': ro si en, acuarela si diorama, nivelurile 1 - 7 si lupta, mini-lupta) sub 0.1% pixeli negri sau gri (R = G = B sub 200)', worst[1] < 0.1, { cel_mai_rau: worst });
   check('desenul stilului nou nu are createRadialGradient, createPattern, shadowBlur (' + z.src.n + ' de functii)', z.src.miss.length === 0 && z.src.hit.length === 0, z.src);
+  // ---- T7.4: nivelul 7 (canyon), primul nivel cu look: 'diorama': sub 0.1% pixeli negri sau gri, in patru locuri ----
+  const n7 = await page.evaluate(() => {
+    const G = __game, CONFIG = G.CONFIG; CONFIG.look.preview = false; CONFIG.look.front = true; CONFIG.look.lights = true;
+    go(7); step(10);
+    const P = G.P, L = P.L, cv = document.getElementById('game'), cx = cv.getContext('2d'), out = { key: L.def.key, diorama: isDiorama(L), shots: [] };
+    const spots = [[L.spawn.x, L.spawn.y], [L.gates[0].x, L.gates[0].y], [L.gates[1].x, L.gates[1].y], [L.nest.x - 300, L.nest.y]];
+    for (const [x, y] of spots) {
+      P.heroes.forEach((h, k) => { h.x = x - 60 + k * 120; h.y = y + 40; h.vx = h.vy = 0; }); step(40);
+      const d = cx.getImageData(0, 0, cv.width, cv.height).data; let n = 0, bad = 0;
+      for (let i = 0; i < d.length; i += 4) { n++; const R = d[i], Gc = d[i + 1], B = d[i + 2];
+        if ((R === Gc && Gc === B && R < 200) || Math.max(R, Gc, B) < 24) bad++; }      // gri ca in T6.10 (R = G = B, sub 200), sau aproape negru
+      out.shots.push(+(bad / n * 100).toFixed(3));
+    }
+    return out;
+  });
+  console.log('nivelul 7:', JSON.stringify(n7));
+  check('nivelul 7 e diorama', n7.key === 'canyon' && n7.diorama, n7);
+  check('nivelul 7: sub 0.1% pixeli negri sau gri, in patru locuri', n7.shots.every(v => v < 0.1), n7.shots);
   console.log(bad.length ? 'NEREUSIT: ' + bad.join(' | ') : 'stil-grafic OK');
   await done();
 })();

@@ -687,3 +687,12 @@ La G10 nivelul se construieste din nou la fiecare reincepere, deci totul pornest
 Scriptul care face asta (copiaza proiectul, strica, construieste, ruleaza testul, patru odata) nu e in depozit; ia cam 15 minute.
 
 Captura indiciilor G8: `p2_g8_indicii.png`, din `tests/capturi-placi-cusca.js`. `tests/hud-acoperire.js` cu `STRICT=1`: 0%.
+
+## Update 26 noiembrie 2026: nivelul 7 in teste (T7.4)
+
+- `numara-elemente.js` numara toate capitolele (`chapters()`), deci si nivelul 7 (cam 1900 de obiecte).
+- `stil-grafic.js` face capturile pe toate capitolele (si nivelul 7) si mai are o verificare: nivelul 7 e diorama si are sub 0.1% pixeli gri sau negri in patru locuri (inceput, poarta A, poarta B, langa cuib).
+- `tests/capturi-nivel7.js` (din `tests/out/`): `p2_canyon_inceput`, `p2_canyon_poarta_a`, `p2_canyon_poarta_b`, `p2_canyon_balansoar`, `p2_canyon_cusca`, `p2_canyon_george`. Se privesc cu ochiul.
+- `nivel7-traversare.js` (in `toate.sh`): cei doi eroi merg cu controalele, dupa `mechSteps`, pe drumul cel mai scurt prin grila (ocolind copacii si stancile), prin ambele porti pana la cuib. Fara inamici, pasari si George. Trece in cam 12 s de joc, fara deschiderea automata a portilor.
+- `capitole.js`: cu Partea a doua, capitolele stau pe doua randuri (6 + lupta mare, apoi nivelul 7), iar dupa final "Continuă" duce la nivelul 7.
+- Botii care joaca nivelul 7 intreg (cu inamici, cota si George) vin in T7.5.

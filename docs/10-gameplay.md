@@ -467,7 +467,7 @@ Reglaje: `CONFIG.ring` (`on`, `hits`, `inv`, `red`, `push`).
 
 **Placa** (`plate`). Cand un erou potrivit (`who`) sta la mai putin de 55 de mijlocul ei (regula din T7.1, neschimbata), placa coboara `plateDown` unitati, un inel de lumina urca din ea, iar cel care a calcat primeste vibratie (`rumble(k, 0, 0.4, 60)`). Cand e lasata, se aude `plateOff`. Sunetul si vibratia le face `updateMechs`, cu `plateBy(inp)`, care spune cine a calcat.
 
-**Cusca stelutelor** (`cage`). Se face cu `L.cage`, creat de `genLevel` doar cand definitia nivelului are `cage: true` (nicio definitie reala nu o are inca; cusca vine pe nivelul 12, si in T7.4 nu apare pe nivelul 7). Cusca are o steluta inauntru, in `L.stars` cu `kind: 'cage'` si `hidden`.
+**Cusca stelutelor** (`cage`). Se face cu `L.cage`, creat de `genLevel` doar cand definitia nivelului are `cage: true` (din T7.4 o are nivelul 7, langa cuib, ca in `docs/25-niveluri-7-12.md`, sectiunea 2, pasul 6). Cusca are o steluta inauntru, in `L.stars` cu `kind: 'cage'` si `hidden`.
 
 - O putere a unui erou (`powerSweep`: lovitura, rotirea) sau o minge aruncata de el (`updateCage`) care ajunge la cel mult `cageReach` de cusca e o lovitura. Un obiect sau o putere se numara o singura data.
 - Daca al doilea erou a lovit in ultimele `cageWindow` secunde (`easy` pe Ușor), cusca se deschide: `cageOpen` marcheaza steluta, `collectStar` o numara, apare bannerul "Bate palma!" (`ban.cage`) si ambii primesc vibratie.
@@ -495,3 +495,10 @@ Regulile G1 - G10 din `docs/25-niveluri-7-12.md`, 3.6. Fiecare are in cod un com
 **`mechSteps(gate)`** spune pentru fiecare erou `{ x, y, act, inp }`. La "oricine" (`any`): unul sta pe placa (`stand`), celalalt asteapta la trecere (`cross`); cand poarta e deschisa, cel de pe placa sta, celalalt trece. Daca unul a trecut deja, el sta pe placa de pe malul lui, iar celalalt trece. La celelalte reguli fiecare merge la intrarea lui, apoi toti trec. Un erou fara jucator nu are pas.
 
 **Sageata.** `guideTarget` arata spre pasul eroului (`mechGuide`) cand ii arata indiciile (G8) sau cand diamantul cel mai apropiat e dincolo de banda. Altfel ramane spre diamante. Iconita pasului: o sageata in jos pentru `stand`, o sageata spre dreapta pentru `cross`, butonul puterii (✕ sau □) pentru `throw` si `spin`.
+
+## Update 26 noiembrie 2026: nivelul 7 (T7.4)
+
+- **Podul de lumina.** Poarta unei prapastii se vede ca un pod de sapte scanduri. Reguli si plăci: ca in T7.1 - T7.3.
+- **Balansoarul** (`updateToy`, in `065-mech.js`). Un erou la fiecare capat (la mai putin de 70 de capat): se leagana si amandoi rad. Unul singur il inclina spre el. Nu da nimic.
+- **Steaua de pe stalp.** Se ia cu o minge sau un os aruncat, ca orice stea atinsa de un lucru aruncat.
+- **Cusca** sta langa cuib, ca pe toate nivelurile noi.

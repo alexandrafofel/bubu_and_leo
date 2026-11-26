@@ -4,7 +4,7 @@
 
 Textele sunt in `STR` din src/015-lang.js. Cheia este numele folosit in cod: `T('cheie')`. `{0}` si `{1}` sunt locuri completate de cod (un nume, un numar).
 
-Total: 221 texte in romana si 220 in engleza.
+Total: 223 texte in romana si 222 in engleza.
 
 | Cheie | Linia (ro) | Romana | Engleza |
 |---|---|---|---|
@@ -225,7 +225,9 @@ Total: 221 texte in romana si 220 in engleza.
 | `lvl.ridge.intro` | 113 | Pe culme bate vântul, iar păsările mari vă pot ridica pe sus! Feriți-vă de umbra lor sau speriați-le cu ghearele și cu mingea. Atenție la nisipul mișcător! | The wind blows on the ridge, and the big birds can lift you up! Stay out of their shadow or scare them with the claws and the ball. Mind the quicksand! |
 | `lvl.vines.name` | 114 | Stânca Lianelor | Vine Cliff |
 | `lvl.vines.intro` | 115 | Lianele atârnă pe stâncă. Se spune că în spatele lor este o ușă spre o ascunzătoare, cu o stea pe care puțini au găsit-o. Căutați cu atenție! | Vines hang down the cliff. They say there is a door behind them, to a hideout with a star that few have ever found. Look carefully! |
-| `lvl.road.name` | 116 | Drumul Torțelor | Torch Road |
-| `lvl.road.intro` | 117 | Torțele se aprind când treceți pe lângă ele. Este ultimul drum până la arena lui George. Gropi, roboți, melci și vânt: rămâneți împreună! | The torches light up as you walk past. This is the last road to George's arena. Pits, robots, snails and wind: stay together! |
-| `lvl.arena.name` | 118 | Arena lui George | George's Arena |
-| `lvl.arena.intro` | 119 | George cel Rău stă pe tronul lui de piatră, între torțe și soldați cu sulițe. Boon, zgârie tronul cu ghearele ca să îl dărâmi! Killer, când George cade, lovește-l cu mingea! De {0} ori! | George the Bad sits on his stone throne, among torches and soldiers with spears. Boon, scratch the throne with your claws to bring him down! Killer, when George falls, hit him with the ball! {0} times! |
+| `lvl.canyon.name` | 116 | Canionul Podurilor de Lumină | The Canyon of Light Bridges |
+| `lvl.canyon.intro` | 117 | George cel Rău s-a întors și a furat steluțele! Porniți după el. Aveți puteri noi: apăsați □. Boon aruncă oase-bumerang. Killer își învârte mănușile. Apăsați stick-ul ca să fugiți. Dacă prietenul e lovit, aveți zece secunde: ○! | George the Bad came back and stole the little stars! Go after him. You have new powers: press □. Boon throws boomerang bones. Killer spins his gloves. Press the stick to run. If your friend gets hit you have ten seconds: ○! |
+| `lvl.road.name` | 118 | Drumul Torțelor | Torch Road |
+| `lvl.road.intro` | 119 | Torțele se aprind când treceți pe lângă ele. Este ultimul drum până la arena lui George. Gropi, roboți, melci și vânt: rămâneți împreună! | The torches light up as you walk past. This is the last road to George's arena. Pits, robots, snails and wind: stay together! |
+| `lvl.arena.name` | 120 | Arena lui George | George's Arena |
+| `lvl.arena.intro` | 121 | George cel Rău stă pe tronul lui de piatră, între torțe și soldați cu sulițe. Boon, zgârie tronul cu ghearele ca să îl dărâmi! Killer, când George cade, lovește-l cu mingea! De {0} ori! | George the Bad sits on his stone throne, among torches and soldiers with spears. Boon, scratch the throne with your claws to bring him down! Killer, when George falls, hit him with the ball! {0} times! |

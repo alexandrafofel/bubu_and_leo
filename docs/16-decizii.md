@@ -546,3 +546,11 @@ Hotararea de proces: `balanseaza()` sta in `tests/common.js` si cheama `giveEgg`
 - **G6: si intrarile pentru oricine sunt apasate cand joaca unul singur.** Singur, nu poti sta pe placa si trece in acelasi timp. Pe nivelul 7 asta inseamna ca poarta A e deschisa pentru un copil singur, iar la poarta B isi apasa doar placa lui.
 - **G3 deschide fara oprirea mare si fara sunet.** Nu e o reusita a copiilor, doar o plasa de siguranta.
 - **Poarta deschisa singura (G7) ramane deschisa** (`fixed`), ca o poarta trecuta de amandoi.
+
+## Update 26 noiembrie 2026: nivelul 7 (T7.4)
+
+- **Muzica `l5`, nu `l6`.** Specificatia scrie `'l6'` ("muzica nivelului 6"); cheia muzicii nivelului 6 este `'l5'` (numaratoarea porneste de la `l0`).
+- **Prapastia nu e apa.** Are codul 2 (opreste eroii, lasa mingile sa zboare peste ea), dar bitul 64 o scoate din `waterCells`: fara valuri, oglindire si scantei de apa.
+- **Imaginile nivelului 7 sunt facute pe foi, nu decupate din harta.** Harta aleasa e desenata de sus, cu lucrurile acoperite unele de altele; decupate, nu s-ar fi putut folosi. Foile sunt facute cu harta ca referinta, ca stilul si culorile sa fie aceleasi. Doua foi, cam 80 de credite Krea.
+- **Inamicii pe treimi, pe rand**, doar pe nivelurile cu benzi: un erou nu poate trece banda ca sa ia diamante din alta treime.
+- **Testul de gri foloseste definitia din T6.10** (R = G = B, sub 200, plus aproape negru). O definitie mai stricta (orice pixel aproape gri) nu o trece nici nivelul 6.

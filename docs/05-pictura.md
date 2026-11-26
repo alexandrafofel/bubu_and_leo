@@ -298,3 +298,19 @@ Cinci imagini noi, decupate din foaia Krea (foaia Krea din T7.2, varianta 1 pent
 Desenul (`drawPlate`, `drawCage`, `drawMechs`, in `055-lupta.js`) cade pe o desenare simpla daca imaginea lipseste (`artOn() && artOk(...)`). Nu are gradienti. Lumina placii apasate si a cuștii deschise intra in `collectLights`.
 
 Cele doua medalioane de pe cusca au labele lui Boon si talpa lui Killer, cum le-a aprobat proprietara. Nu s-a refacut cusca.
+
+## Update 26 noiembrie 2026 (T7.4): imaginile nivelului 7
+
+Doua foi Krea (`google/nano-banana-2.1`, cu harta aleasa `art/krea-ref/nivel7-harta.jpg` ca referinta de stil), decupate automat dupa coloanele goale dintre lucruri:
+
+| Nume | Ce e |
+|---|---|
+| `l7_tree1`, `l7_tree2` | copacul rotund turcoaz, bradul menta |
+| `l7_spark` | planta cu trei flori-lampion (copacul care ascunde diamante) |
+| `l7_bush`, `l7_rock`, `l7_flowers` | tufisul, stanca somon cu un cristal, florile luminoase |
+| `pillar` | stalpul din prapastie, cu un copacel sus si ceata jos |
+| `seesaw` | balansoarul din trunchi |
+
+Pietrele placilor si ale cuștii, stanca, stalpul si balansoarul au primit putina culoare calda acolo unde erau aproape gri (22% spre `#D9A07E`).
+
+Pe canvas: fundul prapastiei (`paintChasm`, o data) si podul de lumina (`drawBridge`, la fiecare cadru, fara gradienti). Podul are sapte scanduri in culorile curcubeului. Apar una dupa alta de pe malul placii apasate (`g.fromRight`), dupa `g.vis` (`mechMove`), si se sting in aceeasi ordine. Fiecare scandura canta o nota (`bridge`). Cand podul e aprins, `collectLights` ii da lumina si halou.

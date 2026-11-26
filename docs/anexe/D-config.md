@@ -289,21 +289,21 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `lupta.boss.throwEvery` | `[3,2.5,2.1,1.8,1.6,1.4]` |  |
 | `lupta.boss.roarRadius` | `520` |  |
 | `lupta.boss.roarPush` | `1500` |  |
-| `lupta.levels` | `6` |  |
-| `lupta.duelHp` | `[3,3,4,5,5,6]` |  |
-| `lupta.duelFinalHp` | `[5,6,6,7,8,9]` |  |
-| `lupta.fieldEnemies` | `[12,14,15,15,17,18]` |  |
+| `lupta.levels` | `7` |  |
+| `lupta.duelHp` | `[3,3,4,5,5,6,6]` |  |
+| `lupta.duelFinalHp` | `[5,6,6,7,8,9,9]` |  |
+| `lupta.fieldEnemies` | `[12,14,15,15,17,18,18]` |  |
 | `lupta.treeSnails` | `2` |  |
 | `lupta.enemyDrop` | `1` |  |
 | `lupta.miniGeorge.hp` | `3` |  |
-| `lupta.miniGeorge.perLevel` | `[1,1,1,2,2,2]` |  |
+| `lupta.miniGeorge.perLevel` | `[1,1,1,2,2,2,2]` |  |
 | `lupta.miniGeorge.speed` | `110` |  |
 | `lupta.miniGeorge.near` | `640` |  |
 | `lupta.miniGeorge.drop` | `1` |  |
 | `lupta.george.minT` | `20` | the middle fight never starts in the first seconds of a level |
-| `lupta.george.midThrows` | `[2,3,3,4,4,5]` | bones and balls George throws in the middle fight, per level: they daze, like pinecones |
-| `lupta.george.nestEnemies` | `[2,4,5,6,8,10]` | small enemies he throws in the nest fight, in all, per level (half at half his hearts, the rest at his last heart) |
-| `lupta.george.enemyHp` | `[2,2,3,3,3,3]` | hearts of a thrown enemy, per level |
+| `lupta.george.midThrows` | `[2,3,3,4,4,5,5]` | bones and balls George throws in the middle fight, per level: they daze, like pinecones |
+| `lupta.george.nestEnemies` | `[2,4,5,6,8,10,10]` | small enemies he throws in the nest fight, in all, per level (half at half his hearts, the rest at his last heart) |
+| `lupta.george.enemyHp` | `[2,2,3,3,3,3,3]` | hearts of a thrown enemy, per level |
 | `lupta.george.chaseSpeed` | `120` | how fast the enemies thrown at his last heart follow the heroes (a hero walks at about 150) |
 | `lupta.george.boneEvery` | `2` | in the nest fight, above half his hearts: bones and balls thrown each time he loses a heart |
 | `lupta.george.flight` | `0.9` | seconds a thrown thing flies before it lands |

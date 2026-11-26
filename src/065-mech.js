@@ -35,6 +35,7 @@ function placeMechInputs(L, r, mark) {
     const i = ci(x, y); if (!L.reach[i] || L.grid[i] !== 0 || (L.flag[i] & 32)) return false;
     for (const s of L.solids) if (dist(x, y, s.x, s.y) < s.r + rad + 12) return false;
     for (const p of L.inputs) if (dist(x, y, p.x, p.y) < p.r + rad + 40) return false;
+    if (L.toy && dist(x, y, L.toy.x, L.toy.y) < 320) return false;       // not on the seesaw (T7.4)
     return dist(x, y, L.spawn.x, L.spawn.y) > 170 && dist(x, y, L.nest.x, L.nest.y) > 230;
   };
   const sideOk = (g, x, y, side, rad) => side === 'near' ? x < bandLeft(g, y) - rad - 40 : x > bandRight(g, y) + rad + 40;
@@ -154,7 +155,7 @@ function frontGate(L) { for (const g of L.gates || []) if (g.state !== 'fixed') 
 
 /* Every frame, after the heroes and the thrown things (updatePlay). docs/25, 3.2 and 3.6. */
 function updateMechs(dt) {
-  updateCage(dt);
+  updateCage(dt); updateToy(dt);
   const L = P.L; if (!L.gates || !L.gates.length) return;
   const M = CONFIG.mech, easy = mechEasy(), ef = easy ? M.easy : 1, solo = soloK();
   for (const inp of L.inputs) {
@@ -206,7 +207,7 @@ function updateMechs(dt) {
     if (g3) { g.g3 = true; ruleOk = true; }        // G3: every gate opens and stays open while a hero is down
     if (ruleOk) {
       g.stayT = g.stay * ef;
-      if (g.state !== 'open') { if (g3) g.state = 'open'; else openGate(L, g); }
+      if (g.state !== 'open') { g.fromRight = ins.some(p => p.realWas && p.side === 'far'); if (g3) g.state = 'open'; else openGate(L, g); }   // the bridge grows from the bank of the plate (T7.4)
     } else if (g.state === 'open') {
       // 'any': the time to cross runs only while somebody is on the crossing or next to it. Otherwise it closes now:
       // nobody can step off the plate and run over alone (docs/16-decizii.md, 26 November 2026). After G3 it always runs.
@@ -215,6 +216,11 @@ function updateMechs(dt) {
       if (g.stayT <= 0) { g.state = 'closed'; g.g3 = false; }
     }
     stepGateOpen(L, g, dt, g.state === 'open' ? 1 : 0);
+    if (g.kind === 'chasm') {                     // T7.4: every plank of light that appears sings one note of a scale
+      const n = Math.max(0, Math.min(7, Math.floor(g.vis * 8)));
+      if (n > (g.planks || 0)) for (let j = g.planks || 0; j < n; j++) Snd.play('bridge', j);
+      g.planks = n;
+    }
   }
 }
 
@@ -328,4 +334,18 @@ function updateCage(dt) {
     if (cg.done) break;
     if (f.state === 'fly' && !f.cageHit && isJoined(f.owner) && dist(f.x, f.y, cg.x, cg.y) < CONFIG.mech.cageReach) { f.cageHit = true; cageHitBy(cg, f.owner); }
   }
+}
+
+/* ---------- the toy of the level (T7.4): the seesaw of level 7 ----------
+   A hero at each end makes it rock, and both laugh. It gives nothing: it is only for fun. */
+const SEESAW_END = 120;
+function updateToy(dt) {
+  const L = P.L, toy = L && L.toy; if (!toy || toy.kind !== 'seesaw') return;
+  const on = [-1, 1].map(side => P.heroes.find(h => isJoined(h.k) && !h.down && !h.carried && dist(h.x, h.y, toy.x + side * SEESAW_END, toy.y) < 70));
+  toy.both = !!(on[0] && on[1] && on[0] !== on[1]);
+  toy.t = (toy.t || 0) + dt;
+  const target = toy.both ? Math.sin(toy.t * 2.6) * 0.2 : on[0] ? -0.14 : on[1] ? 0.14 : 0;
+  toy.va += ((target - toy.ang) * 40 - toy.va * 6) * dt; toy.ang += toy.va * dt;
+  toy.laughT -= dt;
+  if (toy.both && toy.laughT <= 0) { toy.laughT = 4; for (const h of on) Snd.talk(h.k, 'levelWin'); }
 }

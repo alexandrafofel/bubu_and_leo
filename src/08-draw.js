@@ -759,6 +759,7 @@ function collectLights(L) {
   _lights.length = 0;
   for (const h of P.heroes) addLight(h.x, h.y - 70, 150, mix(CONFIG.heroes[h.k].color, '#FFF6E0', 0.5), 0.45);
   for (const p of L.inputs || []) if (p.kind === 'plate' && p.on) addLight(p.x, p.y, 110, '#FFF0C0', 0.5);      // a pressed plate glows (T7.2)
+  for (const g of L.gates || []) if (g.kind === 'chasm' && g.vis > 0.2) addLight(g.x, g.y, 170, '#FFF2D8', 0.45 * Math.min(1, g.vis), true);   // the bridge of light shines (T7.4)
   if (L.cage && L.cage.done) addLight(L.cage.x, L.cage.y - 90, 150, '#FFE9A8', 0.6, true);                      // the open cage shines
   for (const e of P.eggs) if (e.delay <= 0 && e.state === 'idle' && !(e.big && L.cave && L.cave.reveal < 0.05)) addLight(e.x, e.y, 50, '#FFE6A8', 0.7);
   for (const s of P.stars) if (!s.got && !s.hidden) addLight(s.x, s.y, 60, '#FFF0B8', 0.7, true);

@@ -47,7 +47,12 @@ const LEVEL_DEFS_L = [
     stars: ['guarded', 'islet', 'nook'], pathY: [1100, 1420] },
   { key: 'road', music: 'l5', pal: 'road', night: true, icons: ['lantern', 'butterfly', 'egg'],
     trees: 50, rocks: 10, beetles: [2, 3, 4], lanes: [1, 2, 2], conesPerLane: 2, coneSpeed: 0.55, mud: [1, 2, 2], slowKind: 'sand', slow: 0.32, sparkle: [2, 2, 2], wind: 0.5, lanterns: true, pond: true, pit: true, birds: 1,
-    stars: ['treetop', 'guarded', 'islet'] }
+    stars: ['treetop', 'guarded', 'islet'] },
+  // Part Two (docs/25-niveluri-7-12.md, 4). Level 7: two chasms cut the map; plates open the bridges of light (T7.4)
+  { key: 'canyon', music: 'l5', pal: 'canyon', look: 'diorama', ambient: '#FFE9D6', icons: ['plate', 'bridge', 'star'],
+    trees: 22, rocks: 26, beetles: [0, 1, 2], lanes: [0, 0, 1], conesPerLane: 1, coneSpeed: 0.55, mud: [0, 0, 0], sparkle: [1, 1, 2], wind: 0.7, birds: 2,
+    bands: [{ at: 0.335, kind: 'chasm', w: 200, mech: 'plates1' }, { at: 0.665, kind: 'chasm', w: 200, mech: 'plates2' }],
+    stars: ['islet', 'nook', 'treetop'], toy: 'seesaw', cage: true }
 ];
 const BOSS_DEF_L = { key: 'arena', music: 'boss', night: true, icons: ['boon', 'ciori', 'killer'] };
 
@@ -64,6 +69,8 @@ const PALS = {
   ridge:  { night: true, g0: '#44578E', g1: '#394A7C', tints: RAINBOW, canopy: ['#3F9AA8', '#5A82C8', '#8A6AC0', '#38A08A'], flowers: ['#FFD84A', '#FF9A5A', '#FF8AB8', '#B09AFF'], path: '#93A0D0', trunk: '#5E4E86', rock: '#98A2D4' },
   vines:  { night: true, g0: '#2F6066', g1: '#275258', tints: RAINBOW, canopy: ['#2F9A6A', '#48B078', '#2F8A8A', '#6AB86A', '#3F7A9A'], flowers: ['#FF8AB8', '#FFD84A', '#B09AFF', '#7AF0C8'], path: '#7FB0A8', trunk: '#4E5A6A', rock: '#84A8B8' },
   road:   { night: true, g0: '#5C417C', g1: '#4C366C', tints: RAINBOW, canopy: ['#B0589A', '#8A58B8', '#D8704A', '#5A6FC8', '#C8508A'], flowers: ['#FFD84A', '#FF9A5A', '#FF8AB8', '#7AF0C8'], path: '#A88AC4', trunk: '#5E3E6E', rock: '#A088C0' },
+  canyon: { g0: '#E8B48A', g1: '#D99A78', tints: ['#EEBE92', '#DCA27E', '#F2C8A0', '#E2AA86'], canopy: ['#6FB08A', '#8AC07A', '#4F9A8A', '#B8C86A'], flowers: ['#FF8AB8', '#FFD84A', '#FFF6E8', '#B09AFF'], path: '#F6D9B0', trunk: '#8A5A6A', rock: '#C98A7A',
+            chasm: ['#3A4A8A', '#6A7AC0', '#D8DCF6'] },      // level 7: a high plateau at sunrise. chasm: the bottom of the chasm, its light middle, the mist
   sunset: { g0: '#D6B87E', g1: '#C5A674', tints: ['#E4A771', '#DB9C79', '#CBB47C', '#E2BB8C', '#D8A07A'], canopy: ['#D98A52', '#E2A04F', '#C96F4E', '#E6B65A', '#B98A5A'], flowers: ['#F3D36B', '#E58F6B', '#FBF3DE'], path: '#EECFA2', trunk: '#8A5A48', rock: '#C4A08E' }
 };
 /* The calm look of the Krea maps (CONFIG.look.art and CONFIG.look.calm): every level has its own ground color, a clean cream path,
@@ -84,7 +91,9 @@ const PALS_ART = {
             water: ['#4A6EA8', '#6A92D0', '#94B8EA', '#E4F0FF'], cliff: ['#B08058', '#8A6040', '#9E7050', '#BC9068', '#7A5236', '#A87C58', '#6A4630', '#D8B088', '#5E4030'] },
   road:   { g0: '#6E4A62', g1: '#603E56', tints: ['#76526A', '#66445C', '#7E5A72'], path: '#E8DCCB', lane: '#E8A0CC', canopy: ['#3E5A3E', '#4A6648', '#567254'], flowers: ['#FFE070', '#FFF0B0', '#FFC860'],
             tree: ['l6_tree1', 'l6_tree2'], spark: 'l6_spark', rock: 'l6_rock', bush: 'l6_bush', flowers2: 'l6_spark', band: '#4A3046',
-            water: ['#3E3A78', '#5A5AA8', '#8A8AD0', '#D8D8FF'] }
+            water: ['#3E3A78', '#5A5AA8', '#8A8AD0', '#D8D8FF'] },
+  canyon: { g0: '#E8B48A', g1: '#DCA47E', tints: ['#EEBE92', '#E0AA84', '#F2C8A0'], path: '#FBEBD2', lane: '#F4A8C8', canopy: ['#5FA090', '#6FB08A', '#8AC0A0'], flowers: ['#FF9AC0', '#FFE58A', '#C8B8FF'],
+            tree: ['l7_tree1', 'l7_tree2'], spark: 'l7_spark', rock: 'l7_rock', bush: 'l7_bush', flowers2: 'l7_flowers', band: '#F2B6A0' }
 };
 /* The palette of a level: PALS, with the calm Krea colors over it when the new look is on. */
 function palOf(def) { const base = PALS[def.pal], a = artOn() && CONFIG.look.calm && PALS_ART[def.pal]; return a ? Object.assign({}, base, a, { art: true }) : base; }
@@ -238,7 +247,7 @@ function genLevel(idx, seed) {
     const code = b.kind === 'wall' ? 3 : 2, g = { band: bi, at: b.at, W: WW, ph: r() * 6, half: b.w / 2, kind: b.kind, mech: b.mech, code, cells: [], inputs: [] };
     for (let cy = top / CS | 0; cy < rows; cy++) {
       const mx = bandX(g, (cy + 0.5) * CS);
-      for (let cx = 0; cx < cols; cx++) if (Math.abs((cx + 0.5) * CS - mx) < g.half) { const i = cy * cols + cx; if (G[i] < 2) G[i] = code; F[i] |= 1; }
+      for (let cx = 0; cx < cols; cx++) if (Math.abs((cx + 0.5) * CS - mx) < g.half) { const i = cy * cols + cx; if (G[i] < 2) G[i] = code; F[i] |= b.kind === 'chasm' ? 65 : 1; }   // 64: a chasm (T7.4), not water
     }
     let p = L.path[0];
     for (const q of L.path) if (Math.abs(q[0] - bandX(g, q[1])) < Math.abs(p[0] - bandX(g, p[1]))) p = q;
@@ -292,6 +301,14 @@ function genLevel(idx, seed) {
           L.stars.push({ x, y, kind }); done = true;
         }
       }
+      else if (L.gates.length) {              // T7.4: a stone pillar in the first chasm, far from the crossing. The star is taken with a thrown thing
+        const g = L.gates[0];
+        for (let t = 0; t < 80 && !done; t++) {
+          const y = top + 260 + r() * (WH - top - 480);
+          if (Math.abs(y - g.y) < 380) continue;
+          L.stars.push({ x: bandX(g, y), y, kind, pillar: true }); done = true;
+        }
+      }
       if (!done) kind = 'guarded';
     }
     if (kind === 'nook') {
@@ -321,6 +338,15 @@ function genLevel(idx, seed) {
     if (kind === 'treetop') L.stars.push({ x: 0, y: 0, kind, hidden: true, region: k });
   }
 
+  // ---- the toy of the level (T7.4): a seesaw from a fallen trunk. Two heroes at its ends make it rock; it gives nothing ----
+  if (def.toy === 'seesaw' && L.gates.length >= 2) {
+    const xa = L.gates[0].at * WW + 260, xb = L.gates[1].at * WW - 260;
+    for (let t = 0; t < 300 && !L.toy; t++) {
+      const x = lerp(xa, xb, r()), y = lerp(top + 220, WH - 220, r());
+      if (!pathFar(x, y, 210) || pathDist(x, y) > 520 || !areaClear(x, y, 170)) continue;
+      L.toy = { kind: 'seesaw', x, y, ang: 0, va: 0, laughT: 0 }; mark(x, y, 190, 3);
+    }
+  }
   // ---- mud, pinecone lanes, windmills ---------------------------------------
   for (let k = 0; k < NW; k++) {
     const [x0, x1] = region(k);
@@ -452,9 +478,11 @@ function genLevel(idx, seed) {
   const Q15 = quotaOf(idx), LC = CONFIG.lupta;
   if (Q15 && LC) {
     const want = (LC.fieldEnemies || [])[idx] || 0, snails = L.trees.filter(t => t.spark).length * (LC.treeSnails || 0);
+    let turn = 0;          // with bands (T7.4) the enemies go to the thirds in turn: every third has diamonds, a band cannot be crossed for them
     const place = (gap) => {
+      const off = L.gates.length ? turn++ : 0;
       for (let t = 0; t < 600; t++) {
-        const k = t % NW, [x0, x1] = region(k), x = lerp(x0 + 60, x1 - 60, r()), y = lerp(top + 80, WH - 80, r()), i = ci(x, y);
+        const k = (t + off) % NW, [x0, x1] = region(k), x = lerp(x0 + 60, x1 - 60, r()), y = lerp(top + 80, WH - 80, r()), i = ci(x, y);
         if (!reach[i] || (F[i] & 22) || G[i] !== 0) continue;
         if (dist(x, y, L.spawn.x, L.spawn.y) < 380 || dist(x, y, L.nest.x, L.nest.y) < 280 || !pathFar(x, y, 105)) continue;
         if (L.beetles.some(b => dist(b.x, b.y, x, y) < gap)) continue;
@@ -516,7 +544,7 @@ function genLevel(idx, seed) {
       if (G[ci(x, y)] === 0 && dist(x, y, L.nest.x, L.nest.y) > 200) L.lanterns.push({ x, y, lit: 0 });
     }
   }
-  for (let i = 0; i < G.length; i++) if (G[i] === 2) L.waterCells.push(i);
+  for (let i = 0; i < G.length; i++) if (G[i] === 2 && !(F[i] & 64)) L.waterCells.push(i);     // a chasm (flag 64) is not water
   if (def.birds) { L.birds = []; for (let i = 0; i < def.birds; i++) L.birds.push({ state: 'gone', t: 6 + i * 7 + r() * 4, x: 0, y: 0, dir: 1, hp: 2, wing: 0, rest: 0, grab: null }); }   // big birds come later, one after the other
   L.reachCells = reachCells; L.ci = ci; L.pathDist = pathDist;
   L.decor = makeDecor(L, L.seed);
@@ -524,6 +552,46 @@ function genLevel(idx, seed) {
 }
 
 /* ---------------- painting ---------------- */
+/* The chasms of a level with bands (T7.4, docs/25-niveluri-7-12.md, level 7). Painted once into the picture of the level:
+   deep blue at the bottom (P.chasm[0]), a lighter middle (P.chasm[1]), mist (P.chasm[2]) and far little lights,
+   the salmon rock lip on both edges. The crossings are painted as chasm too: their bridge of light is drawn every frame (drawBridge). */
+function paintChasm(c, L, P, r) {
+  const base = PALS[L.def.pal] || P, CH = base.chasm || ['#3A4A8A', '#6A7AC0', '#D8DCF6'];
+  const rock = base.rock && base.rock[0] === '#' ? base.rock : '#C98A7A', lip = shade(rock, -0.1);      // with the Krea look P.rock is a picture name: the color is in PALS
+  const band = (g, k) => {                       // the band as one smooth shape, k = how much of its width
+    c.beginPath();
+    for (let y = L.top - 20; y <= L.H + 40; y += 20) c.lineTo(bandX(g, y) - g.half * k, y);
+    for (let y = L.H + 40; y >= L.top - 20; y -= 20) c.lineTo(bandX(g, y) + g.half * k, y);
+    c.closePath();
+  };
+  for (const g of L.gates) {
+    if (g.kind !== 'chasm') continue;
+    // the bottom: deep at the walls, lighter in the middle, where the light of the sunrise reaches
+    c.fillStyle = CH[0]; band(g, 1); c.fill();
+    c.fillStyle = mix(CH[0], CH[1], 0.5); band(g, 0.72); c.fill();
+    c.fillStyle = CH[1]; band(g, 0.42); c.fill();
+    for (let y = L.top; y < L.H + 40; y += 70) {
+      const mx = bandX(g, y);
+      wash(c, mx + (r() - 0.5) * 30, y, g.half * 0.8, 60, mix(CH[0], CH[1], 0.7), { a: 0.35, seed: y, layers: 2, edge: 0 });
+      if (r() < 0.6) wash(c, mx + (r() - 0.5) * g.half * 0.6, y + 20, g.half * 0.85, 46, CH[2], { a: 0.16, seed: y + 5, layers: 2, edge: 0 });     // mist
+    }
+    for (let y = L.top; y < L.H + 40; y += 26) if (r() < 0.55) {      // far little lights at the bottom
+      c.fillStyle = rgba('#FFF6E0', 0.45 + r() * 0.4); c.beginPath(); c.arc(bandX(g, y) + (r() - 0.5) * g.half * 1.3, y + (r() - 0.5) * 20, 1.8 + r() * 2.2, 0, TAU); c.fill();
+    }
+    // the wall under the rim (shadow inside the chasm), the salmon rock lip, and the sunlit edge
+    for (const side of [-1, 1]) {
+      const edge = (off) => { const pts = []; for (let y = L.top - 20; y <= L.H + 40; y += 30) pts.push([bandX(g, y) + side * (g.half + off), y]); return pts; };
+      brushLine(c, edge(-16), 26, mix(CH[0], SHADOW, 0.25), 0.45, 21 + side);
+      brushLine(c, edge(-2), 16, lip, 0.95, 23 + side);
+      brushLine(c, edge(7), 5, shade(rock, 0.45), 0.8, 25 + side);
+    }
+  }
+  for (const s of L.stars) if (s.pillar) {                // the stone pillar of the star, rising from the chasm
+    const h = 330;
+    if (P.art && artOk('pillar')) drawArt(c, 'pillar', s.x, s.y + h * 0.74, h, 0.5);
+    else { wash(c, s.x, s.y + 40, 58, 90, rock, { a: 1.1, seed: 9, wob: 0.1, n: 9 }); wash(c, s.x, s.y - 30, 56, 24, '#8FC07A', { a: 1, seed: 11 }); }
+  }
+}
 /* ---------- decor: the small things of the meadow (update U6) ----------
    Every level has about CONFIG.decorPerLevel of them: grass, clover, daisies, reeds, dandelions,
    leaves, snails, ladybugs, mushrooms, pebbles, bushes, twigs, moss. All of them are painted once
@@ -844,6 +912,7 @@ function paintLevel(L) {
       else if (hash(52, i) < 0.3) { c.strokeStyle = 'rgba(244,251,240,0.5)'; c.lineWidth = 2.2; c.beginPath(); c.arc(x, y + 10, 14 + hash(53, i) * 10, Math.PI * 1.15, Math.PI * 1.85); c.stroke(); }
     }
   }
+  if (L.gates && L.gates.some(g => g.kind === 'chasm')) paintChasm(c, L, P, r);      // T7.4: the chasms of the bands, and the pillar of the star
   for (const b of L.bridges) {
     wash(c, b.x - 10, b.y + 14, b.w / 2 + 6, b.h / 2 + 4, SHADOW, { a: 0.3, seed: 3, edge: 0 });
     if (A) { c.drawImage(ART.bridge, b.x - b.w / 2 - 22, b.y - b.h / 2 - 26, b.w + 44, b.h + 52); continue; }

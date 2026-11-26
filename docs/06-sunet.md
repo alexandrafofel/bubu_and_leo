@@ -337,3 +337,7 @@ O poarta care se deschide prima oara: patru note de marimba care urca (do, mi, s
 - `cage`: doua clicuri de lacat, apoi un arpegiu vesel (patru clopotele). Se aude cand cusca se deschide.
 
 Toate sunt in `fx2` (`03-audio.js`), deci merg doar in "Cea mai grea luptă".
+
+## Update 26 noiembrie 2026 (T7.4): `bridge`
+
+O nota de sticla pentru fiecare scandura de lumina care apare. Cele sapte scanduri canta o gama (do, re, mi, fa, sol, la, si). Balansoarul nu are sunet propriu: cei doi eroi spun `levelWin` cand se leagana (cel mult o data la 4 s).

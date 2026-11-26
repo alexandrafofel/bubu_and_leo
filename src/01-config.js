@@ -295,20 +295,20 @@ const CONFIG = {
       roarRadius: 520,         // back on the throne George roars: heroes closer than this are pushed away (it does not hurt)
       roarPush: 1500
     },
-    levels: 6,                         // levels of the second game that exist. Part Two (levels 7 - 12) raises it as each new level is made
-    duelHp: [3, 3, 4, 5, 5, 6],        // hits George takes in the middle fight, per level (the first game: CONFIG.duel.hp)
-    duelFinalHp: [5, 6, 6, 7, 8, 9],   // hits George takes at the nest, per level (the first game: CONFIG.duel.finalHp)
+    levels: 7,                         // levels of the second game that exist. Part Two (levels 7 - 12) raises it as each new level is made
+    duelHp: [3, 3, 4, 5, 5, 6, 6],        // hits George takes in the middle fight, per level (the first game: CONFIG.duel.hp)
+    duelFinalHp: [5, 6, 6, 7, 8, 9, 9],   // hits George takes at the nest, per level (the first game: CONFIG.duel.finalHp)
     // T15 (docs/28-t15-george-de-doua-ori.md): diamonds come only from defeated small enemies, George comes at half and at all of the team's quota.
     // The numbers per level are starting points, to be tuned while the children play.
-    fieldEnemies: [12, 14, 15, 15, 17, 18],   // small enemies on a level: robots, snails from the glowing trees and pinecones. Robots fill up the rest
+    fieldEnemies: [12, 14, 15, 15, 17, 18, 18],   // small enemies on a level: robots, snails from the glowing trees and pinecones. Robots fill up the rest
     treeSnails: 2,             // snails that crawl out of a glowing tree when it is shaken; like every small enemy they come back after a while
     enemyDrop: 1,              // diamonds a defeated small enemy leaves on the ground
-    miniGeorge: { hp: 3, perLevel: [1, 1, 1, 2, 2, 2], speed: 110, near: 640, drop: 1 },   // Little George: follows the nearest hero (within `near`), never hits
+    miniGeorge: { hp: 3, perLevel: [1, 1, 1, 2, 2, 2, 2], speed: 110, near: 640, drop: 1 },   // Little George: follows the nearest hero (within `near`), never hits
     george: {
       minT: 20,                                // the middle fight never starts in the first seconds of a level
-      midThrows: [2, 3, 3, 4, 4, 5],           // bones and balls George throws in the middle fight, per level: they daze, like pinecones
-      nestEnemies: [2, 4, 5, 6, 8, 10],        // small enemies he throws in the nest fight, in all, per level (half at half his hearts, the rest at his last heart)
-      enemyHp: [2, 2, 3, 3, 3, 3],             // hearts of a thrown enemy, per level
+      midThrows: [2, 3, 3, 4, 4, 5, 5],           // bones and balls George throws in the middle fight, per level: they daze, like pinecones
+      nestEnemies: [2, 4, 5, 6, 8, 10, 10],        // small enemies he throws in the nest fight, in all, per level (half at half his hearts, the rest at his last heart)
+      enemyHp: [2, 2, 3, 3, 3, 3, 3],             // hearts of a thrown enemy, per level
       chaseSpeed: 120,                         // how fast the enemies thrown at his last heart follow the heroes (a hero walks at about 150)
       boneEvery: 2,                            // in the nest fight, above half his hearts: bones and balls thrown each time he loses a heart
       flight: 0.9                              // seconds a thrown thing flies before it lands
