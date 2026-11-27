@@ -124,6 +124,9 @@ const PALS_ART = {
             water: ['#3E3A78', '#5A5AA8', '#8A8AD0', '#D8D8FF'] },
   canyon: { g0: '#E8B48A', g1: '#DCA47E', tints: ['#EEBE92', '#E0AA84', '#F2C8A0'], path: '#FBEBD2', lane: '#F4A8C8', canopy: ['#5FA090', '#6FB08A', '#8AC0A0'], flowers: ['#FF9AC0', '#FFE58A', '#C8B8FF'],
             tree: ['l7_tree1', 'l7_tree2'], spark: 'l7_spark', rock: 'l7_rock', bush: 'l7_bush', flowers2: 'l7_flowers', band: '#F2B6A0' },
+  // level 8 (T8): George's workshop, giant toy machine parts: lamp posts, stacks of cans and springs, cogs, nuts and bolts, bulbs, screws
+  works:  { night: true, g0: '#5E6A92', g1: '#525E86', tints: ['#66729A', '#58648C', '#6E7AA2'], path: '#E8DCC0', lane: '#F2B0D8', canopy: ['#C8A040', '#D86A4A', '#5AA0A8'], flowers: ['#FFD84A', '#7AF0C8', '#FF8AB8'],
+            tree: ['works_tree1', 'works_tree2'], spark: 'works_spark', rock: 'works_rock', bush: 'works_bush', flowers2: 'works_flowers', band: '#4A5278' },
   // level 9 (T8): the night lake from the approved Krea map (art/krea-ref/nivel9-harta.jpg): willows, cattails, lilac rocks, blue crystals, lotus flowers
   lake:   { night: true, g0: '#3F7488', g1: '#356A80', tints: ['#46808E', '#3A6E84', '#4E8A94'], path: '#E8D8B0', lane: '#F2B0D8', canopy: ['#4E9AA0', '#5AAAA8', '#6AB8B0'], flowers: ['#FFB0D8', '#FFF6E8', '#FFD84A', '#B09AFF'],
             tree: ['lake_tree1', 'lake_tree2'], spark: 'lake_spark', rock: 'lake_rock', bush: 'lake_bush', flowers2: 'lake_flowers', band: '#2A5A7A',
