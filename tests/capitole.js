@@ -116,31 +116,43 @@ const other = game === 'lupta' ? 'bubu' : 'lupta';
     return { v: S.data.v, l2: S.slot('lupta').level, open2: S.maxOpen('lupta'), sum2: sum(S.slot('lupta')), lbl2: G.chapterLabel(S.slot('lupta').level, 'lupta'),
              l1: S.slot('bubu').level, open1: S.maxOpen('bubu'), sum1: sum(S.slot('bubu')), eggs1: S.slot('bubu').eggs, has1: S.hasProgress('bubu'), has2: S.hasProgress('lupta') }; });
   check('7a. salvarea veche devine versiunea 4', v3.v === 4, v3);
-  check('7b. al doilea joc: "Continuă: Arena lui George", capitolele 1 - 7 deschise', v3.l2 === 6 && v3.lbl2 === 'Arena lui George' && v3.open2 === 6 && v3.has2, v3);
+  // 27 noiembrie 2026: lupta mare e ultima. Salvarea veche (6 niveluri jucate, "Continuă" pe Arena, capitolul 7 de atunci) se pune in ordinea noua:
+  // "Continuă" duce la primul capitol nejucat (nivelul 7, cand exista), iar Arena, deschisa deja, ramane deschisa
+  const exp7 = await ev(() => { const ch = chapters('lupta'), l7 = ch.findIndex(c => c.kind === 'level' && c.n === 6); return { lvl: l7 >= 0 ? l7 : ch.length - 1, lbl: l7 >= 0 ? 'Nivelul 7' : 'Arena lui George', open: ch.length - 1 }; });
+  check('7b. al doilea joc: "Continuă" la primul capitol nejucat (' + exp7.lbl + '), pana la Arena deschise', v3.l2 === exp7.lvl && v3.lbl2 === exp7.lbl && v3.open2 === exp7.open && v3.has2, [v3, exp7]);
   check('7c. al doilea joc: totalul nu a scazut (rezultatele aveau 261, totalul vechi 300)', v3.sum2 === 300, v3);
   check('7d. primul joc: continua de la nivelul 4, totalul e suma rezultatelor (110, mai mult decat 100)', v3.l1 === 3 && v3.open1 === 3 && v3.sum1 === 110 && v3.eggs1 === 110 && v3.has1, v3);
 
+  // 7e. o salvare din ordinea veche (T7.4: Arena pe capitolul 7, nivelul 7 pe capitolul 8), cu Arena castigata: rezultatul Arenei merge cu ea la sfarsit
+  await ev(() => localStorage.setItem(__game.CONFIG.saveKey, JSON.stringify({ v: 4, game: 'lupta', g2: { level: 7, max: 7, eggs: 0, stars: 0,
+    results: [0, 1, 2, 3, 4, 5, 6].map(i => ({ eggs: 10 + i, stars: 1, med: [false, false, false] })) }, diff: ['easy', 'normal'], opt: { lang: 'ro' } })));
+  await page.reload(); await wait(700); await page.mouse.click(900, 500); await wait(700);
+  const v7 = await ev(() => { const G = __game, sl = G.Save.slot('lupta'), ch = chapters('lupta'), b = ch.length - 1, l7 = ch.findIndex(c => c.kind === 'level' && c.n === 6);
+    return { boss: sl.results[b] && sl.results[b].eggs, l7res: l7 >= 0 ? !!sl.results[l7] : null, level: sl.level, l7, max: sl.max, b, order: (sl.order || []).join(','), lbl: G.chapterLabel(sl.level, 'lupta') }; });
+  check('7e. salvarea cu Arena pe capitolul 7: Arena (16 diamante) trece la sfarsit, "Continuă" la nivelul 7, totul deschis', v7.boss === 16 && (v7.l7 < 0 || (v7.l7res === false && v7.level === v7.l7 && v7.lbl === 'Nivelul 7')) && v7.max === v7.b && /boss$/.test(v7.order), v7);
+
   // 8. the cards: one row of 7 now (the second game gets a second row when the levels of Part Two exist)
   for (const g of ['bubu', 'lupta']) {
-    const lay = await ev(g => { const G = __game; G.setGame(g); const L = G.chapterLayout(); return { n: L.list.length, rows: L.rows.map(r => r.length), two: L.two, arena: L.list[6].kind, p2: L.list.length - 7, last: L.list[L.list.length - 1].kind }; }, g);
-    // T7.4: cu nivelurile Partii a doua (CONFIG.lupta.levels > 6) vine al doilea rand; fara ele, un singur rand care se termina cu lupta mare
-    check('8. ' + g + ': Partea întâi pe un rand (6 + lupta mare), Partea a doua pe al doilea', lay.rows[0] === 7 && lay.arena === 'boss' && (lay.p2 > 0 ? lay.two && lay.rows[1] === lay.p2 : !lay.two && lay.last === 'boss'), lay);
+    const lay = await ev(g => { const G = __game; G.setGame(g); const L = G.chapterLayout(); return { n: L.list.length, rows: L.rows.map(r => r.length), two: L.two, p2: L.list.filter(c => c.kind === 'level' && c.part === 2).length, last: L.list[L.list.length - 1].kind }; }, g);
+    // lupta mare e mereu ultima. Cu nivelurile Partii a doua: randul 1 are 6 niveluri, randul 2 nivelurile noi si lupta mare; fara ele, un rand de 7
+    check('8. ' + g + ': lupta mare la sfarsit; Partea a doua pe al doilea rand', lay.last === 'boss' && (lay.p2 > 0 ? lay.two && lay.rows[0] === 6 && lay.rows[1] === lay.p2 + 1 : !lay.two && lay.rows[0] === 7), lay);
   }
   const two = await ev(() => { const G = __game, C = G.CONFIG; G.setGame('lupta'); const was = C.lupta.levels; C.lupta.levels = 12; const L = G.chapterLayout(); C.lupta.levels = was;
-    return { n: L.list.length, rows: L.rows.map(r => r.length), two: L.two, arena: L.list[6].kind, part2: L.list[7].part }; });
-  check('8b. cu 12 niveluri, al doilea joc are doua randuri: Partea întâi (6 + Arena) si Partea a doua', two.two && two.rows[0] === 7 && two.rows[1] === 6 && two.arena === 'boss' && two.part2 === 2, two);
+    return { n: L.list.length, rows: L.rows.map(r => r.length), two: L.two, last: L.list[L.list.length - 1], part2: L.list[6].part }; });
+  check('8b. cu 12 niveluri: Partea întâi (6 niveluri) si Partea a doua (6 niveluri + Arena, la sfarsit)', two.two && two.rows[0] === 6 && two.rows[1] === 7 && two.last.kind === 'boss' && two.last.part === 2 && two.part2 === 2, two);
 
   // 9. after the last fight the progress stays and every chapter is open
   await ev(g => { const G = __game; G.setGame(g); G.Game.toTitle(); }, game); await wait(300);
-  await ev(() => { const G = __game, S = G.Save; S.newGame(); for (let i = 0; i < 6; i++) S.finish(i, { eggs: 20, stars: 2, med: [false, false, false] }); G.Game.startChapter(6); });
+  await ev(() => { const G = __game, S = G.Save; S.newGame(); for (let i = 0; i < 6; i++) S.finish(i, { eggs: 20, stars: 2, med: [false, false, false] }); G.Game.startChapter(chapters().length - 1); });
   s = await intoPlay();
-  check('9a. capitolul 7 (lupta mare) porneste din lista', s.st === 'play' && s.idx === 6 && (await ev(() => !!__game.P.L.boss)), { st: s.st, idx: s.idx });
+  const bossIdx = await ev(() => chapters().length - 1);
+  check('9a. lupta mare (ultimul capitol) porneste din lista', s.st === 'play' && s.idx === bossIdx && (await ev(() => !!__game.P.L.boss)), { st: s.st, idx: s.idx, bossIdx });
   await ev(() => __game.Game.toEnding());
   await ev(() => { const G = __game; for (let i = 0; i < 13 * 30; i++) G.update(1 / 30); }); await key('Enter'); await wait(300); s = await st();
-  // T7.4: daca exista Partea a doua, dupa final se continua cu primul ei nivel (capitolul 8); altfel cu lupta mare
-  const nCh = await ev(() => chapters().length), nextCh = nCh > 7 ? 7 : 6;
-  check('9b. dupa final: inapoi la start, progresul nu e sters, toate capitolele deschise', s.st === 'title' && s.level === nextCh && s.open === nextCh && s.res.length === 7, { st: s.st, level: s.level, open: s.open, n: s.res && s.res.length, nCh });
-  check('9c. "Continuă" duce la capitolul urmator (lupta mare, sau nivelul 7 cand exista Partea a doua)', s.menu[0] === 'Continuă: ' + (await ev(c => __game.chapterLabel(c), nextCh)), s.menu);
+  // lupta mare e ultimul capitol: dupa final "Continuă" ramane pe ea si toate capitolele sunt deschise
+  const nCh = await ev(() => chapters().length);
+  check('9b. dupa final: inapoi la start, progresul nu e sters, toate capitolele deschise', s.st === 'title' && s.level === bossIdx && s.open === bossIdx && s.res.length === nCh, { st: s.st, level: s.level, open: s.open, n: s.res && s.res.length, nCh });
+  check('9c. "Continuă" duce la lupta mare', s.menu[0] === 'Continuă: ' + (await ev(c => __game.chapterLabel(c), bossIdx)), s.menu);
   await page.screenshot({ path: 'cap_' + game + '_dupa_final.png' });
   await page.close();
 

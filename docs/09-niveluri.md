@@ -190,7 +190,9 @@ Cand nivelul are cota, `genLevel` nu mai pune diamante in valuri: `L.waves` are 
 
 Dupa copaci, nivelul primeste destui inamici mici ca sa dea diamantele: daca robotii, melcii copacilor si conurile sunt mai putini decat `CONFIG.lupta.fieldEnemies[nivel]`, se mai pun roboti, pe rand in fiecare val, cu aceleasi reguli ca robotii de pana acum (departe de start, de cuib si de drum). Apoi vin Micii George (`miniGeorge.perLevel`), tot ca intrari in `L.beetles`, cu `look: 'mini'`, 3 inimi si `maxHp`.
 
-## Update 26 noiembrie 2026: benzile (T7.1)
+## Benzile (nivelurile 7 - 12)
+
+Facute in T7.1 (26 noiembrie 2026); mutate aici din `25-niveluri-7-12.md`, 3.1.
 
 Un nivel cu `bands` in definitie (nivelurile 7 - 12, din T7.4) are benzi care taie harta de sus pana jos. Nivelurile 1 - 6 nu au.
 
@@ -208,7 +210,9 @@ bands: [{ at: 0.335, kind: 'chasm', w: 200, mech: 'plates1' }, { at: 0.665, kind
 
 Harta aleasa pentru nivelul 7 e `art/krea-ref/nivel7-harta.jpg` (varianta 1, 26 noiembrie 2026). E doar o referinta: nu intra in joc. Din ea se fac piesele nivelului in T7.4.
 
-## Update 26 noiembrie 2026: nivelul 7, Canionul Podurilor de Lumină (T7.4)
+## Nivelul 7: Canionul Podurilor de Lumină
+
+Facut in T7.4 si T7.5 (26 - 27 noiembrie 2026); mutat aici din `25-niveluri-7-12.md`, sectiunea 4.
 
 Primul nivel al Partii a doua. In `LEVEL_DEFS_L`, pozitia 6, cu cheia `canyon`. `CONFIG.lupta.levels` e 7, deci `chapters()` il pune dupa lupta mare, in Partea a doua.
 
@@ -223,3 +227,9 @@ Primul nivel al Partii a doua. In `LEVEL_DEFS_L`, pozitia 6, cu cheia `canyon`. 
 | Paleta | `PALS.canyon` (cu `chasm`) si `PALS_ART.canyon` (imaginile `l7_*`). |
 
 Capcana: in `PALS_ART`, `rock`, `bush`, `tree`... sunt nume de imagini, nu culori. Cine are nevoie de culoarea stancii o ia din `PALS[def.pal]`. Prima pictura a prapastiei a iesit neagra la margini din cauza asta.
+
+Ce mai stie nivelul 7 (T7.5):
+
+- Dupa el vine lupta mare, care e mereu ultimul capitol (27 noiembrie 2026). Dupa ultimul capitol, ecranul de final de nivel duce la ecranul de start.
+- Botii il termina singuri (cam 90 s) si in doi (cam 185 s), cu cel mai lung timp fara progres de 13 - 17 s (`17-testare.md`).
+- George lupta mereu pe partea eroilor (`10-gameplay.md`).

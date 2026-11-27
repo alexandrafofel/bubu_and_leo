@@ -102,7 +102,7 @@ function update(dt) {
     }
   } else if (st === 'levelEnd') {
     UI.lvlT += dt; stepParts(dt);
-    if (UI.lvlT > 1.5 && pressedGo()) { Snd.play('ok'); Game.goLevel(Game.levelIdx + 1); }
+    if (UI.lvlT > 1.5 && pressedGo()) { Snd.play('ok'); if (Game.levelIdx + 1 < chapters().length) Game.goLevel(Game.levelIdx + 1); else Game.toTitle(); }   // T7.5: after the last chapter that exists (now level 7), back to the start screen
   } else if (st === 'ending') updateEnding(dt);
   UI.click = null; UI.hover = null; UI.spkLostT = Math.max(0, UI.spkLostT - dt);
   // the mouse pointer hides while the heroes are walking

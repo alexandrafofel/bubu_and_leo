@@ -314,3 +314,7 @@ Doua foi Krea (`google/nano-banana-2.1`, cu harta aleasa `art/krea-ref/nivel7-ha
 Pietrele placilor si ale cuștii, stanca, stalpul si balansoarul au primit putina culoare calda acolo unde erau aproape gri (22% spre `#D9A07E`).
 
 Pe canvas: fundul prapastiei (`paintChasm`, o data) si podul de lumina (`drawBridge`, la fiecare cadru, fara gradienti). Podul are sapte scanduri in culorile curcubeului. Apar una dupa alta de pe malul placii apasate (`g.fromRight`), dupa `g.vis` (`mechMove`), si se sting in aceeasi ordine. Fiecare scandura canta o nota (`bridge`). Cand podul e aprins, `collectLights` ii da lumina si halou.
+
+## Update 27 noiembrie 2026: planul din fata pe lumina de zi
+
+Planul din fata (`paintFront`) isi ia culoarea din lumina nivelului (`levelAmbient`), amestecata 70% spre violet. Pe nivelul 7 (rasarit, `#FFE9D6`) asta dadea un mov cenusiu, cu pixeli gri la margini. Cand lumina e deschisa (media canalelor peste 75%), amestecul e 80% spre `#3A1A60`, un violet mai saturat. Nivelurile de noapte nu se schimba.

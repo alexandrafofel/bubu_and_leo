@@ -362,7 +362,9 @@ T6.10: nu se adauga chei noi; testul `tests/stil-grafic.js` si bugetul din `perf
 - `look.artSize`: cat de inalt se deseneaza fiecare imagine, in unitati ale lumii. George la scara 1.
 - `look.calm` (true): solul calm al hartilor Krea. false = solul vechi, cu imaginile peste el.
 
-## Update 26 noiembrie 2026 (T7.1): `CONFIG.mech`
+## `CONFIG.mech` (nivelurile 7 - 12)
+
+Facut in T7.1 - T7.2; mutat aici din `25-niveluri-7-12.md`, 3.6.
 
 | Camp | Implicit | Ce face |
 |---|---|---|
@@ -377,7 +379,7 @@ T6.10: nu se adauga chei noi; testul `tests/stil-grafic.js` si bugetul din `perf
 
 Retetele (`plates1`, `plates2`, apoi cele din T8 - T12) sunt in `MECH_RECIPES`, in `065-mech.js`.
 
-## Update 26 noiembrie 2026 (T7.2): `CONFIG.mech`, cusca si placile
+### Cusca si placile (T7.2)
 
 | Cheie | Valoare | Ce face |
 |---|---|---|
@@ -386,3 +388,7 @@ Retetele (`plates1`, `plates2`, apoi cele din T8 - T12) sunt in `MECH_RECIPES`, 
 | `plateDown` | `6` | Cu cate unitati coboara o placa apasata. |
 
 `cageWindow` (1.5 s) si `easy` (1.6) sunt deja din T7.1 si se folosesc si pentru cusca.
+
+### `CONFIG.lupta` pentru nivelul 7 (T7.4, T7.5)
+
+`CONFIG.lupta.levels` este 7. Listele pe niveluri (`duelHp`, `duelFinalHp`, `fieldEnemies`, `miniGeorge.perLevel`, `george.midThrows`, `george.nestEnemies`, `george.enemyHp`) au al saptelea numar egal cu al saselea: nivelul 7 e la fel de greu ca nivelul 6, iar greul nou vine din porti.

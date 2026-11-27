@@ -333,6 +333,76 @@ const boot = require('./common.js');
   check('G10: closeGates pune totul la zero (si cusca)', g.g10close.gates && g.g10close.cage && g.g10close.star, g.g10close);
   check('G10: la reincepere totul de la zero', g.g10.state === 'closed,closed' && g.g10.idle && g.g10.solid && g.g10.cage && g.g10.star, g.g10);
 
+  // ---------- partea finala (T7.5): nivelul 7 adevarat (capitolul 7), cele doua porti ----------
+  const n7 = await page.evaluate(() => {
+    const G = __game, M = G.CONFIG.mech, keep = M.autoOpen, out = { A: {}, B: {} };
+    G.Game.diff[0] = G.Game.diff[1] = 'normal';
+    const fresh = (solo) => { joined[0] = true; joined[1] = !solo; go(chIdx('level', 6)); step(3); const P = G.P, L = P.L;
+      L.beetles.length = 0; L.cones.length = 0; if (L.birds) L.birds.length = 0; G.CONFIG.lupta.george.on = false; P.wind.power = 0;
+      for (const h of P.heroes) { h.x = L.spawn.x; h.y = L.spawn.y + 200; h.vx = h.vy = 0; } step(2); return { P, L, A: L.gates[0], B: L.gates[1], a: P.heroes[0], b: P.heroes[1] }; };
+    const put = (h, x, y) => { h.x = h.px = x; h.y = h.py = y; h.vx = h.vy = 0; };
+    const solid = g => g.cells.every(i => G.P.L.grid[i] === g.code);
+    const sec = t => step(Math.round(t * 60));
+    let Z = fresh();
+    out.key = Z.L.def.key; out.recipes = Z.L.gates.map(g => g.mech).join(',');
+    // 1. inchise la inceput, nu se poate trece
+    for (const [n, g] of [['A', Z.A], ['B', Z.B]]) {
+      out[n].closed = solid(g) && g.state === 'closed';
+      const h = Z.a; put(h, g.x - g.w / 2 - 60, g.y); inp[0] = { x: 1, y: 0 }; sec(2); inp[0] = { x: 0, y: 0 };
+      out[n].blocked = h.x < bandX(g, h.y);
+      if (n === 'A') { put(h, Z.L.spawn.x, Z.L.spawn.y); step(2); }
+      else { Z.A.state = 'fixed'; }
+    }
+    // 2. un singur erou isi face partea: A (oricine) se deschide, dar el nu poate trece (se inchide cand pleaca); B ramane inchisa
+    Z = fresh(); { const { L, A, B, a, b } = Z, q = L.inputs[A.inputs[0]];
+      put(a, q.x, q.y); sec(0.8); const opened = A.state === 'open';
+      put(a, q.x + 250, q.y); step(6); out.A.alone = { opened, closedWhenLeft: solid(A) };
+      A.state = 'fixed'; sec(0.6);
+      const q0 = L.inputs[B.inputs.find(i => L.inputs[i].who === 0)]; put(a, q0.x, q0.y); put(b, B.x - 900, B.y); sec(2); out.B.alone = solid(B) && B.state === 'closed'; }
+    // 3. amandoi: A, unul pe placa si celalalt trece; B, fiecare pe placa lui
+    Z = fresh(); { const { L, A, B, a, b } = Z, q = L.inputs[A.inputs[0]];
+      put(a, q.x, q.y); put(b, A.x - A.w / 2 - 40, A.y); sec(0.8);
+      inp[1] = { x: 1, y: 0 }; for (let f = 0; f < 130; f++) { put(a, q.x, q.y); step(1); } inp[1] = { x: 0, y: 0 };
+      out.A.both = b.x > bandRight(A, b.y);
+      A.state = 'fixed'; const q0 = L.inputs[B.inputs.find(i => L.inputs[i].who === 0)], q1 = L.inputs[B.inputs.find(i => L.inputs[i].who === 1)];
+      for (let f = 0; f < 50; f++) { put(a, q0.x, q0.y); put(b, q1.x, q1.y); step(1); } out.B.both = !solid(B) && B.state === 'open'; }
+    // 4. un singur jucator (G6): A deschisa fara nimeni; B se deschide cu placa lui
+    Z = fresh(true); { const { L, A, B, a } = Z; sec(0.8); out.A.solo = !solid(A);
+      A.state = 'fixed'; const q0 = L.inputs[B.inputs.find(i => L.inputs[i].who === 0)]; put(a, q0.x, q0.y); sec(1); out.B.solo = !solid(B); }
+    // 5. G7: fara progres langa poarta, se deschide singura (autoOpen pus pe 5 s pentru test)
+    M.autoOpen = 5;
+    Z = fresh(); { const { A, B, a, b } = Z; const stay = (x, y, t) => { for (let f = 0; f < t * 60; f++) { G.P.wind.power = 0; put(a, x, y); put(b, x - 40, y + 80); step(1); } };   // vantul nivelului nu ii muta
+      stay(A.x - 300, A.y, 5.6); out.A.auto = A.state === 'fixed' && A.auto && !solid(A);
+      stay(B.x - 300, B.y, 6.1); out.B.auto = B.state === 'fixed' && B.auto && !solid(B); }
+    // 6. lupta cu George pe partea eroilor: si la jumatate, si la cuib, chiar daca eroii sunt inca in prima treime
+    out.duel = [];
+    for (const kind of ['mid', 'nest']) {
+      Z = fresh(); const { L, a, b } = Z; put(a, L.spawn.x + 200, L.spawn.y); put(b, L.spawn.x + 260, L.spawn.y + 80); step(2);
+      G.startDuel(kind); const d = G.P.duel; georgeEnemies(4, false); for (let f = 0; f < 120; f++) step(1);
+      const sideH = bandSide(L, a.x, a.y), enemies = L.beetles.filter(x => x.thrown);
+      out.duel.push({ kind, george: bandSide(L, d.x, d.y) === sideH && bandSide(L, d.home.x, d.home.y) === sideH, enemies: enemies.length > 0 && enemies.every(x => bandSide(L, x.x, x.y) === sideH) });
+      d.over = true; step(2);
+    }
+    // 7. eroii stau in cuib cand vine George la jumatate: el nu aterizeaza in cuib (acolo nimeni nu l-ar putea lovi)
+    Z = fresh(); { const { L, a, b } = Z; put(a, L.nest.x, L.nest.y); put(b, L.nest.x + 30, L.nest.y + 20); step(2); G.startDuel('mid'); const d = G.P.duel;
+      out.notInNest = Math.round(dist(d.home.x, d.home.y, L.nest.x, L.nest.y)); d.over = true; step(2); }
+    M.autoOpen = keep; joined[1] = true; G.CONFIG.lupta.george.on = true;
+    return out;
+  });
+  console.log(JSON.stringify(n7));
+  check('nivelul 7: canyon cu plates1 si plates2', n7.key === 'canyon' && n7.recipes === 'plates1,plates2', [n7.key, n7.recipes]);
+  for (const n of ['A', 'B']) {
+    const g = n7[n];
+    check('nivelul 7, poarta ' + n + ': inchisa la inceput, nu se trece', g.closed && g.blocked, g);
+    check('nivelul 7, poarta ' + n + ': cu amandoi se trece', g.both, g.both);
+    check('nivelul 7, poarta ' + n + ': un singur jucator (G6) o deschide', g.solo, g.solo);
+    check('nivelul 7, poarta ' + n + ': se deschide singura dupa autoOpen (G7)', g.auto, g.auto);
+  }
+  check('George nu aterizeaza in cuib la lupta de la jumatate', n7.notInNest > 150 + 160, n7.notInNest);
+  for (const d of n7.duel) check('nivelul 7: George (' + d.kind + ') si inamicii aruncati sunt pe partea eroilor', d.george && d.enemies, d);
+  check('nivelul 7, poarta A: un singur erou pe placa o deschide, dar se inchide cand pleaca', n7.A.alone.opened && n7.A.alone.closedWhenLeft, n7.A.alone);
+  check('nivelul 7, poarta B: un singur erou pe placa lui nu o deschide', n7.B.alone, n7.B.alone);
+
   console.log(bad.length ? 'NEREUSIT: ' + bad.join(', ') : 'mecanisme OK');
   await done();
 })();

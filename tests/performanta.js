@@ -30,12 +30,17 @@ const { chromium } = require('./pw.js');
       const o = [], n = [];
       for (let round = 0; round < 5; round++) { o.push(at(5, none)); n.push(at(5, all)); }
       out.nivel6 = { vechi: Math.min(...o), nou: Math.min(...n), raport: +(Math.min(...n) / Math.min(...o)).toFixed(3), runde_vechi: o, runde_nou: n };
+      // T7.5: nivelul 7 (capitolul 7, diorama de la sine) fata de nivelul 6 cu tot stilul nou, in aceeasi rulare, 5 runde alternate
+      const s6 = [], s7 = [];
+      for (let round = 0; round < 5; round++) { s6.push(at(5, all)); s7.push(at(chapters().findIndex(c => c.kind === 'level' && c.n === 6), Object.assign({}, all, { preview: false }))); }
+      out.nivel7 = { nivel6: Math.min(...s6), nivel7: Math.min(...s7), raport: +(Math.min(...s7) / Math.min(...s6)).toFixed(3), runde6: s6, runde7: s7 };
       Object.assign(G.CONFIG.look, old);
     }
     out.gl = (() => { try { const c = document.createElement('canvas').getContext('webgl'); const e = c.getExtension('WEBGL_debug_renderer_info'); return c.getParameter(e.UNMASKED_RENDERER_WEBGL); } catch (e) { return 'none'; } })();
     return out;
   }, require('./pw.js').game);
   console.log(JSON.stringify(r));
+  if (r.nivel7) console.log(r.nivel7.raport <= 1.2 ? 'nivelul 7 OK: ' + Math.round((r.nivel7.raport - 1) * 100) + '% fata de nivelul 6 (limita 20%)' : 'nivelul 7 NEREUSIT: ' + Math.round((r.nivel7.raport - 1) * 100) + '% peste nivelul 6 (limita 20%)');
   if (r.nivel6) console.log(r.nivel6.raport <= 1.2 ? 'buget OK: cadrul nou e ' + Math.round((r.nivel6.raport - 1) * 100) + '% peste cel vechi (limita 20%)' : 'buget NEREUSIT: cadrul nou e ' + Math.round((r.nivel6.raport - 1) * 100) + '% peste cel vechi (limita 20%)');
   console.log('errors', errs.length); errs.slice(0, 6).forEach(e => console.log(e));
   await browser.close();

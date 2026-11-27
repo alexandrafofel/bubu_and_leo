@@ -41,6 +41,8 @@ module.exports = async function boot(opts = {}) {
       window.step = (n) => { for (let i = 0; i < n; i++) { I.poll(1 / 60); G.update(1 / 60); } G.draw(); };
       step(2);                                   // boot -> the title screen
       G.setGame(game); G.Game.toTitle(); step(2);
+      // the index of a chapter: chIdx('level', 6) = level 7, chIdx('boss') = the big fight (always the last chapter since 27 November 2026)
+      window.chIdx = (kind, n) => chapters().findIndex(c => c.kind === kind && (kind === 'boss' || c.n === n));
       window.go = (i) => { G.Game.team = { eggs: 12 * i, stars: i }; G.Game.goLevel(i); step(5); G.UI.introT = 2; inp[0].aP = true; step(3); };
     }, game);
   }

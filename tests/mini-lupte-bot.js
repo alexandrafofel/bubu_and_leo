@@ -64,7 +64,7 @@ const boot = require('./common.js');
     };
   });
   const runs = [];
-  for (const lvl of (process.argv[2] || '0,1,2,3,4,5').split(',').map(Number)) for (const [diff, mode] of [[['easy', 'normal'], 'duo'], [['easy', 'hard'], 'duo'], [['easy', 'easy'], 'duo'], [['normal', 'normal'], 'soloB'], [['easy', 'normal'], 'soloL'], [['easy', 'normal'], 'lazy']]) {
+  for (const lvl of (process.argv[2] || '0,1,2,3,4,5,6')      /* capitolele: nivelurile 1 - 7 (nivelul 7 e capitolul 6, lupta mare e ultima) */.split(',').map(Number)) for (const [diff, mode] of [[['easy', 'normal'], 'duo'], [['easy', 'hard'], 'duo'], [['easy', 'easy'], 'duo'], [['normal', 'normal'], 'soloB'], [['easy', 'normal'], 'soloL'], [['easy', 'normal'], 'lazy']]) {
     if (process.argv[4] && process.argv[4] !== mode) continue;      // optional: only one kind of player (duo, soloB, soloL, lazy)
     for (let rep = 0; rep < (+process.env.REP || 1); rep++) for (const kind of (process.argv[3] || 'mid,nest').split(',')) {      // REP=5: every fight five times
       const r = await page.evaluate(([l, d, m, k]) => JSON.stringify(duelRun(l, d, m, 240, k)), [lvl, diff, mode, kind]);

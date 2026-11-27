@@ -148,7 +148,7 @@ const boot = require('./common.js');
     let tg = 0, tn = 0; for (let i = 0; i < tile.length; i += 4) if (tile[i + 3] > 120) { tn++; if (tile[i] === tile[i + 1] && tile[i + 1] === tile[i + 2]) tg++; }
     out.tile = { n: tn, grey: tg };
     // ---- halouri: pe ce da lumina, alpha 0.35 - 0.6, cel mult haloMax; halo: 0 = niciunul
-    go(6); step(30);
+    go(chIdx('boss')); step(30);
     out.arenaHalo = LightCount.halo; out.haloRange = [LightCount.haloLo, LightCount.haloHi]; out.haloMax = CONFIG.look.haloMax;
     CONFIG.look.halo = 0; step(2); out.halo0 = LightCount.halo; CONFIG.look.halo = 0.5; step(2);
     CONFIG.look.haloMax = 2; step(2); out.haloCap = LightCount.halo; CONFIG.look.haloMax = 12;
@@ -212,7 +212,7 @@ const boot = require('./common.js');
   // ---- T7.4: nivelul 7 (canyon), primul nivel cu look: 'diorama': sub 0.1% pixeli negri sau gri, in patru locuri ----
   const n7 = await page.evaluate(() => {
     const G = __game, CONFIG = G.CONFIG; CONFIG.look.preview = false; CONFIG.look.front = true; CONFIG.look.lights = true;
-    go(7); step(10);
+    go(chIdx('level', 6)); step(10);
     const P = G.P, L = P.L, cv = document.getElementById('game'), cx = cv.getContext('2d'), out = { key: L.def.key, diorama: isDiorama(L), shots: [] };
     const spots = [[L.spawn.x, L.spawn.y], [L.gates[0].x, L.gates[0].y], [L.gates[1].x, L.gates[1].y], [L.nest.x - 300, L.nest.y]];
     for (const [x, y] of spots) {

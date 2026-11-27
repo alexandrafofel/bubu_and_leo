@@ -55,7 +55,7 @@ const boot = require('./common.js');
     const P2 = G.P; P2.freeze = 0; P2.kickT = 99; G.duelHit(1); out.duelFreeze = P2.freeze; out.duelKick = P2.kickT;
 
     // ---------- George: se trage inapoi in cele 0.15 s dinaintea aruncarii; momentul aruncarii nu se schimba
-    const arena = () => { go(6); step(30); const Q = G.P, bs = Q.boss; Q.heroes[0].x = 700; Q.heroes[0].y = 830; Q.heroes[1].x = 1220; Q.heroes[1].y = 830; for (const q of Q.heroes) { q.inv = 999; q.down = 0; } bs.state = 'up'; return { Q, bs }; };
+    const arena = () => { go(chIdx('boss')); step(30); const Q = G.P, bs = Q.boss; Q.heroes[0].x = 700; Q.heroes[0].y = 830; Q.heroes[1].x = 1220; Q.heroes[1].y = 830; for (const q of Q.heroes) { q.inv = 999; q.down = 0; } bs.state = 'up'; return { Q, bs }; };
     const runWind = () => {
       const { Q, bs } = arena(); bs.throwT = 0.5; bs.proj.length = 0; const w = []; let thrownAt = -1;
       for (let i = 0; i < 60; i++) { frame(); w.push(+(bs.windup || 0).toFixed(3)); if (thrownAt < 0 && bs.proj.length) thrownAt = i; }

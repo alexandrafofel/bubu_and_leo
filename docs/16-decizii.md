@@ -554,3 +554,17 @@ Hotararea de proces: `balanseaza()` sta in `tests/common.js` si cheama `giveEgg`
 - **Imaginile nivelului 7 sunt facute pe foi, nu decupate din harta.** Harta aleasa e desenata de sus, cu lucrurile acoperite unele de altele; decupate, nu s-ar fi putut folosi. Foile sunt facute cu harta ca referinta, ca stilul si culorile sa fie aceleasi. Doua foi, cam 80 de credite Krea.
 - **Inamicii pe treimi, pe rand**, doar pe nivelurile cu benzi: un erou nu poate trece banda ca sa ia diamante din alta treime.
 - **Testul de gri foloseste definitia din T6.10** (R = G = B, sub 200, plus aproape negru). O definitie mai stricta (orice pixel aproape gri) nu o trece nici nivelul 6.
+
+## Update 27 noiembrie 2026: T7.5
+
+- **George lupta pe partea eroilor** pe nivelurile cu benzi. Motiv: in lupta portile nu se schimba (G9). Botul cu Boon singur a gasit cazul: George dincolo de prapastie, Boon nu il putea lovi, lupta nu se termina.
+- **Lupta de la jumatate nu aterizeaza in cuib**, pe toate nivelurile. Tot botul cu Boon singur a gasit-o, si pe nivelul 1: un erou care se apropia de George intra in cuib si era ascuns, iar George astepta la nesfarsit. Pana acum testul trecuse din noroc.
+- **Lupta de la jumatate se da pe loc deschis** (fara copaci si stanci la 240 in jur, cat se poate). Dupa ce George a iesit din cuib, a aterizat printre copaci pe nivelul 1, iar un Killer care sta pe loc nu il mai putea lovi.
+- **Dupa ultimul capitol se merge la ecranul de start.** Pana acum, dupa nivelul 7 jocul cerea capitolul 8, care nu exista, si pornea nivelul 1 cu un numar de capitol gresit.
+- ~~Ordinea in joc ramane: nivelurile 1 - 6, lupta mare, finalul, apoi nivelul 7.~~ Schimbat pe 27 noiembrie 2026, vezi mai jos.
+- **"Blocaj" in teste** inseamna timp fara progres: niciun diamant gasit, nicio poarta schimbata, nicio lovitura in George, niciun erou mutat cu mai mult de 150. Limita: 20 s.
+
+## Update 27 noiembrie 2026: lupta mare e ultimul capitol
+
+- **Lupta mare (Arena lui George) vine dupa nivelul 7**, la sfarsitul Partii a doua. Cerut de proprietara. `chapters()` pune nivelurile 1 - 6, apoi nivelurile Partii a doua, apoi lupta mare. Cand vor fi nivelurile 8 - 12, lupta mare se muta singura dupa ele.
+- **Salvarea tine ordinea capitolelor dupa nume** (`sl.order`: `L0` ... `L6`, `boss`; `chapterId`). La incarcare, `remapSave` pune fiecare rezultat la capitolul lui in ordinea de acum. O salvare fara `order` e socotita in ordinea veche (`oldChapterOrder`). "Continuă" duce la primul capitol nejucat; ce era deschis ramane deschis. Motiv: copiii care au castigat deja Arena nu trebuie sa o piarda, si nici sa sara peste nivelul 7.

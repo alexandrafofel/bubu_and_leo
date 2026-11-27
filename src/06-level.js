@@ -117,10 +117,16 @@ function chapters(id) {
   if (g !== 'lupta') return [...Array.from({ length: levelCount(g) }, (_, n) => lv(LEVEL_DEFS[n % LEVEL_DEFS.length], n, 1)), { kind: 'boss', def: BOSS_DEF, part: 1 }];
   const n = levelCount(g), first = Math.min(n, 6), list = [];
   for (let i = 0; i < first; i++) list.push(lv(LEVEL_DEFS_L[i % LEVEL_DEFS_L.length], i, 1));
-  list.push({ kind: 'boss', def: BOSS_DEF_L, part: 1 });
   for (let i = 6; i < n; i++) list.push(lv(LEVEL_DEFS_L[i % LEVEL_DEFS_L.length], i, 2));
+  // the big fight is always the last chapter (since 27 November 2026): after Part Two when it has levels, else after level 6
+  list.push({ kind: 'boss', def: BOSS_DEF_L, part: n > 6 ? 2 : 1 });
   return list;
 }
+/* A name for a chapter that does not change when chapters are added or moved: 'L0'... for the levels, 'boss' for the big fight.
+   The save keeps the order of these names (sl.order), so the results find their chapter again (remapSave, 09-screens.js). */
+const chapterId = ch => ch.kind === 'boss' ? 'boss' : 'L' + ch.n;
+/* The order of the second game before 27 November 2026: six levels, the big fight, then the levels of Part Two. */
+function oldChapterOrder(n) { const o = []; for (let i = 0; i < Math.min(n, 6); i++) o.push('L' + i); o.push('boss'); for (let i = 6; i < n; i++) o.push('L' + i); return o; }
 // how a chapter is named in "Continue: ...": "Level 3", or the name of the big fight
 function chapterLabel(i, id) {
   const ch = chapters(id)[i]; if (!ch) return '';
@@ -1140,7 +1146,9 @@ function paintFront(L) {
     : (key === 'works' || key === 'castle') ? { top: 'chain', side: 'pillar', bottom: 'rock' }
     : { top: 'vine', side: 'leaf', bottom: 'leaf' };
   const tmp = makeCanvas(960, 540), t = tmp.getContext('2d');
-  const base = mix(levelAmbient(L), '#2A2048', 0.7), base2 = mix(base, '#1F7A4A', key === 'cave' || key === 'works' || key === 'castle' ? 0.1 : 0.6);   // leaves: a deep green, never a grey
+  const amb = levelAmbient(L), day = (() => { const c = hex(amb); return (c[0] + c[1] + c[2]) / 765 > 0.75; })();
+  // a bright daylight (level 7, sunrise) mixed 70% toward the violet makes a greyish mauve: in daylight the violet is stronger and more saturated
+  const base = day ? mix(amb, '#3A1A60', 0.8) : mix(amb, '#2A2048', 0.7), base2 = mix(base, '#1F7A4A', key === 'cave' || key === 'works' || key === 'castle' ? 0.1 : 0.6);   // leaves: a deep green, never a grey
   const items = [];
   for (const sl of frontSlots()) {
     const kind = kinds[sl.at], x = sl.x / 2, y = sl.y / 2, w = sl.w / 2, h = sl.h / 2;

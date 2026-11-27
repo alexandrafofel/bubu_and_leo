@@ -6,7 +6,7 @@ const boot = require('./common.js');
   const { page, done } = await boot();
   const ev = (f, a) => page.evaluate(f, a);
   const shot = async n => { await page.screenshot({ path: n }); console.log('captura', n); };
-  await ev(() => { __game.Game.diff[0] = __game.Game.diff[1] = 'normal'; go(7); step(30); });
+  await ev(() => { __game.Game.diff[0] = __game.Game.diff[1] = 'normal'; go(chIdx('level', 6)); step(30); });
   await ev(() => { const P = __game.P; P.L.beetles.forEach(b => { b.state = 'sleep'; }); if (P.L.birds) P.L.birds.forEach(b => { b.state = 'gone'; b.t = 999; }); __game.CONFIG.lupta.george.on = false; step(20); });
   await shot('p2_canyon_inceput.png');
   // poarta A: Boon pe placa, Killer la trecere: podul de lumina

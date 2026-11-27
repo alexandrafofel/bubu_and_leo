@@ -444,7 +444,11 @@ In luptele cu George (cea din mijloc, cea de la cuib si arena, `ringFight()`) in
 
 Reglaje: `CONFIG.ring` (`on`, `hits`, `inv`, `red`, `push`).
 
-## Update 26 noiembrie 2026: portile benzilor (T7.1)
+## Portile si regulile lor (nivelurile 7 - 12)
+
+Facute in T7.1 - T7.5 (26 - 27 noiembrie 2026); mutate aici din `25-niveluri-7-12.md`, 3.2, 3.4, 3.6 si 3.7.
+
+### Poarta (T7.1)
 
 `updateMechs(dt)` (`065-mech.js`) ruleaza in `updatePlay`, dupa eroi si dupa obiectele aruncate. Pentru fiecare intrare afla daca e apasata (`on`), apoi aplica regula portii:
 
@@ -463,7 +467,7 @@ Reglaje: `CONFIG.ring` (`on`, `hits`, `inv`, `red`, `push`).
 - Placa (`plate`) e apasata cat un erou potrivit (`who`: -1 oricine, 0 Boon, 1 Killer), cu jucator, sta la mai putin de 55 de mijlocul ei si nu e jos, dus de pasare sau pe trecere. Desenul ei vine in T7.2.
 - Regulile G2 - G10 (nimeni nu ramane blocat) vin in T7.3. Pana atunci niciun nivel din joc nu are benzi.
 
-## Update 26 noiembrie 2026: placile si cusca stelutelor (T7.2)
+### Placile si cusca stelutelor (T7.2)
 
 **Placa** (`plate`). Cand un erou potrivit (`who`) sta la mai putin de 55 de mijlocul ei (regula din T7.1, neschimbata), placa coboara `plateDown` unitati, un inel de lumina urca din ea, iar cel care a calcat primeste vibratie (`rumble(k, 0, 0.4, 60)`). Cand e lasata, se aude `plateOff`. Sunetul si vibratia le face `updateMechs`, cu `plateBy(inp)`, care spune cine a calcat.
 
@@ -475,7 +479,7 @@ Reglaje: `CONFIG.ring` (`on`, `hits`, `inv`, `red`, `push`).
 
 Steluta nu zboara inca spre bara de sus: `collectStar` o numara cu o explozie de petale, la cusca. Zborul spre HUD nu exista in joc (nici pentru stelele de pe copaci) si se face separat.
 
-## Update 26 noiembrie 2026: nimeni nu ramane blocat la o poarta (T7.3)
+### Nimeni nu ramane blocat: G1 - G10 (T7.3)
 
 Regulile G1 - G10 din `docs/25-niveluri-7-12.md`, 3.6. Fiecare are in cod un comentariu cu numarul ei (`065-mech.js`, `07-play.js`).
 
@@ -496,9 +500,16 @@ Regulile G1 - G10 din `docs/25-niveluri-7-12.md`, 3.6. Fiecare are in cod un com
 
 **Sageata.** `guideTarget` arata spre pasul eroului (`mechGuide`) cand ii arata indiciile (G8) sau cand diamantul cel mai apropiat e dincolo de banda. Altfel ramane spre diamante. Iconita pasului: o sageata in jos pentru `stand`, o sageata spre dreapta pentru `cross`, butonul puterii (✕ sau □) pentru `throw` si `spin`.
 
-## Update 26 noiembrie 2026: nivelul 7 (T7.4)
+### Nivelul 7 (T7.4)
 
 - **Podul de lumina.** Poarta unei prapastii se vede ca un pod de sapte scanduri. Reguli si plăci: ca in T7.1 - T7.3.
 - **Balansoarul** (`updateToy`, in `065-mech.js`). Un erou la fiecare capat (la mai putin de 70 de capat): se leagana si amandoi rad. Unul singur il inclina spre el. Nu da nimic.
 - **Steaua de pe stalp.** Se ia cu o minge sau un os aruncat, ca orice stea atinsa de un lucru aruncat.
 - **Cusca** sta langa cuib, ca pe toate nivelurile noi.
+
+### George pe nivelurile cu benzi (T7.5)
+
+- **George lupta pe partea eroilor.** In lupta portile nu se schimba (G9). Daca George ar ateriza dincolo de o prapastie inchisa, Boon (care loveste de aproape) nu l-ar putea atinge niciodata. Asa ca `startDuel` alege locul doar pe partea lui Boon (sau a lui Killer, daca Boon nu joaca), `bandSide`, si pentru lupta de la jumatate, si pentru cea de la cuib. Daca eroii nu au ajuns inca la cuib cand echipa are toata cota, lupta de la cuib se face langa ei.
+- **Ce arunca George ramane pe aceeasi parte.** Inamicii aruncati (`georgeEnemies`), salturile lui (`duelSnap`) si diamantele care sar din el (`duelEggs`) cad doar pe partea eroilor.
+- **Lupta de la jumatate nu aterizeaza in cuib** (pe toate nivelurile). Un erou in cuib e ascuns; daca George statea in cuib, nimeni nu avea pe cine lovi si nici el pe cine ataca, iar lupta nu se mai termina. Acum locul e la cel putin `nestSafeRadius` + 160 de cuib.
+- **Lupta de la jumatate se da pe loc deschis.** La alegerea locului, fiecare copac sau stanca la mai putin de 240 scade din scor (`room`). Altfel George ateriza printre copaci si mingile lui Killer se loveau de ei.

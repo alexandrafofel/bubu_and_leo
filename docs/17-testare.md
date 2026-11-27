@@ -696,3 +696,24 @@ Captura indiciilor G8: `p2_g8_indicii.png`, din `tests/capturi-placi-cusca.js`. 
 - `nivel7-traversare.js` (in `toate.sh`): cei doi eroi merg cu controalele, dupa `mechSteps`, pe drumul cel mai scurt prin grila (ocolind copacii si stancile), prin ambele porti pana la cuib. Fara inamici, pasari si George. Trece in cam 12 s de joc, fara deschiderea automata a portilor.
 - `capitole.js`: cu Partea a doua, capitolele stau pe doua randuri (6 + lupta mare, apoi nivelul 7), iar dupa final "Continuă" duce la nivelul 7.
 - Botii care joaca nivelul 7 intreg (cu inamici, cota si George) vin in T7.5.
+
+## Update 27 noiembrie 2026: T7.5, nivelul 7 jucat de boti
+
+| Test | Ce face pe nivelul 7 | Rezultat |
+|---|---|---|
+| `nivele-bot-mers.js` | Un bot singur, prin toate nivelurile (1 - 6 si 7); la o banda merge la locul lui din `mechSteps`. Apoi doi boti, fiecare cu controllerul lui, pe nivelul 7, pe Ușor/Normal si Normal/Normal. Masoara cel mai lung timp fara progres. `CAPITOL=7` ruleaza doar nivelul 7. | Singur: 80 - 92 s, blocaj 11 - 14 s. In doi: 160 - 187 s, blocaj 13 - 18 s. Portile deschise de copii, niciodata singure. Dupa "Încă o dată!" botii joaca mai departe (cel mult doua reinceperi); s-a intamplat o data din sase rulari. |
+| `mecanisme.js`, partea finala | Nivelul 7 adevarat: fiecare poarta inchisa la inceput; un singur erou nu trece; cu amandoi se trece; un singur jucator (G6); deschiderea singura (G7); George si inamicii lui pe partea eroilor; lupta de la jumatate nu aterizeaza in cuib. | trece |
+| `mini-lupte-bot.js` | Implicit si nivelul 7 (capitolul 7): 12 lupte. | 12 din 12 castigate |
+| `joc-complet-bot.js` | Nivelurile 1 - 7, lupta mare (ultimul capitol), finalul, ecranul de start. | trece |
+| `inel.js` | Toate verificarile inelului si pe nivelul 7. | trece |
+| `performanta.js` | Nivelul 7 fata de nivelul 6 cu tot stilul nou, 5 runde alternate. | -3% (limita +20%) |
+| `capturi-ecran.js` | `p2_canyon_inceput`, `p2_canyon_poarta_a`, `p2_canyon_poarta_b`, `p2_canyon_lupta`, `p2_canyon_cusca`. | privite |
+
+Stricata o data, regula noua prinsa: George pus din nou fara `side` (ca inainte) face sa pice "George (nest) si inamicii aruncati sunt pe partea eroilor" (la cuib George ar fi aterizat langa cuib, dincolo de doua prapastii; la jumatate a cazut, din intamplare, pe aceeasi parte).
+
+Din 27 noiembrie 2026 lupta mare e ultimul capitol, deci nivelul 7 e capitolul 6. Testele nu mai scriu numere de capitol: `chIdx('level', 6)` (nivelul 7) si `chIdx('boss')` (lupta mare), din `tests/common.js`. `capitole.js` verifica si o salvare din ordinea veche (7e): rezultatul Arenei trece la sfarsit, "Continuă" duce la nivelul 7.
+
+Tot pe 27 noiembrie 2026:
+
+- `stil-grafic.js` verifica planul din fata pe capitolele 0 - 6, adica acum pe nivelurile 1 - 7 (inainte capitolul 6 era Arena). Asa s-au gasit pixelii gri ai planului din fata pe nivelul 7 (`05-pictura.md`).
+- `puteri-doi.js`, verificarea 6, numara doar vibratiile manusilor (`spinBeat`: 0.7, 0.9, 110 ms). Inainte numara orice vibratie pe controllerul lui Killer si, din cand in cand, una venea de la un cristal sau o lovitura (4 in loc de 3).
