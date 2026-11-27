@@ -10,7 +10,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 |---|---|
 | 1-16 | tot fisierul |
 
-## 01-config.js (343 linii)
+## 01-config.js (351 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -21,30 +21,30 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 63-71 | Difficulty, chosen per player on the start screen |
 | 72-76 | Nest: a hero in it is hidden on every level, the wind does not move it, nothing can hit it |
 | 77-86 | Rescue: a hero who was hit cannot walk until the friend comes and presses □ (both games) |
-| 87-116 | Co-op mechanisms of levels 7 - 12 (T7): bands cut the map, each crossing opens only when both heroes do their part. |
-| 117-125 | The ten seconds: a hit hero waits for his friend, and if nobody comes the level starts again |
-| 126-131 | Small enemies: beetles and pinecones (robots, snails and birds in the second game) |
-| 132-140 | Obstacles |
-| 141-147 | Helpers |
-| 148-155 | Boss |
-| 156-174 | Two mini-fights per level: one in the middle of the path, one at the nest |
-| 175-183 | Controls (keys and controller/keyboard are chosen in Setări). |
-| 184-197 | Run: press the left stick (L3) |
-| 198-202 | Sound |
-| 203-218 | The voices of Boon and Killer (T13): short recorded lines of two children playing dinosaurs (docs/26-limba-personajelor.md) |
-| 219-224 | Look |
-| 225-266 | The look of levels 7 - 12 and of the heroes (docs/24-sisteme-noi.md, S7) |
-| 267-343 | The second game, "Cea mai grea luptă" (invented by the children) |
+| 87-124 | Co-op mechanisms of levels 7 - 12 (T7): bands cut the map, each crossing opens only when both heroes do their part. |
+| 125-133 | The ten seconds: a hit hero waits for his friend, and if nobody comes the level starts again |
+| 134-139 | Small enemies: beetles and pinecones (robots, snails and birds in the second game) |
+| 140-148 | Obstacles |
+| 149-155 | Helpers |
+| 156-163 | Boss |
+| 164-182 | Two mini-fights per level: one in the middle of the path, one at the nest |
+| 183-191 | Controls (keys and controller/keyboard are chosen in Setări). |
+| 192-205 | Run: press the left stick (L3) |
+| 206-210 | Sound |
+| 211-226 | The voices of Boon and Killer (T13): short recorded lines of two children playing dinosaurs (docs/26-limba-personajelor.md) |
+| 227-232 | Look |
+| 233-274 | The look of levels 7 - 12 and of the heroes (docs/24-sisteme-noi.md, S7) |
+| 275-351 | The second game, "Cea mai grea luptă" (invented by the children) |
 
-## 015-lang.js (242 linii)
+## 015-lang.js (246 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 2-10 | SETTINGS chosen in the game's "Setări" menu (saved on this computer) and |
 | 11-13 | Puts the chosen game's own heroes, villain and boss values into CONFIG. |
 | 14-99 | A text of one of the two games, whichever game is being played (for the screen where the game is chosen). |
-| 100-233 | the second game, "Cea mai grea luptă". A key that starts with L: takes the place of the same key without it. |
-| 234-242 | Readable name of a keyboard key, for the "choose the keys" screen. |
+| 100-237 | the second game, "Cea mai grea luptă". A key that starts with L: takes the place of the same key without it. |
+| 238-246 | Readable name of a keyboard key, for the "choose the keys" screen. |
 
 ## 02-core.js (812 linii)
 
@@ -74,7 +74,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 747-748 | A painted card (panel) used by menus and story screens. |
 | 749-812 | Things that never change are painted once and then stamped: much faster per frame. |
 
-## 03-audio.js (604 linii)
+## 03-audio.js (607 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -90,12 +90,12 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 411-412 | sound effects |
 | 413-414 | Every effect gets: b = the bus to play on, t = the time now on that bus, x = an optional value. |
 | 415-430 | the heroes' own sounds (volume "Sunete personaje"; they can play in the controller) |
-| 431-514 | the world (volume "Sunete ambientale") |
-| 515-518 | Running (L3) in the first game too: the same short soft whoosh. |
-| 519-529 | play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. |
-| 530-531 | the controller's own speaker (only when the system shows it as an audio output) |
-| 532-572 | Chrome only tells the names of the speakers after the microphone permission was given (ask = true asks for it). |
-| 573-604 | Voice-over with a system voice in the chosen language, when one is installed. |
+| 431-517 | the world (volume "Sunete ambientale") |
+| 518-521 | Running (L3) in the first game too: the same short soft whoosh. |
+| 522-532 | play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. |
+| 533-534 | the controller's own speaker (only when the system shows it as an audio output) |
+| 535-575 | Chrome only tells the names of the speakers after the microphone permission was given (ask = true asks for it). |
+| 576-607 | Voice-over with a system voice in the chosen language, when one is installed. |
 
 ## 04-input.js (166 linii)
 
@@ -123,7 +123,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 340-345 | The small enemy that comes down a lane: a rolling pinecone, or a sticky snail. |
 | 346-359 | A big gear that rolls down its lane (T8): painted tin, a ring of teeth that turns with the rolling, a bright hub. |
 
-## 055-lupta.js (752 linii)
+## 055-lupta.js (811 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -139,75 +139,80 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 484-508 | A big jungle bird. It flies high: only its shadow touches the ground. o.grab = it carries a hero. o.spy = the small one that brings news to George. |
 | 509-532 | A rainbow crystal: a cut gem in one of the seven colors, with a soft glow. |
 | 533-591 | The secret star hidden behind the door: big, golden, with a ring in all the rainbow colors. |
-| 592-610 | The seesaw of level 7 (T7.4): the Krea picture, rocking around its log. |
-| 611-645 | The sliding door of a tin wall (T8): a panel with chevrons that goes up when the gate opens. Behind it the floor of the crossing. |
-| 646-667 | The arrows that run on a conveyor belt (T8). |
-| 668-681 | The helper of the second game: a little rocket. Whoever touches it makes both heroes fast. |
-| 682-694 | Things thrown in the second game: a glowing rock (George) and a spear (his soldiers). |
-| 695-721 | One of George's soldiers: a small lizard with a helmet and a spear. They stand around the arena. throwT > 0 = it just threw. |
-| 722-734 | One goalkeeper glove: red, white palm, a blue star in the palm. sd = which side it points to. |
-| 735-747 | Boon's boomerang bone: two round ends and a shaft, cream amber, with a small crack. |
-| 748-752 | What a thrown thing looks like: Killer's and Leo's ball, or Boon's bone. |
+| 592-621 | The seesaw of level 7 (T7.4): the Krea picture, rocking around its log. |
+| 622-634 | The stepping lilies that grow over a water crossing when it opens (a gate that opens by itself or for a hero who waits for help). |
+| 635-652 | The crank: a wooden post with a wheel and a handle, and a rope that runs to the raft. It turns a third of a circle for each turn. |
+| 653-667 | The raft: a giant lily leaf with a raised rim and a pink flower. It bobs a little on the water, and more when it moves. |
+| 668-702 | The sliding door of a tin wall (T8): a panel with chevrons that goes up when the gate opens. Behind it the floor of the crossing. |
+| 703-726 | The arrows that run on a conveyor belt (T8). |
+| 727-740 | The helper of the second game: a little rocket. Whoever touches it makes both heroes fast. |
+| 741-753 | Things thrown in the second game: a glowing rock (George) and a spear (his soldiers). |
+| 754-780 | One of George's soldiers: a small lizard with a helmet and a spear. They stand around the arena. throwT > 0 = it just threw. |
+| 781-793 | One goalkeeper glove: red, white palm, a blue star in the palm. sd = which side it points to. |
+| 794-806 | Boon's boomerang bone: two round ends and a shaft, cream amber, with a small crack. |
+| 807-811 | What a thrown thing looks like: Killer's and Leo's ball, or Boon's bone. |
 
-## 06-level.js (1367 linii)
-
-| Liniile | Sectiunea |
-|---|---|
-| 2-63 | LEVELS: definitions, generator (with a reachability check so every egg can |
-| 64-122 | The tin wall of level 8 (T8): riveted panels with seams, a lit top edge and a violet shadow on its right side. The sliding door is drawn every frame (drawDoor). |
-| 123-128 | The palette of a level: PALS, with the calm Krea colors over it when the new look is on. |
-| 129-152 | What the slow ground looks like: mud in the first game; slime, quicksand or tangled vines in the second. [dark rim, body, light, blotch 1, blotch 2, shine] |
-| 153-195 | The order of the second game before 27 November 2026: six levels, the big fight, then the levels of Part Two. |
-| 196-221 | How long a level lasts (seconds): the sun, the medal and the help in updatePlay read this, not CONFIG.levelDuration. |
-| 222-238 | the path from the start to the nest |
-| 239-272 | water |
-| 273-319 | bands (T7, levels 7 - 12): a chasm, water, lava or a wall from the top to the bottom |
-| 320-381 | bonus stars: one per third of the map |
-| 382-390 | the toy of the level (T7.4): a seesaw from a fallen trunk. Two heroes at its ends make it rock; it gives nothing |
-| 391-399 | the toy of level 8 (T8): a big red button. Pressed, every robot on the screen dances for 5 seconds (once in 30 seconds) |
-| 400-428 | mud, pinecone lanes, windmills |
-| 429-454 | trees, rocks, haystacks |
-| 455-495 | reachability (flood fill from the start) |
-| 496-512 | beetles |
-| 513-525 | sparkling trees (hide eggs) and the treetop star |
-| 526-565 | T15: enough small enemies to give the diamonds (they are the only place diamonds come from) |
-| 566-589 | golden eggs, in waves from left to right |
-| 590-604 | lanterns along the path (sunset level) |
-| 605-653 | painting |
-| 654-672 | The decor of the second game: as many kinds, with the same ways of reacting, but the things of a jungle at night. |
-| 673-718 | One picture of a kind of decor, drawn once and cached. v = which of the 4 looks it has. |
-| 719-808 | The decor of the second game (the jungle at night). Glowing things get a soft halo of their own color. |
-| 809-1085 | Second game: a rock with little crystals growing on it, a big glowing mushroom, a torch, a totem with a rainbow pinwheel. |
-| 1086-1097 | A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). |
-| 1098-1108 | The door of the hideout: an arched wooden door with a rainbow knob. x = middle, y = the ground line. |
-| 1109-1273 | Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). |
-| 1274-1367 | The boss arena: one screen, the tallest tree in the valley. |
-
-## 065-mech.js (407 linii)
+## 06-level.js (1392 linii)
 
 | Liniile | Sectiunea |
 |---|---|
-| 1-28 | MECHANISMS (T7): the bands that cut a new level from top to bottom, and the gates |
-| 29-89 | The band's middle at height y, and its left and right edges there. |
-| 90-104 | startPlay: every gate is closed. The cells of the crossing get the code of the band back (2 or 3). |
-| 105-109 | "Ușor": the easiest difficulty of the players who play. |
-| 110-113 | A hero on the crossing of a gate (with his own size). |
-| 114-125 | A hero standing on the cells of the crossing itself (over the band), not on the land next to it. |
-| 126-138 | A hero who is crossing somewhere: on any crossing, or carried by a raft (T9). He cannot press anything. |
-| 139-158 | The hero who presses a plate (-1 = nobody). Only the one who is pressing gets the vibration (T7.2). |
-| 159-167 | A power of hero h (powerSweep: once per power id). |
-| 168-177 | Every frame: the flash runs down, and a bone or a ball in the air counts once when it reaches a target. |
-| 178-178 | helpers of the safety rules (T7.3, docs/25-niveluri-7-12.md, 3.6) |
-| 179-180 | How many bands lie left of (x, y): two places with the same number are on the same side of every band. |
-| 181-187 | The hero who plays alone (0 or 1), or -1 when both play or nobody does. |
-| 188-189 | G8: the gate the players are stuck at: closed, and no progress for CONFIG.mech.hintAfter seconds. |
-| 190-192 | The gate in front of the heroes: the first one that is not fixed yet (G2 fixes every gate both have passed). |
-| 193-321 | Every frame, after the heroes and the thrown things (updatePlay). docs/25, 3.2 and 3.6. |
-| 322-353 | The step of hero h at the gate in front, for the arrow (guideTarget). |
-| 354-374 | A power of hero h (spin or stomp; powerSweep calls this once per power id, and the spin every frame). |
-| 375-407 | Every frame: the wobble runs down, and a ball thrown by a hero counts once when it passes the cage. |
+| 2-67 | LEVELS: definitions, generator (with a reachability check so every egg can |
+| 68-127 | The tin wall of level 8 (T8): riveted panels with seams, a lit top edge and a violet shadow on its right side. The sliding door is drawn every frame (drawDoor). |
+| 128-133 | The palette of a level: PALS, with the calm Krea colors over it when the new look is on. |
+| 134-157 | What the slow ground looks like: mud in the first game; slime, quicksand or tangled vines in the second. [dark rim, body, light, blotch 1, blotch 2, shine] |
+| 158-200 | The order of the second game before 27 November 2026: six levels, the big fight, then the levels of Part Two. |
+| 201-226 | How long a level lasts (seconds): the sun, the medal and the help in updatePlay read this, not CONFIG.levelDuration. |
+| 227-243 | the path from the start to the nest |
+| 244-277 | water |
+| 278-324 | bands (T7, levels 7 - 12): a chasm, water, lava or a wall from the top to the bottom |
+| 325-386 | bonus stars: one per third of the map |
+| 387-395 | the toy of the level (T7.4): a seesaw from a fallen trunk. Two heroes at its ends make it rock; it gives nothing |
+| 396-404 | the toy of level 8 (T8): a big red button. Pressed, every robot on the screen dances for 5 seconds (once in 30 seconds) |
+| 405-414 | the toy of level 9 (T8): three giant lily pads on a bank. Whoever steps on one jumps high (only how it looks) with a "boing" |
+| 415-443 | mud, pinecone lanes, windmills |
+| 444-469 | trees, rocks, haystacks |
+| 470-510 | reachability (flood fill from the start) |
+| 511-527 | beetles |
+| 528-540 | sparkling trees (hide eggs) and the treetop star |
+| 541-580 | T15: enough small enemies to give the diamonds (they are the only place diamonds come from) |
+| 581-604 | golden eggs, in waves from left to right |
+| 605-619 | lanterns along the path (sunset level) |
+| 620-668 | painting |
+| 669-687 | The decor of the second game: as many kinds, with the same ways of reacting, but the things of a jungle at night. |
+| 688-733 | One picture of a kind of decor, drawn once and cached. v = which of the 4 looks it has. |
+| 734-823 | The decor of the second game (the jungle at night). Glowing things get a soft halo of their own color. |
+| 824-1110 | Second game: a rock with little crystals growing on it, a big glowing mushroom, a torch, a totem with a rainbow pinwheel. |
+| 1111-1122 | A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). |
+| 1123-1133 | The door of the hideout: an arched wooden door with a rainbow knob. x = middle, y = the ground line. |
+| 1134-1298 | Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). |
+| 1299-1392 | The boss arena: one screen, the tallest tree in the valley. |
 
-## 07-play.js (1190 linii)
+## 065-mech.js (508 linii)
+
+| Liniile | Sectiunea |
+|---|---|
+| 1-31 | MECHANISMS (T7): the bands that cut a new level from top to bottom, and the gates |
+| 32-92 | The band's middle at height y, and its left and right edges there. |
+| 93-110 | startPlay: every gate is closed. The cells of the crossing get the code of the band back (2 or 3). |
+| 111-115 | "Ușor": the easiest difficulty of the players who play. |
+| 116-119 | A hero on the crossing of a gate (with his own size). |
+| 120-131 | A hero standing on the cells of the crossing itself (over the band), not on the land next to it. |
+| 132-144 | A hero who is crossing somewhere: on any crossing, or carried by a raft (T9). He cannot press anything. |
+| 145-164 | The hero who presses a plate (-1 = nobody). Only the one who is pressing gets the vibration (T7.2). |
+| 165-173 | A power of hero h (powerSweep: once per power id). |
+| 174-190 | Every frame: the flash runs down, and a bone or a ball in the air counts once when it reaches a target. |
+| 191-258 | Boon's or Killer's spin close to a crank (powerSweep: once per power id). The one who rides turns nothing. |
+| 259-259 | helpers of the safety rules (T7.3, docs/25-niveluri-7-12.md, 3.6) |
+| 260-261 | How many bands lie left of (x, y): two places with the same number are on the same side of every band. |
+| 262-268 | The hero who plays alone (0 or 1), or -1 when both play or nobody does. |
+| 269-270 | G8: the gate the players are stuck at: closed, and no progress for CONFIG.mech.hintAfter seconds. |
+| 271-273 | The gate in front of the heroes: the first one that is not fixed yet (G2 fixes every gate both have passed). |
+| 274-412 | Every frame, after the heroes and the thrown things (updatePlay). docs/25, 3.2 and 3.6. |
+| 413-444 | The step of hero h at the gate in front, for the arrow (guideTarget). |
+| 445-465 | A power of hero h (spin or stomp; powerSweep calls this once per power id, and the spin every frame). |
+| 466-508 | Every frame: the wobble runs down, and a ball thrown by a hero counts once when it passes the cage. |
+
+## 07-play.js (1192 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -233,18 +238,18 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 402-418 | rescue: the friend helps a hero who was hit |
 | 419-442 | □ pressed. The first hero must stand close (a hug, healing hands). The second one may stand far: he sends a magic ball. |
 | 443-451 | A small enemy loses one of its hits. true = that was the last one: it disappears, another one comes later. |
-| 452-497 | powers |
-| 498-499 | The gloves shake the controller in three short beats (0, 0.28 and 0.56 s), so they feel different in the hand. |
-| 500-515 | A stomp (or the claws) next to the big tree, or next to George's throne, shakes it. |
-| 516-539 | This hero can throw again: everything of his is home, or his cooldown is over. |
-| 540-688 | A second press while his things are still out (inside the cooldown) calls back everything of HIS. The friend's stay out. |
-| 689-709 | The spin (claws, gloves, or Bubu's stomp) of one hero, on its own button. |
-| 710-738 | The throw (balls or bones) of one hero, on its own button. |
-| 739-877 | One ball in the air. Returns false when the ball has come home to Leo and can go. |
-| 878-878 | boss: Ciori in the tallest tree (first game), George on his stone throne (second game) |
-| 879-950 | Where the ball must land. Ciori: the nest in the tree. George: George himself, while he lies dizzy on the ground. |
-| 951-1013 | second game: big birds that pick a hero up and carry him a little way (it does not hurt) |
-| 1014-1190 | Thrown things (pinecones, mud balls) fly in an arc and land on a marked spot. |
+| 452-498 | powers |
+| 499-500 | The gloves shake the controller in three short beats (0, 0.28 and 0.56 s), so they feel different in the hand. |
+| 501-516 | A stomp (or the claws) next to the big tree, or next to George's throne, shakes it. |
+| 517-540 | This hero can throw again: everything of his is home, or his cooldown is over. |
+| 541-690 | A second press while his things are still out (inside the cooldown) calls back everything of HIS. The friend's stay out. |
+| 691-711 | The spin (claws, gloves, or Bubu's stomp) of one hero, on its own button. |
+| 712-740 | The throw (balls or bones) of one hero, on its own button. |
+| 741-879 | One ball in the air. Returns false when the ball has come home to Leo and can go. |
+| 880-880 | boss: Ciori in the tallest tree (first game), George on his stone throne (second game) |
+| 881-952 | Where the ball must land. Ciori: the nest in the tree. George: George himself, while he lies dizzy on the ground. |
+| 953-1015 | second game: big birds that pick a hero up and carry him a little way (it does not hurt) |
+| 1016-1192 | Thrown things (pinecones, mud balls) fly in an arc and land on a marked spot. |
 
 ## 075-duel.js (442 linii)
 
@@ -288,7 +293,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 982-997 | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
 | 998-1022 | George's arena (the last level of the second game) |
 
-## 09-screens.js (1060 linii)
+## 09-screens.js (1062 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -311,14 +316,14 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 216-358 | What the chosen button does, once every player who joined is "Ready!". |
 | 359-431 | the little picture at the top of a card: the level's sky and ground and the three pictures of its story card. Painted once. |
 | 432-452 | level story card |
-| 453-493 | The pictures on the story card of the second game. Returns false for a picture that is the same in both games. |
-| 494-494 | level end |
-| 495-627 | Three little medals give the bigger player something extra to aim for. |
-| 628-652 | pause |
-| 653-832 | settings |
-| 833-847 | After a restart: send each hero's sounds to the speaker chosen last time, if Chrome still shows it. |
-| 848-991 | the Sunset Festival |
-| 992-1060 | the dictionary (T13, docs/26-limba-personajelor.md) |
+| 453-495 | The pictures on the story card of the second game. Returns false for a picture that is the same in both games. |
+| 496-496 | level end |
+| 497-629 | Three little medals give the bigger player something extra to aim for. |
+| 630-654 | pause |
+| 655-834 | settings |
+| 835-849 | After a restart: send each hero's sounds to the speaker chosen last time, if Chrome still shows it. |
+| 850-993 | the Sunset Festival |
+| 994-1062 | the dictionary (T13, docs/26-limba-personajelor.md) |
 
 ## 10-main.js (152 linii)
 

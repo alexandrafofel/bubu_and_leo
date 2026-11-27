@@ -22,7 +22,10 @@ const MECH_RECIPES = {
   // face: the target sits against the wall, on the near bank, this far from it (not 150 away like the plates).
   targets1: { rule: 'allWithin', stay: 5, window: 4, inputs: [{ kind: 'target', who: 0, side: 'near', dy: -300, face: true }, { kind: 'target', who: 1, side: 'near', dy: 300, face: true }] },
   targets2: { rule: 'seq', stay: 6, inputs: [{ kind: 'target', who: 0, side: 'near', dy: -440, face: true }, { kind: 'target', who: 1, side: 'near', dy: 130, face: true },
-                                             { kind: 'target', who: 1, side: 'near', dy: -140, face: true }, { kind: 'target', who: 0, side: 'near', dy: 430, face: true }] }
+                                             { kind: 'target', who: 1, side: 'near', dy: -140, face: true }, { kind: 'target', who: 0, side: 'near', dy: 430, face: true }] },
+  // Level 9 (T8): the raft. A hero rides, the other one turns the crank (a spin close to it) on his own bank. need = turns to cross.
+  raft1: { rule: 'raft', need: 3, inputs: [{ kind: 'crank', who: -1, side: 'near', dy: -330 }, { kind: 'crank', who: -1, side: 'far', dy: -330 }] },
+  raft2: { rule: 'raft', need: 3, current: true, inputs: [{ kind: 'crank', who: -1, side: 'near', dy: -330 }, { kind: 'crank', who: -1, side: 'far', dy: -330 }] }
 };
 const MECH_INPUT_R = { plate: 60, target: 46, crank: 50, pedestal: 50, cage: 70, test: 40 };
 
@@ -48,7 +51,7 @@ function placeMechInputs(L, r, mark) {
   for (let gi = 0; gi < L.gates.length; gi++) {
     const g = L.gates[gi], R = MECH_RECIPES[g.mech];
     if (!R) { console.error('T7: no recipe called ' + g.mech); return false; }
-    g.rule = R.rule; g.stay = R.stay || 0; g.window = R.window || 0;
+    g.rule = R.rule; g.stay = R.stay || 0; g.window = R.window || 0; g.need = R.need || 0; g.current = !!R.current;
     const next = L.gates[gi + 1], prev = L.gates[gi - 1];
     for (const d of R.inputs) {
       const rad = MECH_INPUT_R[d.kind] || 50;
@@ -93,7 +96,10 @@ function closeGates(L) {
     g.state = 'closed'; g.open = 0; g.vis = 0; g.moveTo = 0; g.moveT = 9; g.stayT = 0; g.step = 0; g.idleT = 0; g.opened = false; g.solid = true;
     for (const i of g.cells) L.grid[i] = g.code;
   }
-  for (const p of L.inputs || []) { p.on = p.raw = p.was = p.realWas = false; p.onT = 0; p.lastT = -99; p.n = 0; p.sink = 0; }
+  for (const p of L.inputs || []) { p.on = p.raw = p.was = p.realWas = false; p.onT = 0; p.lastT = -99; p.n = 0; p.sink = 0; p.turnAnim = 0; p.ang = 0; }
+  for (const h of P.heroes || []) h.riding = null;
+  L.rafts = (L.gates || []).filter(g => g.kind === 'water').map(g => ({ g, u: 0, tu: 0, riders: [], emptyT: 0, lastTurn: -99, soloT: 0, board: [0, 0], dis: [0, 0], x: 0, y: g.y, wob: 0, moving: false }));
+  for (const r of L.rafts) { r.g.raft = r; raftPlace(r); }
   // G10: on a restart everything starts from zero: the gates, the time without progress, the cage and its star
   for (const g of L.gates || []) { g.pastN = 0; g.g3 = false; g.auto = false; }
   if (L.cage) {
@@ -175,6 +181,81 @@ function updateTargets(dt) {
   }
 }
 
+/* ---------- the raft and the cranks of level 9 (T8, docs/25-niveluri-7-12.md, 3.4 and 3.5) ----------
+   A hero who stands at the dock steps on the raft and rides. The other one turns the crank on his bank with the spin power:
+   each turn moves the raft 1/need of the way. At the far bank the riders step off; an empty raft comes back by itself.
+   The second band has a current: when nobody turns, the raft slides back. A rider cannot walk but can use his powers. */
+const RAFT_RIDE = [[-34, -4], [34, 6]];
+function raftEnds(r) { const g = r.g, w = CONFIG.mech.raftW; return [g.x - g.half + w / 2 + 8, g.x + g.half - w / 2 - 8]; }
+function raftPlace(r) { const [a, b] = raftEnds(r); r.x = lerp(a, b, r.u); r.y = r.g.y + Math.sin(P.time * 1.6 + r.g.ph) * 3; }
+/* Boon's or Killer's spin close to a crank (powerSweep: once per power id). The one who rides turns nothing. */
+function crankSwing(h, id) {
+  const L = P.L; if (!L.rafts || !L.rafts.length || !isJoined(h.k) || h.down || heroCrossing(h)) return;
+  for (const inp of L.inputs) {
+    if (inp.kind !== 'crank' || inp.swing === h.k + ':' + id || dist(h.x, h.y, inp.x, inp.y) > CONFIG.mech.crankReach) continue;
+    inp.swing = h.k + ':' + id; raftTurn(L.gates[inp.gate].raft, inp, h.k);
+  }
+}
+function raftTurn(r, inp, k) {
+  if (!r || r.g.state === 'fixed') return;
+  inp.turnAnim = 1; inp.n++; r.lastTurn = P.time; Snd.play('crank', inp.n % 4, k); if (k >= 0) Input.rumble(k, 0, 0.3, 70);
+  if (r.riders.length && r.tu < 1) r.tu = Math.min(1, r.tu + 1 / r.g.need);
+}
+function raftDismount(r, h, far) {
+  const g = r.g, k = h.k; h.riding = null; r.riders = r.riders.filter(x => x !== h);
+  h.x = far ? g.x + g.half + 85 : g.x - g.half - 85; h.y = g.y + (k ? 40 : -40); h.vx = h.vy = 0; h.px = h.x; h.py = h.y;
+  Snd.play('plate', 0, k); burst(h.x, h.y, 6, { speed: 110, life: 0.5 });
+}
+function updateRafts(dt) {
+  const L = P.L; if (!L.rafts || !L.rafts.length || !L.inputs) return;
+  const M = CONFIG.mech, easy = mechEasy(), solo = soloK();
+  for (const inp of L.inputs) if (inp.kind === 'crank') { inp.turnAnim = Math.max(0, (inp.turnAnim || 0) - dt * 1.4); inp.ang = ((inp.n || 0) - 1) * 2.1 + (inp.n ? easeBack(1 - inp.turnAnim) * 2.1 : 0); }
+  for (const r of L.rafts) {
+    const g = r.g, fixed = g.state === 'fixed';
+    // boarding at the near dock
+    const dockNear = r.u <= 0.02 && !r.moving && !fixed;
+    for (const h of P.heroes) {
+      if (h.riding) continue;
+      const k = h.k, can = dockNear && isJoined(k) && !h.down && !h.carried && r.riders.length < 2 && dist(h.x, h.y, r.x, r.y) < 175 && h.x < g.x - g.half + 20;
+      r.board[k] = can ? r.board[k] + dt : 0;
+      if (r.board[k] >= M.raftBoard) { r.board[k] = 0; h.riding = r; r.riders.push(h); Snd.play('plate', 0, k); }
+    }
+    // a rider at the near dock steps back to the bank by pushing the stick to the left
+    for (const h of r.riders.slice()) {
+      const s = Input.slots[h.k]; r.dis[h.k] = (r.u <= 0.02 && !r.moving && s.x < -0.4) ? r.dis[h.k] + dt : 0;
+      if (r.dis[h.k] > 0.25) { r.dis[h.k] = 0; raftDismount(r, h, false); }
+    }
+    // the crossing is open (a hero waited for help, or it opened by itself): the water is a path of lilies, the riders may walk
+    if ((g.state === 'open' || g.state === 'fixed') && g.open > 0.9) for (const h of r.riders.slice()) { h.riding = null; r.riders = r.riders.filter(x => x !== h); }
+    // alone: the crank of the hero nobody plays turns by itself, so one child can cross too
+    if (solo >= 0 && r.riders.length && r.tu < 1 && !fixed) { r.soloT += dt; if (r.soloT >= M.raftSolo) { r.soloT = 0; r.lastTurn = P.time; r.tu = Math.min(1, r.tu + 1 / g.need); } } else r.soloT = 0;
+    // the current (second band): nobody turns, the raft slides back
+    if (g.current && r.riders.length && r.u < 1 && !fixed && P.time - r.lastTurn > M.raftGrace) r.tu = Math.max(0, r.tu - M.raftDrift * (easy ? 0.5 : 1) * dt);
+    // an empty raft far from the near dock comes back by itself
+    if (!r.riders.length && r.u > 0.001 && !fixed) { r.emptyT += dt; if (r.emptyT > M.raftBackDelay) r.tu = 0; } else r.emptyT = 0;
+    if (fixed) r.tu = 1;
+    const travel = Math.max(80, raftEnds(r)[1] - raftEnds(r)[0]), back = !r.riders.length && r.tu < r.u;
+    const rate = back ? M.raftBack / travel : (1 / g.need) / M.raftTurn;
+    const prev = r.u; r.moving = Math.abs(r.tu - r.u) > 0.002;
+    r.u += clamp(r.tu - r.u, -rate * dt, rate * dt);
+    if (Math.abs(r.tu - r.u) <= 0.002) r.u = r.tu;
+    r.wob = Math.max(0, r.wob - dt * 2); if (r.moving && Math.floor(prev * 40) !== Math.floor(r.u * 40) && Math.random() < 0.3) Snd.play('raftGo', 0, -1, 0.5);
+    raftPlace(r);
+    // nobody stays inside the closed water: a hero who is on the cells of a closed crossing without riding (a gate that closed on him,
+    // a push) steps out on the bank of his side, at the level of the dock
+    if (g.solid && g.open < 0.5 && !fixed) for (const h of P.heroes) {
+      if (!isJoined(h.k) || h.riding || h.carried || !onGateCells(h, g)) continue;
+      const far = h.x > bandX(g, h.y); h.x = far ? g.x + g.half + 85 : g.x - g.half - 85; h.y = g.y + (h.k ? 40 : -40); h.vx = h.vy = 0; h.px = h.x; h.py = h.y;
+      P.pushedOut = (P.pushedOut || 0) + 1; Snd.play('plate', 0, h.k); burst(h.x, h.y, 6, { speed: 110, life: 0.5 });
+    }
+    // riders go with the raft; at the far dock they step off
+    for (const h of r.riders.slice()) {
+      const o = RAFT_RIDE[r.riders.indexOf(h)] || RAFT_RIDE[0]; h.x = r.x + o[0]; h.y = r.y + o[1]; h.vx = h.vy = 0; h.px = h.x; h.py = h.y;
+      if (r.u >= 0.995 && !r.moving) raftDismount(r, h, true);
+    }
+  }
+}
+
 /* ---------- helpers of the safety rules (T7.3, docs/25-niveluri-7-12.md, 3.6) ---------- */
 /* How many bands lie left of (x, y): two places with the same number are on the same side of every band. */
 function bandSide(L, x, y) { let n = 0; for (const g of L.gates || []) if (x > bandX(g, y)) n++; return n; }
@@ -192,7 +273,7 @@ function frontGate(L) { for (const g of L.gates || []) if (g.state !== 'fixed') 
 
 /* Every frame, after the heroes and the thrown things (updatePlay). docs/25, 3.2 and 3.6. */
 function updateMechs(dt) {
-  updateCage(dt); updateToy(dt); updateTargets(dt);
+  updateCage(dt); updateToy(dt); updateTargets(dt); updateRafts(dt);
   const L = P.L; if (!L.gates || !L.gates.length) return;
   const M = CONFIG.mech, easy = mechEasy(), ef = easy ? M.easy : 1, solo = soloK();
   for (const inp of L.inputs) {
@@ -292,6 +373,16 @@ function mechSteps(g) {
     for (const p of ins) if (mine(h, p) && !used.has(p)) { const d = dist(h.x, h.y, p.x, p.y) + (p.who === h.k ? 0 : 400); if (d < bd) { bd = d; best = p; } }
     return best;
   };
+  if (g.rule === 'raft' && g.raft) {       // T8: one rides, the other turns the crank on his bank; then they swap
+    const r = g.raft, dock = { x: g.x - g.half - 45, y: g.y, act: 'ride' }, hold = { x: r.x, y: r.y, act: 'stand' };
+    if (open) { for (const h of hs) out[h.k] = go(h); return out; }
+    const crankAt = h => { const p = ins.find(q => (q.side === 'far') === far(h)); return p ? at(p, h) : null; };
+    if (hs.length === 1) { const h = hs[0]; out[h.k] = h.riding ? hold : far(h) ? go(h) : dock; return out; }
+    let rider = hs.find(h => h.riding);
+    if (!rider) { const nh = hs.filter(h => !far(h)); if (nh.length) rider = nh.reduce((a, b) => dist(a.x, a.y, dock.x, dock.y) <= dist(b.x, b.y, dock.x, dock.y) ? a : b); }
+    for (const h of hs) out[h.k] = h === rider ? (h.riding ? hold : dock) : (crankAt(h) || cross(h));
+    return out;
+  }
   if (hs.length === 1) {                   // G6: alone, his own input (if he has one), then over
     const h = hs[0], p = open ? null : pick(h);
     out[h.k] = p && !p.on ? at(p, h) : go(h);
@@ -394,6 +485,16 @@ function updateToy(dt) {
     toy.down += ((on ? 1 : 0) - toy.down) * Math.min(1, dt * 14);
     if (on && !toy.was && toy.cool <= 0) { toy.danceT = CONFIG.mech.danceTime; toy.cool = CONFIG.mech.danceEvery; Snd.play('plate'); say(h.k, 'levelWin'); Input.rumble(h.k, 0, 0.5, 120); burst(toy.x, toy.y - 20, 12, { speed: 200, life: 0.7 }); }
     toy.was = on; return;
+  }
+  if (toy.kind === 'lilies') {                           // T8: a hero who steps on a pad jumps high (h.z only: how it looks), with a "boing"
+    for (const q of toy.pads) {
+      q.cool = Math.max(0, q.cool - dt); q.jump = Math.max(0, q.jump - dt);
+      const h = P.heroes.find(x => isJoined(x.k) && !x.down && !x.carried && !x.riding && dist(x.x, x.y, q.x, q.y) < 55);
+      q.down += ((h && q.cool <= 0 ? 1 : 0) - q.down) * Math.min(1, dt * 14);
+      if (h && q.cool <= 0) { q.cool = 1.1; q.jump = 0.55; q.by = h; Snd.play('boing', 0, h.k); h.squash = 0.25; burst(q.x, q.y, 8, { speed: 130, life: 0.5, cols: ['#CFE6FF', '#FFFFFF'] }); }
+      if (q.jump > 0 && q.by) q.by.z = Math.max(q.by.z, Math.sin((1 - q.jump / 0.55) * Math.PI) * 90);
+    }
+    return;
   }
   if (toy.kind !== 'seesaw') return;
   const on = [-1, 1].map(side => P.heroes.find(h => isJoined(h.k) && !h.down && !h.carried && dist(h.x, h.y, toy.x + side * SEESAW_END, toy.y) < 70));

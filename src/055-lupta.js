@@ -601,12 +601,69 @@ function drawToy(c, toy) {
     if (toy.danceT > 0) for (let i = 0; i < 3; i++) { const u = ((tt * 0.8 + i / 3) % 1); c.globalAlpha = 1 - u; text(c, i % 2 ? '♪' : '♫', toy.x - 30 + i * 30, toy.y - 60 - u * 70, 38, RAINBOW[(i * 2) % 7], { halo: 0, shadow: 0, weight: 'bold' }); c.globalAlpha = 1; }
     return;
   }
+  if (toy && toy.kind === 'lilies') {                  // T8: three bouncy lily pads. Whoever stands on one jumps (the pad squashes, then springs back)
+    for (const q of toy.pads) {
+      const d = q.down || 0, R = 60;
+      c.fillStyle = rgba(SHADOW, 0.2); c.beginPath(); c.ellipse(q.x + 4, q.y + 12, R, R * 0.5, 0, 0, TAU); c.fill();
+      c.fillStyle = '#1F6A52'; c.beginPath(); c.ellipse(q.x, q.y + 4, R, R * 0.58 - d * 4, 0, 0, TAU); c.fill();
+      c.fillStyle = '#58C890'; c.beginPath(); c.ellipse(q.x, q.y - 2 + d * 4, R - 6, R * 0.5 - d * 4, 0, 0, TAU); c.fill();
+      c.fillStyle = '#FF8AB8'; for (let i = 0; i < 5; i++) { const a = i * TAU / 5; c.beginPath(); c.ellipse(q.x + Math.cos(a) * 9, q.y - 4 + d * 4 + Math.sin(a) * 6, 7, 4.5, a, 0, TAU); c.fill(); }
+      c.fillStyle = '#FFD84A'; c.beginPath(); c.arc(q.x, q.y - 4 + d * 4, 4, 0, TAU); c.fill();
+    }
+    return;
+  }
   if (!toy || toy.kind !== 'seesaw') return;
   c.fillStyle = rgba(SHADOW, 0.18); c.beginPath(); c.ellipse(toy.x, toy.y + 14, 150, 26, 0, 0, TAU); c.fill();
   c.save(); c.translate(toy.x, toy.y); c.rotate(toy.ang || 0);
   if (artOn() && artOk('seesaw')) drawArt(c, 'seesaw', 0, 52, 170, 0.5);
   else { c.fillStyle = '#C8925E'; c.fillRect(-150, -14, 300, 22); c.fillStyle = '#9A6A48'; c.beginPath(); c.arc(0, 14, 22, 0, TAU); c.fill(); }
   c.restore();
+}
+/* The stepping lilies that grow over a water crossing when it opens (a gate that opens by itself or for a hero who waits for help). */
+function drawLilyPath(c, g, t) {
+  const v = clamp(g.vis || 0, 0, 1); if (v < 0.03) return;
+  const n = 7;
+  for (let i = 0; i < n; i++) {
+    const u = clamp(v * (n + 1) - i, 0, 1); if (u <= 0) continue;
+    const x = g.x - g.half - 20 + (i + 0.5) / n * (g.half * 2 + 40), y = g.y + Math.sin(i * 1.7 + t) * 5, R = 40 * easeBack(u);
+    c.fillStyle = rgba(SHADOW, 0.2); c.beginPath(); c.ellipse(x + 3, y + 5, R, R * 0.6, 0, 0, TAU); c.fill();
+    c.fillStyle = '#2F8A6A'; c.beginPath(); c.ellipse(x, y, R, R * 0.62, 0, 0, TAU); c.fill();
+    c.fillStyle = '#5AC08A'; c.beginPath(); c.ellipse(x - 3, y - 3, R * 0.8, R * 0.46, 0, 0, TAU); c.fill();
+    c.fillStyle = '#2A4A8A'; c.beginPath(); c.moveTo(x, y); c.lineTo(x + R * 0.9, y - R * 0.12); c.lineTo(x + R * 0.9, y + R * 0.12); c.closePath(); c.fill();
+  }
+}
+/* The crank: a wooden post with a wheel and a handle, and a rope that runs to the raft. It turns a third of a circle for each turn. */
+function drawCrank(c, p, g, t) {
+  const r = g && g.raft, x = p.x, y = p.y;
+  if (r) {                                              // the rope to the raft (hangs a little in the middle)
+    const [ra, rb] = raftEnds(r), tx = p.side === 'far' ? r.x + CONFIG.mech.raftW / 2 - 10 : r.x - CONFIG.mech.raftW / 2 + 10, ty = r.y;
+    c.strokeStyle = '#B08A5C'; c.lineWidth = 5; c.lineCap = 'round'; c.beginPath(); c.moveTo(x, y - 40); c.quadraticCurveTo((x + tx) / 2, (y - 40 + ty) / 2 + 36, tx, ty); c.stroke();
+  }
+  c.fillStyle = rgba(SHADOW, 0.24); c.beginPath(); c.ellipse(x + 4, y + 8, 40, 13, 0, 0, TAU); c.fill();
+  c.fillStyle = '#8A5E3C'; c.fillRect(x - 9, y - 52, 18, 62); c.fillStyle = '#B07A4E'; c.fillRect(x - 9, y - 52, 8, 62);
+  c.save(); c.translate(x, y - 46); c.rotate(p.ang || 0);
+  const glow = p.turnAnim > 0 ? p.turnAnim : 0;
+  c.fillStyle = glow > 0 ? mix('#C8925E', '#FFE8A8', glow * 0.6) : '#C8925E'; c.beginPath(); c.arc(0, 0, 34, 0, TAU); c.fill();
+  c.fillStyle = '#E2B27C'; c.beginPath(); c.arc(0, 0, 26, 0, TAU); c.fill();
+  c.strokeStyle = '#8A5E3C'; c.lineWidth = 5; for (let i = 0; i < 3; i++) { const a = i * TAU / 3; c.beginPath(); c.moveTo(0, 0); c.lineTo(Math.cos(a) * 32, Math.sin(a) * 32); c.stroke(); }
+  c.fillStyle = '#E4583C'; c.beginPath(); c.arc(26, 0, 7, 0, TAU); c.fill();                  // the handle
+  c.fillStyle = '#8A5E3C'; c.beginPath(); c.arc(0, 0, 7, 0, TAU); c.fill();
+  c.restore();
+}
+/* The raft: a giant lily leaf with a raised rim and a pink flower. It bobs a little on the water, and more when it moves. */
+function drawRaft(c, r, t) {
+  const W = CONFIG.mech.raftW, bob = Math.sin(t * 2 + r.g.ph) * (r.moving ? 4 : 2), x = r.x, y = r.y + bob, w = W / 2, h = 62;
+  c.fillStyle = rgba(SHADOW, 0.24); c.beginPath(); c.ellipse(x + 5, y + 14, w + 4, h * 0.7, 0, 0, TAU); c.fill();
+  c.fillStyle = '#1F6A52'; c.beginPath(); c.ellipse(x, y + 4, w + 2, h, 0, 0, TAU); c.fill();                 // the rim
+  c.fillStyle = '#3FB08A'; c.beginPath(); c.ellipse(x, y, w - 4, h - 6, 0, 0, TAU); c.fill();
+  c.fillStyle = '#5AC08A'; c.beginPath(); c.ellipse(x - 6, y - 6, w - 24, h - 22, 0, 0, TAU); c.fill();
+  c.strokeStyle = 'rgba(31,106,82,0.55)'; c.lineWidth = 3; for (let i = 0; i < 8; i++) { const a = i * TAU / 8 + 0.2; c.beginPath(); c.moveTo(x, y); c.lineTo(x + Math.cos(a) * (w - 14), y + Math.sin(a) * (h - 12)); c.stroke(); }
+  c.fillStyle = '#2A4A8A'; c.beginPath(); c.moveTo(x, y); c.lineTo(x + w + 4, y - 14); c.lineTo(x + w + 4, y + 14); c.closePath(); c.fill();   // the notch of a lily leaf
+  for (const [dx, dy, col] of [[-w + 24, -h + 24, '#FFB0D8'], [w - 40, h - 26, '#FFFFFF']]) {             // a flower or two on the rim
+    c.fillStyle = col; for (let i = 0; i < 5; i++) { const a = i * TAU / 5; c.beginPath(); c.ellipse(x + dx + Math.cos(a) * 7, y + dy + Math.sin(a) * 5, 6, 4, a, 0, TAU); c.fill(); }
+    c.fillStyle = '#FFD84A'; c.beginPath(); c.arc(x + dx, y + dy, 3.5, 0, TAU); c.fill();
+  }
+  if (r.moving) { c.strokeStyle = 'rgba(207,230,255,0.5)'; c.lineWidth = 3; for (let i = 0; i < 3; i++) { c.beginPath(); c.ellipse(x, y + 10, w + 8 + i * 12 + (t * 30 % 12), h + 4 + i * 6, 0, 0, TAU); c.stroke(); } }
 }
 /* The sliding door of a tin wall (T8): a panel with chevrons that goes up when the gate opens. Behind it the floor of the crossing. */
 function drawDoor(c, g, t) {
@@ -659,7 +716,9 @@ function drawBelts(c, t) {
 function drawMechs(c, t) {
   const L = P.L; if (!L) return;
   drawBelts(c, t);
-  for (const g of L.gates || []) if (g.kind === 'chasm') drawBridge(c, g, t); else if (g.kind === 'wall') drawDoor(c, g, t);
+  for (const g of L.gates || []) if (g.kind === 'chasm') drawBridge(c, g, t); else if (g.kind === 'wall') drawDoor(c, g, t); else if (g.kind === 'water') drawLilyPath(c, g, t);
+  for (const p of L.inputs || []) if (p.kind === 'crank') drawCrank(c, p, L.gates[p.gate], t);
+  for (const r of L.rafts || []) drawRaft(c, r, t);
   for (const p of L.inputs || []) if (p.kind === 'target') drawTarget(c, p, L.gates[p.gate], t);
   if (L.toy) drawToy(c, L.toy);
   for (const p of L.inputs || []) if (p.kind === 'plate') drawPlate(c, p, t);

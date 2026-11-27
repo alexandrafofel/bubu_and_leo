@@ -64,7 +64,7 @@ const { chromium } = require('./pw.js');
        once the team has found its share for this third (or this side is empty), both go to their places at the gate (mechSteps). */
     window.duoPoll = (dt) => {
       const S = I.slots, st = G.Game.state, P = G.P;
-      for (const s2 of S) { s2.joined = true; s2.x = s2.y = 0; s2.aP = s2.aR = s2.a = s2.hP = false; }
+      for (const s2 of S) { s2.joined = true; s2.x = s2.y = 0; s2.aP = s2.aR = s2.a = s2.hP = s2.cP = false; }
       bot.f = (bot.f || 0) + 1;
       if (st === 'intro') { if (bot.f % 20 === 0) S[0].aP = true; return; }      // after "Încă o dată!": past the story card
       if (st !== 'play' || !P) return;
@@ -78,7 +78,7 @@ const { chromium } = require('./pw.js');
       const forward = fg && !P.nestOpen && (teamFound() >= share || bot.emptyT > 6);
       const steps = forward ? mechSteps(fg) : [null, null];
       for (const h of P.heroes) {
-        const s2 = S[h.k], fr = P.heroes[1 - h.k]; let tx = null, ty = null, att = false, aimOnly = false;
+        const s2 = S[h.k], fr = P.heroes[1 - h.k]; let tx = null, ty = null, att = false, aimOnly = false, sp0 = steps[h.k];
         if (h.down) continue;
         if (fr.down) {                                    // help the friend
           const reach = h.k === 0 ? G.CONFIG.rescue.reachNear - 40 : G.CONFIG.rescue.reachFar - 60;
@@ -90,12 +90,14 @@ const { chromium } = require('./pw.js');
         else if (steps[h.k]) {
           tx = steps[h.k].x; ty = steps[h.k].y;
           const sp = steps[h.k];                          // T8: at a target (sp.ax): aim at it and hit it every little while
+          if (sp.act === 'spin' && Math.hypot(h.x - tx, h.y - ty) < 90 && h.cd <= 0 && bot.f % 24 === (h.k ? 5 : 11)) s2[h.k === 0 ? 'aP' : 'cP'] = true;      // T8: the crank of the raft: a spin (Boon on ✕, Killer on □)
           if (sp.ax != null && Math.hypot(h.x - tx, h.y - ty) < 70) { aimOnly = true; tx = sp.ax; ty = sp.ay; if (bot.f % 22 === (h.k ? 5 : 11)) att = true; }
         }
         else {
           const side = sideOf(h.x, h.y); let bd = 1e9;
           for (const e of P.eggs) if (e.state === 'idle' && e.delay <= 0 && sideOf(e.x, e.y) === side) { const q = Math.hypot(e.x - h.x, e.y - h.y); if (q < bd) { bd = q; tx = e.x; ty = e.y; } }
-          if (tx == null || bd > 500) for (const b of L.beetles) if (b.state !== 'dead' && sideOf(b.x, b.y) === side) { const q = Math.hypot(b.x - h.x, b.y - h.y); if (q < bd) { bd = q; tx = b.x; ty = b.y; att = q < (h.k === 0 ? 170 : 380) && bot.f % 20 === h.k * 10; aimOnly = h.k === 1 && q < 380; } }
+          if (tx == null || bd > 500) for (const b of L.beetles) if (b.state !== 'dead' && !b.botSkip && sideOf(b.x, b.y) === side) { const q = Math.hypot(b.x - h.x, b.y - h.y); if (q < bd) { bd = q; tx = b.x; ty = b.y; att = q < (h.k === 0 ? 170 : 380) && bot.f % 20 === h.k * 10; aimOnly = h.k === 1 && q < 380; h.tgtB = b; } }
+          if (aimOnly && h.tgtB) { if (h.aimB !== h.tgtB) { h.aimB = h.tgtB; h.aimN = 0; } else if (++h.aimN > 420) h.tgtB.botSkip = true; }      // a beetle the shots do not reach (behind rocks): leave it
           if (tx == null && fg) { const stp = mechSteps(fg)[h.k]; if (stp) { tx = stp.x; ty = stp.y; } }
           if (tx == null) { tx = L.nest.x; ty = L.nest.y; }
         }
@@ -107,7 +109,15 @@ const { chromium } = require('./pw.js');
         if (aimOnly) { s2.x = mx / (m || 1) * 0.35; s2.y = my / (m || 1) * 0.35; }
         else if (m > 12) { s2.x = mx / m; s2.y = my / m; }
         // pushed against a tree or a rock: slide along it for a moment (a child would walk around)
-        if (h.slide > 0) { h.slide--; s2.x = h.slx; s2.y = h.sly; }
+        // a ring of rocks the path field does not see: after 6 s inside 120 units of the same place, walk a random way for 2 s
+        if (!h.anc || Math.hypot(h.x - h.anc[0], h.y - h.anc[1]) > 120) h.anc = [h.x, h.y, bot.f];
+        else if (bot.f - h.anc[2] > 360 && !aimOnly && !(sp0 && (sp0.act === 'stand' || (sp0.act === 'spin' && Math.hypot(h.x - sp0.x, h.y - sp0.y) < 120)))) { h.anc = [h.x, h.y, bot.f]; h.rnd = 120; h.rang = Math.random() * 6.283; }
+        // no progress toward the target for 8 s (a tree the path field does not see, a cycle): walk a random way for 2 s
+        { const dd = Math.hypot(tx - h.x, ty - h.y); if (h.tgx == null || Math.hypot(tx - h.tgx, ty - h.tgy) > 100) { h.tgx = tx; h.tgy = ty; h.bestD = dd; h.bestT = bot.f; }
+          else if (dd < h.bestD - 60) { h.bestD = dd; h.bestT = bot.f; }
+          else if (bot.f - h.bestT > 480 && !aimOnly && dd > 120) { h.bestT = bot.f; h.bestD = dd; h.rnd = 120; h.rang = Math.random() * 6.283; } }
+        if (h.rnd > 0) { h.rnd--; s2.x = Math.cos(h.rang); s2.y = Math.sin(h.rang); }
+        else if (h.slide > 0) { h.slide--; s2.x = h.slx; s2.y = h.sly; }
         else if ((s2.x || s2.y) && !aimOnly && Math.hypot(h.x - (h.lx ?? -9), h.y - (h.ly ?? -9)) < 0.8) { h.blk = (h.blk || 0) + 1; if (h.blk > 12) { h.blk = 0; h.slide = 40; h.sdir = -(h.sdir || 1); h.slx = -s2.y * h.sdir; h.sly = s2.x * h.sdir; } }
         else h.blk = 0;
         h.lx = h.x; h.ly = h.y;
@@ -123,6 +133,13 @@ const { chromium } = require('./pw.js');
         if (st === 'retry' && !wasRetry) retries++; wasRetry = st === 'retry';
         if (st === 'retry' || st === 'loading' || st === 'intro') continue;      // "Încă o dată!": the level starts again, the children play on (at most twice)
         if (st !== 'play' || retries > 2) break; prog.step();
+        if (window.__dbg) { const P = G.P; const rb = (window.__rb = window.__rb || []); rb.push(P.time.toFixed(2) + ' ' + P.heroes.map(h => (h.x | 0) + ',' + (h.y | 0) + ',v' + (h.vx | 0) + ',' + (h.vy | 0) + (h.riding ? 'R' : '') + (h.carried ? 'K' : '') + (h.down ? 'D' : '') + (h.dizzy > 0 ? 'z' : '') + (h.spinT >= 0 ? 'S' : '') + (h.boost > 0 ? 'B' : '') + (h.run ? 'r' : '')).join(' ') + ' g2:' + P.L.gates[1].state + ' r:' + P.L.rafts[1].riders.length + '/' + P.L.rafts[1].u.toFixed(2)); if (rb.length > 150) rb.shift(); }
+        if (window.__dbg) { const P = G.P; for (const h of P.heroes) { const c = P.L.grid[P.L.ci(h.x, h.y)], key = 'in' + h.k; if (c === 2 && !h.riding && !h[key + 'd']) { h[key + 'd'] = 1; (window.__log = window.__log || []).push('RB ' + h.k + '\n' + window.__rb.filter((_, i) => i % 6 === 0).join('\n')); } else if (c < 1) h[key + 'd'] = 0; } }
+        if (window.__dbg) { const P = G.P; for (const h of P.heroes) { const c = P.L.grid[P.L.ci(h.x, h.y)], key = 'in' + h.k; if (c >= 1 && c !== 3 && !h[key]) { h[key] = 1; (window.__log = window.__log || []).push('INSOLID t=' + P.time.toFixed(1) + ' k=' + h.k + ' code=' + c + ' at ' + (h.x | 0) + ',' + (h.y | 0) + ' prev ' + (h.px | 0) + ',' + (h.py | 0) + ' v ' + (h.vx | 0) + ',' + (h.vy | 0) + ' down=' + !!h.down + ' carried=' + !!h.carried + ' riding=' + !!h.riding + ' dizzy=' + (h.dizzy || 0).toFixed(1) + ' kb=' + (h.kbT || h.knock || 0) + ' sprint=' + !!h.sprint + ' st=' + (h.state || '') + ' gates=' + P.L.gates.map(g => g.state + g.open.toFixed(1)).join('/')); } else if (c < 1) h[key] = 0; } }
+        if (window.__dbg === 3 && f % 4 === 0) { const P = G.P, h = P.heroes[1], r = P.L.rafts && P.L.rafts[1]; if (r && r.riders.length === 1 && h.x > 1650 && h.x < 1800 && h.y > 640 && h.y < 1100 && !h.riding && (window.__n3 = (window.__n3 || 0) + 1) < 120) { const near = P.L.beetles.filter(b => b.state !== 'dead').map(b => [Math.hypot(b.x - h.x, b.y - h.y), b]).sort((a, b) => a[0] - b[0])[0]; (window.__log = window.__log || []).push('T3 ' + P.time.toFixed(2) + ' h1 ' + (h.x | 0) + ',' + (h.y | 0) + ' v ' + (h.vx | 0) + ',' + (h.vy | 0) + ' stick ' + Input.slots[1].x.toFixed(1) + ',' + Input.slots[1].y.toFixed(1) + ' spinT ' + h.spinT.toFixed(2) + ' cd ' + h.cd.toFixed(1) + ' stompT ' + h.stompT.toFixed(2) + ' dizzy ' + h.dizzy.toFixed(1) + ' slow ' + (h.inMud ? 'mud' : '') + ' near ' + (near ? near[0] | 0 : '-') + ' kick ' + h.kickT.toFixed(2) + ' F0 ' + (P.heroes[0].spinT >= 0 ? 'spin' : '') + ' sp0 ' + P.heroes[0].cd.toFixed(1)); } }
+        if (window.__dbg === 4) { const P = G.P, h = P.heroes[1], st = Input.slots[1]; if (!h.riding && !h.down && P.time > 60 && h.vy > 60 && st.y < -0.5 && (window.__n4 = (window.__n4 || 0) + 1) < 40) { const near = P.L.beetles.filter(b => b.state !== 'dead' && Math.hypot(b.x - h.x, b.y - h.y) < 500).map(b => (b.look || 'robot') + ':' + b.state + '@' + (b.x | 0) + ',' + (b.y | 0)); const o = {}; for (const k in h) { const v = h[k]; if (typeof v === 'number' && v) o[k] = +v.toFixed(2); else if (v === true) o[k] = true; } (window.__log = window.__log || []).push('T4 ' + P.time.toFixed(2) + ' ' + (h.x | 0) + ',' + (h.y | 0) + ' stick ' + st.x.toFixed(1) + ',' + st.y.toFixed(1) + ' beetles ' + near.join(' ') + ' cones ' + P.L.cones.filter(c => Math.hypot(c.x - h.x, c.y - h.y) < 400).length + ' wind ' + P.wind.power.toFixed(2) + ' hero ' + JSON.stringify(o)); } }
+        if (window.__dbg && f % 2400 === 1800) { for (const h of G.P.heroes) { const o = {}; for (const k in h) { const v = h[k]; if (typeof v === 'number') o[k] = +v.toFixed(2); else if (typeof v === 'boolean' && v) o[k] = true; } (window.__log = window.__log || []).push('HERO' + h.k + ' ' + JSON.stringify(o)); } }
+        if (window.__dbg && f % (window.__dbg === 2 ? 30 : 180) === 0) { const P = G.P; (window.__log = window.__log || []).push(Math.round(P.time) + ' ' + P.heroes.map(h => (h.x | 0) + ',' + (h.y | 0) + (h.riding ? 'R' : '') + (h.down ? 'D' : '') + '[' + bandSide(P.L, h.x, h.y) + (P.L.gates.some(g => onGateCells(h, g)) ? 'c' : '') + (h.safe ? 's' : '') + 'c' + P.L.grid[P.L.ci(h.x, h.y)] + 'r' + (P.L.rafts || []).map(r => r.riders.length).join('') + (h.carried ? 'k' : '') + 'v' + (h.vx|0) + ',' + (h.vy|0) + 'w' + ((P.wind && P.wind.power) || 0).toFixed(1) + (h.mud ? 'm' : '') + ' ' + (Input.slots[h.k].x||0).toFixed(1) + ',' + (Input.slots[h.k].y||0).toFixed(1) + ']').join(' ') + ' g:' + (P.L.gates || []).map(g => g.state + (g.solid ? 'S' : 's') + g.open.toFixed(1) + (g.g3 ? '3' : '') + (g.raft ? '/' + ((g.x|0) + '/' + (g.half|0) + ' ') + g.raft.u.toFixed(2) + '>' + g.raft.tu.toFixed(2) : '')).join(',') + ' D:' + (P.duel ? [P.duel.over ? 'over' : 'on', P.duel.x | 0, P.duel.y | 0, (P.duel.z || 0) | 0, P.duel.hp, P.duel.side].join(',') : '-') + ' n:' + P.L.inputs.filter(i => i.kind === 'crank').map(i => i.n + (i.on ? '*' : '') + '@' + (i.x|0) + ',' + (i.y|0)).join(' ') + ' cd:' + P.heroes.map(h => h.cd.toFixed(1)).join('/') + ' fg:' + JSON.stringify((frontGate(P.L) ? mechSteps(frontGate(P.L)) : []).map(x => x && (x.act + '@' + (x.x|0) + ',' + (x.y|0))))); }
         const P = G.P; (P.L.gates || []).forEach((g, j) => { if (g.state === 'fixed' && gateAt[j] == null) gateAt[j] = Math.round(P.time) + (g.auto ? ' (singura)' : ''); }); }
       bot.duo = false; const P = G.P;
       return { level: i, state: G.Game.state, retries, time: Math.round(P.time), found: P.found.join('/'), q: P.q, gates: gateAt, maxStall: prog.max(), rescues: P.rescues, hits: P.hits };
@@ -157,8 +174,9 @@ const { chromium } = require('./pw.js');
   for (const i of levels) {
     if (only >= 0 && i !== only) continue;
     const gated = await page.evaluate((i) => { const L = __game.buildLevel(i); return !!(L.gates && L.gates.length); }, i); if (!gated) continue;
-    for (const diff of [['easy', 'normal'], ['normal', 'normal']]) {
-      const r = await page.evaluate(([i, d]) => runDuo(i, 900, d), [i, diff]);
+    for (const diff of (process.env.DIFF ? [process.env.DIFF.split('/')] : [['easy', 'normal'], ['normal', 'normal']])) {
+      const r = await page.evaluate(([i, d, dbgv]) => { window.__dbg = dbgv; return runDuo(i, 900, d); }, [i, diff, process.env.DBG === '2' ? 2 : process.env.DBG === '3' ? 3 : process.env.DBG === '4' ? 4 : process.env.DBG ? true : 0]);
+      if (process.env.DBG) console.log((await page.evaluate(() => window.__log || [])).join('\n'));
       console.log('doi jucatori', diff.join('/'), JSON.stringify(r));
       if (r.state !== 'levelEnd' || r.maxStall > 20 || r.gates.some(g => /singura/.test(g))) bad.push('capitolul ' + (i + 1) + ' doi jucatori ' + diff.join('/'));
     }

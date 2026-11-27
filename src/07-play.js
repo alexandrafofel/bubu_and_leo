@@ -456,6 +456,7 @@ function powerSweep(h, id) {
   const L = P.L, cfg = abil(h.k, 'spin'), R = cfg.radius;
   const stun = cfg.stun * (rank(h.k) === 0 ? 1.3 : 1);
   let stunned = 0;
+  crankSwing(h, id);                                  // T8: a spin close to a crank of the raft is a turn
   targetSwing(h, id);                                 // T8: a power close to a target of this hero's color is a hit on it
   cageSwing(h, id);                                   // T7.2: a power this close to the star cage is a hit on it
   for (const s of P.stars) if (s.pillar && !s.got && !s.hidden && !s.pop && dist(s.x, s.y, h.x, h.y) < R + 110) collectStar(s, h.k);   // the star on the pillar: a stomp from the edge shakes it down too
@@ -642,6 +643,7 @@ function updateHero(h, dt) {
   const m = Math.hypot(ix, iy), f = m > 0.01 ? (0.45 + 0.55 * Math.min(1, m)) / m : 0;
   const push = beltDir && !h.down && !h.carried ? beltDir * CONFIG.mech.beltPush : 0;
   h.vx += (ix * f * sp - h.vx) * Math.min(1, dt * 12); h.vy += (iy * f * sp + push - h.vy) * Math.min(1, dt * 12);
+  if (h.riding) h.vx = h.vy = 0;                      // T8: a rider goes with the raft (updateRafts), he does not walk
   if (m > 0.3) { h.ax = ix / m; h.ay = iy / m; P.tut[h.k].moved += dt; }
   // bored: standing still for 8 seconds while a player holds this hero
   h.idleT = (s.joined && !h.moving && !h.charging && h.dizzy <= 0) ? (h.idleT || 0) + dt : 0;
@@ -655,7 +657,7 @@ function updateHero(h, dt) {
       h.px = h.x; h.py = h.y;
       h.x += h.vx * sdt; h.y += h.vy * sdt;
       if (wind) { h.x += P.wind.dir * wind * sdt; h.y += wind * 0.12 * sdt; }
-      collide(L, h, HERO_R, false);
+      if (!h.riding) collide(L, h, HERO_R, false);
     }
   }
   if (h.run && h.moving) {               // the trail of three ghosts, and a little dust at every step

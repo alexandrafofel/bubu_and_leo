@@ -57,7 +57,11 @@ const LEVEL_DEFS_L = [
   { key: 'works', music: 'l4', pal: 'works', look: 'diorama', ambient: '#C8C0F0', icons: ['target', 'robot', 'gear'],
     trees: 14, rocks: 30, beetles: [3, 5, 6], lanes: [1, 1, 2], conesPerLane: 1, coneSpeed: 0.7, roller: 'gear', mud: [2, 3, 3], slowKind: 'belt', sparkle: [1, 2, 2], lanterns: true,
     bands: [{ at: 0.335, kind: 'wall', w: 120, mech: 'targets1' }, { at: 0.665, kind: 'wall', w: 120, mech: 'targets2' }],
-    stars: ['guarded', 'treetop', 'nook'], toy: 'button' }
+    stars: ['guarded', 'treetop', 'nook'], toy: 'button' },
+  { key: 'lake', music: 'l2', pal: 'lake', night: true, look: 'diorama', ambient: '#9AA8F0', icons: ['raft', 'crank', 'egg'],
+    trees: 34, rocks: 10, beetles: [1, 2, 2], lanes: [1, 1, 1], conesPerLane: 1, coneSpeed: 0.5, mud: [1, 1, 2], slowKind: 'slime', sparkle: [1, 2, 2],
+    bands: [{ at: 0.335, kind: 'water', w: 400, mech: 'raft1' }, { at: 0.665, kind: 'water', w: 480, mech: 'raft2' }],
+    stars: ['islet', 'nook', 'guarded'], toy: 'lilies' }
 ];
 const BOSS_DEF_L = { key: 'arena', music: 'boss', night: true, icons: ['boon', 'ciori', 'killer'] };
 
@@ -94,6 +98,7 @@ const PALS = {
   road:   { night: true, g0: '#5C417C', g1: '#4C366C', tints: RAINBOW, canopy: ['#B0589A', '#8A58B8', '#D8704A', '#5A6FC8', '#C8508A'], flowers: ['#FFD84A', '#FF9A5A', '#FF8AB8', '#7AF0C8'], path: '#A88AC4', trunk: '#5E3E6E', rock: '#A088C0' },
   canyon: { g0: '#E8B48A', g1: '#D99A78', tints: ['#EEBE92', '#DCA27E', '#F2C8A0', '#E2AA86'], canopy: ['#6FB08A', '#8AC07A', '#4F9A8A', '#B8C86A'], flowers: ['#FF8AB8', '#FFD84A', '#FFF6E8', '#B09AFF'], path: '#F6D9B0', trunk: '#8A5A6A', rock: '#C98A7A',
             chasm: ['#3A4A8A', '#6A7AC0', '#D8DCF6'] },      // level 7: a high plateau at sunrise. chasm: the bottom of the chasm, its light middle, the mist
+  lake:   { night: true, g0: '#3F6A8A', g1: '#34587A', tints: RAINBOW, canopy: ['#3FB08A', '#5AC08A', '#2F8AA8', '#7AC8A0'], flowers: ['#FFB0D8', '#FFFFFF', '#FFD84A', '#B09AFF'], path: '#8AB0C8', trunk: '#4E5A7A', rock: '#7A98B8', water: ['#1E3A78', '#2A4A8A', '#4A78C0', '#CFE6FF'] },
   works:  { night: true, g0: '#5A6A8A', g1: '#4A587A', tints: RAINBOW, canopy: ['#C8A040', '#D86A4A', '#5AA0A8', '#8A7AC0'], flowers: ['#FFD84A', '#7AF0C8', '#FF8AB8'], path: '#A8B0C8', trunk: '#6A5A7A', rock: '#8A98B8',
             wall: ['#7A86B0', '#A8B4D8', '#E6ECFF', '#4A5278'] },      // level 8: tin and violet, never grey. wall: the tin of the walls, its light, its shine, its shadow
   sunset: { g0: '#D6B87E', g1: '#C5A674', tints: ['#E4A771', '#DB9C79', '#CBB47C', '#E2BB8C', '#D8A07A'], canopy: ['#D98A52', '#E2A04F', '#C96F4E', '#E6B65A', '#B98A5A'], flowers: ['#F3D36B', '#E58F6B', '#FBF3DE'], path: '#EECFA2', trunk: '#8A5A48', rock: '#C4A08E' }
@@ -396,6 +401,16 @@ function genLevel(idx, seed) {
       if (!pathFar(x, y, 160) || pathDist(x, y) > 480 || !areaClear(x, y, 100)) continue;
       L.toy = { kind: 'button', x, y, danceT: 0, cool: 0, down: 0 }; mark(x, y, 120, 3);
     }
+  }
+  // ---- the toy of level 9 (T8): three giant lily pads on a bank. Whoever steps on one jumps high (only how it looks) with a "boing" ----
+  if (def.toy === 'lilies' && L.gates.length >= 1) {
+    const xa = 300, xb = L.gates[0].at * WW - 330, pads = [];
+    for (let t = 0; t < 400 && pads.length < 3; t++) {
+      const x = lerp(xa, xb, r()), y = lerp(top + 220, WH - 220, r());
+      if (!pathFar(x, y, 130) || pathDist(x, y) > 560 || !areaClear(x, y, 80) || pads.some(q => dist(q.x, q.y, x, y) < 250)) continue;
+      pads.push({ x, y, down: 0, jump: 0, cool: 0 }); mark(x, y, 100, 3);
+    }
+    if (pads.length) L.toy = { kind: 'lilies', pads, x: pads[0].x, y: pads[0].y };
   }
   // ---- mud, pinecone lanes, windmills ---------------------------------------
   for (let k = 0; k < NW; k++) {
@@ -913,6 +928,9 @@ function cellBlobs(c, L, type, rad, col, alpha, seed, jit) {
 
 const NIGHT_HILLS = ['#5A56A8', '#4A4A98', '#3E4288'];
 function paintLevel(L) {
+  for (const g of L.gates || []) if (g.kind === 'water' && !g.waterPainted) {      // T8: the crossing of a water band is water too: the raft floats on it (closeGates gives the cells their code back)
+    g.waterPainted = true; for (const i of g.cells) { L.grid[i] = 2; L.waterCells.push(i); }
+  }
   const cv = makeCanvas(L.W, L.H), c = cv.getContext('2d'), P = L.pal, r = rng(L.seed + 999), G = L.grid, top = L.top, sl = 1 + L.skyT * 0.7, N = !!L.night;
   const A = P.art && artReady();          // the calm Krea look: the things of the level are pictures, the ground has few small things
   const typeAt = (x, y) => G[L.ci(x, y)];
@@ -962,6 +980,13 @@ function paintLevel(L) {
       if (pit) { if (hash(52, i) < 0.25) wash(c, x + (hash(53, i) - 0.5) * 30, y + (hash(54, i) - 0.5) * 30, 2.5, 2.5, RAINBOW[i % 7], { a: 0.9, seed: i, layers: 1, edge: 0 }); }
       else if (hash(52, i) < 0.3) { c.strokeStyle = 'rgba(244,251,240,0.5)'; c.lineWidth = 2.2; c.beginPath(); c.arc(x, y + 10, 14 + hash(53, i) * 10, Math.PI * 1.15, Math.PI * 1.85); c.stroke(); }
     }
+  }
+  if (L.gates && L.gates.some(g => g.kind === 'water')) for (const st of L.stars) if (st.pillar) {      // T8: the star of the lake sits on a big lily pad in the middle of the water (a thrown thing takes it)
+    c.fillStyle = rgba(SHADOW, 0.25); c.beginPath(); c.ellipse(st.x + 6, st.y + 34, 86, 40, 0, 0, TAU); c.fill();
+    c.fillStyle = '#1F6A52'; c.beginPath(); c.ellipse(st.x, st.y + 28, 84, 40, 0, 0, TAU); c.fill();
+    c.fillStyle = '#3FB08A'; c.beginPath(); c.ellipse(st.x, st.y + 22, 76, 34, 0, 0, TAU); c.fill();
+    c.fillStyle = '#5AC08A'; c.beginPath(); c.ellipse(st.x - 6, st.y + 18, 54, 22, 0, 0, TAU); c.fill();
+    c.fillStyle = '#FFB0D8'; for (let i = 0; i < 6; i++) { const a = i * TAU / 6; c.beginPath(); c.ellipse(st.x + Math.cos(a) * 14, st.y + 18 + Math.sin(a) * 8, 11, 6, a, 0, TAU); c.fill(); }
   }
   if (L.gates && L.gates.some(g => g.kind === 'wall')) paintWall(c, L, P, r);      // T8: the tin walls of the workshop
   if (L.gates && L.gates.some(g => g.kind === 'chasm')) paintChasm(c, L, P, r);      // T7.4: the chasms of the bands, and the pillar of the star

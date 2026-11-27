@@ -584,3 +584,12 @@ Hotararea de proces: `balanseaza()` sta in `tests/common.js` si cheama `giveEgg`
 
 - **Racheta = invincibilitate de 10 secunde pentru amandoi**, indiferent cine o ia. Inamicii mici atinsi devin diamante, George pierde o inimioara. Motiv: cerut de proprietara; copiii vor sa simta ca sunt "foarte, foarte puternici" scurt timp.
 - **Steluta de pe stalpul nivelului 7** (`pillar`) se ia si cu o lovitura de invartire de la marginea prapastiei (`powerSweep`), are raza mai mare la aruncare si pozitia ei cere margini fara pietre. Motiv: proprietara a spus ca nu poate fi luata.
+
+
+## Update 27 noiembrie 2026: T8, nivelurile 8 si 9
+
+- **A doua pluta are 3 invartiri, curent de 0.05 pe secunda, rasuflare de 1.5 s.** Initial erau 4 invartiri si 0.07 pe secunda. Doi boti pe nivelul 9 nu treceau in 180 s in cam una din patru incercari. Manusile lui Killer se pot lovi o data la 1.6 s: cu cifrele vechi un copil de 6 ani ar fi trebuit sa nu piarda niciun ritm. Curentul ramane, dar iarta.
+- **Doi eroi pot sta pe aceeasi pluta, dar unul singur nu o misca.** Cine vrea sa coboare impinge bastonul spre stanga (pragul a fost coborat de la -0.6 la -0.4: un baston in diagonala conteaza).
+- **G11: un erou pe apa inchisa este dus pe mal.** Gasit de boti: dupa o lupta cu George, un erou putea sta pe trecerea unei porti care se inchisese. Un copil ar fi ramas blocat. Acum e dus la nivelul docului, pe partea lui.
+- **Harta nivelului 9 e pictata pe canvas.** Contul Krea a ramas fara credit. Harta Krea se face cand exista credit si se arata proprietarei inainte sa intre in joc.
+- **`balanseaza()` din teste nu mai muta un erou in apa.** Ajutorul de test care muta eroul langa prieten l-a pus pe trecerea unei porti inchise (prietenul era pe pluta). Acum cauta un loc liber pe partea prietenului si, daca nu exista, asteapta.

@@ -87,6 +87,15 @@ const CONFIG = {
   // ---- Co-op mechanisms of levels 7 - 12 (T7): bands cut the map, each crossing opens only when both heroes do their part.
   // docs/25-niveluri-7-12.md, 3.1 - 3.6; src/065-mech.js
   mech: {
+    raftW: 170,                // the raft of level 9 (T8): its size
+    raftBoard: 0.35,           // seconds a hero stands at the dock before he steps on the raft
+    raftTurn: 0.8,             // seconds a turn of the crank takes to move the raft one step
+    raftBack: 140,             // an empty raft comes back by itself, this many units a second ...
+    raftBackDelay: 1.5,        // ... after this many seconds
+    raftDrift: 0.05,           // the current of the second band pulls the raft back this much of the way each second when nobody turns
+    raftGrace: 1.5,            // seconds after a turn before the current starts to pull
+    raftSolo: 1.1,             // alone, the other hero's crank turns by itself this often (seconds)
+    crankReach: 200,           // a spin this close to a crank is a turn
     autoOpen: 180,             // seconds without progress before a gate opens by itself (T7.3). 0 = never
     hintAfter: 40,             // seconds without progress before both players get an arrow to their own switch (T7.3)
     easy: 1.6,                 // on "Ușor": time windows and "stays open" times are this much longer
@@ -101,7 +110,6 @@ const CONFIG = {
     openTime: 0.5,             // seconds a gate takes to open or close all the way
     plateGap: 700,             // a plate that opens a gate for anyone ('any') stays at least this far from the crossing: nobody can step off and run over alone
     nearGate: 150,             // 'any': the gate stays open after the plate is left only while a hero is on the crossing or this close to it
-    raftTurns: 3, raftBack: 140, raftDrift: 0.07,            // T8 - T9
     orbSlow: 0.7, orbPass: 420, orbLight: 360,               // T9
     boulderSpeed: 85, boulderBack: 120                       // T9
   },
@@ -314,20 +322,20 @@ const CONFIG = {
       roarRadius: 520,         // back on the throne George roars: heroes closer than this are pushed away (it does not hurt)
       roarPush: 1500
     },
-    levels: 8,                         // levels of the second game that exist. Part Two (levels 7 - 12) raises it as each new level is made
-    duelHp: [3, 3, 4, 5, 5, 6, 6, 7],        // hits George takes in the middle fight, per level (the first game: CONFIG.duel.hp)
-    duelFinalHp: [5, 6, 6, 7, 8, 9, 9, 10],   // hits George takes at the nest, per level (the first game: CONFIG.duel.finalHp)
+    levels: 9,                         // levels of the second game that exist. Part Two (levels 7 - 12) raises it as each new level is made
+    duelHp: [3, 3, 4, 5, 5, 6, 6, 7, 7],        // hits George takes in the middle fight, per level (the first game: CONFIG.duel.hp)
+    duelFinalHp: [5, 6, 6, 7, 8, 9, 9, 10, 10],   // hits George takes at the nest, per level (the first game: CONFIG.duel.finalHp)
     // T15 (docs/28-t15-george-de-doua-ori.md): diamonds come only from defeated small enemies, George comes at half and at all of the team's quota.
     // The numbers per level are starting points, to be tuned while the children play.
-    fieldEnemies: [12, 14, 15, 15, 17, 18, 18, 20],   // small enemies on a level: robots, snails from the glowing trees and pinecones. Robots fill up the rest
+    fieldEnemies: [12, 14, 15, 15, 17, 18, 18, 20, 20],   // small enemies on a level: robots, snails from the glowing trees and pinecones. Robots fill up the rest
     treeSnails: 2,             // snails that crawl out of a glowing tree when it is shaken; like every small enemy they come back after a while
     enemyDrop: 1,              // diamonds a defeated small enemy leaves on the ground
-    miniGeorge: { hp: 3, perLevel: [1, 1, 1, 2, 2, 2, 2, 2], speed: 110, near: 640, drop: 1 },   // Little George: follows the nearest hero (within `near`), never hits
+    miniGeorge: { hp: 3, perLevel: [1, 1, 1, 2, 2, 2, 2, 2, 2], speed: 110, near: 640, drop: 1 },   // Little George: follows the nearest hero (within `near`), never hits
     george: {
       minT: 20,                                // the middle fight never starts in the first seconds of a level
-      midThrows: [2, 3, 3, 4, 4, 5, 5, 5],           // bones and balls George throws in the middle fight, per level: they daze, like pinecones
-      nestEnemies: [2, 4, 5, 6, 8, 10, 10, 11],        // small enemies he throws in the nest fight, in all, per level (half at half his hearts, the rest at his last heart)
-      enemyHp: [2, 2, 3, 3, 3, 3, 3, 3],             // hearts of a thrown enemy, per level
+      midThrows: [2, 3, 3, 4, 4, 5, 5, 5, 5],           // bones and balls George throws in the middle fight, per level: they daze, like pinecones
+      nestEnemies: [2, 4, 5, 6, 8, 10, 10, 11, 11],        // small enemies he throws in the nest fight, in all, per level (half at half his hearts, the rest at his last heart)
+      enemyHp: [2, 2, 3, 3, 3, 3, 3, 3, 3],             // hearts of a thrown enemy, per level
       chaseSpeed: 120,                         // how fast the enemies thrown at his last heart follow the heroes (a hero walks at about 150)
       boneEvery: 2,                            // in the nest fight, above half his hearts: bones and balls thrown each time he loses a heart
       flight: 0.9                              // seconds a thrown thing flies before it lands
