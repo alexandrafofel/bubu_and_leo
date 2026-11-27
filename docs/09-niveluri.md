@@ -247,7 +247,7 @@ Ce mai stie nivelul 7 (T7.5):
 - Poarta A: doua tinte, `allWithin`, 4 secunde unul de altul. Poarta B: patru tinte in ordine, `seq`: Boon, Killer, Killer, Boon. O tinta gresita reia secventa (nu pe Ușor).
 - Benzile rulante: `L.belts`, `L.beltDir`, 140 de unitati pe secunda (`CONFIG.mech.beltPush`). Celulele lor au codul 1, dar nu incetinesc.
 - Butonul rosu (`L.toy`, `kind: 'button'`): robotii danseaza 5 secunde, o data la 30 (`CONFIG.mech.danceTime`, `danceEvery`).
-- Nivelul 8 nu are inca imagini Krea proprii: e pictat pe canvas, cu paleta `works`.
+- Imaginile Krea ale nivelului (27 noiembrie 2026): `works_tree1` (stalp de lampa), `works_tree2` (conserva cu arc si roata dintata), `works_bush` (roti dintate), `works_rock` (piulita si surub), `works_spark` (bec), `works_flowers` (suruburi marunte), in `PALS_ART.works`.
 
 ### Nivelul 9: Lacul Nuferilor Uriași (`lake`)
 

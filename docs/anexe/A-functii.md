@@ -347,81 +347,81 @@ Nicio functie.
 |---|---|---|---|
 | 69 | `paintWall(c, L, P, r)` | functie | The tin wall of level 8 (T8): riveted panels with seams, a lit top edge and a violet shadow on its right side. The sliding door is drawn every frame (drawDoor). |
 | 73 | `poly(k, off)` | functie sageata |  |
-| 133 | `palOf(def)` | functie | The palette of a level: PALS, with the calm Krea colors over it when the new look is on. |
-| 135 | `levelCount(id)` | functie sageata |  |
-| 136 | `levelDefs()` | functie sageata |  |
-| 137 | `levelDef(idx)` | functie sageata |  |
-| 142 | `skyTOf(idx)` | functie sageata | the sky goes from afternoon to dusk over the levels. In the second game it is always counted over 6 levels: Part Two has its own colors |
-| 149 | `chapters(id)` | functie | The chapters of a game, in order: every level and every big fight. This is what "Continue", the Chapters screen and the save count in. Game.levelIdx is the index of a chapter; L.idx is still the number of the level (0-based) inside it. first game: levels 1 - 6, then the fight with Ciori (7 chapters) second game: levels 1 - 6, George's Arena, then the levels of Part Two (7 chapters now, 14 when Part Two is made) The Throne Hall, the last fight of Part Two, is added after the Part Two levels when it exists (task T11). |
-| 161 | `chapterId(ch)` | functie sageata | A name for a chapter that does not change when chapters are added or moved: 'L0'... for the levels, 'boss' for the big fight. The save keeps the order of these names (sl.order), so the results find their chapter again (remapSave, 09-screens.js). |
-| 163 | `oldChapterOrder(n)` | functie | The order of the second game before 27 November 2026: six levels, the big fight, then the levels of Part Two. |
-| 165 | `chapterLabel(i, id)` | functie | how a chapter is named in "Continue: ...": "Level 3", or the name of the big fight |
-| 170 | `levelsBefore(i, id)` | functie sageata | how many levels (not fights) come before chapter i: used for "stars found / stars there are" |
-| 172 | `spline(pts, stepLen)` | functie | Catmull-Rom through points, resampled evenly |
-| 195 | `quotaOf(idx)` | functie |  |
-| 206 | `levelDurationOf(L)` | functie | How long a level lasts (seconds): the sun, the medal and the help in updatePlay read this, not CONFIG.levelDuration. |
-| 211 | `genLevel(idx, seed)` | functie |  |
-| 220 | `inW(cx, cy)` | functie sageata |  |
-| 221 | `ci(x, y)` | functie sageata |  |
-| 222 | `mark(x, y, rad, bits)` | functie sageata |  |
-| 226 | `region(k)` | functie sageata |  |
-| 227 | `dv(arr, k)` | functie sageata |  |
-| 228 | `starRegion(i)` | functie sageata |  |
-| 244 | `pathDist(x, y)` | functie sageata |  |
-| 249 | `setWater(cx, cy)` | functie sageata | ---- water ---------------------------------------------------------------- |
-| 271 | `crossing(by, list)` | functie sageata |  |
-| 303 | `pathFar(x, y, d)` | functie sageata |  |
-| 304 | `areaClear(x, y, rad)` | functie sageata |  |
-| 311 | `addSolid(x, y, rad, kind, extra)` | functie sageata |  |
-| 312 | `mudEllipse(x, y, rx, ry)` | functie sageata |  |
-| 322 | `beltStrip(x, y)` | functie sageata |  |
-| 449 | `spotFree(x, y, rad)` | functie sageata | ---- trees, rocks, haystacks ---------------------------------------------- |
-| 457 | `scatter(count, rmin, rmax, kind, gap)` | functie sageata |  |
-| 499 | `reachCells(x, y, r0, r1, bits)` | functie sageata |  |
-| 513 | `shuffle(a)` | functie sageata |  |
-| 516 | `addBeetle(x, y)` | functie sageata | ---- beetles --------------------------------------------------------------- |
-| 552 | `place(gap)` | functie sageata |  |
-| 593 | `far(x, y, d)` | functie sageata |  |
-| 628 | `paintChasm(c, L, P, r)` | functie | The chasms of a level with bands (T7.4, docs/25-niveluri-7-12.md, level 7). Painted once into the picture of the level: deep blue at the bottom (P.chasm[0]), a lighter middle (P.chasm[1]), mist (P.chasm[2]) and far little lights, the salmon rock lip on both edges. The crossings are painted as chasm too: their bridge of light is drawn every frame (drawBridge). |
-| 631 | `band(g, k)` | functie sageata | the band as one smooth shape, k = how much of its width |
-| 653 | `edge(off)` | functie sageata |  |
-| 676 | `makeDecor(L, seed)` | functie |  |
-| 679 | `pickType()` | functie sageata |  |
-| 693 | `paintDecor(cc, type, v, seed)` | functie | One picture of a kind of decor, drawn once and cached. v = which of the 4 looks it has. |
-| 739 | `paintDecorL(cc, type, v, r, pick)` | functie | The decor of the second game (the jungle at night). Glowing things get a soft halo of their own color. |
-| 788 | `decorSprite(type, v)` | functie sageata |  |
-| 789 | `paintDecorStill(c, L)` | functie | all the decor that stays put goes into the level picture, once |
-| 802 | `paintTree(c, t, P, ox, oy)` | functie |  |
-| 829 | `paintCrystalRock(c, x, y, R, col, seed)` | functie | Second game: a rock with little crystals growing on it, a big glowing mushroom, a torch, a totem with a rainbow pinwheel. |
-| 834 | `paintShroom(c, x, y, R, seed)` | functie |  |
-| 843 | `paintTorch(c, x, y)` | functie |  |
-| 848 | `drawFlame(c, x, y, t, s, glow)` | functie | a torch flame that flickers (glow: 0 to 1). Not "lit": that is the painter in 02-core.js |
-| 857 | `paintTotem(c, x, y)` | functie | x,y = base center. The totem rises about 200 px; the pinwheel turns on top. |
-| 869 | `drawPinwheel(c, x, y, ang)` | functie | the rainbow pinwheel on top of a totem: it turns faster when the wind blows |
-| 875 | `paintRock(c, x, y, R, col, seed)` | functie |  |
-| 882 | `paintHay(c, x, y, R, seed)` | functie |  |
-| 894 | `paintMillTower(c, x, y)` | functie | x,y = base center. Tower rises 250 px. |
-| 896 | `body(inset, col, a)` | functie sageata |  |
-| 905 | `drawMillBlades(c, x, y, ang)` | functie |  |
-| 917 | `paintLantern(c, x, y)` | functie |  |
-| 923 | `cellBlobs(c, L, type, rad, col, alpha, seed, jit)` | functie |  |
-| 934 | `paintLevel(L)` | functie |  |
-| 940 | `typeAt(x, y)` | functie sageata |  |
-| 1081 | `room(grow, col, al)` | functie sageata | rounded cave room plus the short tunnel to the waterfall |
-| 1116 | `paintVines(c, x, y, w, len, seed, sway, P)` | functie | A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). |
-| 1128 | `paintDoor(c, x, y)` | functie | The door of the hideout: an arched wooden door with a rainbow knob. x = middle, y = the ground line. |
-| 1147 | `isDiorama(L)` | functie | ---------- The frame of the new levels (docs/24-sisteme-noi.md, S7.4 and S7.5) ---------- A level with look: 'diorama' (levels 7 - 12, or every level with CONFIG.look.preview) gets, once, at loading: - haze over its far part (the top of the picture): paler and bluer, like air between the eye and the far away; - the front plane (L.front): big dark blurred things at the edges of the screen; - the paper texture multiplied into the picture itself (L.paperBaked), when the light map is on: the light map then takes the place of the whole overlay (paper + night vignette). On the slow test machine every full-screen pass costs a few ms, and the light map is already one. Levels 1 - 6 stay as they are. |
-| 1148 | `levelAmbient(L)` | functie |  |
-| 1149 | `finishLook(L)` | functie |  |
-| 1173 | `paintWater(L, c)` | functie | The water of the new levels (T6.8). Once, at loading: - L.water.path: the water cells as one Path2D (a rectangle for every run of cells on a row, a little smaller than the cells, so the waves stop before the bank); every frame fills it twice with the wave pattern (drawWater); - the reflection: the bank above every column of water, upside down, faint and out of focus, painted into the picture. It is made at a quarter of the size (that is what makes it soft), faded with depth, cut with a mask of soft discs (the shore of the water is not square), then laid over the water with a low alpha; - L.water.spark: the places where it sparkles. |
-| 1210 | `frontSlots()` | functie | where the things can be: two tall corners at the top, the two sides, two places at the bottom |
-| 1218 | `paintFront(L)` | functie |  |
-| 1244 | `paintFrontThing(t, kind, at, x, y, w, h, r, base, base2)` | functie |  |
-| 1285 | `frontLeaf(t, x, y, len, ang, col)` | functie | a long pointed leaf from (x, y) in the direction ang, with a pale midrib |
-| 1291 | `finishPaint(c, w, h, skyT, r, night, calm)` | functie |  |
-| 1304 | `genBoss()` | functie | The boss arena: one screen, the tallest tree in the valley. |
-| 1346 | `genArena()` | functie | The last level of the second game: George's arena. A clearing with mountains behind it, torches of fire all around, soldiers with spears, and in the middle the stone throne on which George sits. |
-| 1383 | `slab(w, y0, h, col)` | functie sageata |  |
+| 136 | `palOf(def)` | functie | The palette of a level: PALS, with the calm Krea colors over it when the new look is on. |
+| 138 | `levelCount(id)` | functie sageata |  |
+| 139 | `levelDefs()` | functie sageata |  |
+| 140 | `levelDef(idx)` | functie sageata |  |
+| 145 | `skyTOf(idx)` | functie sageata | the sky goes from afternoon to dusk over the levels. In the second game it is always counted over 6 levels: Part Two has its own colors |
+| 152 | `chapters(id)` | functie | The chapters of a game, in order: every level and every big fight. This is what "Continue", the Chapters screen and the save count in. Game.levelIdx is the index of a chapter; L.idx is still the number of the level (0-based) inside it. first game: levels 1 - 6, then the fight with Ciori (7 chapters) second game: levels 1 - 6, George's Arena, then the levels of Part Two (7 chapters now, 14 when Part Two is made) The Throne Hall, the last fight of Part Two, is added after the Part Two levels when it exists (task T11). |
+| 164 | `chapterId(ch)` | functie sageata | A name for a chapter that does not change when chapters are added or moved: 'L0'... for the levels, 'boss' for the big fight. The save keeps the order of these names (sl.order), so the results find their chapter again (remapSave, 09-screens.js). |
+| 166 | `oldChapterOrder(n)` | functie | The order of the second game before 27 November 2026: six levels, the big fight, then the levels of Part Two. |
+| 168 | `chapterLabel(i, id)` | functie | how a chapter is named in "Continue: ...": "Level 3", or the name of the big fight |
+| 173 | `levelsBefore(i, id)` | functie sageata | how many levels (not fights) come before chapter i: used for "stars found / stars there are" |
+| 175 | `spline(pts, stepLen)` | functie | Catmull-Rom through points, resampled evenly |
+| 198 | `quotaOf(idx)` | functie |  |
+| 209 | `levelDurationOf(L)` | functie | How long a level lasts (seconds): the sun, the medal and the help in updatePlay read this, not CONFIG.levelDuration. |
+| 214 | `genLevel(idx, seed)` | functie |  |
+| 223 | `inW(cx, cy)` | functie sageata |  |
+| 224 | `ci(x, y)` | functie sageata |  |
+| 225 | `mark(x, y, rad, bits)` | functie sageata |  |
+| 229 | `region(k)` | functie sageata |  |
+| 230 | `dv(arr, k)` | functie sageata |  |
+| 231 | `starRegion(i)` | functie sageata |  |
+| 247 | `pathDist(x, y)` | functie sageata |  |
+| 252 | `setWater(cx, cy)` | functie sageata | ---- water ---------------------------------------------------------------- |
+| 274 | `crossing(by, list)` | functie sageata |  |
+| 306 | `pathFar(x, y, d)` | functie sageata |  |
+| 307 | `areaClear(x, y, rad)` | functie sageata |  |
+| 314 | `addSolid(x, y, rad, kind, extra)` | functie sageata |  |
+| 315 | `mudEllipse(x, y, rx, ry)` | functie sageata |  |
+| 325 | `beltStrip(x, y)` | functie sageata |  |
+| 452 | `spotFree(x, y, rad)` | functie sageata | ---- trees, rocks, haystacks ---------------------------------------------- |
+| 460 | `scatter(count, rmin, rmax, kind, gap)` | functie sageata |  |
+| 502 | `reachCells(x, y, r0, r1, bits)` | functie sageata |  |
+| 516 | `shuffle(a)` | functie sageata |  |
+| 519 | `addBeetle(x, y)` | functie sageata | ---- beetles --------------------------------------------------------------- |
+| 555 | `place(gap)` | functie sageata |  |
+| 596 | `far(x, y, d)` | functie sageata |  |
+| 631 | `paintChasm(c, L, P, r)` | functie | The chasms of a level with bands (T7.4, docs/25-niveluri-7-12.md, level 7). Painted once into the picture of the level: deep blue at the bottom (P.chasm[0]), a lighter middle (P.chasm[1]), mist (P.chasm[2]) and far little lights, the salmon rock lip on both edges. The crossings are painted as chasm too: their bridge of light is drawn every frame (drawBridge). |
+| 634 | `band(g, k)` | functie sageata | the band as one smooth shape, k = how much of its width |
+| 656 | `edge(off)` | functie sageata |  |
+| 679 | `makeDecor(L, seed)` | functie |  |
+| 682 | `pickType()` | functie sageata |  |
+| 696 | `paintDecor(cc, type, v, seed)` | functie | One picture of a kind of decor, drawn once and cached. v = which of the 4 looks it has. |
+| 742 | `paintDecorL(cc, type, v, r, pick)` | functie | The decor of the second game (the jungle at night). Glowing things get a soft halo of their own color. |
+| 791 | `decorSprite(type, v)` | functie sageata |  |
+| 792 | `paintDecorStill(c, L)` | functie | all the decor that stays put goes into the level picture, once |
+| 805 | `paintTree(c, t, P, ox, oy)` | functie |  |
+| 832 | `paintCrystalRock(c, x, y, R, col, seed)` | functie | Second game: a rock with little crystals growing on it, a big glowing mushroom, a torch, a totem with a rainbow pinwheel. |
+| 837 | `paintShroom(c, x, y, R, seed)` | functie |  |
+| 846 | `paintTorch(c, x, y)` | functie |  |
+| 851 | `drawFlame(c, x, y, t, s, glow)` | functie | a torch flame that flickers (glow: 0 to 1). Not "lit": that is the painter in 02-core.js |
+| 860 | `paintTotem(c, x, y)` | functie | x,y = base center. The totem rises about 200 px; the pinwheel turns on top. |
+| 872 | `drawPinwheel(c, x, y, ang)` | functie | the rainbow pinwheel on top of a totem: it turns faster when the wind blows |
+| 878 | `paintRock(c, x, y, R, col, seed)` | functie |  |
+| 885 | `paintHay(c, x, y, R, seed)` | functie |  |
+| 897 | `paintMillTower(c, x, y)` | functie | x,y = base center. Tower rises 250 px. |
+| 899 | `body(inset, col, a)` | functie sageata |  |
+| 908 | `drawMillBlades(c, x, y, ang)` | functie |  |
+| 920 | `paintLantern(c, x, y)` | functie |  |
+| 926 | `cellBlobs(c, L, type, rad, col, alpha, seed, jit)` | functie |  |
+| 937 | `paintLevel(L)` | functie |  |
+| 943 | `typeAt(x, y)` | functie sageata |  |
+| 1084 | `room(grow, col, al)` | functie sageata | rounded cave room plus the short tunnel to the waterfall |
+| 1119 | `paintVines(c, x, y, w, len, seed, sway, P)` | functie | A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). |
+| 1131 | `paintDoor(c, x, y)` | functie | The door of the hideout: an arched wooden door with a rainbow knob. x = middle, y = the ground line. |
+| 1150 | `isDiorama(L)` | functie | ---------- The frame of the new levels (docs/24-sisteme-noi.md, S7.4 and S7.5) ---------- A level with look: 'diorama' (levels 7 - 12, or every level with CONFIG.look.preview) gets, once, at loading: - haze over its far part (the top of the picture): paler and bluer, like air between the eye and the far away; - the front plane (L.front): big dark blurred things at the edges of the screen; - the paper texture multiplied into the picture itself (L.paperBaked), when the light map is on: the light map then takes the place of the whole overlay (paper + night vignette). On the slow test machine every full-screen pass costs a few ms, and the light map is already one. Levels 1 - 6 stay as they are. |
+| 1151 | `levelAmbient(L)` | functie |  |
+| 1152 | `finishLook(L)` | functie |  |
+| 1176 | `paintWater(L, c)` | functie | The water of the new levels (T6.8). Once, at loading: - L.water.path: the water cells as one Path2D (a rectangle for every run of cells on a row, a little smaller than the cells, so the waves stop before the bank); every frame fills it twice with the wave pattern (drawWater); - the reflection: the bank above every column of water, upside down, faint and out of focus, painted into the picture. It is made at a quarter of the size (that is what makes it soft), faded with depth, cut with a mask of soft discs (the shore of the water is not square), then laid over the water with a low alpha; - L.water.spark: the places where it sparkles. |
+| 1213 | `frontSlots()` | functie | where the things can be: two tall corners at the top, the two sides, two places at the bottom |
+| 1221 | `paintFront(L)` | functie |  |
+| 1247 | `paintFrontThing(t, kind, at, x, y, w, h, r, base, base2)` | functie |  |
+| 1288 | `frontLeaf(t, x, y, len, ang, col)` | functie | a long pointed leaf from (x, y) in the direction ang, with a pale midrib |
+| 1294 | `finishPaint(c, w, h, skyT, r, night, calm)` | functie |  |
+| 1307 | `genBoss()` | functie | The boss arena: one screen, the tallest tree in the valley. |
+| 1349 | `genArena()` | functie | The last level of the second game: George's arena. A clearing with mountains behind it, torches of fire all around, soldiers with spears, and in the middle the stone throne on which George sits. |
+| 1386 | `slab(w, y0, h, col)` | functie sageata |  |
 
 ## 065-mech.js
 
