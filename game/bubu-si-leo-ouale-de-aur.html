@@ -6901,12 +6901,12 @@ function drawHeroFull(c, h) {
     c.strokeStyle = rgba(fcfg.color, 0.55 + pu * 0.4); c.lineWidth = 7; c.setLineDash([14, 10]); c.lineDashOffset = -t * 30;
     c.beginPath(); c.ellipse(h.x, h.y + 2, 64 + pu * 8, 27 + pu * 3, 0, 0, TAU); c.stroke(); c.setLineDash([]);
   }
-  if (h.boost > 0) {                       // the rocket: the hero shines like a little sun (in the last 2 seconds the light flickers)
-    const fl = h.boost < 2 ? 0.55 + 0.45 * Math.abs(Math.sin(P.time * 14)) : 1, pu = 0.85 + Math.sin(P.time * 9) * 0.15;
+  if (h.boost > 0) {                       // the rocket: a golden shine AROUND the hero (clear in the middle, so you still see who it is); in the last 2 seconds it flickers
+    const fl = h.boost < 2 ? 0.55 + 0.45 * Math.abs(Math.sin(P.time * 14)) : 1, pu = 0.9 + Math.sin(P.time * 9) * 0.1;
     c.save(); c.globalCompositeOperation = 'lighter';
-    let g = c.createRadialGradient(h.x, h.y - 40, 8, h.x, h.y - 40, 190 * pu); g.addColorStop(0, 'rgba(255,250,225,' + 0.95 * fl + ')'); g.addColorStop(0.35, 'rgba(255,224,140,' + 0.6 * fl + ')'); g.addColorStop(1, 'rgba(255,200,110,0)');
-    c.fillStyle = g; c.beginPath(); c.arc(h.x, h.y - 40, 190 * pu, 0, TAU); c.fill();
-    for (let i = 0; i < 6; i++) { const a = P.time * 2.2 + i * TAU / 6; drawStarSpark(c, h.x + Math.cos(a) * 66, h.y - 40 + Math.sin(a) * 52, 9 + 4 * Math.sin(P.time * 8 + i), fl); }
+    const g = c.createRadialGradient(h.x, h.y - 40, 40, h.x, h.y - 40, 150 * pu); g.addColorStop(0, 'rgba(255,214,120,0)'); g.addColorStop(0.45, 'rgba(255,214,120,' + 0.3 * fl + ')'); g.addColorStop(1, 'rgba(255,200,110,0)');
+    c.fillStyle = g; c.beginPath(); c.arc(h.x, h.y - 40, 150 * pu, 0, TAU); c.fill();
+    for (let i = 0; i < 6; i++) { const a = P.time * 2.2 + i * TAU / 6; drawStarSpark(c, h.x + Math.cos(a) * 74, h.y - 40 + Math.sin(a) * 58, 8 + 3 * Math.sin(P.time * 8 + i), 0.85 * fl); }
     c.restore();
   }
   if (h.safe) { c.strokeStyle = rgba('#7FB06A', 0.9); c.lineWidth = 5; c.setLineDash([12, 9]); c.beginPath(); c.ellipse(h.x, h.y + 2, 58, 24, 0, 0, TAU); c.stroke(); c.setLineDash([]); }
@@ -6917,11 +6917,6 @@ function drawHeroFull(c, h) {
   drawHero(c, h.k, h.x, h.y, heroOpts(h));
   if (h.run) c.restore();
   c.globalAlpha = 1;
-  if (h.boost > 0) {                       // the rocket: a white-gold shine over the hero himself
-    const fl = h.boost < 2 ? 0.5 + 0.5 * Math.abs(Math.sin(P.time * 14)) : 1;
-    c.save(); c.globalCompositeOperation = 'lighter'; c.fillStyle = 'rgba(255,236,170,' + (0.34 + Math.sin(P.time * 9) * 0.1) * fl + ')';
-    c.beginPath(); c.ellipse(h.x, h.y - top * 0.45, 58, top * 0.55, 0, 0, TAU); c.fill(); c.restore();
-  }
   if (h.carried) return;
   if (h.dizzy > 0) drawDizzyStars(c, h.x + (h.k === 0 && !isLupta() ? 30 * h.face : 0), h.y - top, P.time);
   if (h.down) {                            // ○ and a dot in the friend's color: "friend, press ○ for me"
@@ -7538,7 +7533,7 @@ function drawStarSpark(c, x, y, r, a) {
 function collectLights(L) {
   _lights.length = 0;
   for (const h of P.heroes) addLight(h.x, h.y - 70, 150, mix(CONFIG.heroes[h.k].color, '#FFF6E0', 0.5), 0.45);
-  for (const h of P.heroes) if (h.boost > 0) addLight(h.x, h.y - 60, 330, '#FFF4CC', 1, true);                  // the rocket: a big warm light around the shining hero
+  for (const h of P.heroes) if (h.boost > 0) addLight(h.x, h.y - 60, 200, '#FFE9A8', 0.45, true);                  // the rocket: a big warm light around the shining hero
   for (const p of L.inputs || []) if (p.kind === 'plate' && p.on) addLight(p.x, p.y, 110, '#FFF0C0', 0.5);      // a pressed plate glows (T7.2)
   for (const g of L.gates || []) if (g.kind === 'chasm' && g.vis > 0.2) addLight(g.x, g.y, 170, '#FFF2D8', 0.45 * Math.min(1, g.vis), true);   // the bridge of light shines (T7.4)
   if (L.cage && L.cage.done) addLight(L.cage.x, L.cage.y - 90, 150, '#FFE9A8', 0.6, true);                      // the open cage shines
