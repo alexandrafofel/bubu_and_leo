@@ -371,11 +371,38 @@ const Snd = (() => {
     }));
   }
   /* A line of the voice. quiet = 0..1 (a hum or a puff is quieter). Returns the id of the line, or -1. */
+  /* A line on another output (a controller speaker) is played from a copy made at that output's own sample rate
+     (a controller runs at 32 kHz or 16 kHz; the clips were decoded at the computer's rate). Made once, in the background. */
+  const reRate = new Map();
+  function voiceBufFor(A, buf) {
+    if (A === ac || buf.sampleRate === A.sampleRate) return buf;
+    const key = buf, m = reRate.get(key) || {}; reRate.set(key, m);
+    if (m[A.sampleRate] && m[A.sampleRate] !== 'busy') return m[A.sampleRate];
+    if (!m[A.sampleRate] && window.OfflineAudioContext) {
+      m[A.sampleRate] = 'busy';
+      try {
+        const o = new OfflineAudioContext(buf.numberOfChannels, Math.ceil(buf.duration * A.sampleRate), A.sampleRate), s = o.createBufferSource();
+        s.buffer = buf; s.connect(o.destination); s.start();
+        o.startRendering().then(r => { m[A.sampleRate] = r; }, () => { m[A.sampleRate] = buf; });
+      } catch (e) { m[A.sampleRate] = buf; }
+    }
+    return buf;                                   // this time the original (the browser converts it); the copy is ready next time
+  }
+  /* The speech chain of a small speaker: lift 1 - 4 kHz, where a tiny speaker is loud and words are understood, and make it louder. */
+  function padVoiceIn(b) {
+    if (b.voiceIn) return b.voiceIn;
+    const A = b.context, g = A.createGain(), pk = A.createBiquadFilter(), lo = A.createBiquadFilter();
+    pk.type = 'peaking'; pk.frequency.value = 2200; pk.Q.value = 0.7; pk.gain.value = 6;
+    lo.type = 'lowshelf'; lo.frequency.value = 350; lo.gain.value = -6;          // the low part of a voice only makes a tiny speaker rattle
+    g.gain.value = CONFIG.words.padGain || 1;
+    g.connect(lo); lo.connect(pk); pk.connect(b);
+    return (b.voiceIn = g);
+  }
   function voiceSay(k, id, quiet) {
     const buf = voice.buf[k][id], b = (outs[k] && outs[k].context.state === 'running') ? outs[k] : chrBus; if (!buf) return -1;
     const A = b.context, src = A.createBufferSource(), g = A.createGain();
-    src.buffer = buf; g.gain.value = (CONFIG.words.gain[k] || 1) * (quiet == null ? 1 : quiet);
-    src.connect(g); g.connect(b); src.start(A.currentTime + 0.01 + (b.lead || 0));
+    src.buffer = voiceBufFor(A, buf); g.gain.value = (CONFIG.words.gain[k] || 1) * (quiet == null ? 1 : quiet);
+    src.connect(g); g.connect(b === chrBus ? b : padVoiceIn(b)); src.start(A.currentTime + 0.01 + (b.lead || 0));
     return id;
   }
   /* Talk(k, key): hero k says a line for this moment. Routed like the hero's other sounds (own speaker when one was chosen).

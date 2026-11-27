@@ -137,6 +137,19 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `rescue.bothDownRestart` | `true` |  |
 | `rescue.restart` | `"level"` |  |
 | `rescue.retryScreen` | `2.2` |  |
+| `kids.on` | `true` |  |
+| `kids.every` | `2` |  |
+| `kids.looks` | `["kid_car","kid_bird","kid_frog","kid_boy","kid_penguin"]` |  |
+| `kids.size.kid_car` | `76` |  |
+| `kids.size.kid_bird` | `92` |  |
+| `kids.size.kid_frog` | `62` |  |
+| `kids.size.kid_boy` | `94` |  |
+| `kids.size.kid_penguin` | `90` |  |
+| `kids.face.kid_car` | `-1` |  |
+| `kids.face.kid_bird` | `1` |  |
+| `kids.face.kid_frog` | `-1` |  |
+| `kids.face.kid_boy` | `1` |  |
+| `kids.face.kid_penguin` | `1` |  |
 | `smallEnemy.hits` | `2` |  |
 | `smallEnemy.respawn` | `22` |  |
 | `beetleSpeed` | `150` |  |
@@ -208,6 +221,7 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `babble` | `true` |  |
 | `words.on` | `true` |  |
 | `words.gain` | `[1,1]` |  |
+| `words.padGain` | `1.4` |  |
 | `words.gap` | `4` |  |
 | `words.softGap` | `2.5` |  |
 | `words.humEvery` | `10` |  |

@@ -314,7 +314,7 @@ function dropGems(e) {
 }
 /* A snail crawls out of a glowing tree. It is a small enemy like the robots: it chases, it can be beaten, it comes back after a while. */
 function addSnail(x, y, i) {
-  P.L.beetles.push({ hx: x, hy: y, x, y, vx: 0, vy: 0, state: 'wake', t: 0.7 + i * 0.25, face: Math.random() < 0.5 ? 1 : -1, seed: Math.random() * 10, r: 26, look: 'snail', born: 0.5, cool: 0, hp: CONFIG.smallEnemy.hits });
+  P.L.beetles.push({ hx: x, hy: y, x, y, vx: 0, vy: 0, state: 'wake', t: 0.7 + i * 0.25, face: Math.random() < 0.5 ? 1 : -1, seed: Math.random() * 10, r: 26, look: kidLook('snail'), wasSnail: true, born: 0.5, cool: 0, hp: CONFIG.smallEnemy.hits });
 }
 function shakeTree(t, power, byStomp) {
   const L = P.L;
@@ -836,7 +836,7 @@ function updateEnemies(dt) {
       continue;
     }
     b.t -= dt; b.cool = Math.max(0, (b.cool || 0) - dt);
-    if (L.toy && L.toy.danceT > 0 && !b.look && b.state !== 'stun' && b.state !== 'knock') { b.dance = true; b.px = b.x; b.py = b.y; continue; }      // T8: the robots dance, they do not hunt
+    if (L.toy && L.toy.danceT > 0 && (!b.look || isKidLook(b.look)) && b.state !== 'stun' && b.state !== 'knock') { b.dance = true; b.px = b.x; b.py = b.y; continue; }      // T8: the robots dance, they do not hunt
     b.dance = false;
     let near = null, nd = 1e9;
     for (const h of P.heroes) { const d = dist(h.x, h.y, b.x, b.y); if (d < nd) { nd = d; near = h; } }
@@ -851,7 +851,7 @@ function updateEnemies(dt) {
       if (b.cool <= 0 && nd < CONFIG.beetleWakeRadius * D(near.k).wakeRadius && near.inv <= 0 && !near.safe) { b.state = 'wake'; b.t = 0.6; Snd.play('wake'); say(near.k, 'beetleWake'); b.face = near.x > b.x ? 1 : -1; }
     } else if (b.state === 'wake') { if (b.t <= 0) { b.state = 'chase'; b.t = 5; } }
     else if (b.state === 'chase') {
-      const dx = near.x - b.x, dy = near.y - b.y, m = Math.hypot(dx, dy) || 1, sp = (b.chase || CONFIG.beetleSpeed * (b.look === 'snail' ? 0.7 : 1)) * mul * dt;      // snails are slower; George's last enemies have their own speed
+      const dx = near.x - b.x, dy = near.y - b.y, m = Math.hypot(dx, dy) || 1, sp = (b.chase || CONFIG.beetleSpeed * (b.look === 'snail' || b.wasSnail ? 0.7 : 1)) * mul * dt;      // snails are slower; George's last enemies have their own speed
       b.x += dx / m * sp; b.y += dy / m * sp; b.face = dx > 0 ? 1 : -1;
       if (!b.follow && (b.t <= 0 || nd > 560 || dist(b.x, b.y, b.hx, b.hy) > 440 || near.dizzy > 0 || near.safe)) { b.state = 'return'; b.cool = 2; }      // George's thrown enemies keep after the heroes
     } else if (b.state === 'return') {

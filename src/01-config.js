@@ -132,6 +132,13 @@ const CONFIG = {
   },
 
   // ---- Small enemies: beetles and pinecones (robots, snails and birds in the second game) ----
+  kids: {                      // the enemies drawn by the children (27 November 2026, art/krea-ref/inamici-copii-desen.jpg)
+    on: true,
+    every: 2,                  // every 2nd small enemy (robot, snail, George's thrown ones) is one of them; the total stays the same
+    looks: ['kid_car', 'kid_bird', 'kid_frog', 'kid_boy', 'kid_penguin'],
+    size: { kid_car: 76, kid_bird: 92, kid_frog: 62, kid_boy: 94, kid_penguin: 90 },     // how tall each picture is drawn, in world units (a robot is 74)
+    face: { kid_car: -1, kid_bird: 1, kid_frog: -1, kid_boy: 1, kid_penguin: 1 }           // which way the picture looks (-1 = left)
+  },
   smallEnemy: {
     hits: 2,                   // hits (stomp, claws or ball) before a small enemy disappears
     respawn: 22                // seconds until another one appears in its place
@@ -212,6 +219,7 @@ const CONFIG = {
   words: {
     on: true,                   // false = the old synthesized words instead of the recorded lines
     gain: [1, 1],               // how loud each hero's voice is (Boon, Killer)
+    padGain: 1.4,               // voices on a controller's small speaker: a little louder, with the speech band lifted and the low part lowered
     gap: 4,                     // seconds of quiet between two lines of the same hero (not for the loud moments: hurt, star, help...)
     softGap: 2.5,               // the same for the small noises (a hum, a puff, "ga!")
     humEvery: 10,               // seconds of walking before the hero hums a little tune

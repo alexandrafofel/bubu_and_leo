@@ -10,7 +10,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 |---|---|
 | 1-16 | tot fisierul |
 
-## 01-config.js (351 linii)
+## 01-config.js (359 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -23,18 +23,18 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 77-86 | Rescue: a hero who was hit cannot walk until the friend comes and presses □ (both games) |
 | 87-124 | Co-op mechanisms of levels 7 - 12 (T7): bands cut the map, each crossing opens only when both heroes do their part. |
 | 125-133 | The ten seconds: a hit hero waits for his friend, and if nobody comes the level starts again |
-| 134-139 | Small enemies: beetles and pinecones (robots, snails and birds in the second game) |
-| 140-148 | Obstacles |
-| 149-155 | Helpers |
-| 156-163 | Boss |
-| 164-182 | Two mini-fights per level: one in the middle of the path, one at the nest |
-| 183-191 | Controls (keys and controller/keyboard are chosen in Setări). |
-| 192-205 | Run: press the left stick (L3) |
-| 206-210 | Sound |
-| 211-226 | The voices of Boon and Killer (T13): short recorded lines of two children playing dinosaurs (docs/26-limba-personajelor.md) |
-| 227-232 | Look |
-| 233-274 | The look of levels 7 - 12 and of the heroes (docs/24-sisteme-noi.md, S7) |
-| 275-351 | The second game, "Cea mai grea luptă" (invented by the children) |
+| 134-146 | Small enemies: beetles and pinecones (robots, snails and birds in the second game) |
+| 147-155 | Obstacles |
+| 156-162 | Helpers |
+| 163-170 | Boss |
+| 171-189 | Two mini-fights per level: one in the middle of the path, one at the nest |
+| 190-198 | Controls (keys and controller/keyboard are chosen in Setări). |
+| 199-212 | Run: press the left stick (L3) |
+| 213-217 | Sound |
+| 218-234 | The voices of Boon and Killer (T13): short recorded lines of two children playing dinosaurs (docs/26-limba-personajelor.md) |
+| 235-240 | Look |
+| 241-282 | The look of levels 7 - 12 and of the heroes (docs/24-sisteme-noi.md, S7) |
+| 283-359 | The second game, "Cea mai grea luptă" (invented by the children) |
 
 ## 015-lang.js (246 linii)
 
@@ -74,7 +74,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 747-748 | A painted card (panel) used by menus and story screens. |
 | 749-812 | Things that never change are painted once and then stamped: much faster per frame. |
 
-## 03-audio.js (607 linii)
+## 03-audio.js (634 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -86,16 +86,17 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 131-145 | instruments |
 | 146-239 | music: calm pentatonic patterns, a different one per level |
 | 240-372 | the heroes' own language: 33 invented words each |
-| 373-410 | A line of the voice. quiet = 0..1 (a hum or a puff is quieter). Returns the id of the line, or -1. |
-| 411-412 | sound effects |
-| 413-414 | Every effect gets: b = the bus to play on, t = the time now on that bus, x = an optional value. |
-| 415-430 | the heroes' own sounds (volume "Sunete personaje"; they can play in the controller) |
-| 431-517 | the world (volume "Sunete ambientale") |
-| 518-521 | Running (L3) in the first game too: the same short soft whoosh. |
-| 522-532 | play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. |
-| 533-534 | the controller's own speaker (only when the system shows it as an audio output) |
-| 535-575 | Chrome only tells the names of the speakers after the microphone permission was given (ask = true asks for it). |
-| 576-607 | Voice-over with a system voice in the chosen language, when one is installed. |
+| 373-390 | A line of the voice. quiet = 0..1 (a hum or a puff is quieter). Returns the id of the line, or -1. |
+| 391-437 | The speech chain of a small speaker: lift 1 - 4 kHz, where a tiny speaker is loud and words are understood, and make it louder. |
+| 438-439 | sound effects |
+| 440-441 | Every effect gets: b = the bus to play on, t = the time now on that bus, x = an optional value. |
+| 442-457 | the heroes' own sounds (volume "Sunete personaje"; they can play in the controller) |
+| 458-544 | the world (volume "Sunete ambientale") |
+| 545-548 | Running (L3) in the first game too: the same short soft whoosh. |
+| 549-559 | play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. |
+| 560-561 | the controller's own speaker (only when the system shows it as an audio output) |
+| 562-602 | Chrome only tells the names of the speakers after the microphone permission was given (ask = true asks for it). |
+| 603-634 | Voice-over with a system voice in the chosen language, when one is installed. |
 
 ## 04-input.js (166 linii)
 
@@ -104,7 +105,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 2-145 | INPUT: two DualShock 4 controllers through the Gamepad API (standard mapping) |
 | 146-166 | Settings: play hero k with a controller or with the keyboard. |
 
-## 05-chars.js (359 linii)
+## 05-chars.js (360 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -119,11 +120,11 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 291-307 | A woven nest seen from above. |
 | 308-328 | Small painted icons for hints (no words needed). |
 | 329-333 | The two heroes of the game being played: Bubu and Leo, or Boon and Killer. |
-| 334-339 | The small enemy that sleeps and wakes up: a beetle, or one of George's robots. |
-| 340-345 | The small enemy that comes down a lane: a rolling pinecone, or a sticky snail. |
-| 346-359 | A big gear that rolls down its lane (T8): painted tin, a ring of teeth that turns with the rolling, a bright hub. |
+| 334-340 | The small enemy that sleeps and wakes up: a beetle, or one of George's robots. |
+| 341-346 | The small enemy that comes down a lane: a rolling pinecone, or a sticky snail. |
+| 347-360 | A big gear that rolls down its lane (T8): painted tin, a ring of teeth that turns with the rolling, a bright hub. |
 
-## 055-lupta.js (811 linii)
+## 055-lupta.js (830 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -134,25 +135,25 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 171-233 | Killer's 10, "sewn on": a patch around the digits and a dotted cream stitch just outside them. |
 | 234-286 | KILLER: the big one's hero. A footballer all in blue, number 10, big red boots, a round head with big eyes and a wide grin. |
 | 287-377 | Killer's ball, like in the drawing: white, with hexagons. |
-| 378-451 | One of George's robots: asleep (a slow light), awake (!), chasing, dizzy. Same states as the beetle of the first game. |
-| 452-483 | A sticky snail that crawls down its lane and leaves a shiny trail. o.state 'stun' = it hides in its shell. |
-| 484-508 | A big jungle bird. It flies high: only its shadow touches the ground. o.grab = it carries a hero. o.spy = the small one that brings news to George. |
-| 509-532 | A rainbow crystal: a cut gem in one of the seven colors, with a soft glow. |
-| 533-591 | The secret star hidden behind the door: big, golden, with a ring in all the rainbow colors. |
-| 592-621 | The seesaw of level 7 (T7.4): the Krea picture, rocking around its log. |
-| 622-634 | The stepping lilies that grow over a water crossing when it opens (a gate that opens by itself or for a hero who waits for help). |
-| 635-652 | The crank: a wooden post with a wheel and a handle, and a rope that runs to the raft. It turns a third of a circle for each turn. |
-| 653-667 | The raft: a giant lily leaf with a raised rim and a pink flower. It bobs a little on the water, and more when it moves. |
-| 668-702 | The sliding door of a tin wall (T8): a panel with chevrons that goes up when the gate opens. Behind it the floor of the crossing. |
-| 703-726 | The arrows that run on a conveyor belt (T8). |
-| 727-740 | The helper of the second game: a little rocket. Whoever touches it makes both heroes fast. |
-| 741-753 | Things thrown in the second game: a glowing rock (George) and a spear (his soldiers). |
-| 754-780 | One of George's soldiers: a small lizard with a helmet and a spear. They stand around the arena. throwT > 0 = it just threw. |
-| 781-793 | One goalkeeper glove: red, white palm, a blue star in the palm. sd = which side it points to. |
-| 794-806 | Boon's boomerang bone: two round ends and a shaft, cream amber, with a small crack. |
-| 807-811 | What a thrown thing looks like: Killer's and Leo's ball, or Boon's bone. |
+| 378-470 | One of George's robots: asleep (a slow light), awake (!), chasing, dizzy. Same states as the beetle of the first game. |
+| 471-502 | A sticky snail that crawls down its lane and leaves a shiny trail. o.state 'stun' = it hides in its shell. |
+| 503-527 | A big jungle bird. It flies high: only its shadow touches the ground. o.grab = it carries a hero. o.spy = the small one that brings news to George. |
+| 528-551 | A rainbow crystal: a cut gem in one of the seven colors, with a soft glow. |
+| 552-610 | The secret star hidden behind the door: big, golden, with a ring in all the rainbow colors. |
+| 611-640 | The seesaw of level 7 (T7.4): the Krea picture, rocking around its log. |
+| 641-653 | The stepping lilies that grow over a water crossing when it opens (a gate that opens by itself or for a hero who waits for help). |
+| 654-671 | The crank: a wooden post with a wheel and a handle, and a rope that runs to the raft. It turns a third of a circle for each turn. |
+| 672-686 | The raft: a giant lily leaf with a raised rim and a pink flower. It bobs a little on the water, and more when it moves. |
+| 687-721 | The sliding door of a tin wall (T8): a panel with chevrons that goes up when the gate opens. Behind it the floor of the crossing. |
+| 722-745 | The arrows that run on a conveyor belt (T8). |
+| 746-759 | The helper of the second game: a little rocket. Whoever touches it makes both heroes fast. |
+| 760-772 | Things thrown in the second game: a glowing rock (George) and a spear (his soldiers). |
+| 773-799 | One of George's soldiers: a small lizard with a helmet and a spear. They stand around the arena. throwT > 0 = it just threw. |
+| 800-812 | One goalkeeper glove: red, white palm, a blue star in the palm. sd = which side it points to. |
+| 813-825 | Boon's boomerang bone: two round ends and a shaft, cream amber, with a small crack. |
+| 826-830 | What a thrown thing looks like: Killer's and Leo's ball, or Boon's bone. |
 
-## 06-level.js (1399 linii)
+## 06-level.js (1411 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -172,20 +173,20 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 422-450 | mud, pinecone lanes, windmills |
 | 451-476 | trees, rocks, haystacks |
 | 477-517 | reachability (flood fill from the start) |
-| 518-534 | beetles |
-| 535-547 | sparkling trees (hide eggs) and the treetop star |
-| 548-587 | T15: enough small enemies to give the diamonds (they are the only place diamonds come from) |
-| 588-611 | golden eggs, in waves from left to right |
-| 612-626 | lanterns along the path (sunset level) |
-| 627-675 | painting |
-| 676-694 | The decor of the second game: as many kinds, with the same ways of reacting, but the things of a jungle at night. |
-| 695-740 | One picture of a kind of decor, drawn once and cached. v = which of the 4 looks it has. |
-| 741-830 | The decor of the second game (the jungle at night). Glowing things get a soft halo of their own color. |
-| 831-1117 | Second game: a rock with little crystals growing on it, a big glowing mushroom, a torch, a totem with a rainbow pinwheel. |
-| 1118-1129 | A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). |
-| 1130-1140 | The door of the hideout: an arched wooden door with a rainbow knob. x = middle, y = the ground line. |
-| 1141-1305 | Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). |
-| 1306-1399 | The boss arena: one screen, the tallest tree in the valley. |
+| 518-535 | beetles |
+| 536-548 | sparkling trees (hide eggs) and the treetop star |
+| 549-588 | T15: enough small enemies to give the diamonds (they are the only place diamonds come from) |
+| 589-612 | golden eggs, in waves from left to right |
+| 613-627 | lanterns along the path (sunset level) |
+| 628-676 | painting |
+| 677-695 | The decor of the second game: as many kinds, with the same ways of reacting, but the things of a jungle at night. |
+| 696-741 | One picture of a kind of decor, drawn once and cached. v = which of the 4 looks it has. |
+| 742-831 | The decor of the second game (the jungle at night). Glowing things get a soft halo of their own color. |
+| 832-1118 | Second game: a rock with little crystals growing on it, a big glowing mushroom, a torch, a totem with a rainbow pinwheel. |
+| 1119-1130 | A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). |
+| 1131-1141 | The door of the hideout: an arched wooden door with a rainbow knob. x = middle, y = the ground line. |
+| 1142-1306 | Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). |
+| 1307-1411 | The boss arena: one screen, the tallest tree in the valley. |
 
 ## 065-mech.js (514 linii)
 

@@ -516,7 +516,8 @@ function genLevel(idx, seed) {
   const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = r() * (i + 1) | 0; const t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
 
   // ---- beetles ---------------------------------------------------------------
-  const addBeetle = (x, y) => L.beetles.push({ hx: x, hy: y, x, y, vx: 0, vy: 0, state: 'sleep', t: 0, face: r() < 0.5 ? 1 : -1, seed: r() * 10, r: 28 });
+  kidCount = 0;                                                     // the same enemies are the children's ones every time this level is built
+  const addBeetle = (x, y) => L.beetles.push({ hx: x, hy: y, x, y, vx: 0, vy: 0, state: 'sleep', t: 0, face: r() < 0.5 ? 1 : -1, seed: r() * 10, r: 28, look: kidLook() });
   for (const gs of guardSpots) for (let j = 0; j < gs.n; j++) {
     const a = r() * TAU + j * TAU / Math.max(1, gs.n), x = gs.x + Math.cos(a) * gs.rad, y = gs.y + Math.sin(a) * gs.rad;
     if (reach[ci(x, y)]) addBeetle(x, y);
@@ -1396,3 +1397,14 @@ function genArena() {
   L.overlay = makeOverlay('#C8D0FF', 0.1, 0.52, true);
   return finishLook(L);
 }
+
+/* The children's enemies (CONFIG.kids): every n-th small enemy that is made becomes one of their drawings, in turn.
+   A counter, not the level's random numbers: the levels stay the same as before. Returns a look, or undefined (a robot / a snail). */
+let kidCount = 0;
+function kidLook(was) {
+  const K = CONFIG.kids; if (!K || !K.on || !isLupta()) return was;
+  kidCount++;
+  if (kidCount % (K.every || 2)) return was;
+  return K.looks[((kidCount / (K.every || 2) | 0) - 1) % K.looks.length];
+}
+const isKidLook = l => typeof l === 'string' && l.indexOf('kid_') === 0;

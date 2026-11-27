@@ -345,3 +345,11 @@ O nota de sticla pentru fiecare scandura de lumina care apare. Cele sapte scandu
 ## Update 28 noiembrie 2026 (T13): vocile eroilor
 
 Boon si Killer vorbesc cu clipuri inregistrate (`src/017-voci-data.js`, 44 pe erou), nu cu silabe sintetizate. `talk(k, cheie)` alege o replica, o reda in difuzorul eroului (`outs[k]`, cu `lead`) si intoarce id-ul ei. Fiecare cuvant are pauza lui (`CONFIG.words.gap`, 4 s; `softGap` 2,5 s pentru fredonat, rasuflat si efort). Clipurile au varful sub 0,9. Difuzorul controllerului merge doar prin USB pe Mac. Fara clipuri sau cu `CONFIG.words.on = false` raman silabele vechi (`BABBLE`). Detalii: `26-limba-personajelor.md`.
+
+
+## Update 27 noiembrie 2026: vocile in difuzorul controllerului
+
+- Pe o iesire mica (controllerul), cuvintele trec printr-un lant al lor (`padVoiceIn`): mai tare (`CONFIG.words.padGain`, 1.4), cu banda 1 - 4 kHz ridicata si partea de jos coborata.
+- Un clip se canta dintr-o copie facuta la rata iesirii (`voiceBufFor`, `OfflineAudioContext`). Controllerul DualShock 4 merge la 32 kHz, iar clipurile sunt decodate la rata calculatorului.
+- `tests/sunete-controller-32k.js` repeta `sunete-controller.js` cu iesirile la 32 kHz.
+- Ce nu s-a putut verifica: un controller adevarat pe Mac. In teste vocile ajung in iesirea aleasa si inainte, si dupa schimbare.
