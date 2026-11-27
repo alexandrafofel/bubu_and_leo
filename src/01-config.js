@@ -93,6 +93,10 @@ const CONFIG = {
     cageWindow: 1.5,           // both heroes must hit the star cage within this many seconds (T7.2)
     cageReach: 150,            // a power of a hero (or a ball he threw) this close to the cage counts as a hit on it (T7.2)
     cageWobble: 0.6,           // seconds the cage shakes, and the faces of both heroes show, after one hero alone hit it (T7.2)
+    targetReach: 190,          // a power of a hero this close to a target of his color counts as a hit (T8)
+    targetOn: 0.4,             // seconds a target stays "on" after a hit (T8)
+    danceTime: 5, danceEvery: 30,   // the red button of level 8: the robots dance this many seconds, and the button rests this long (T8)
+    beltPush: 140,             // the conveyor belts of level 8 push a hero this many units per second (T8)
     plateDown: 6,              // a plate that is stepped on sinks this many units; the ring of light rises from it (T7.2)
     openTime: 0.5,             // seconds a gate takes to open or close all the way
     plateGap: 700,             // a plate that opens a gate for anyone ('any') stays at least this far from the crossing: nobody can step off and run over alone
@@ -137,7 +141,8 @@ const CONFIG = {
   // ---- Helpers -------------------------------------------------------------
   butterflyEvery: [40, 70],    // a butterfly appears every 40 to 70 seconds
   butterflyBoost: 1.5,         // speed multiplier
-  butterflyTime: 6,            // seconds of boost
+  butterflyTime: 10,           // seconds of the rocket: both heroes are fast, shine, cannot be hurt, turn every small enemy they touch into a diamond and take a heart from George
+  rocketGeorgeCd: 1.2,         // a hero with the rocket can take a heart from George once in this many seconds
   hintAfter: 10,               // seconds without an egg before a golden arrow appears
 
   // ---- Boss ----------------------------------------------------------------
@@ -309,20 +314,20 @@ const CONFIG = {
       roarRadius: 520,         // back on the throne George roars: heroes closer than this are pushed away (it does not hurt)
       roarPush: 1500
     },
-    levels: 7,                         // levels of the second game that exist. Part Two (levels 7 - 12) raises it as each new level is made
-    duelHp: [3, 3, 4, 5, 5, 6, 6],        // hits George takes in the middle fight, per level (the first game: CONFIG.duel.hp)
-    duelFinalHp: [5, 6, 6, 7, 8, 9, 9],   // hits George takes at the nest, per level (the first game: CONFIG.duel.finalHp)
+    levels: 8,                         // levels of the second game that exist. Part Two (levels 7 - 12) raises it as each new level is made
+    duelHp: [3, 3, 4, 5, 5, 6, 6, 7],        // hits George takes in the middle fight, per level (the first game: CONFIG.duel.hp)
+    duelFinalHp: [5, 6, 6, 7, 8, 9, 9, 10],   // hits George takes at the nest, per level (the first game: CONFIG.duel.finalHp)
     // T15 (docs/28-t15-george-de-doua-ori.md): diamonds come only from defeated small enemies, George comes at half and at all of the team's quota.
     // The numbers per level are starting points, to be tuned while the children play.
-    fieldEnemies: [12, 14, 15, 15, 17, 18, 18],   // small enemies on a level: robots, snails from the glowing trees and pinecones. Robots fill up the rest
+    fieldEnemies: [12, 14, 15, 15, 17, 18, 18, 20],   // small enemies on a level: robots, snails from the glowing trees and pinecones. Robots fill up the rest
     treeSnails: 2,             // snails that crawl out of a glowing tree when it is shaken; like every small enemy they come back after a while
     enemyDrop: 1,              // diamonds a defeated small enemy leaves on the ground
-    miniGeorge: { hp: 3, perLevel: [1, 1, 1, 2, 2, 2, 2], speed: 110, near: 640, drop: 1 },   // Little George: follows the nearest hero (within `near`), never hits
+    miniGeorge: { hp: 3, perLevel: [1, 1, 1, 2, 2, 2, 2, 2], speed: 110, near: 640, drop: 1 },   // Little George: follows the nearest hero (within `near`), never hits
     george: {
       minT: 20,                                // the middle fight never starts in the first seconds of a level
-      midThrows: [2, 3, 3, 4, 4, 5, 5],           // bones and balls George throws in the middle fight, per level: they daze, like pinecones
-      nestEnemies: [2, 4, 5, 6, 8, 10, 10],        // small enemies he throws in the nest fight, in all, per level (half at half his hearts, the rest at his last heart)
-      enemyHp: [2, 2, 3, 3, 3, 3, 3],             // hearts of a thrown enemy, per level
+      midThrows: [2, 3, 3, 4, 4, 5, 5, 5],           // bones and balls George throws in the middle fight, per level: they daze, like pinecones
+      nestEnemies: [2, 4, 5, 6, 8, 10, 10, 11],        // small enemies he throws in the nest fight, in all, per level (half at half his hearts, the rest at his last heart)
+      enemyHp: [2, 2, 3, 3, 3, 3, 3, 3],             // hearts of a thrown enemy, per level
       chaseSpeed: 120,                         // how fast the enemies thrown at his last heart follow the heroes (a hero walks at about 150)
       boneEvery: 2,                            // in the nest fight, above half his hearts: bones and balls thrown each time he loses a heart
       flight: 0.9                              // seconds a thrown thing flies before it lands

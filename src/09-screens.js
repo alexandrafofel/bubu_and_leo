@@ -467,6 +467,8 @@ function drawIntroIconL(c, kind, x, y, t, Lx) {
   else if (kind === 'door') { c.beginPath(); c.arc(x, y, 86, 0, TAU); c.clip(); c.fillStyle = '#6E62A8'; c.fillRect(x - 90, y - 90, 180, 180); paintDoor(c, x, y + 66); }
   else if (kind === 'lantern') { paintTorch(c, x, y + 74); drawFlame(c, x, y - 12, t, 1.1, 1); }
   else if (kind === 'plate') { if (artOk('plate_both')) drawArt(c, 'plate_both', x, y + 70, 120, 0.5); else { c.fillStyle = '#D9A07E'; c.beginPath(); c.ellipse(x, y + 30, 70, 34, 0, 0, TAU); c.fill(); } }
+  else if (kind === 'target') { c.fillStyle = '#9A6A58'; c.fillRect(x - 5, y + 10, 10, 60); for (const [rr, cc] of [[44, '#2A3FA0'], [40, '#4A78E0'], [27, '#FFF6E2'], [17, '#3FD0C0'], [7, '#FFF6E2']]) { c.fillStyle = cc; c.beginPath(); c.arc(x, y + 4, rr, 0, TAU); c.fill(); } }
+  else if (kind === 'gear') { drawGear(c, x, y + 6, 40, '#C8A040', t); }
   else if (kind === 'bridge') { for (let i = 0; i < 7; i++) { const u = clamp((t * 1.4) % 3 * 3 - i * 0.5, 0, 1); c.globalAlpha = u; c.fillStyle = mix(RAINBOW[i], '#FFF6E0', 0.3); c.beginPath(); c.roundRect(x - 98 + i * 28, y - 40, 24, 100, 6); c.fill(); } c.globalAlpha = 1; }
   else return false;
   return true;

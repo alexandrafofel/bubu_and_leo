@@ -39,7 +39,7 @@ const { chromium } = require('./pw.js');
       // T7.5: a band in the way (the target is past it, or there is nothing on this side): go to this hero's place at the gate (mechSteps)
       if (L.gates && L.gates.length && !(P.duel && !P.duel.over)) {
         const fg = frontGate(L);
-        if (fg && (tx == null || bandSide(L, tx, ty) !== bandSide(L, h.x, h.y))) { const stp = mechSteps(fg)[0]; if (stp) { tx = stp.x; ty = stp.y; stomp = false; bot.gateT = (bot.gateT || 0) + dt; } }
+        if (fg && (tx == null || bandSide(L, tx, ty) !== bandSide(L, h.x, h.y))) { const stp = mechSteps(fg)[0]; if (stp) { tx = stp.x; ty = stp.y; stomp = stp.ax != null && Math.hypot(h.x - tx, h.y - ty) < 70; bot.gateT = (bot.gateT || 0) + dt; } }
       }
       if (stomp && h.cd <= 0) S[0].aP = true;
       if (tx == null) return;
@@ -87,7 +87,11 @@ const { chromium } = require('./pw.js');
           const d = P.duel, m = Math.hypot(d.x - h.x, d.y - h.y), R = h.k === 0 ? 200 : 420;
           tx = d.x; ty = d.y; if (m < R && d.z < 70) { aimOnly = true; if (bot.f % (h.k === 0 ? 24 : 18) === 0) att = true; }
         } else if (P.nestOpen) { tx = L.nest.x + (h.k ? 40 : -40); ty = L.nest.y; }
-        else if (steps[h.k]) { tx = steps[h.k].x; ty = steps[h.k].y; }
+        else if (steps[h.k]) {
+          tx = steps[h.k].x; ty = steps[h.k].y;
+          const sp = steps[h.k];                          // T8: at a target (sp.ax): aim at it and hit it every little while
+          if (sp.ax != null && Math.hypot(h.x - tx, h.y - ty) < 70) { aimOnly = true; tx = sp.ax; ty = sp.ay; if (bot.f % 22 === (h.k ? 5 : 11)) att = true; }
+        }
         else {
           const side = sideOf(h.x, h.y); let bd = 1e9;
           for (const e of P.eggs) if (e.state === 'idle' && e.delay <= 0 && sideOf(e.x, e.y) === side) { const q = Math.hypot(e.x - h.x, e.y - h.y); if (q < bd) { bd = q; tx = e.x; ty = e.y; } }

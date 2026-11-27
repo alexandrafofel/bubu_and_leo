@@ -162,9 +162,18 @@ Se rostogolesc de sus in jos pe culoar. La capat dispar 1.4 s si pornesc din nou
 
 Doar pe nivelurile cu `wind`: `calm` 9 s (variaza), `warn` 1 s (sunet si cateva frunze), `blow` 2.6 s. Puterea urca lin. Impinge eroii (x `wind` din dificultate) si mingea. Pe ecran: frunze care zboara si dungi crem. Morile se invart mai repede.
 
+## Racheta (27 noiembrie 2026)
+
+Cine atinge racheta, ambii eroi primesc `CONFIG.butterflyTime` = 10 secunde de racheta (`h.boost`). Cat tine:
+
+- Eroii merg mai repede (x 1.5) si **nu pot fi loviti** (`hitHero` iese din prima, proiectilele lui George trec prin ei, `duelSpares`).
+- **Stralucesc foarte tare**: halou alb-auriu, scantei care se rotesc, lumina mare in harta de lumina (`collectLights`) si o fasie luminoasa peste erou. In ultimele 2 secunde lumina palpaie.
+- Un inamic mic atins (robot, melc, con, pasare) moare pe loc si lasa diamantul (`updateRocketTouch`, `rocketKill` prin `hurtSmall`).
+- George atins pierde o inimioara (`duelHit`, cel mult una la `CONFIG.rocketGeorgeCd` = 1.2 s).
+
 ## Fluturele
 
-Apare la 40 pana la 70 de secunde, pe marginea ecranului, si zboara in jurul eroilor. Cine il atinge da ambilor viteza x 1.5 pentru 6 s. Pleaca dupa 18 s daca nu e prins.
+Apare la 40 pana la 70 de secunde, pe marginea ecranului, si zboara in jurul eroilor. Cine il atinge da ambilor racheta pentru 10 s (vezi mai jos). Pleaca dupa 18 s daca nu e prins.
 
 La nivelul 5, primul fluture zboara spre cascada si sta acolo pana la 40 s. Este un indiciu pentru pestera, fara cuvinte.
 

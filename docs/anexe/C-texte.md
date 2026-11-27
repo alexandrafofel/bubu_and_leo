@@ -4,7 +4,7 @@
 
 Textele sunt in `STR` din src/015-lang.js. Cheia este numele folosit in cod: `T('cheie')`. `{0}` si `{1}` sunt locuri completate de cod (un nume, un numar).
 
-Total: 230 texte in romana si 229 in engleza.
+Total: 232 texte in romana si 231 in engleza.
 
 | Cheie | Linia (ro) | Romana | Engleza |
 |---|---|---|---|
@@ -234,7 +234,9 @@ Total: 230 texte in romana si 229 in engleza.
 | `lvl.vines.intro` | 116 | Lianele atârnă pe stâncă. Se spune că în spatele lor este o ușă spre o ascunzătoare, cu o stea pe care puțini au găsit-o. Căutați cu atenție! | Vines hang down the cliff. They say there is a door behind them, to a hideout with a star that few have ever found. Look carefully! |
 | `lvl.canyon.name` | 117 | Canionul Podurilor de Lumină | The Canyon of Light Bridges |
 | `lvl.canyon.intro` | 118 | George cel Rău s-a întors și a furat steluțele! Porniți după el. Aveți puteri noi: apăsați □. Boon aruncă oase-bumerang. Killer își învârte mănușile. Apăsați stick-ul ca să fugiți. Dacă prietenul e lovit, aveți zece secunde: ○! | George the Bad came back and stole the little stars! Go after him. You have new powers: press □. Boon throws boomerang bones. Killer spins his gloves. Press the stick to run. If your friend gets hit you have ten seconds: ○! |
-| `lvl.road.name` | 119 | Drumul Torțelor | Torch Road |
-| `lvl.road.intro` | 120 | Torțele se aprind când treceți pe lângă ele. Este ultimul drum până la arena lui George. Gropi, roboți, melci și vânt: rămâneți împreună! | The torches light up as you walk past. This is the last road to George's arena. Pits, robots, snails and wind: stay together! |
-| `lvl.arena.name` | 121 | Arena lui George | George's Arena |
-| `lvl.arena.intro` | 122 | George cel Rău stă pe tronul lui de piatră, între torțe și soldați cu sulițe. Boon, zgârie tronul cu ghearele ca să îl dărâmi! Killer, când George cade, lovește-l cu mingea! De {0} ori! | George the Bad sits on his stone throne, among torches and soldiers with spears. Boon, scratch the throne with your claws to bring him down! Killer, when George falls, hit him with the ball! {0} times! |
+| `lvl.works.name` | 119 | Atelierul lui George | George's Workshop |
+| `lvl.works.intro` | 120 | George cel Rău își construiește roboții aici! Zidurile se deschid doar dacă loviți țintele: cele turcoaz sunt ale lui Boon, cele albastre ale lui Killer. Atenție la benzile rulante și la roțile dințate! | George the Bad builds his robots here! The walls open only when you hit the targets: the turquoise ones are Boon's, the blue ones are Killer's. Watch out for the conveyor belts and the rolling gears! |
+| `lvl.road.name` | 121 | Drumul Torțelor | Torch Road |
+| `lvl.road.intro` | 122 | Torțele se aprind când treceți pe lângă ele. Este ultimul drum până la arena lui George. Gropi, roboți, melci și vânt: rămâneți împreună! | The torches light up as you walk past. This is the last road to George's arena. Pits, robots, snails and wind: stay together! |
+| `lvl.arena.name` | 123 | Arena lui George | George's Arena |
+| `lvl.arena.intro` | 124 | George cel Rău stă pe tronul lui de piatră, între torțe și soldați cu sulițe. Boon, zgârie tronul cu ghearele ca să îl dărâmi! Killer, când George cade, lovește-l cu mingea! De {0} ori! | George the Bad sits on his stone throne, among torches and soldiers with spears. Boon, scratch the throne with your claws to bring him down! Killer, when George falls, hit him with the ball! {0} times! |

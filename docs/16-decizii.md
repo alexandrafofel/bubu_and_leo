@@ -579,3 +579,8 @@ Hotararea de proces: `balanseaza()` sta in `tests/common.js` si cheama `giveEgg`
 - **Balonul si dictionarul:** cuvantul apare scris, cu traducerea dedesubt, iar cuvintele aflate se strang in Dictionar (din meniul de start si din pauza). Setarea "Text la cuvinte" ascunde balonul, nu sunetul. Salvarea tine cuvintele (`d.g2.lex`).
 - **Cheia de config `CONFIG.words`,** nu `CONFIG.voice` (era deja luata de vocea sistemului).
 
+
+## Update 27 noiembrie 2026: racheta si steluta de pe stalp
+
+- **Racheta = invincibilitate de 10 secunde pentru amandoi**, indiferent cine o ia. Inamicii mici atinsi devin diamante, George pierde o inimioara. Motiv: cerut de proprietara; copiii vor sa simta ca sunt "foarte, foarte puternici" scurt timp.
+- **Steluta de pe stalpul nivelului 7** (`pillar`) se ia si cu o lovitura de invartire de la marginea prapastiei (`powerSweep`), are raza mai mare la aruncare si pozitia ei cere margini fara pietre. Motiv: proprietara a spus ca nu poate fi luata.

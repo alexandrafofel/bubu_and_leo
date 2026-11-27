@@ -17,7 +17,12 @@
    dy: the input lies on its bank, next to the band, this far above (-) or below (+) the crossing. */
 const MECH_RECIPES = {
   plates1: { rule: 'any', stay: 1.5, inputs: [{ kind: 'plate', who: -1, side: 'near', along: true }, { kind: 'plate', who: -1, side: 'far', along: true }] },
-  plates2: { rule: 'all', stay: 5, inputs: [{ kind: 'plate', who: 0, side: 'near', dy: -520 }, { kind: 'plate', who: 1, side: 'near', dy: 520 }] }
+  plates2: { rule: 'all', stay: 5, inputs: [{ kind: 'plate', who: 0, side: 'near', dy: -520 }, { kind: 'plate', who: 1, side: 'near', dy: 520 }] },
+  // Level 8 (T8): targets on the face of the wall, each for one hero only (who 0 = turquoise = Boon, who 1 = blue = Killer).
+  // face: the target sits against the wall, on the near bank, this far from it (not 150 away like the plates).
+  targets1: { rule: 'allWithin', stay: 5, window: 4, inputs: [{ kind: 'target', who: 0, side: 'near', dy: -300, face: true }, { kind: 'target', who: 1, side: 'near', dy: 300, face: true }] },
+  targets2: { rule: 'seq', stay: 6, inputs: [{ kind: 'target', who: 0, side: 'near', dy: -440, face: true }, { kind: 'target', who: 1, side: 'near', dy: 130, face: true },
+                                             { kind: 'target', who: 1, side: 'near', dy: -140, face: true }, { kind: 'target', who: 0, side: 'near', dy: 430, face: true }] }
 };
 const MECH_INPUT_R = { plate: 60, target: 46, crank: 50, pedestal: 50, cage: 70, test: 40 };
 
@@ -35,6 +40,7 @@ function placeMechInputs(L, r, mark) {
     const i = ci(x, y); if (!L.reach[i] || L.grid[i] !== 0 || (L.flag[i] & 32)) return false;
     for (const s of L.solids) if (dist(x, y, s.x, s.y) < s.r + rad + 12) return false;
     for (const p of L.inputs) if (dist(x, y, p.x, p.y) < p.r + rad + 40) return false;
+    for (const ln of L.lanes) if (Math.abs(x - ln.x) < 130) return false;       // not on the lane of a rolling gear or snail (T8)
     if (L.toy && dist(x, y, L.toy.x, L.toy.y) < 320) return false;       // not on the seesaw (T7.4)
     return dist(x, y, L.spawn.x, L.spawn.y) > 170 && dist(x, y, L.nest.x, L.nest.y) > 230;
   };
@@ -59,7 +65,8 @@ function placeMechInputs(L, r, mark) {
       } else {
         let y = g.y + d.dy;
         y = clamp(y, L.top + 140, L.H - 140);
-        want = { x: d.side === 'far' ? bandRight(g, y) + 150 : bandLeft(g, y) - 150, y };
+        const off = d.face ? 105 : 150;
+        want = { x: d.side === 'far' ? bandRight(g, y) + off : bandLeft(g, y) - off, y };
       }
       if (!want) return false;
       let spot = null;                             // the closest good place around the one we want
@@ -126,6 +133,7 @@ function heroCrossing(h) {
    ('test', and the ones of T8 - T12) keep the value someone else gave them in inp.raw. */
 function inputRaw(inp) {
   if (inp.kind === 'plate') return plateBy(inp) >= 0;
+  if (inp.kind === 'target') return P.time < (inp.hitUntil || 0);          // a hit by the right hero keeps it on for a moment (targetHit)
   return !!inp.raw;
 }
 /* The hero who presses a plate (-1 = nobody). Only the one who is pressing gets the vibration (T7.2). */
@@ -136,6 +144,35 @@ function plateBy(inp) {
     if (dist(h.x, h.y, inp.x, inp.y) < 55) return h.k;
   }
   return -1;
+}
+
+/* ---------- the targets of level 8 (T8, docs/25-niveluri-7-12.md, 3.4) ----------
+   Turquoise ones listen only to Boon, blue ones only to Killer. Any power of the right hero counts: the claws spinning
+   or a stomp close to it, a bone or a ball that flies into it. A hit of the wrong hero only shakes it. */
+function targetHit(inp, k) {
+  const M = CONFIG.mech;
+  if (inp.who >= 0 && inp.who !== k) { inp.shakeT = 0.5; Snd.play('click'); return false; }
+  inp.hitUntil = P.time + M.targetOn; inp.flash = 1; inp.lastHitBy = k;
+  Snd.play('plate'); Input.rumble(k, 0, 0.5, 90); burst(inp.x, inp.y, 6, { speed: 120, life: 0.5 });
+  return true;
+}
+/* A power of hero h (powerSweep: once per power id). */
+function targetSwing(h, id) {
+  const L = P.L; if (!L.inputs || !L.inputs.length || !isJoined(h.k) || h.down) return;
+  for (const inp of L.inputs) {
+    if (inp.kind !== 'target' || inp.swing === h.k + ':' + id) continue;
+    if (dist(h.x, h.y, inp.x, inp.y) > CONFIG.mech.targetReach) continue;
+    inp.swing = h.k + ':' + id; targetHit(inp, h.k);
+  }
+}
+/* Every frame: the flash runs down, and a bone or a ball in the air counts once when it reaches a target. */
+function updateTargets(dt) {
+  const L = P.L; if (!L.inputs) return;
+  for (const inp of L.inputs) {
+    if (inp.kind !== 'target') continue;
+    inp.flash = Math.max(0, (inp.flash || 0) - dt * 2.2); inp.shakeT = Math.max(0, (inp.shakeT || 0) - dt);
+    for (const f of P.flock) if (f.state === 'fly' && f.tgt !== inp.id && isJoined(f.owner) && dist(f.x, f.y, inp.x, inp.y) < inp.r + 28) { f.tgt = inp.id; targetHit(inp, f.owner); }
+  }
 }
 
 /* ---------- helpers of the safety rules (T7.3, docs/25-niveluri-7-12.md, 3.6) ---------- */
@@ -155,7 +192,7 @@ function frontGate(L) { for (const g of L.gates || []) if (g.state !== 'fixed') 
 
 /* Every frame, after the heroes and the thrown things (updatePlay). docs/25, 3.2 and 3.6. */
 function updateMechs(dt) {
-  updateCage(dt); updateToy(dt);
+  updateCage(dt); updateToy(dt); updateTargets(dt);
   const L = P.L; if (!L.gates || !L.gates.length) return;
   const M = CONFIG.mech, easy = mechEasy(), ef = easy ? M.easy : 1, solo = soloK();
   for (const inp of L.inputs) {
@@ -233,7 +270,16 @@ function mechSteps(g) {
   const ins = g.inputs.map(id => L.inputs[id]), solo = soloK();
   const far = h => h.x > bandX(g, h.y);
   const actOf = p => p.kind === 'target' ? 'throw' : p.kind === 'crank' ? 'spin' : p.kind === 'pedestal' ? 'carry' : p.kind === 'slot' ? 'push' : 'stand';
-  const at = (p, h) => ({ x: p.x, y: p.y, act: actOf(p), inp: p.id });
+  // a target: stand a little way from it, where there is room (the nearest free place of a few), and aim at it
+  const spot = p => {
+    for (const [dx, dy] of [[-130, 0], [-100, -70], [-100, 70], [-70, 0], [-70, -90], [-70, 90], [0, 0]]) {
+      const x = p.x + dx, y = p.y + dy; if (L.grid[L.ci(x, y)] !== 0 || (L.flag[L.ci(x, y)] & 32)) continue;
+      if (L.solids.some(so => dist(x, y, so.x, so.y) < so.r + HERO_R + 8)) continue;
+      return { x, y };
+    }
+    return { x: p.x, y: p.y };
+  };
+  const at = (p, h) => p.kind === 'target' ? Object.assign(spot(p), { act: 'throw', inp: p.id, ax: p.x, ay: p.y }) : { x: p.x, y: p.y, act: actOf(p), inp: p.id };
   const cross = h => far(h) ? { x: g.x + g.w / 2 + 110, y: g.y, act: 'stand' } : { x: g.x - g.w / 2 - 70, y: g.y, act: 'cross' };   // wait by the crossing; once open, go
   const go = h => far(h) ? { x: g.x + g.w / 2 + 110, y: g.y, act: 'stand' } : { x: g.x + g.w / 2 + 110, y: g.y, act: 'cross' };
   const mine = (h, p) => (p.who === -1 || p.who === h.k) && (p.side === 'far') === far(h) && !inputVirtual(p, solo);
@@ -267,7 +313,8 @@ function mechSteps(g) {
   // all, allWithin, seq (and the kinds of T8 - T12): everyone to his own input; once it is open, everyone over
   for (const h of hs) {
     if (open) { out[h.k] = go(h); continue; }
-    const p = pick(h);
+    let p = pick(h);
+    if (g.rule === 'seq' && ins[g.step] && p !== ins[g.step]) p = null;       // a sequence: only the hero whose turn it is goes to his input, the other waits
     if (p) { used.add(p); out[h.k] = at(p, h); } else out[h.k] = cross(h);
   }
   return out;
@@ -340,7 +387,15 @@ function updateCage(dt) {
    A hero at each end makes it rock, and both laugh. It gives nothing: it is only for fun. */
 const SEESAW_END = 120;
 function updateToy(dt) {
-  const L = P.L, toy = L && L.toy; if (!toy || toy.kind !== 'seesaw') return;
+  const L = P.L, toy = L && L.toy; if (!toy) return;
+  if (toy.kind === 'button') {                           // T8: the red button of the workshop. Whoever steps on it makes every robot dance for 5 seconds, once in 30
+    toy.danceT = Math.max(0, toy.danceT - dt); toy.cool = Math.max(0, toy.cool - dt);
+    const h = P.heroes.find(q => isJoined(q.k) && !q.down && !q.carried && dist(q.x, q.y, toy.x, toy.y) < 70), on = !!h;
+    toy.down += ((on ? 1 : 0) - toy.down) * Math.min(1, dt * 14);
+    if (on && !toy.was && toy.cool <= 0) { toy.danceT = CONFIG.mech.danceTime; toy.cool = CONFIG.mech.danceEvery; Snd.play('plate'); say(h.k, 'levelWin'); Input.rumble(h.k, 0, 0.5, 120); burst(toy.x, toy.y - 20, 12, { speed: 200, life: 0.7 }); }
+    toy.was = on; return;
+  }
+  if (toy.kind !== 'seesaw') return;
   const on = [-1, 1].map(side => P.heroes.find(h => isJoined(h.k) && !h.down && !h.carried && dist(h.x, h.y, toy.x + side * SEESAW_END, toy.y) < 70));
   toy.both = !!(on[0] && on[1] && on[0] !== on[1]);
   toy.t = (toy.t || 0) + dt;
