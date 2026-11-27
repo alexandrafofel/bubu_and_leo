@@ -58,8 +58,8 @@ const LEVEL_DEFS_L = [
     trees: 14, rocks: 30, beetles: [3, 5, 6], lanes: [1, 1, 2], conesPerLane: 1, coneSpeed: 0.7, roller: 'gear', mud: [2, 3, 3], slowKind: 'belt', sparkle: [1, 2, 2], lanterns: true,
     bands: [{ at: 0.335, kind: 'wall', w: 120, mech: 'targets1' }, { at: 0.665, kind: 'wall', w: 120, mech: 'targets2' }],
     stars: ['guarded', 'treetop', 'nook'], toy: 'button' },
-  { key: 'lake', music: 'l2', pal: 'lake', night: true, look: 'diorama', ambient: '#9AA8F0', icons: ['raft', 'crank', 'egg'],
-    trees: 34, rocks: 10, beetles: [1, 2, 2], lanes: [1, 1, 1], conesPerLane: 1, coneSpeed: 0.5, mud: [1, 1, 2], slowKind: 'slime', sparkle: [1, 2, 2],
+  { key: 'lake', w: 4800, music: 'l2', pal: 'lake', night: true, look: 'diorama', ambient: '#9AA8F0', icons: ['raft', 'crank', 'egg'],
+    trees: 50, rocks: 15, beetles: [2, 3, 3], lanes: [1, 1, 1], conesPerLane: 1, coneSpeed: 0.5, mud: [1, 1, 2], slowKind: 'slime', sparkle: [1, 2, 2],
     bands: [{ at: 0.335, kind: 'water', w: 400, mech: 'raft1' }, { at: 0.665, kind: 'water', w: 480, mech: 'raft2' }],
     stars: ['islet', 'nook', 'guarded'], toy: 'lilies' }
 ];
@@ -123,7 +123,11 @@ const PALS_ART = {
             tree: ['l6_tree1', 'l6_tree2'], spark: 'l6_spark', rock: 'l6_rock', bush: 'l6_bush', flowers2: 'l6_spark', band: '#4A3046',
             water: ['#3E3A78', '#5A5AA8', '#8A8AD0', '#D8D8FF'] },
   canyon: { g0: '#E8B48A', g1: '#DCA47E', tints: ['#EEBE92', '#E0AA84', '#F2C8A0'], path: '#FBEBD2', lane: '#F4A8C8', canopy: ['#5FA090', '#6FB08A', '#8AC0A0'], flowers: ['#FF9AC0', '#FFE58A', '#C8B8FF'],
-            tree: ['l7_tree1', 'l7_tree2'], spark: 'l7_spark', rock: 'l7_rock', bush: 'l7_bush', flowers2: 'l7_flowers', band: '#F2B6A0' }
+            tree: ['l7_tree1', 'l7_tree2'], spark: 'l7_spark', rock: 'l7_rock', bush: 'l7_bush', flowers2: 'l7_flowers', band: '#F2B6A0' },
+  // level 9 (T8): the night lake from the approved Krea map (art/krea-ref/nivel9-harta.jpg): willows, cattails, lilac rocks, blue crystals, lotus flowers
+  lake:   { night: true, g0: '#3F7488', g1: '#356A80', tints: ['#46808E', '#3A6E84', '#4E8A94'], path: '#E8D8B0', lane: '#F2B0D8', canopy: ['#4E9AA0', '#5AAAA8', '#6AB8B0'], flowers: ['#FFB0D8', '#FFF6E8', '#FFD84A', '#B09AFF'],
+            tree: ['lake_tree1', 'lake_tree2'], spark: 'lake_spark', rock: 'lake_rock', bush: 'lake_bush', flowers2: 'lake_flowers', band: '#2A5A7A',
+            water: ['#1E3A78', '#2A4E90', '#4A7CC4', '#D8ECFF'] }
 };
 /* The palette of a level: PALS, with the calm Krea colors over it when the new look is on. */
 function palOf(def) { const base = PALS[def.pal], a = artOn() && CONFIG.look.calm && PALS_ART[def.pal]; return a ? Object.assign({}, base, a, { art: true }) : base; }
@@ -205,13 +209,13 @@ function levelDurationOf(L) {
 }
 for (let i = 0; i < CONFIG.levels; i++) quotaOf(i);      // a wrong CONFIG.quota is reported once, when the game starts
 function genLevel(idx, seed) {
-  const def = levelDef(idx), r = rng(seed), WW = 3200, WH = 1800, cols = WW / CS, rows = WH / CS;
+  const def = levelDef(idx), r = rng(seed), WW = def.w || 3200, WH = 1800, cols = WW / CS, rows = WH / CS;
   const NW = clamp(CONFIG.wavesPerLevel | 0, 1, 5);
   const top = def.cliff ? 520 : 280;
   const L = { idx, def, seed, night: !!def.night, W: WW, H: WH, cols, rows, top, skyH: def.cliff ? 160 : 280, pal: palOf(def), skyT: skyTOf(idx),
     grid: new Uint8Array(cols * rows), flag: new Uint8Array(cols * rows), solids: [], trees: [], dynTrees: [], beetles: [], lanes: [], cones: [],
     bridges: [], stones: [], mills: [], lanterns: [], stars: [], waves: [], waterCells: [], sprites: [],
-    spawn: { x: 240, y: 1080 }, nest: { x: 2950, y: 1040 }, NW, minZoom: 0.6 };
+    spawn: { x: 240, y: 1080 }, nest: { x: WW - 250, y: 1040 }, NW, minZoom: 0.6 };
   const G = L.grid, F = L.flag;       // F bits: 1 no trees, 2 no eggs, 4 cave, 8 bridge, 16 lane
   const inW = (cx, cy) => cx >= 0 && cy >= 0 && cx < cols && cy < rows;
   const ci = (x, y) => clamp(y / CS | 0, 0, rows - 1) * cols + clamp(x / CS | 0, 0, cols - 1);

@@ -5,9 +5,9 @@
 | Ce | Cate |
 |---|---|
 | Fisiere sursa | 15 |
-| Linii de cod | 9138 |
+| Linii de cod | 9148 |
 | Functii si metode | 722 |
-| Culori hex diferite | 758 |
+| Culori hex diferite | 772 |
 | Texte (romana) | 234 |
 | Texte (engleza) | 233 |
 | Efecte sonore | 40 |
@@ -25,8 +25,8 @@
 | 04-input.js | 166 |
 | 05-chars.js | 359 |
 | 055-lupta.js | 811 |
-| 06-level.js | 1392 |
-| 065-mech.js | 508 |
+| 06-level.js | 1396 |
+| 065-mech.js | 514 |
 | 07-play.js | 1192 |
 | 075-duel.js | 442 |
 | 08-draw.js | 1022 |

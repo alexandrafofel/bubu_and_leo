@@ -322,6 +322,6 @@ Planul din fata (`paintFront`) isi ia culoarea din lumina nivelului (`levelAmbie
 
 ## Update 27 noiembrie 2026: lacul, pluta, manivela (T8)
 
-- Nivelul 9 e pictat pe canvas (`PALS.lake`, noapte). Apa are valuri facute o data (`paintWater`, `matPattern`) si oglindire pe mal. Harta Krea lipseste (fara credit); se arata proprietarei inainte sa intre.
+- Nivelul 9 are imagini Krea (`lake_*`, `PALS_ART.lake`), facute dupa harta aprobata `art/krea-ref/nivel9-harta.jpg`: o foaie cu sase obiecte pe fond crem, decupate cu un prag de culoare legat de margine. Apa are valuri facute o data (`paintWater`, `matPattern`).
 - `drawRaft` (frunza de nufar cu margini ridicate, sageata spre malul urmator, un sector albastru care arata cat din drum a facut), `drawCrank` (manivela de lemn cu franghie spre pluta), `drawLilyPath` (nuferii care apar cand apa se face drum), `drawToy` pentru nuferii-trambulina.
 - Nivelul 8: tinte turcoaz si albastre (`drawTarget`), usa glisanta (`drawDoor`), benzi rulante cu sageti in miscare (`drawBelts`).
