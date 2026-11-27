@@ -230,6 +230,6 @@ Capcana: in `PALS_ART`, `rock`, `bush`, `tree`... sunt nume de imagini, nu culor
 
 Ce mai stie nivelul 7 (T7.5):
 
-- E ultimul capitol care exista. Dupa el, ecranul de final de nivel duce la ecranul de start, nu la un capitol care nu exista.
+- Dupa el vine lupta mare, care e mereu ultimul capitol (27 noiembrie 2026). Dupa ultimul capitol, ecranul de final de nivel duce la ecranul de start.
 - Botii il termina singuri (cam 90 s) si in doi (cam 185 s), cu cel mai lung timp fara progres de 13 - 17 s (`17-testare.md`).
 - George lupta mereu pe partea eroilor (`10-gameplay.md`).

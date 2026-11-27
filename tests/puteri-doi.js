@@ -115,7 +115,7 @@ const boot = require('./common.js');
   const rum = await page.evaluate(() => {
     const G = __game, P = G.P, killer = P.heroes[1], orig = G.Input.rumble;
     const seen = [];
-    G.Input.rumble = function (k, s, w, ms) { if (k === 1) seen.push(Math.round(G.P.time * 1000) / 1000); return orig.apply(this, arguments); };
+    G.Input.rumble = function (k, s, w, ms) { if (k === 1 && s === 0.7 && w === 0.9 && ms === 110) seen.push(Math.round(G.P.time * 1000) / 1000); return orig.apply(this, arguments); };
     P.flock.length = 0; killer.homeState = 'held'; killer.cd = 0; killer.spinT = -1; killer.dizzy = 0; killer.inv = 999;
     inp[1] = { x: 1, y: 0, cP: true, c: true }; step(2); inp[1] = { x: 1, y: 0, c: true }; step(60);
     inp[1] = { x: 0, y: 0 };

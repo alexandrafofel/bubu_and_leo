@@ -41,7 +41,7 @@ const boot = require('./common.js');
   await ev(() => { __game.Opt.lang = 'en'; go(1); __game.Game.state = 'intro'; step(3); }); await shot('p_intro_en');
   await ev(() => { __game.Opt.lang = 'ro'; inp.pause = true; __game.Game.state = 'play'; step(3); }); await shot('p_pause');
   // T7.5: nivelul 7 (capitolul 7), Canionul Podurilor de Lumină: inceputul, poarta A, poarta B, lupta cu George, cusca
-  await ev(() => { inp.pause = false; __game.Game.paused = false; __game.Input.pause = false; __game.Game.diff = ['normal', 'normal']; go(7); step(30); const P = __game.P; P.L.beetles.forEach(b => { b.state = 'sleep'; b.cool = 999; }); if (P.L.birds) P.L.birds.forEach(b => { b.state = 'gone'; b.t = 999; }); __game.CONFIG.lupta.george.on = false; step(20); });
+  await ev(() => { inp.pause = false; __game.Game.paused = false; __game.Input.pause = false; __game.Game.diff = ['normal', 'normal']; go(chIdx('level', 6)); step(30); const P = __game.P; P.L.beetles.forEach(b => { b.state = 'sleep'; b.cool = 999; }); if (P.L.birds) P.L.birds.forEach(b => { b.state = 'gone'; b.t = 999; }); __game.CONFIG.lupta.george.on = false; step(20); });
   await shot('p2_canyon_inceput');
   await ev(() => { const P = __game.P, L = P.L, A = L.gates[0], q = L.inputs[A.inputs[0]], a = P.heroes[0], b = P.heroes[1];
     for (let f = 0; f < 30; f++) { a.x = q.x; a.y = q.y; b.x = A.x - A.w / 2 - 40; b.y = A.y; step(1); } });

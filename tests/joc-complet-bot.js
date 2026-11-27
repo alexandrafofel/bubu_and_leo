@@ -62,7 +62,7 @@ const { BALANSEAZA } = require('./common.js');
     };
   }, GAME);
   let last = '', out = [], seen = {};
-  const nCh = await page.evaluate(() => chapters().length);
+  const nCh = await page.evaluate(() => chapters().length), l7idx = await page.evaluate(() => chapters().findIndex(c => c.kind === 'level' && c.n === 6));
   for (let iter = 0; iter < 400; iter++) {
     const r = await page.evaluate(() => {
       const G = __game; let n = 0; const st0 = G.Game.state + ':' + G.Game.levelIdx;
@@ -74,8 +74,8 @@ const { BALANSEAZA } = require('./common.js');
     seen[r.st.split(':')[0]] = true;
     if (r.st !== last) { console.log(JSON.stringify(r)); last = r.st; if (/^(intro|levelEnd|ending)/.test(r.st)) { await page.evaluate(() => { for (let i = 0; i < 70; i++) { __game.Game.t += 1 / 60; if (__game.Game.state === 'intro') __game.UI.introT += 0; } __game.draw(); }); } }
     if (iter % 12 === 11) console.log('  ..', JSON.stringify(r));
-    if (/^levelEnd:7$/.test(r.st)) seen.l7 = true;
-    // T7.5: after the ending, "Continuă" leads to level 7 (Part Two); the game ends at the start screen after the last chapter that exists
+    if (r.st === 'levelEnd:' + l7idx) seen.l7 = true;
+    // levels 1 - 7, then the big fight (the last chapter), the ending, the start screen
     if (r.st.startsWith('title') && seen.ending && (seen.l7 || nCh <= 7)) break;
     if (errs.length) break;
   }

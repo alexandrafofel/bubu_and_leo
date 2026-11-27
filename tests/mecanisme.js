@@ -337,7 +337,7 @@ const boot = require('./common.js');
   const n7 = await page.evaluate(() => {
     const G = __game, M = G.CONFIG.mech, keep = M.autoOpen, out = { A: {}, B: {} };
     G.Game.diff[0] = G.Game.diff[1] = 'normal';
-    const fresh = (solo) => { joined[0] = true; joined[1] = !solo; go(7); step(3); const P = G.P, L = P.L;
+    const fresh = (solo) => { joined[0] = true; joined[1] = !solo; go(chIdx('level', 6)); step(3); const P = G.P, L = P.L;
       L.beetles.length = 0; L.cones.length = 0; if (L.birds) L.birds.length = 0; G.CONFIG.lupta.george.on = false; P.wind.power = 0;
       for (const h of P.heroes) { h.x = L.spawn.x; h.y = L.spawn.y + 200; h.vx = h.vy = 0; } step(2); return { P, L, A: L.gates[0], B: L.gates[1], a: P.heroes[0], b: P.heroes[1] }; };
     const put = (h, x, y) => { h.x = h.px = x; h.y = h.py = y; h.vx = h.vy = 0; };

@@ -561,5 +561,10 @@ Hotararea de proces: `balanseaza()` sta in `tests/common.js` si cheama `giveEgg`
 - **Lupta de la jumatate nu aterizeaza in cuib**, pe toate nivelurile. Tot botul cu Boon singur a gasit-o, si pe nivelul 1: un erou care se apropia de George intra in cuib si era ascuns, iar George astepta la nesfarsit. Pana acum testul trecuse din noroc.
 - **Lupta de la jumatate se da pe loc deschis** (fara copaci si stanci la 240 in jur, cat se poate). Dupa ce George a iesit din cuib, a aterizat printre copaci pe nivelul 1, iar un Killer care sta pe loc nu il mai putea lovi.
 - **Dupa ultimul capitol se merge la ecranul de start.** Pana acum, dupa nivelul 7 jocul cerea capitolul 8, care nu exista, si pornea nivelul 1 cu un numar de capitol gresit.
-- **Ordinea in joc ramane: nivelurile 1 - 6, lupta mare, finalul, apoi nivelul 7** (din "Continuă"). Specificatia pune lupta finala la capatul Partii a doua (Sala Tronului, T11); pana atunci `joc-complet-bot.js` trece prin final si apoi prin nivelul 7.
+- ~~Ordinea in joc ramane: nivelurile 1 - 6, lupta mare, finalul, apoi nivelul 7.~~ Schimbat pe 27 noiembrie 2026, vezi mai jos.
 - **"Blocaj" in teste** inseamna timp fara progres: niciun diamant gasit, nicio poarta schimbata, nicio lovitura in George, niciun erou mutat cu mai mult de 150. Limita: 20 s.
+
+## Update 27 noiembrie 2026: lupta mare e ultimul capitol
+
+- **Lupta mare (Arena lui George) vine dupa nivelul 7**, la sfarsitul Partii a doua. Cerut de proprietara. `chapters()` pune nivelurile 1 - 6, apoi nivelurile Partii a doua, apoi lupta mare. Cand vor fi nivelurile 8 - 12, lupta mare se muta singura dupa ele.
+- **Salvarea tine ordinea capitolelor dupa nume** (`sl.order`: `L0` ... `L6`, `boss`; `chapterId`). La incarcare, `remapSave` pune fiecare rezultat la capitolul lui in ordinea de acum. O salvare fara `order` e socotita in ordinea veche (`oldChapterOrder`). "Continuă" duce la primul capitol nejucat; ce era deschis ramane deschis. Motiv: copiii care au castigat deja Arena nu trebuie sa o piarda, si nici sa sara peste nivelul 7.

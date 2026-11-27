@@ -139,7 +139,7 @@ const { chromium } = require('./pw.js');
   console.log('joc:', require('./pw.js').game);
   const bad = [];
   const levels = await page.evaluate(() => chapters().map((c, i) => c.kind === 'level' ? i : -1).filter(i => i >= 0));      // T7.5: also the levels of Part Two
-  const only = process.env.CAPITOL != null ? +process.env.CAPITOL : -1;      // CAPITOL=7: only that chapter (index), for quick checks
+  const only = process.env.CAPITOL != null ? +process.env.CAPITOL : -1;      // CAPITOL=6: only that chapter (index; level 7 is chapter 6), for quick checks
   for (const i of levels) {
     if (only >= 0 && i !== only) continue;
     const r = await page.evaluate((i) => runLevel(i, 900), i);

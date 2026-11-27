@@ -4,7 +4,7 @@
 
 Fiecare functie, functie sageata si metoda din cod, in ordinea din fisier. Coloana "Comentariul din cod" este textul scris chiar langa functie. Explicatiile pe larg sunt in capitolele din docs/.
 
-Total: 674 intrari.
+Total: 677 intrari.
 
 ## 01-config.js
 
@@ -337,72 +337,74 @@ Nicio functie.
 | 103 | `levelDef(idx)` | functie sageata |  |
 | 108 | `skyTOf(idx)` | functie sageata | the sky goes from afternoon to dusk over the levels. In the second game it is always counted over 6 levels: Part Two has its own colors |
 | 115 | `chapters(id)` | functie | The chapters of a game, in order: every level and every big fight. This is what "Continue", the Chapters screen and the save count in. Game.levelIdx is the index of a chapter; L.idx is still the number of the level (0-based) inside it. first game: levels 1 - 6, then the fight with Ciori (7 chapters) second game: levels 1 - 6, George's Arena, then the levels of Part Two (7 chapters now, 14 when Part Two is made) The Throne Hall, the last fight of Part Two, is added after the Part Two levels when it exists (task T11). |
-| 125 | `chapterLabel(i, id)` | functie | how a chapter is named in "Continue: ...": "Level 3", or the name of the big fight |
-| 130 | `levelsBefore(i, id)` | functie sageata | how many levels (not fights) come before chapter i: used for "stars found / stars there are" |
-| 132 | `spline(pts, stepLen)` | functie | Catmull-Rom through points, resampled evenly |
-| 155 | `quotaOf(idx)` | functie |  |
-| 166 | `levelDurationOf(L)` | functie | How long a level lasts (seconds): the sun, the medal and the help in updatePlay read this, not CONFIG.levelDuration. |
-| 171 | `genLevel(idx, seed)` | functie |  |
-| 180 | `inW(cx, cy)` | functie sageata |  |
-| 181 | `ci(x, y)` | functie sageata |  |
-| 182 | `mark(x, y, rad, bits)` | functie sageata |  |
-| 186 | `region(k)` | functie sageata |  |
-| 187 | `dv(arr, k)` | functie sageata |  |
-| 188 | `starRegion(i)` | functie sageata |  |
-| 204 | `pathDist(x, y)` | functie sageata |  |
-| 209 | `setWater(cx, cy)` | functie sageata | ---- water ---------------------------------------------------------------- |
-| 231 | `crossing(by, list)` | functie sageata |  |
-| 263 | `pathFar(x, y, d)` | functie sageata |  |
-| 264 | `areaClear(x, y, rad)` | functie sageata |  |
-| 271 | `addSolid(x, y, rad, kind, extra)` | functie sageata |  |
-| 272 | `mudEllipse(x, y, rx, ry)` | functie sageata |  |
-| 379 | `spotFree(x, y, rad)` | functie sageata | ---- trees, rocks, haystacks ---------------------------------------------- |
-| 387 | `scatter(count, rmin, rmax, kind, gap)` | functie sageata |  |
-| 429 | `reachCells(x, y, r0, r1, bits)` | functie sageata |  |
-| 443 | `shuffle(a)` | functie sageata |  |
-| 446 | `addBeetle(x, y)` | functie sageata | ---- beetles --------------------------------------------------------------- |
-| 482 | `place(gap)` | functie sageata |  |
-| 523 | `far(x, y, d)` | functie sageata |  |
-| 558 | `paintChasm(c, L, P, r)` | functie | The chasms of a level with bands (T7.4, docs/25-niveluri-7-12.md, level 7). Painted once into the picture of the level: deep blue at the bottom (P.chasm[0]), a lighter middle (P.chasm[1]), mist (P.chasm[2]) and far little lights, the salmon rock lip on both edges. The crossings are painted as chasm too: their bridge of light is drawn every frame (drawBridge). |
-| 561 | `band(g, k)` | functie sageata | the band as one smooth shape, k = how much of its width |
-| 583 | `edge(off)` | functie sageata |  |
-| 606 | `makeDecor(L, seed)` | functie |  |
-| 609 | `pickType()` | functie sageata |  |
-| 623 | `paintDecor(cc, type, v, seed)` | functie | One picture of a kind of decor, drawn once and cached. v = which of the 4 looks it has. |
-| 669 | `paintDecorL(cc, type, v, r, pick)` | functie | The decor of the second game (the jungle at night). Glowing things get a soft halo of their own color. |
-| 718 | `decorSprite(type, v)` | functie sageata |  |
-| 719 | `paintDecorStill(c, L)` | functie | all the decor that stays put goes into the level picture, once |
-| 732 | `paintTree(c, t, P, ox, oy)` | functie |  |
-| 759 | `paintCrystalRock(c, x, y, R, col, seed)` | functie | Second game: a rock with little crystals growing on it, a big glowing mushroom, a torch, a totem with a rainbow pinwheel. |
-| 764 | `paintShroom(c, x, y, R, seed)` | functie |  |
-| 773 | `paintTorch(c, x, y)` | functie |  |
-| 778 | `drawFlame(c, x, y, t, s, glow)` | functie | a torch flame that flickers (glow: 0 to 1). Not "lit": that is the painter in 02-core.js |
-| 787 | `paintTotem(c, x, y)` | functie | x,y = base center. The totem rises about 200 px; the pinwheel turns on top. |
-| 799 | `drawPinwheel(c, x, y, ang)` | functie | the rainbow pinwheel on top of a totem: it turns faster when the wind blows |
-| 805 | `paintRock(c, x, y, R, col, seed)` | functie |  |
-| 812 | `paintHay(c, x, y, R, seed)` | functie |  |
-| 824 | `paintMillTower(c, x, y)` | functie | x,y = base center. Tower rises 250 px. |
-| 826 | `body(inset, col, a)` | functie sageata |  |
-| 835 | `drawMillBlades(c, x, y, ang)` | functie |  |
-| 847 | `paintLantern(c, x, y)` | functie |  |
-| 853 | `cellBlobs(c, L, type, rad, col, alpha, seed, jit)` | functie |  |
-| 864 | `paintLevel(L)` | functie |  |
-| 867 | `typeAt(x, y)` | functie sageata |  |
-| 1000 | `room(grow, col, al)` | functie sageata | rounded cave room plus the short tunnel to the waterfall |
-| 1035 | `paintVines(c, x, y, w, len, seed, sway, P)` | functie | A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). |
-| 1047 | `paintDoor(c, x, y)` | functie | The door of the hideout: an arched wooden door with a rainbow knob. x = middle, y = the ground line. |
-| 1066 | `isDiorama(L)` | functie | ---------- The frame of the new levels (docs/24-sisteme-noi.md, S7.4 and S7.5) ---------- A level with look: 'diorama' (levels 7 - 12, or every level with CONFIG.look.preview) gets, once, at loading: - haze over its far part (the top of the picture): paler and bluer, like air between the eye and the far away; - the front plane (L.front): big dark blurred things at the edges of the screen; - the paper texture multiplied into the picture itself (L.paperBaked), when the light map is on: the light map then takes the place of the whole overlay (paper + night vignette). On the slow test machine every full-screen pass costs a few ms, and the light map is already one. Levels 1 - 6 stay as they are. |
-| 1067 | `levelAmbient(L)` | functie |  |
-| 1068 | `finishLook(L)` | functie |  |
-| 1092 | `paintWater(L, c)` | functie | The water of the new levels (T6.8). Once, at loading: - L.water.path: the water cells as one Path2D (a rectangle for every run of cells on a row, a little smaller than the cells, so the waves stop before the bank); every frame fills it twice with the wave pattern (drawWater); - the reflection: the bank above every column of water, upside down, faint and out of focus, painted into the picture. It is made at a quarter of the size (that is what makes it soft), faded with depth, cut with a mask of soft discs (the shore of the water is not square), then laid over the water with a low alpha; - L.water.spark: the places where it sparkles. |
-| 1129 | `frontSlots()` | functie | where the things can be: two tall corners at the top, the two sides, two places at the bottom |
-| 1137 | `paintFront(L)` | functie |  |
-| 1161 | `paintFrontThing(t, kind, at, x, y, w, h, r, base, base2)` | functie |  |
-| 1202 | `frontLeaf(t, x, y, len, ang, col)` | functie | a long pointed leaf from (x, y) in the direction ang, with a pale midrib |
-| 1208 | `finishPaint(c, w, h, skyT, r, night, calm)` | functie |  |
-| 1221 | `genBoss()` | functie | The boss arena: one screen, the tallest tree in the valley. |
-| 1263 | `genArena()` | functie | The last level of the second game: George's arena. A clearing with mountains behind it, torches of fire all around, soldiers with spears, and in the middle the stone throne on which George sits. |
-| 1300 | `slab(w, y0, h, col)` | functie sageata |  |
+| 127 | `chapterId(ch)` | functie sageata | A name for a chapter that does not change when chapters are added or moved: 'L0'... for the levels, 'boss' for the big fight. The save keeps the order of these names (sl.order), so the results find their chapter again (remapSave, 09-screens.js). |
+| 129 | `oldChapterOrder(n)` | functie | The order of the second game before 27 November 2026: six levels, the big fight, then the levels of Part Two. |
+| 131 | `chapterLabel(i, id)` | functie | how a chapter is named in "Continue: ...": "Level 3", or the name of the big fight |
+| 136 | `levelsBefore(i, id)` | functie sageata | how many levels (not fights) come before chapter i: used for "stars found / stars there are" |
+| 138 | `spline(pts, stepLen)` | functie | Catmull-Rom through points, resampled evenly |
+| 161 | `quotaOf(idx)` | functie |  |
+| 172 | `levelDurationOf(L)` | functie | How long a level lasts (seconds): the sun, the medal and the help in updatePlay read this, not CONFIG.levelDuration. |
+| 177 | `genLevel(idx, seed)` | functie |  |
+| 186 | `inW(cx, cy)` | functie sageata |  |
+| 187 | `ci(x, y)` | functie sageata |  |
+| 188 | `mark(x, y, rad, bits)` | functie sageata |  |
+| 192 | `region(k)` | functie sageata |  |
+| 193 | `dv(arr, k)` | functie sageata |  |
+| 194 | `starRegion(i)` | functie sageata |  |
+| 210 | `pathDist(x, y)` | functie sageata |  |
+| 215 | `setWater(cx, cy)` | functie sageata | ---- water ---------------------------------------------------------------- |
+| 237 | `crossing(by, list)` | functie sageata |  |
+| 269 | `pathFar(x, y, d)` | functie sageata |  |
+| 270 | `areaClear(x, y, rad)` | functie sageata |  |
+| 277 | `addSolid(x, y, rad, kind, extra)` | functie sageata |  |
+| 278 | `mudEllipse(x, y, rx, ry)` | functie sageata |  |
+| 385 | `spotFree(x, y, rad)` | functie sageata | ---- trees, rocks, haystacks ---------------------------------------------- |
+| 393 | `scatter(count, rmin, rmax, kind, gap)` | functie sageata |  |
+| 435 | `reachCells(x, y, r0, r1, bits)` | functie sageata |  |
+| 449 | `shuffle(a)` | functie sageata |  |
+| 452 | `addBeetle(x, y)` | functie sageata | ---- beetles --------------------------------------------------------------- |
+| 488 | `place(gap)` | functie sageata |  |
+| 529 | `far(x, y, d)` | functie sageata |  |
+| 564 | `paintChasm(c, L, P, r)` | functie | The chasms of a level with bands (T7.4, docs/25-niveluri-7-12.md, level 7). Painted once into the picture of the level: deep blue at the bottom (P.chasm[0]), a lighter middle (P.chasm[1]), mist (P.chasm[2]) and far little lights, the salmon rock lip on both edges. The crossings are painted as chasm too: their bridge of light is drawn every frame (drawBridge). |
+| 567 | `band(g, k)` | functie sageata | the band as one smooth shape, k = how much of its width |
+| 589 | `edge(off)` | functie sageata |  |
+| 612 | `makeDecor(L, seed)` | functie |  |
+| 615 | `pickType()` | functie sageata |  |
+| 629 | `paintDecor(cc, type, v, seed)` | functie | One picture of a kind of decor, drawn once and cached. v = which of the 4 looks it has. |
+| 675 | `paintDecorL(cc, type, v, r, pick)` | functie | The decor of the second game (the jungle at night). Glowing things get a soft halo of their own color. |
+| 724 | `decorSprite(type, v)` | functie sageata |  |
+| 725 | `paintDecorStill(c, L)` | functie | all the decor that stays put goes into the level picture, once |
+| 738 | `paintTree(c, t, P, ox, oy)` | functie |  |
+| 765 | `paintCrystalRock(c, x, y, R, col, seed)` | functie | Second game: a rock with little crystals growing on it, a big glowing mushroom, a torch, a totem with a rainbow pinwheel. |
+| 770 | `paintShroom(c, x, y, R, seed)` | functie |  |
+| 779 | `paintTorch(c, x, y)` | functie |  |
+| 784 | `drawFlame(c, x, y, t, s, glow)` | functie | a torch flame that flickers (glow: 0 to 1). Not "lit": that is the painter in 02-core.js |
+| 793 | `paintTotem(c, x, y)` | functie | x,y = base center. The totem rises about 200 px; the pinwheel turns on top. |
+| 805 | `drawPinwheel(c, x, y, ang)` | functie | the rainbow pinwheel on top of a totem: it turns faster when the wind blows |
+| 811 | `paintRock(c, x, y, R, col, seed)` | functie |  |
+| 818 | `paintHay(c, x, y, R, seed)` | functie |  |
+| 830 | `paintMillTower(c, x, y)` | functie | x,y = base center. Tower rises 250 px. |
+| 832 | `body(inset, col, a)` | functie sageata |  |
+| 841 | `drawMillBlades(c, x, y, ang)` | functie |  |
+| 853 | `paintLantern(c, x, y)` | functie |  |
+| 859 | `cellBlobs(c, L, type, rad, col, alpha, seed, jit)` | functie |  |
+| 870 | `paintLevel(L)` | functie |  |
+| 873 | `typeAt(x, y)` | functie sageata |  |
+| 1006 | `room(grow, col, al)` | functie sageata | rounded cave room plus the short tunnel to the waterfall |
+| 1041 | `paintVines(c, x, y, w, len, seed, sway, P)` | functie | A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). |
+| 1053 | `paintDoor(c, x, y)` | functie | The door of the hideout: an arched wooden door with a rainbow knob. x = middle, y = the ground line. |
+| 1072 | `isDiorama(L)` | functie | ---------- The frame of the new levels (docs/24-sisteme-noi.md, S7.4 and S7.5) ---------- A level with look: 'diorama' (levels 7 - 12, or every level with CONFIG.look.preview) gets, once, at loading: - haze over its far part (the top of the picture): paler and bluer, like air between the eye and the far away; - the front plane (L.front): big dark blurred things at the edges of the screen; - the paper texture multiplied into the picture itself (L.paperBaked), when the light map is on: the light map then takes the place of the whole overlay (paper + night vignette). On the slow test machine every full-screen pass costs a few ms, and the light map is already one. Levels 1 - 6 stay as they are. |
+| 1073 | `levelAmbient(L)` | functie |  |
+| 1074 | `finishLook(L)` | functie |  |
+| 1098 | `paintWater(L, c)` | functie | The water of the new levels (T6.8). Once, at loading: - L.water.path: the water cells as one Path2D (a rectangle for every run of cells on a row, a little smaller than the cells, so the waves stop before the bank); every frame fills it twice with the wave pattern (drawWater); - the reflection: the bank above every column of water, upside down, faint and out of focus, painted into the picture. It is made at a quarter of the size (that is what makes it soft), faded with depth, cut with a mask of soft discs (the shore of the water is not square), then laid over the water with a low alpha; - L.water.spark: the places where it sparkles. |
+| 1135 | `frontSlots()` | functie | where the things can be: two tall corners at the top, the two sides, two places at the bottom |
+| 1143 | `paintFront(L)` | functie |  |
+| 1169 | `paintFrontThing(t, kind, at, x, y, w, h, r, base, base2)` | functie |  |
+| 1210 | `frontLeaf(t, x, y, len, ang, col)` | functie | a long pointed leaf from (x, y) in the direction ang, with a pale midrib |
+| 1216 | `finishPaint(c, w, h, skyT, r, night, calm)` | functie |  |
+| 1229 | `genBoss()` | functie | The boss arena: one screen, the tallest tree in the valley. |
+| 1271 | `genArena()` | functie | The last level of the second game: George's arena. A clearing with mountains behind it, torches of fire all around, soldiers with spears, and in the middle the stone throne on which George sits. |
+| 1308 | `slab(w, y0, h, col)` | functie sageata |  |
 
 ## 065-mech.js
 
@@ -644,90 +646,91 @@ Nicio functie.
 | 21 | `emptyResult()` | functie sageata | One save for everything. The settings are shared by the two games. Each game keeps its own progress: the first game at the top of the save (as before), the second one in g2. Progress of a game (a "slot"): level the chapter "Continue" starts (see chapters() in 06-level.js) max how far the players have ever got: chapters 0 .. max are open on the Chapters screen results the best result of every chapter played: { eggs, stars, med: [3 medals] } eggs, stars the team total = the sum of results. Still written, so that an older version of the game can read the file. |
 | 22 | `sumResults(res)` | functie |  |
 | 24 | `migrateSave(d)` | functie | A save from before chapters (version 3 or older) becomes version 4. It changes only what is missing, so it can run again. |
-| 39 | `load()` | metoda |  |
-| 40 | `slot(id)` | metoda | the progress of one game |
-| 42 | `own()` | metoda | the progress of the chosen game, made if it is not there yet |
-| 44 | `newGame()` | metoda | "New game": the progress of the chosen game is erased. The other game and the settings stay. |
-| 47 | `finish(i, r)` | metoda | Chapter i is over with result r. The chapter keeps its best result, "Continue" moves on only if this was the chapter it pointed at, and the chapters up to the next one open. |
-| 58 | `write()` | metoda |  |
-| 66 | `apply()` | metoda | Puts the saved settings back: language, volumes, difficulty, keys, who plays whom. |
-| 84 | `hasProgress(id)` | metoda |  |
-| 86 | `maxOpen(id)` | metoda | the furthest chapter open on the Chapters screen (-1: no chapter was ever finished, the button is not shown) |
-| 91 | `hitAdd(x, y, w, h, id, v, act, val)` | functie | Mouse: every clickable thing adds a rectangle while it is drawn. |
-| 92 | `hitFind(p)` | functie |  |
-| 98 | `pressedGo()` | functie sageata | Any "go on" press: ✕ on any controller, Enter, Space, a player's power key or a mouse click. |
-| 100 | `pressText()` | functie | What to press to go on: ✕ when a controller plays, otherwise the power key of a keyboard player. |
-| 106 | `fitText(c, str, x, y, size, maxW, col, o)` | functie |  |
-| 112 | `swapHeroes()` | functie | The two players trade heroes. Controllers, keys, difficulty and the helper arrow stay with the players. |
-| 117 | `cycleDiff(k, d)` | functie |  |
-| 118 | `setLanguage(l)` | functie |  |
-| 124 | `paintMeadowScene(skyT, horizon, seed)` | functie |  |
-| 143 | `paintJungleScene(horizon, seed)` | functie | The backdrop of the second game: the jungle at night, under the moon and the northern lights. |
-| 161 | `titleBackdrop(id)` | functie | The start-screen backdrop of each game is painted once, the first time it is needed. |
-| 166 | `setGame(id)` | functie | Sets up the game (the second game is the only one now): its heroes, villain and boss values, its texts, pictures, music and progress. |
-| 173 | `initScreens()` | functie |  |
-| 176 | `drawBackdrop(c, cv)` | functie |  |
-| 177 | `prompt(c, str, x, y, size, t)` | functie |  |
-| 181 | `drawBoot(c, t)` | functie | ---------- boot + title ---------- |
-| 190 | `titleMenu()` | functie | The buttons under the heroes: "Continue: ...", "Chapters", "New game". At the very first start only one, and it says "Start!". |
-| 198 | `titleGo()` | functie | What the chosen button does, once every player who joined is "Ready!". |
-| 207 | `askYesNo(title, sub, yes, ok)` | functie | A small yes / no question over the start screen or the pause. "No" is the one shown first, so a child who keeps pressing ✕ cannot erase anything by chance. ○ or Backspace also say no. |
-| 208 | `askRows()` | functie |  |
-| 209 | `updateAsk()` | functie |  |
-| 210 | `drawAsk(c, t)` | functie |  |
-| 211 | `updateTitle(dt)` | functie |  |
-| 234 | `drawGear(c, x, y, r, col, t)` | functie |  |
-| 241 | `drawTitle(c, t)` | functie |  |
-| 304 | `chapterLayout()` | functie |  |
-| 314 | `Game.toChapters()` | functie |  |
-| 321 | `updateChapters(dt)` | functie |  |
-| 326 | `move(row, col)` | functie sageata |  |
-| 339 | `chapterPic(i, ch)` | functie | the little picture at the top of a card: the level's sky and ground and the three pictures of its story card. Painted once. |
-| 352 | `drawCrownIcon(c, x, y, s)` | functie |  |
-| 361 | `drawPadlock(c, x, y, s)` | functie |  |
-| 370 | `drawChapterCard(c, i, ch, p, t, open)` | functie |  |
-| 400 | `drawChapters(c, t)` | functie |  |
-| 412 | `drawIntroIcon(c, kind, x, y, t, Lx)` | functie | ---------- level story card ---------- |
-| 433 | `drawIntroIconL(c, kind, x, y, t, Lx)` | functie | The pictures on the story card of the second game. Returns false for a picture that is the same in both games. |
-| 453 | `drawDim(c, a)` | functie |  |
-| 454 | `drawIntro(c, t)` | functie |  |
-| 466 | `drawLoading(c, t)` | functie |  |
-| 473 | `levelMedals()` | functie | Three little medals give the bigger player something extra to aim for. |
-| 474 | `drawMedal(c, i, x, y, got, t)` | functie |  |
-| 491 | `drawRetry(c, t)` | functie | "Încă o dată!": the only screen the children see when nobody came in time. No "Game Over", no red, no dark: the two heroes hold hands, the level starts again right after. |
-| 512 | `drawLevelEnd(c, t)` | functie |  |
-| 551 | `menuNav(o, key, rows)` | functie | ---------- menus: pause and settings ---------- A menu is a list of rows. A row is one of: go { label, ok() } a button opt { label, value, chg(dir) } a choice, changed with left / right (or OK) slide { label, v, chg(dir), set(v) } a volume slider, 0 to 1 text { label } a line of text, cannot be chosen |
-| 566 | `drawMenu(c, t, title, rows, sel, o)` | functie |  |
-| 606 | `pauseRows()` | functie | ---------- pause ---------- |
-| 607 | `leave(go)` | functie sageata |  |
-| 616 | `resumeGame()` | functie |  |
-| 617 | `updatePause()` | functie |  |
-| 623 | `drawPause(c, t)` | functie |  |
-| 630 | `openSettings()` | functie | ---------- settings ---------- |
-| 634 | `closeSettings()` | functie |  |
-| 638 | `setMsg(m)` | functie |  |
-| 639 | `setPage(page, p)` | functie |  |
-| 640 | `settingsBack()` | functie |  |
-| 644 | `toggleFullscreen()` | functie |  |
-| 652 | `findSpeakers(k)` | functie |  |
-| 669 | `pickSpeaker(k, d)` | functie |  |
-| 681 | `captureKey(k, f)` | functie |  |
-| 694 | `settingsRows()` | functie |  |
-| 696 | `vol(label, id, test)` | functie sageata |  |
-| 736 | `updateSettings(dt)` | functie |  |
-| 749 | `drawPadTester(c, x, y, g, t)` | functie |  |
-| 751 | `b(n)` | functie sageata |  |
-| 779 | `drawPadBody(c, x, y, cw, k, t)` | functie |  |
-| 781 | `step(n, yy, done, label, w)` | functie sageata |  |
-| 786 | `small(str, yy, col)` | functie sageata |  |
-| 799 | `drawSettings(c, t)` | functie |  |
-| 812 | `restoreSpeakers(ask)` | functie | Chrome only tells the names of the speakers while it has the microphone permission, and for a page opened from a file it forgets that permission when the page is closed. So when the saved speaker is not in the list, the question is asked again (ask = true). If the speaker is still not there, the start screen says so: the sounds are then on the computer. |
-| 824 | `startEnding()` | functie | ---------- the Sunset Festival ---------- |
-| 853 | `updateEnding(dt)` | functie |  |
-| 872 | `drawEndingL(c, t)` | functie | The end of the second game: the Rainbow Party. The crystals are the present, the heroes get medals, and little stars fly in and hug them. |
-| 877 | `bob(k)` | functie sageata |  |
-| 931 | `drawEnding(c, t)` | functie |  |
-| 937 | `bob(k)` | functie sageata |  |
+| 39 | `remapSave(sl)` | functie | The chapters of the second game in the order of the save (sl.order, or the old order when there is none) are put in today's order: each result goes with its chapter, "Continue" points at the first chapter not finished yet, and nothing that was open closes. |
+| 52 | `load()` | metoda |  |
+| 53 | `slot(id)` | metoda | the progress of one game |
+| 55 | `own()` | metoda | the progress of the chosen game, made if it is not there yet |
+| 57 | `newGame()` | metoda | "New game": the progress of the chosen game is erased. The other game and the settings stay. |
+| 60 | `finish(i, r)` | metoda | Chapter i is over with result r. The chapter keeps its best result, "Continue" moves on only if this was the chapter it pointed at, and the chapters up to the next one open. |
+| 71 | `write()` | metoda |  |
+| 79 | `apply()` | metoda | Puts the saved settings back: language, volumes, difficulty, keys, who plays whom. |
+| 97 | `hasProgress(id)` | metoda |  |
+| 99 | `maxOpen(id)` | metoda | the furthest chapter open on the Chapters screen (-1: no chapter was ever finished, the button is not shown) |
+| 104 | `hitAdd(x, y, w, h, id, v, act, val)` | functie | Mouse: every clickable thing adds a rectangle while it is drawn. |
+| 105 | `hitFind(p)` | functie |  |
+| 111 | `pressedGo()` | functie sageata | Any "go on" press: ✕ on any controller, Enter, Space, a player's power key or a mouse click. |
+| 113 | `pressText()` | functie | What to press to go on: ✕ when a controller plays, otherwise the power key of a keyboard player. |
+| 119 | `fitText(c, str, x, y, size, maxW, col, o)` | functie |  |
+| 125 | `swapHeroes()` | functie | The two players trade heroes. Controllers, keys, difficulty and the helper arrow stay with the players. |
+| 130 | `cycleDiff(k, d)` | functie |  |
+| 131 | `setLanguage(l)` | functie |  |
+| 137 | `paintMeadowScene(skyT, horizon, seed)` | functie |  |
+| 156 | `paintJungleScene(horizon, seed)` | functie | The backdrop of the second game: the jungle at night, under the moon and the northern lights. |
+| 174 | `titleBackdrop(id)` | functie | The start-screen backdrop of each game is painted once, the first time it is needed. |
+| 179 | `setGame(id)` | functie | Sets up the game (the second game is the only one now): its heroes, villain and boss values, its texts, pictures, music and progress. |
+| 186 | `initScreens()` | functie |  |
+| 189 | `drawBackdrop(c, cv)` | functie |  |
+| 190 | `prompt(c, str, x, y, size, t)` | functie |  |
+| 194 | `drawBoot(c, t)` | functie | ---------- boot + title ---------- |
+| 203 | `titleMenu()` | functie | The buttons under the heroes: "Continue: ...", "Chapters", "New game". At the very first start only one, and it says "Start!". |
+| 211 | `titleGo()` | functie | What the chosen button does, once every player who joined is "Ready!". |
+| 220 | `askYesNo(title, sub, yes, ok)` | functie | A small yes / no question over the start screen or the pause. "No" is the one shown first, so a child who keeps pressing ✕ cannot erase anything by chance. ○ or Backspace also say no. |
+| 221 | `askRows()` | functie |  |
+| 222 | `updateAsk()` | functie |  |
+| 223 | `drawAsk(c, t)` | functie |  |
+| 224 | `updateTitle(dt)` | functie |  |
+| 247 | `drawGear(c, x, y, r, col, t)` | functie |  |
+| 254 | `drawTitle(c, t)` | functie |  |
+| 317 | `chapterLayout()` | functie |  |
+| 327 | `Game.toChapters()` | functie |  |
+| 334 | `updateChapters(dt)` | functie |  |
+| 339 | `move(row, col)` | functie sageata |  |
+| 352 | `chapterPic(i, ch)` | functie | the little picture at the top of a card: the level's sky and ground and the three pictures of its story card. Painted once. |
+| 365 | `drawCrownIcon(c, x, y, s)` | functie |  |
+| 374 | `drawPadlock(c, x, y, s)` | functie |  |
+| 383 | `drawChapterCard(c, i, ch, p, t, open)` | functie |  |
+| 413 | `drawChapters(c, t)` | functie |  |
+| 425 | `drawIntroIcon(c, kind, x, y, t, Lx)` | functie | ---------- level story card ---------- |
+| 446 | `drawIntroIconL(c, kind, x, y, t, Lx)` | functie | The pictures on the story card of the second game. Returns false for a picture that is the same in both games. |
+| 466 | `drawDim(c, a)` | functie |  |
+| 467 | `drawIntro(c, t)` | functie |  |
+| 479 | `drawLoading(c, t)` | functie |  |
+| 486 | `levelMedals()` | functie | Three little medals give the bigger player something extra to aim for. |
+| 487 | `drawMedal(c, i, x, y, got, t)` | functie |  |
+| 504 | `drawRetry(c, t)` | functie | "Încă o dată!": the only screen the children see when nobody came in time. No "Game Over", no red, no dark: the two heroes hold hands, the level starts again right after. |
+| 525 | `drawLevelEnd(c, t)` | functie |  |
+| 564 | `menuNav(o, key, rows)` | functie | ---------- menus: pause and settings ---------- A menu is a list of rows. A row is one of: go { label, ok() } a button opt { label, value, chg(dir) } a choice, changed with left / right (or OK) slide { label, v, chg(dir), set(v) } a volume slider, 0 to 1 text { label } a line of text, cannot be chosen |
+| 579 | `drawMenu(c, t, title, rows, sel, o)` | functie |  |
+| 619 | `pauseRows()` | functie | ---------- pause ---------- |
+| 620 | `leave(go)` | functie sageata |  |
+| 629 | `resumeGame()` | functie |  |
+| 630 | `updatePause()` | functie |  |
+| 636 | `drawPause(c, t)` | functie |  |
+| 643 | `openSettings()` | functie | ---------- settings ---------- |
+| 647 | `closeSettings()` | functie |  |
+| 651 | `setMsg(m)` | functie |  |
+| 652 | `setPage(page, p)` | functie |  |
+| 653 | `settingsBack()` | functie |  |
+| 657 | `toggleFullscreen()` | functie |  |
+| 665 | `findSpeakers(k)` | functie |  |
+| 682 | `pickSpeaker(k, d)` | functie |  |
+| 694 | `captureKey(k, f)` | functie |  |
+| 707 | `settingsRows()` | functie |  |
+| 709 | `vol(label, id, test)` | functie sageata |  |
+| 749 | `updateSettings(dt)` | functie |  |
+| 762 | `drawPadTester(c, x, y, g, t)` | functie |  |
+| 764 | `b(n)` | functie sageata |  |
+| 792 | `drawPadBody(c, x, y, cw, k, t)` | functie |  |
+| 794 | `step(n, yy, done, label, w)` | functie sageata |  |
+| 799 | `small(str, yy, col)` | functie sageata |  |
+| 812 | `drawSettings(c, t)` | functie |  |
+| 825 | `restoreSpeakers(ask)` | functie | Chrome only tells the names of the speakers while it has the microphone permission, and for a page opened from a file it forgets that permission when the page is closed. So when the saved speaker is not in the list, the question is asked again (ask = true). If the speaker is still not there, the start screen says so: the sounds are then on the computer. |
+| 837 | `startEnding()` | functie | ---------- the Sunset Festival ---------- |
+| 866 | `updateEnding(dt)` | functie |  |
+| 885 | `drawEndingL(c, t)` | functie | The end of the second game: the Rainbow Party. The crystals are the present, the heroes get medals, and little stars fly in and hug them. |
+| 890 | `bob(k)` | functie sageata |  |
+| 944 | `drawEnding(c, t)` | functie |  |
+| 950 | `bob(k)` | functie sageata |  |
 
 ## 10-main.js
 

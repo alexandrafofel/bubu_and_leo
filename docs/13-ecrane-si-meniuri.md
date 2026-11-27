@@ -289,3 +289,9 @@ Rezultatul salvat al unui capitol are si `tries`: de cate ori a fost reinceput i
 ## Update 22 noiembrie 2026: sfarsitul nivelului cu cota (T14.7)
 
 Cartonasul `drawLevelEnd` are 900 de inaltime. Sub rezultate are cate un rand pentru fiecare erou: portret, `gasite / cota` (verde sau rosu) si bifa. Randul se citeste doar. Textul de jos a coborat. Pagina "Alege tastele" are si L1 (`key.g`).
+
+## Update 27 noiembrie 2026: ordinea capitolelor
+
+Capitolele celui de-al doilea joc sunt: nivelurile 1 - 6 (randul de sus, Partea întâi), nivelul 7 si lupta mare (randul de jos, Partea a doua). Lupta mare e mereu ultima (`chapters()`, `06-level.js`). Fara nivelurile Partii a doua, lupta mare sta pe randul de sus, dupa nivelul 6.
+
+Dupa nivelul 6 urmeaza nivelul 7, dupa nivelul 7 lupta mare, apoi finalul si ecranul de start. Salvarea pastreaza ordinea in `sl.order`; o salvare din ordinea veche se pune la zi la incarcare (`remapSave`, `09-screens.js`).

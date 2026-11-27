@@ -34,9 +34,22 @@ function migrateSave(d) {
   }
   d.v = 4; return d;
 }
+/* The chapters of the second game in the order of the save (sl.order, or the old order when there is none) are put in today's order:
+   each result goes with its chapter, "Continue" points at the first chapter not finished yet, and nothing that was open closes. */
+function remapSave(sl) {
+  if (!sl || typeof sl !== 'object') return sl;
+  const now = chapters('lupta').map(chapterId), was = Array.isArray(sl.order) ? sl.order : oldChapterOrder(levelCount('lupta'));
+  if (was.join() === now.join()) { sl.order = now; return sl; }
+  const res = Array.isArray(sl.results) ? sl.results : [], out = [];
+  let max = 0;
+  was.forEach((id, i) => { const j = now.indexOf(id); if (j < 0) return; if (res[i]) out[j] = res[i]; if (i <= (sl.max | 0)) max = Math.max(max, j); });
+  let first = now.findIndex((id, j) => !out[j]); if (first < 0) first = now.length - 1;
+  sl.results = out; sl.level = first; sl.max = Math.max(max, first); sl.order = now;
+  return sl;
+}
 const Save = {
   data: null,
-  load() { try { const s = localStorage.getItem(CONFIG.saveKey); this.data = s ? migrateSave(JSON.parse(s)) : null; } catch (e) { this.data = null; } return this.data; },
+  load() { try { const s = localStorage.getItem(CONFIG.saveKey); this.data = s ? migrateSave(JSON.parse(s)) : null; if (this.data && this.data.g2) remapSave(this.data.g2); } catch (e) { this.data = null; } return this.data; },
   slot(id) { const d = this.data; if (!d) return null; return (id || GAME) === 'lupta' ? (d.g2 || null) : d; },      // the progress of one game
   /* the progress of the chosen game, made if it is not there yet */
   own() { const d = this.data || (this.data = {}); return GAME === 'lupta' ? (d.g2 = d.g2 || {}) : d; },
@@ -57,7 +70,7 @@ const Save = {
   },
   write() {
     const d = this.data || {};
-    d.v = 4; d.game = GAME; d.diff = Game.diff; d.vol = { music: Snd.vol.music, amb: Snd.vol.amb, chr: Snd.vol.chr };
+    d.v = 4; d.game = GAME; d.diff = Game.diff; if (d.g2) d.g2.order = chapters('lupta').map(chapterId);      // the order of the chapters this save was made with d.vol = { music: Snd.vol.music, amb: Snd.vol.amb, chr: Snd.vol.chr };
     d.opt = { lang: Opt.lang, fullscreen: Opt.fullscreen, vibration: Opt.vibration, swap: Opt.swap, ctrl: Opt.ctrl, keys: Opt.keys, guide: Opt.guide, sink: Opt.sink };
     this.data = d;
     try { localStorage.setItem(CONFIG.saveKey, JSON.stringify(d)); } catch (e) { /* private mode */ }

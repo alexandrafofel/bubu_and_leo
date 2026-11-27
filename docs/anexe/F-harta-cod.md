@@ -145,36 +145,37 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 675-687 | Boon's boomerang bone: two round ends and a shaft, cream amber, with a small crack. |
 | 688-692 | What a thrown thing looks like: Killer's and Leo's ball, or Boon's bone. |
 
-## 06-level.js (1313 linii)
+## 06-level.js (1321 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 2-97 | LEVELS: definitions, generator (with a reachability check so every egg can |
 | 98-103 | The palette of a level: PALS, with the calm Krea colors over it when the new look is on. |
-| 104-164 | What the slow ground looks like: mud in the first game; slime, quicksand or tangled vines in the second. [dark rim, body, light, blotch 1, blotch 2, shine] |
-| 165-190 | How long a level lasts (seconds): the sun, the medal and the help in updatePlay read this, not CONFIG.levelDuration. |
-| 191-207 | the path from the start to the nest |
-| 208-241 | water |
-| 242-279 | bands (T7, levels 7 - 12): a chasm, water, lava or a wall from the top to the bottom |
-| 280-340 | bonus stars: one per third of the map |
-| 341-349 | the toy of the level (T7.4): a seesaw from a fallen trunk. Two heroes at its ends make it rock; it gives nothing |
-| 350-377 | mud, pinecone lanes, windmills |
-| 378-403 | trees, rocks, haystacks |
-| 404-444 | reachability (flood fill from the start) |
-| 445-461 | beetles |
-| 462-474 | sparkling trees (hide eggs) and the treetop star |
-| 475-514 | T15: enough small enemies to give the diamonds (they are the only place diamonds come from) |
-| 515-538 | golden eggs, in waves from left to right |
-| 539-553 | lanterns along the path (sunset level) |
-| 554-602 | painting |
-| 603-621 | The decor of the second game: as many kinds, with the same ways of reacting, but the things of a jungle at night. |
-| 622-667 | One picture of a kind of decor, drawn once and cached. v = which of the 4 looks it has. |
-| 668-757 | The decor of the second game (the jungle at night). Glowing things get a soft halo of their own color. |
-| 758-1033 | Second game: a rock with little crystals growing on it, a big glowing mushroom, a torch, a totem with a rainbow pinwheel. |
-| 1034-1045 | A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). |
-| 1046-1056 | The door of the hideout: an arched wooden door with a rainbow knob. x = middle, y = the ground line. |
-| 1057-1219 | Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). |
-| 1220-1313 | The boss arena: one screen, the tallest tree in the valley. |
+| 104-127 | What the slow ground looks like: mud in the first game; slime, quicksand or tangled vines in the second. [dark rim, body, light, blotch 1, blotch 2, shine] |
+| 128-170 | The order of the second game before 27 November 2026: six levels, the big fight, then the levels of Part Two. |
+| 171-196 | How long a level lasts (seconds): the sun, the medal and the help in updatePlay read this, not CONFIG.levelDuration. |
+| 197-213 | the path from the start to the nest |
+| 214-247 | water |
+| 248-285 | bands (T7, levels 7 - 12): a chasm, water, lava or a wall from the top to the bottom |
+| 286-346 | bonus stars: one per third of the map |
+| 347-355 | the toy of the level (T7.4): a seesaw from a fallen trunk. Two heroes at its ends make it rock; it gives nothing |
+| 356-383 | mud, pinecone lanes, windmills |
+| 384-409 | trees, rocks, haystacks |
+| 410-450 | reachability (flood fill from the start) |
+| 451-467 | beetles |
+| 468-480 | sparkling trees (hide eggs) and the treetop star |
+| 481-520 | T15: enough small enemies to give the diamonds (they are the only place diamonds come from) |
+| 521-544 | golden eggs, in waves from left to right |
+| 545-559 | lanterns along the path (sunset level) |
+| 560-608 | painting |
+| 609-627 | The decor of the second game: as many kinds, with the same ways of reacting, but the things of a jungle at night. |
+| 628-673 | One picture of a kind of decor, drawn once and cached. v = which of the 4 looks it has. |
+| 674-763 | The decor of the second game (the jungle at night). Glowing things get a soft halo of their own color. |
+| 764-1039 | Second game: a rock with little crystals growing on it, a big glowing mushroom, a torch, a totem with a rainbow pinwheel. |
+| 1040-1051 | A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). |
+| 1052-1062 | The door of the hideout: an arched wooden door with a rainbow knob. x = middle, y = the ground line. |
+| 1063-1227 | Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). |
+| 1228-1321 | The boss arena: one screen, the tallest tree in the valley. |
 
 ## 065-mech.js (352 linii)
 
@@ -277,35 +278,35 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 935-950 | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
 | 951-975 | George's arena (the last level of the second game) |
 
-## 09-screens.js (966 linii)
+## 09-screens.js (979 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 2-22 | SCREENS: start, level story card, level end, pause, settings, festival ending. |
-| 23-40 | A save from before chapters (version 3 or older) becomes version 4. It changes only what is missing, so it can run again. |
-| 41-42 | the progress of the chosen game, made if it is not there yet |
-| 43-64 | "New game": the progress of the chosen game is erased. The other game and the settings stay. |
-| 65-84 | Puts the saved settings back: language, volumes, difficulty, keys, who plays whom. |
-| 85-89 | the furthest chapter open on the Chapters screen (-1: no chapter was ever finished, the button is not shown) |
-| 90-96 | Mouse: every clickable thing adds a rectangle while it is drawn. |
-| 97-98 | Any "go on" press: ✕ on any controller, Enter, Space, a player's power key or a mouse click. |
-| 99-110 | What to press to go on: ✕ when a controller plays, otherwise the power key of a keyboard player. |
-| 111-141 | The two players trade heroes. Controllers, keys, difficulty and the helper arrow stay with the players. |
-| 142-159 | The backdrop of the second game: the jungle at night, under the moon and the northern lights. |
-| 160-164 | The start-screen backdrop of each game is painted once, the first time it is needed. |
-| 165-179 | Sets up the game (the second game is the only one now): its heroes, villain and boss values, its texts, pictures, music and progress. |
-| 180-188 | boot + title |
-| 189-196 | The buttons under the heroes: "Continue: ...", "Chapters", "New game". At the very first start only one, and it says "Start!". |
-| 197-337 | What the chosen button does, once every player who joined is "Ready!". |
-| 338-410 | the little picture at the top of a card: the level's sky and ground and the three pictures of its story card. Painted once. |
-| 411-431 | level story card |
-| 432-470 | The pictures on the story card of the second game. Returns false for a picture that is the same in both games. |
-| 471-471 | level end |
-| 472-604 | Three little medals give the bigger player something extra to aim for. |
-| 605-628 | pause |
-| 629-807 | settings |
-| 808-822 | After a restart: send each hero's sounds to the speaker chosen last time, if Chrome still shows it. |
-| 823-966 | the Sunset Festival |
+| 23-53 | A save from before chapters (version 3 or older) becomes version 4. It changes only what is missing, so it can run again. |
+| 54-55 | the progress of the chosen game, made if it is not there yet |
+| 56-77 | "New game": the progress of the chosen game is erased. The other game and the settings stay. |
+| 78-97 | Puts the saved settings back: language, volumes, difficulty, keys, who plays whom. |
+| 98-102 | the furthest chapter open on the Chapters screen (-1: no chapter was ever finished, the button is not shown) |
+| 103-109 | Mouse: every clickable thing adds a rectangle while it is drawn. |
+| 110-111 | Any "go on" press: ✕ on any controller, Enter, Space, a player's power key or a mouse click. |
+| 112-123 | What to press to go on: ✕ when a controller plays, otherwise the power key of a keyboard player. |
+| 124-154 | The two players trade heroes. Controllers, keys, difficulty and the helper arrow stay with the players. |
+| 155-172 | The backdrop of the second game: the jungle at night, under the moon and the northern lights. |
+| 173-177 | The start-screen backdrop of each game is painted once, the first time it is needed. |
+| 178-192 | Sets up the game (the second game is the only one now): its heroes, villain and boss values, its texts, pictures, music and progress. |
+| 193-201 | boot + title |
+| 202-209 | The buttons under the heroes: "Continue: ...", "Chapters", "New game". At the very first start only one, and it says "Start!". |
+| 210-350 | What the chosen button does, once every player who joined is "Ready!". |
+| 351-423 | the little picture at the top of a card: the level's sky and ground and the three pictures of its story card. Painted once. |
+| 424-444 | level story card |
+| 445-483 | The pictures on the story card of the second game. Returns false for a picture that is the same in both games. |
+| 484-484 | level end |
+| 485-617 | Three little medals give the bigger player something extra to aim for. |
+| 618-641 | pause |
+| 642-820 | settings |
+| 821-835 | After a restart: send each hero's sounds to the speaker chosen last time, if Chrome still shows it. |
+| 836-979 | the Sunset Festival |
 
 ## 10-main.js (150 linii)
 

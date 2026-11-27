@@ -32,7 +32,7 @@ const { chromium } = require('./pw.js');
       out.nivel6 = { vechi: Math.min(...o), nou: Math.min(...n), raport: +(Math.min(...n) / Math.min(...o)).toFixed(3), runde_vechi: o, runde_nou: n };
       // T7.5: nivelul 7 (capitolul 7, diorama de la sine) fata de nivelul 6 cu tot stilul nou, in aceeasi rulare, 5 runde alternate
       const s6 = [], s7 = [];
-      for (let round = 0; round < 5; round++) { s6.push(at(5, all)); s7.push(at(7, Object.assign({}, all, { preview: false }))); }
+      for (let round = 0; round < 5; round++) { s6.push(at(5, all)); s7.push(at(chapters().findIndex(c => c.kind === 'level' && c.n === 6), Object.assign({}, all, { preview: false }))); }
       out.nivel7 = { nivel6: Math.min(...s6), nivel7: Math.min(...s7), raport: +(Math.min(...s7) / Math.min(...s6)).toFixed(3), runde6: s6, runde7: s7 };
       Object.assign(G.CONFIG.look, old);
     }

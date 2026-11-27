@@ -6,7 +6,7 @@ const boot = require('./common.js');
 (async () => {
   const { page, done } = await boot();
   const r = await page.evaluate(() => {
-    const G = __game; G.Game.diff[0] = G.Game.diff[1] = 'normal'; go(7); step(5);
+    const G = __game; G.Game.diff[0] = G.Game.diff[1] = 'normal'; go(chIdx('level', 6)); step(5);
     const P = G.P, L = P.L, cols = L.cols, rows = L.rows; G.CONFIG.lupta.george.on = false;
     L.beetles.length = 0; L.cones.length = 0; if (L.birds) L.birds.length = 0; P.wind.power = 0;
     const field = (tx, ty) => {                      // distanta in celule pana la tinta, prin celulele pe care se poate merge acum

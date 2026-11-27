@@ -3326,10 +3326,16 @@ function chapters(id) {
   if (g !== 'lupta') return [...Array.from({ length: levelCount(g) }, (_, n) => lv(LEVEL_DEFS[n % LEVEL_DEFS.length], n, 1)), { kind: 'boss', def: BOSS_DEF, part: 1 }];
   const n = levelCount(g), first = Math.min(n, 6), list = [];
   for (let i = 0; i < first; i++) list.push(lv(LEVEL_DEFS_L[i % LEVEL_DEFS_L.length], i, 1));
-  list.push({ kind: 'boss', def: BOSS_DEF_L, part: 1 });
   for (let i = 6; i < n; i++) list.push(lv(LEVEL_DEFS_L[i % LEVEL_DEFS_L.length], i, 2));
+  // the big fight is always the last chapter (since 27 November 2026): after Part Two when it has levels, else after level 6
+  list.push({ kind: 'boss', def: BOSS_DEF_L, part: n > 6 ? 2 : 1 });
   return list;
 }
+/* A name for a chapter that does not change when chapters are added or moved: 'L0'... for the levels, 'boss' for the big fight.
+   The save keeps the order of these names (sl.order), so the results find their chapter again (remapSave, 09-screens.js). */
+const chapterId = ch => ch.kind === 'boss' ? 'boss' : 'L' + ch.n;
+/* The order of the second game before 27 November 2026: six levels, the big fight, then the levels of Part Two. */
+function oldChapterOrder(n) { const o = []; for (let i = 0; i < Math.min(n, 6); i++) o.push('L' + i); o.push('boss'); for (let i = 6; i < n; i++) o.push('L' + i); return o; }
 // how a chapter is named in "Continue: ...": "Level 3", or the name of the big fight
 function chapterLabel(i, id) {
   const ch = chapters(id)[i]; if (!ch) return '';
@@ -4349,7 +4355,9 @@ function paintFront(L) {
     : (key === 'works' || key === 'castle') ? { top: 'chain', side: 'pillar', bottom: 'rock' }
     : { top: 'vine', side: 'leaf', bottom: 'leaf' };
   const tmp = makeCanvas(960, 540), t = tmp.getContext('2d');
-  const base = mix(levelAmbient(L), '#2A2048', 0.7), base2 = mix(base, '#1F7A4A', key === 'cave' || key === 'works' || key === 'castle' ? 0.1 : 0.6);   // leaves: a deep green, never a grey
+  const amb = levelAmbient(L), day = (() => { const c = hex(amb); return (c[0] + c[1] + c[2]) / 765 > 0.75; })();
+  // a bright daylight (level 7, sunrise) mixed 70% toward the violet makes a greyish mauve: in daylight the violet is stronger and more saturated
+  const base = day ? mix(amb, '#3A1A60', 0.8) : mix(amb, '#2A2048', 0.7), base2 = mix(base, '#1F7A4A', key === 'cave' || key === 'works' || key === 'castle' ? 0.1 : 0.6);   // leaves: a deep green, never a grey
   const items = [];
   for (const sl of frontSlots()) {
     const kind = kinds[sl.at], x = sl.x / 2, y = sl.y / 2, w = sl.w / 2, h = sl.h / 2;
@@ -7462,9 +7470,22 @@ function migrateSave(d) {
   }
   d.v = 4; return d;
 }
+/* The chapters of the second game in the order of the save (sl.order, or the old order when there is none) are put in today's order:
+   each result goes with its chapter, "Continue" points at the first chapter not finished yet, and nothing that was open closes. */
+function remapSave(sl) {
+  if (!sl || typeof sl !== 'object') return sl;
+  const now = chapters('lupta').map(chapterId), was = Array.isArray(sl.order) ? sl.order : oldChapterOrder(levelCount('lupta'));
+  if (was.join() === now.join()) { sl.order = now; return sl; }
+  const res = Array.isArray(sl.results) ? sl.results : [], out = [];
+  let max = 0;
+  was.forEach((id, i) => { const j = now.indexOf(id); if (j < 0) return; if (res[i]) out[j] = res[i]; if (i <= (sl.max | 0)) max = Math.max(max, j); });
+  let first = now.findIndex((id, j) => !out[j]); if (first < 0) first = now.length - 1;
+  sl.results = out; sl.level = first; sl.max = Math.max(max, first); sl.order = now;
+  return sl;
+}
 const Save = {
   data: null,
-  load() { try { const s = localStorage.getItem(CONFIG.saveKey); this.data = s ? migrateSave(JSON.parse(s)) : null; } catch (e) { this.data = null; } return this.data; },
+  load() { try { const s = localStorage.getItem(CONFIG.saveKey); this.data = s ? migrateSave(JSON.parse(s)) : null; if (this.data && this.data.g2) remapSave(this.data.g2); } catch (e) { this.data = null; } return this.data; },
   slot(id) { const d = this.data; if (!d) return null; return (id || GAME) === 'lupta' ? (d.g2 || null) : d; },      // the progress of one game
   /* the progress of the chosen game, made if it is not there yet */
   own() { const d = this.data || (this.data = {}); return GAME === 'lupta' ? (d.g2 = d.g2 || {}) : d; },
@@ -7485,7 +7506,7 @@ const Save = {
   },
   write() {
     const d = this.data || {};
-    d.v = 4; d.game = GAME; d.diff = Game.diff; d.vol = { music: Snd.vol.music, amb: Snd.vol.amb, chr: Snd.vol.chr };
+    d.v = 4; d.game = GAME; d.diff = Game.diff; if (d.g2) d.g2.order = chapters('lupta').map(chapterId);      // the order of the chapters this save was made with d.vol = { music: Snd.vol.music, amb: Snd.vol.amb, chr: Snd.vol.chr };
     d.opt = { lang: Opt.lang, fullscreen: Opt.fullscreen, vibration: Opt.vibration, swap: Opt.swap, ctrl: Opt.ctrl, keys: Opt.keys, guide: Opt.guide, sink: Opt.sink };
     this.data = d;
     try { localStorage.setItem(CONFIG.saveKey, JSON.stringify(d)); } catch (e) { /* private mode */ }

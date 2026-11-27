@@ -5,7 +5,8 @@ const boot = require('./common.js');
   const { page, done } = await boot();
   const bad = [];
   const check = (lbl, ok, extra) => { console.log((ok ? 'ok   ' : 'GRESIT ') + lbl + (extra !== undefined ? ' ' + JSON.stringify(extra) : '')); if (!ok) bad.push(lbl); };
-  for (const ch of [0, 7]) {      // nivelul 1 si nivelul 7 (T7.5: capitolul 7)
+  const l7 = await page.evaluate(() => chIdx('level', 6));
+  for (const ch of [0, l7]) {      // nivelul 1 si nivelul 7
   const r = await page.evaluate((ch) => {
     const G = __game, out = {};
     const hit = (h) => { h.inv = 0; h.dizzy = 0; window.hitHero(h, h.x - 50, h.y); };

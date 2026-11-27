@@ -237,4 +237,4 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - **Cum se simt vibratiile** placii (`rumble(k, 0, 0.4, 60)`), ale cuștii si ale portii, in mana, pe un DualShock 4.
 - **Cum suna clopotelul** placii si cele sapte note ale podului, pe difuzoarele unui Mac.
 - **Daca balansoarul ii face sa rada** si daca nu ii tine prea mult pe loc.
-- **Ordinea capitolelor**: nivelul 7 vine dupa finalul primei parti. "Va urma" si Sala Tronului (T11 - T12) nu exista inca.
+- **Ordinea capitolelor**: lupta mare vine acum dupa nivelul 7 si se va muta singura dupa nivelul 12. Sala Tronului (T11 - T12) nu exista inca; pana atunci Arena lui George e lupta de la capat.
