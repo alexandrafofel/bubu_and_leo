@@ -613,52 +613,52 @@ Nicio functie.
 | 96 | `ghostCanvas(h, g)` | functie |  |
 | 103 | `drawRunTrail(c, h)` | functie |  |
 | 125 | `drawHeroFull(c, h)` | functie |  |
-| 192 | `drawHeroRing(c, h, cfg)` | functie | The ring under a hero (the new look): a disc in his color, a ring around it, then a cream edge and a violet one. In a fight with George (ringFight) the ring is cut in CONFIG.ring.hits pieces and every hit makes one red (h.ringHits). When they are all red it pulses: the next hit makes him dizzy. A short red flash shows the piece that just turned. |
-| 210 | `drawSmallHp(c, e, x, y)` | functie | Small enemies show how many hits they still take, once they were hit. |
-| 214 | `drawBossTargets(c)` | functie |  |
-| 227 | `drawProjWarn(c, list)` | functie | the spot where a thrown pinecone will land |
-| 234 | `drawProjs(c, list)` | functie |  |
-| 245 | `drawWorld(c)` | functie |  |
-| 426 | `hintTarget()` | functie |  |
-| 436 | `nearestEgg(h, reqOnly, maxD)` | functie | The helper arrow: a soft arrow next to a hero that shows where to go and, in a small bubble, what waits there. |
-| 441 | `guideTarget(h)` | functie |  |
-| 465 | `drawGuides(c)` | functie |  |
-| 499 | `drawMechAct(c, k, act, x, y, r, t)` | functie |  |
-| 505 | `drawHints(c, v)` | functie |  |
-| 561 | `pressLabel(k)` | functie sageata |  |
-| 563 | `levelProgress()` | functie | How far the level is: eggs in groups, then the guardian, then the nest. |
-| 578 | `seg(k)` | functie sageata |  |
-| 587 | `drawProgress(c)` | functie |  |
-| 617 | `drawPort(c, k, cx, cy, r, dizzy)` | functie | The round picture of a hero (the one painted after the children's drawings) in a ring of his color; r = the radius of the ring. |
-| 629 | `drawTick(c, x, y, r)` | functie | A round green tick, painted: the quota is found. |
-| 639 | `drawBadge(c, k, x, y)` | functie | The corner badge: portrait, name, difficulty and, when the level has a quota, "found / quota" in green (done) or red (still missing). 300 x 108, inside the band (16 to 124). |
-| 662 | `downBanner()` | functie | "Ajută-l pe Boon! ○" while a friend is down and the seconds are running. It comes before any other banner. |
-| 666 | `waitBanner()` | functie |  |
-| 677 | `drawMidCard(c, ban)` | functie | The card in the middle, with what a banner says when there is one. A banner never comes down over the world. |
-| 746 | `drawHUD(c)` | functie |  |
-| 761 | `lightSprite(col)` | functie |  |
-| 768 | `addLight(x, y, r, col, a, glow)` | functie |  |
-| 773 | `drawStarSpark(c, x, y, r, a)` | functie | A little four-pointed sparkle (the rocket's shine). |
-| 778 | `collectLights(L)` | functie |  |
-| 798 | `drawLightMap(c, v)` | functie |  |
-| 826 | `waterSpark()` | functie |  |
-| 833 | `drawWater(c, L, t, l, tp, vw, vh)` | functie |  |
-| 851 | `moteKind(L)` | functie |  |
-| 853 | `moteSprite(col)` | functie |  |
-| 859 | `moteInit(L)` | functie |  |
-| 867 | `drawMotes(c, v)` | functie |  |
-| 894 | `heroScreenBox(h, v)` | functie |  |
-| 898 | `frontOffset(L, v)` | functie |  |
-| 902 | `updateFront(L, v)` | functie | the alphas: called while drawing, from the time that passed in the game |
-| 919 | `drawFront(c, v)` | functie |  |
-| 932 | `drawWordBubbles(c, v)` | functie | The balloon with the meaning of the word a hero just said (T13): the word as he said it, and under it what it means. One balloon per hero. It sits over his head, in his color; if there is no room above (the band at the top), it goes under him. It never covers a hero and never goes over the band. |
-| 959 | `drawPlay(c)` | functie |  |
-| 970 | `drawEdgePulse(c)` | functie | The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. |
-| 980 | `drawNestShelter(c)` | functie | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
-| 988 | `drawDecor(c, l, tp, vw, vh)` | functie | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
-| 1004 | `drawArenaBack(c)` | functie | the torches of fire around the arena |
-| 1008 | `drawThrone(c)` | functie |  |
-| 1015 | `drawGeorgeBoss(c, o, t)` | functie |  |
+| 187 | `drawHeroRing(c, h, cfg)` | functie | The ring under a hero (the new look): a disc in his color, a ring around it, then a cream edge and a violet one. In a fight with George (ringFight) the ring is cut in CONFIG.ring.hits pieces and every hit makes one red (h.ringHits). When they are all red it pulses: the next hit makes him dizzy. A short red flash shows the piece that just turned. |
+| 205 | `drawSmallHp(c, e, x, y)` | functie | Small enemies show how many hits they still take, once they were hit. |
+| 209 | `drawBossTargets(c)` | functie |  |
+| 222 | `drawProjWarn(c, list)` | functie | the spot where a thrown pinecone will land |
+| 229 | `drawProjs(c, list)` | functie |  |
+| 240 | `drawWorld(c)` | functie |  |
+| 421 | `hintTarget()` | functie |  |
+| 431 | `nearestEgg(h, reqOnly, maxD)` | functie | The helper arrow: a soft arrow next to a hero that shows where to go and, in a small bubble, what waits there. |
+| 436 | `guideTarget(h)` | functie |  |
+| 460 | `drawGuides(c)` | functie |  |
+| 494 | `drawMechAct(c, k, act, x, y, r, t)` | functie |  |
+| 500 | `drawHints(c, v)` | functie |  |
+| 556 | `pressLabel(k)` | functie sageata |  |
+| 558 | `levelProgress()` | functie | How far the level is: eggs in groups, then the guardian, then the nest. |
+| 573 | `seg(k)` | functie sageata |  |
+| 582 | `drawProgress(c)` | functie |  |
+| 612 | `drawPort(c, k, cx, cy, r, dizzy)` | functie | The round picture of a hero (the one painted after the children's drawings) in a ring of his color; r = the radius of the ring. |
+| 624 | `drawTick(c, x, y, r)` | functie | A round green tick, painted: the quota is found. |
+| 634 | `drawBadge(c, k, x, y)` | functie | The corner badge: portrait, name, difficulty and, when the level has a quota, "found / quota" in green (done) or red (still missing). 300 x 108, inside the band (16 to 124). |
+| 657 | `downBanner()` | functie | "Ajută-l pe Boon! ○" while a friend is down and the seconds are running. It comes before any other banner. |
+| 661 | `waitBanner()` | functie |  |
+| 672 | `drawMidCard(c, ban)` | functie | The card in the middle, with what a banner says when there is one. A banner never comes down over the world. |
+| 741 | `drawHUD(c)` | functie |  |
+| 756 | `lightSprite(col)` | functie |  |
+| 763 | `addLight(x, y, r, col, a, glow)` | functie |  |
+| 768 | `drawStarSpark(c, x, y, r, a)` | functie | A little four-pointed sparkle (the rocket's shine). |
+| 773 | `collectLights(L)` | functie |  |
+| 793 | `drawLightMap(c, v)` | functie |  |
+| 821 | `waterSpark()` | functie |  |
+| 828 | `drawWater(c, L, t, l, tp, vw, vh)` | functie |  |
+| 846 | `moteKind(L)` | functie |  |
+| 848 | `moteSprite(col)` | functie |  |
+| 854 | `moteInit(L)` | functie |  |
+| 862 | `drawMotes(c, v)` | functie |  |
+| 889 | `heroScreenBox(h, v)` | functie |  |
+| 893 | `frontOffset(L, v)` | functie |  |
+| 897 | `updateFront(L, v)` | functie | the alphas: called while drawing, from the time that passed in the game |
+| 914 | `drawFront(c, v)` | functie |  |
+| 927 | `drawWordBubbles(c, v)` | functie | The balloon with the meaning of the word a hero just said (T13): the word as he said it, and under it what it means. One balloon per hero. It sits over his head, in his color; if there is no room above (the band at the top), it goes under him. It never covers a hero and never goes over the band. |
+| 954 | `drawPlay(c)` | functie |  |
+| 965 | `drawEdgePulse(c)` | functie | The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. |
+| 975 | `drawNestShelter(c)` | functie | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
+| 983 | `drawDecor(c, l, tp, vw, vh)` | functie | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
+| 999 | `drawArenaBack(c)` | functie | the torches of fire around the arena |
+| 1003 | `drawThrone(c)` | functie |  |
+| 1010 | `drawGeorgeBoss(c, o, t)` | functie |  |
 
 ## 09-screens.js
 

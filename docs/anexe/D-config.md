@@ -97,8 +97,8 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `mech.autoOpen` | `180` |  |
 | `mech.hintAfter` | `40` |  |
 | `mech.easy` | `1.6` |  |
-| `mech.cageWindow` | `1.5` |  |
-| `mech.cageReach` | `150` |  |
+| `mech.cageWindow` | `4` |  |
+| `mech.cageReach` | `230` |  |
 | `mech.cageWobble` | `0.6` |  |
 | `mech.targetReach` | `190` |  |
 | `mech.targetOn` | `0.4` |  |

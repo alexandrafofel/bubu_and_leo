@@ -267,26 +267,26 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 405-418 | Things on the ground during a mini-fight: where the next attack will land, shadows. (The shelter ring is in drawNestShelter.) |
 | 419-442 | Things above everything: flying guardians, thrown pinecones, leaves, hearts. |
 
-## 08-draw.js (1027 linii)
+## 08-draw.js (1022 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 2-42 | DRAWING THE GAME: world, heroes, effects, HUD |
-| 43-208 | Boon's claws while they spin: rainbow slashes that run around him, on a soft shield. |
-| 209-434 | Small enemies show how many hits they still take, once they were hit. |
-| 435-561 | The helper arrow: a soft arrow next to a hero that shows where to go and, in a small bubble, what waits there. |
-| 562-615 | How far the level is: eggs in groups, then the guardian, then the nest. |
-| 616-627 | The round picture of a hero (the one painted after the children's drawings) in a ring of his color; r = the radius of the ring. |
-| 628-637 | A round green tick, painted: the quota is found. |
-| 638-659 | The corner badge: portrait, name, difficulty and, when the level has a quota, "found / quota" in green (done) or red (still missing). 300 x 108, inside the band (16 to 124). |
-| 660-660 | "We wait for X in the nest": it used to be written in the world, over the nest. Now it is a banner in the band. |
-| 661-675 | "Ajută-l pe Boon! ○" while a friend is down and the seconds are running. It comes before any other banner. |
-| 676-771 | The card in the middle, with what a banner says when there is one. A banner never comes down over the world. |
-| 772-968 | A little four-pointed sparkle (the rocket's shine). |
-| 969-978 | The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. |
-| 979-986 | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
-| 987-1002 | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
-| 1003-1027 | George's arena (the last level of the second game) |
+| 43-203 | Boon's claws while they spin: rainbow slashes that run around him, on a soft shield. |
+| 204-429 | Small enemies show how many hits they still take, once they were hit. |
+| 430-556 | The helper arrow: a soft arrow next to a hero that shows where to go and, in a small bubble, what waits there. |
+| 557-610 | How far the level is: eggs in groups, then the guardian, then the nest. |
+| 611-622 | The round picture of a hero (the one painted after the children's drawings) in a ring of his color; r = the radius of the ring. |
+| 623-632 | A round green tick, painted: the quota is found. |
+| 633-654 | The corner badge: portrait, name, difficulty and, when the level has a quota, "found / quota" in green (done) or red (still missing). 300 x 108, inside the band (16 to 124). |
+| 655-655 | "We wait for X in the nest": it used to be written in the world, over the nest. Now it is a banner in the band. |
+| 656-670 | "Ajută-l pe Boon! ○" while a friend is down and the seconds are running. It comes before any other banner. |
+| 671-766 | The card in the middle, with what a banner says when there is one. A banner never comes down over the world. |
+| 767-963 | A little four-pointed sparkle (the rocket's shine). |
+| 964-973 | The last three seconds: the edge of the screen breathes in the fallen hero's own color. Never red-dark, never black. |
+| 974-981 | The shelter ring around the nest. It is there on every level: lighter when a hero stands inside, stronger during a mini-fight. |
+| 982-997 | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
+| 998-1022 | George's arena (the last level of the second game) |
 
 ## 09-screens.js (1060 linii)
 

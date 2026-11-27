@@ -179,9 +179,9 @@ const boot = require('./common.js');
     cageSwing(a, 9001); out.cageOne = { done: cg.done, wob: cg.wobT > 0 };
     // 4. aceeasi lovitura numarata o singura data (10 cadre cu acelasi id)
     for (let i = 0; i < 10; i++) cageSwing(a, 9001); out.cageDup = { done: cg.done, hit: cg.hit[0] > 0 };
-    // 5. al doilea erou lovind dupa mai mult de 1.5 s nu deschide
-    sec(2); b.x = cg.x + 90; b.y = cg.y; step(2); cageSwing(b, 9002); out.cageLate = cg.done;
-    // 6. cu amandoi in fereastra (1.5 s): se deschide, steluta e stransa
+    // 5. al doilea erou lovind dupa mai mult de 4 s nu deschide
+    sec(5); b.x = cg.x + 90; b.y = cg.y; step(2); cageSwing(b, 9002); out.cageLate = cg.done;
+    // 6. cu amandoi in fereastra (4 s): se deschide, steluta e stransa
     const starGot0 = L.stars.filter(s => s.kind === 'cage' && s.got).length;
     cg.hit = [-99, -99]; cg.done = false; cg.wobT = 0;
     cageSwing(a, 9003); sec(0.5); cageSwing(b, 9004);
@@ -198,8 +198,8 @@ const boot = require('./common.js');
   check('placa se ridica cand e lasata', c3.sinkUp < 0.5, c3.sinkUp);
   check('cusca: un singur erou nu o deschide, o clatina', c3.cageOne.done === false && c3.cageOne.wob === true, c3.cageOne);
   check('cusca: aceeasi lovitura numarata o singura data', c3.cageDup.done === false, c3.cageDup);
-  check('cusca: al doilea erou dupa 2 s nu deschide', c3.cageLate === false, c3.cageLate);
-  check('cusca: amandoi in 1.5 s o deschid, steluta e stransa', c3.cageBoth.done === true && c3.cageBoth.by === 1 && c3.cageBoth.star === 1, c3.cageBoth);
+  check('cusca: al doilea erou dupa 5 s nu deschide', c3.cageLate === false, c3.cageLate);
+  check('cusca: amandoi in 4 s o deschid, steluta e stransa', c3.cageBoth.done === true && c3.cageBoth.by === 1 && c3.cageBoth.star === 1, c3.cageBoth);
   check('sunetele placilor si cuștii exista', c3.sounds.every(Boolean), c3.sounds);
 
   // ---------- partea a patra (T7.3): regulile de siguranta G1 - G10 si mechSteps ----------

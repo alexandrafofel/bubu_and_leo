@@ -5,9 +5,9 @@
 | Ce | Cate |
 |---|---|
 | Fisiere sursa | 15 |
-| Linii de cod | 8939 |
+| Linii de cod | 8934 |
 | Functii si metode | 709 |
-| Culori hex diferite | 737 |
+| Culori hex diferite | 736 |
 | Texte (romana) | 232 |
 | Texte (engleza) | 231 |
 | Efecte sonore | 40 |
@@ -29,6 +29,6 @@
 | 065-mech.js | 407 |
 | 07-play.js | 1190 |
 | 075-duel.js | 442 |
-| 08-draw.js | 1027 |
+| 08-draw.js | 1022 |
 | 09-screens.js | 1060 |
 | 10-main.js | 152 |
