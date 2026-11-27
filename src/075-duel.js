@@ -55,6 +55,7 @@ function startDuel(kind = 'nest') {
     dx: -1, dy: 0, kx: 0, ky: 0, len: 0, run: 0, target: -1, proj: [], shots: [], rings: [], over: false, home: sp, land: null, landed: false, threw: false, bonk: false,
     stagCd: 0, flash: 0, hintT: 0, tonkT: 0, tiredDur: 2, tStart: P.time };
   P.banner = { kind: 'duel', t: 3.6, id: def.id, mid: !hard, msg: quotaOn() ? (hard ? 'george.final' : 'george.half') : null };
+  { const sk = (P.georgeNo = (P.georgeNo | 0) + 1) % 2, gk = isJoined(sk) ? sk : 1 - sk; if (isJoined(gk)) setTimeout(() => { if (P && P.duel) say(gk, 'george'); }, 1000); }      // "Look, George!": one hero, then the other, one second after the roar
   Snd.play('duel'); Snd.play('caw'); Snd.music(hard ? 'duel2' : 'duel'); P.crow = { x: -200, y: 300, t: 0 };
   Voice.say(T(hard ? 'duel.say' : 'duel.midSay', T('duel.' + def.id)));
   Input.rumble(0, 0.5, 0.5, 250); Input.rumble(1, 0.5, 0.5, 250);
@@ -86,7 +87,7 @@ function duelEggs(n) {
 function duelHit(k) {
   const d = P.duel, h = P.heroes[k], last = d.hp <= 1;
   d.hp--; d.flash = 0.6; P.shake = Math.max(P.shake, 0.3); bigHit();
-  Snd.play('goal'); Snd.play('squeak', 1 + (d.maxHp - d.hp) * 0.1); Snd.talk(k, last ? 'guardGone' : 'guardHit');
+  Snd.play('goal'); Snd.play('squeak', 1 + (d.maxHp - d.hp) * 0.1); say(k, last ? 'guardGone' : 'guardHit');
   Input.rumble(0, 0.6, 0.8, 260); Input.rumble(1, 0.6, 0.8, 260);
   burst(d.x, d.y - 40 - d.z, 34, { speed: 320, life: 1.1, size: 10 }); burst(d.x, d.y - 40 - d.z, 14, { kind: 'petal', cols: PETALS, speed: 240, life: 1.4, g: 90 });
   duelEggs(last ? CONFIG.duel.eggsAtEnd : CONFIG.duel.eggsPerHit);
@@ -111,7 +112,7 @@ function duelStomp(h) {
   if (dist(h.x, h.y, d.x, d.y) > cfg.radius + d.R) return false;
   if (duelCanHurt(h.k, 'stomp')) duelHit(h.k);
   else if (d.stagCd <= 0 && (d.state === 'move' || d.state === 'aim')) { d.state = 'stag'; d.t = 0; d.stagCd = 4.5; Snd.play('stun'); d.hintT = 0; }   // a stomp makes it wobble: Leo's ball counts now
-  else { d.hintT = 1.6; Snd.talk(h.k, 'notYet'); }
+  else { d.hintT = 1.6; say(h.k, 'notYet'); }
   return true;                                               // it was close enough: this stomp (or this spin of the claws) is used up
 }
 function duelLob(n, slow) {                                  // throws n pinecones: the first where the target is going, the rest around

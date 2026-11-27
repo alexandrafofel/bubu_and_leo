@@ -238,3 +238,10 @@ Semnalat de proprietara pe 16 noiembrie 2026. Masurat cu `tests/hud-acoperire.js
 - **Cum suna clopotelul** placii si cele sapte note ale podului, pe difuzoarele unui Mac.
 - **Daca balansoarul ii face sa rada** si daca nu ii tine prea mult pe loc.
 - **Ordinea capitolelor**: lupta mare vine acum dupa nivelul 7 si se va muta singura dupa nivelul 12. Sala Tronului (T11 - T12) nu exista inca; pana atunci Arena lui George e lupta de la capat.
+
+## Vocile eroilor (T13)
+
+- Vocile sunt AI pentru adulti (ElevenLabs) sau voce de copil (Seed Audio) care "se joaca de-a dinozaurii": sunetul nu e un copil real.
+- Taierea clipurilor a trecut verificarea de durata, dar nu a fost ascultata replica cu replica.
+- Difuzorul controllerului functioneaza doar prin USB pe Mac.
+- Replicile in romana apar si in modul englez (cuvantul spus ramane la fel, traducerea se schimba).

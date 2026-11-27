@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="ro"><head><meta charset="utf-8"><title>T13 – Vocile lui Boon și Killer (de aprobat)</title>
+<style>
+body{margin:0;background:#FBF1DE;color:#4A2E52;font:16px/1.45 -apple-system,Segoe UI,sans-serif}
+main{max-width:1100px;margin:auto;padding:24px}
+h1{font-size:26px;margin:0 0 4px}h2{margin:28px 0 8px;font-size:20px}h3{margin:6px 0;font-size:15px;color:#7A4E3A}
+.note{background:#FFE7C2;border-radius:12px;padding:10px 14px;margin:10px 0}
+button{border:0;border-radius:10px;padding:6px 11px;margin:2px;font:inherit;cursor:pointer;color:#fff}
+.h0{background:#3F9A8E}.h1{background:#C8507A}.n{background:#8A5A9A}
+table{border-collapse:collapse;width:100%}td{padding:7px 8px;border-bottom:1px solid #EAD6BC;vertical-align:top}td.b{white-space:nowrap}
+.spk{display:grid;grid-template-columns:90px 1fr 1fr;gap:8px;align-items:center}
+select{font:inherit;padding:4px;border-radius:8px;border:1px solid #D9BFA0;background:#FFF9EF;color:#4A2E52}
+#lex{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:10px}
+.cat{background:#FFF8EC;border-radius:12px;padding:8px 10px}.w{display:flex;align-items:center;gap:4px}.w .m{flex:1}.w i{color:#9A7A6A;font-size:13px}.w button{min-width:84px;padding:3px 8px}
+.bubs{position:sticky;top:0;display:flex;gap:16px;justify-content:center;padding:6px;background:#FBF1DEee;z-index:2}
+.bub{min-width:230px;min-height:58px;border-radius:18px;background:#FFFDF6;box-shadow:0 2px 8px #6A427033;text-align:center;padding:6px 12px;opacity:.35;transition:opacity .2s}
+.bub.on{opacity:1}.bub b{display:block;font-size:22px;letter-spacing:1px}.bub span{font-size:14px;color:#7A5A6A}
+#b0 b,#bub0 b{color:#2E7F74}#bub1 b{color:#B23F69}
+#tap{position:fixed;inset:0;background:#FBF1DEf2;display:flex;align-items:center;justify-content:center;font-size:26px;z-index:9;cursor:pointer}
+</style></head><body>
+<div id="tap">Fă clic o dată pentru sunet</div>
+<div class="bubs"><div class="bub" id="bub0"><b>Boon</b><span>balonul lui</span></div><div class="bub" id="bub1"><b>Killer</b><span>balonul lui</span></div></div>
+<main>
+<h1>Vocile lui Boon și Killer — de ascultat și aprobat (T13)</h1>
+<p>Nimic de aici nu e încă în joc. Pașii, loviturile, cristalele și exclamațiile sunt chiar sunetele jocului. Nou sunt consoanele moi, cuvintele și frazele.</p>
+
+<h2>1. Difuzorul din controller</h2>
+<div class="note">Pe Mac, DualShock 4 are difuzor <b>doar cu cablu USB</b>. Prin Bluetooth macOS nu trimite sunet în controller. Chrome cere o dată permisiunea pentru microfon ca să afle numele difuzoarelor (nu înregistrează nimic).</div>
+<p><button class="n" id="find">Caută difuzoarele</button> <span id="spkMsg"></span></p>
+<div class="spk"><b>Boon</b><select id="spk0"></select><span><span id="st0">boxele calculatorului</span> <button class="h0" id="test0">▶ Test</button></span>
+<b>Killer</b><select id="spk1"></select><span><span id="st1">boxele calculatorului</span> <button class="h1" id="test1">▶ Test</button></span></div>
+<p><b>Cu controllerele în mână:</b> primul controller e Boon, al doilea Killer. Stick = merge (pași; după 10 s fredonează), L3 + stick = aleargă, ✕ lovește, □ a doua putere, ○ e lovit, △ steluța, L1 dă un diamant. <br><span id="pads"></span></p>
+
+<h2>2. Momentele din joc</h2>
+<p><button class="n" id="lang">Balon: română</button> Frazele nu se aud la fiecare eveniment: între două fraze ale aceluiași erou sunt cel puțin 4 secunde.</p>
+<table id="sit"><tbody></tbody></table>
+
+<h2>3. Cuvintele (o mostră din cele 1000)</h2>
+<p>Fiecare erou are limba lui. Cuvintele se fac singure din regulile de sunet ale eroului, mereu aceleași. <b>Boon:</b> rotund și jos, cu „rrr”: o, u, a și m, b, g, r, w, se termină în -ur, -o, -ar. <b>Killer:</b> scurt și repede, ca strigătele de la meci: e, i, a, o și d, g, k, t, se termină în -k, -t, -e. Apasă pe cuvânt ca să-l auzi. <span id="gen"></span></p>
+<div id="lex"></div>
+</main>
+<script>
+'use strict';
+'use strict';
+/* ==========================================================================
+   BUBU ȘI LEO: OUĂLE DE AUR
+   Everything the kids might ask you to change lives in CONFIG.
+   Edit a value, save the file, reload the page in Chrome.
+   ========================================================================== */
+const CONFIG = {
+  // ---- Names (all other texts, Romanian and English, are in the STR table below CONFIG)
+  villainName: 'Ciori',
+  language: 'ro',              // starting language: 'ro' or 'en'. Changeable in Setări.
+
+  // ---- Heroes (index 0 = Player 1, index 1 = Player 2) ---------------------
+  heroes: [
+    {
+      name: 'Bubu',
+      power: 'spin', power2: null,      // ✕: the stomp (a spin with time 0). □: nothing
+      color: '#F08A3C',        // player color on screen (rings, badges)
+      color2: '#6FA35E',       // spots
+      scarf: '#D9463C',
+      speed: 330,              // walking speed, pixels per second
+      stompRadius: 280,        // enemies inside this circle get stunned
+      pullRadius: 360,         // golden eggs inside this circle fly to Bubu
+      stompCooldown: 0.7,      // seconds between stomps
+      stunTime: 2.8            // how long stomped enemies stay stunned
+    },
+    {
+      name: 'Leo',
+      power: 'throw', power2: null,     // ✕: the balls. □: nothing
+      color: '#F6C63C',        // shirt (yellow)
+      color2: '#3F78C8',       // shorts (blue)
+      headband: '#D9463C',
+      speed: 350,
+      kickSpeed: 760,          // quick tap on the button
+      kickSpeedMax: 1400,      // fully charged kick (hold the button)
+      chargeTime: 0.9,         // seconds to hold for a full kick
+      ballsPerKick: 8,         // balls per tap, spread evenly around a circle (all directions)
+      ballsPerKickMax: 12,     // balls per fully charged kick
+      kickCooldown: 1.2,       // seconds before a new kick while the balls are still flying (pressing again then calls them back)
+      ballLife: 2.3,           // seconds the balls fly after a tap
+      ballLifeMax: 3.8         // seconds after a full kick
+    }
+  ],
+
+  // ---- Game length ---------------------------------------------------------
+  levels: 6,                   // levels before the boss (1 to 6)
+  decorPerLevel: 1700,         // small meadow things per level (grass, daisies, pebbles...). 6 x 1700 = 10,200 with the rest
+  levelDuration: 360,          // target seconds per level. Egg count scales with it.
+  eggsPerMinute: 10,           // pace used for the level time: a level lasts max(levelDuration, eggs / eggsPerMinute * 60) seconds (levelDurationOf)
+  // The diamond quota: every hero has to find `perLevel[level]` diamonds. There is no upper limit: a hero may take as many as he finds,
+  // and gives the extra to the friend with L1 (docs/28-t15-george-de-doua-ori.md).
+  quota: {
+    on: true,                                              // false = the old rule (60 eggs, no quota)
+    perLevel: [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],   // diamonds each hero must find, level 1 .. 12: the same everywhere, the enemies make it harder
+    extra: 2.2,                                            // diamonds on the map = quota * extra (at least 2: both heroes must be able to finish)
+    giveRange: 420, giveEvery: 0.3, flyTime: 0.45,         // giving with L1 (later tasks): how near, how fast, how long an egg flies
+    autoGive: 120,                                         // seconds in the nest after which the game moves eggs by itself (0 = never)
+    autoEvery: 2                                           // seconds between two automatic moves
+  },
+  wavesPerLevel: 3,            // eggs appear in this many groups, left to right
+  starsPerLevel: 3,
+  giantEggValue: 20,           // the secret egg in the cave (level 5)
+
+  // ---- Difficulty, chosen per player on the start screen -------------------
+  difficulty: {
+    easy:   { enemySpeed: 0.55, pickupRadius: 105, dizzyTime: 1.0, wakeRadius: 0.75, wind: 0.5, ballSize: 1.3, ballSpeed: 0.85 },
+    normal: { enemySpeed: 1.0,  pickupRadius: 64,  dizzyTime: 2.0, wakeRadius: 1.0,  wind: 1.0, ballSize: 1.0, ballSpeed: 1.0  },
+    hard:   { enemySpeed: 1.3,  pickupRadius: 54,  dizzyTime: 2.4, wakeRadius: 1.25, wind: 1.25, ballSize: 1.0, ballSpeed: 1.0  }
+  },
+  defaultDifficulty: ['easy', 'normal'],   // Bubu, Leo
+  guideArrow: [true, false],   // the soft arrow that shows each player where to go (Bubu, Leo)
+
+  // ---- Nest: a hero in it is hidden on every level, the wind does not move it, nothing can hit it
+  nestSafe: true,
+  nestSafeRadius: 150,         // how close to the nest (centre) a hero must stand to hide
+  nestHideSoundGap: 3,         // seconds between two "ih-ih" sounds when heroes keep stepping in and out
+
+  // ---- Rescue: a hero who was hit cannot walk until the friend comes and presses □ (both games)
+  // The ring around each hero in the fights with George (mid, nest and the arena). Every hit makes one piece red;
+  // when all are red, the next hit makes him dizzy until the friend helps him. docs/10-gameplay.md, "Inelul"
+  ring: {
+    on: true,                  // false = the old rule: every hit in a fight with George makes the hero wait for the friend
+    hits: 10,                  // pieces of the ring = hits a hero takes in a fight before he gets dizzy
+    inv: 1.1,                  // seconds a hero cannot be hit again after a hit that only reddens a piece
+    red: '#E5484D',            // a warm red, not a bright one: it shows, but it does not scare
+    push: 200                  // how hard such a hit pushes the hero away (units per second)
+  },
+  // ---- Co-op mechanisms of levels 7 - 12 (T7): bands cut the map, each crossing opens only when both heroes do their part.
+  // docs/25-niveluri-7-12.md, 3.1 - 3.6; src/065-mech.js
+  mech: {
+    autoOpen: 180,             // seconds without progress before a gate opens by itself (T7.3). 0 = never
+    hintAfter: 40,             // seconds without progress before both players get an arrow to their own switch (T7.3)
+    easy: 1.6,                 // on "Ușor": time windows and "stays open" times are this much longer
+    cageWindow: 1.5,           // both heroes must hit the star cage within this many seconds (T7.2)
+    cageReach: 150,            // a power of a hero (or a ball he threw) this close to the cage counts as a hit on it (T7.2)
+    cageWobble: 0.6,           // seconds the cage shakes, and the faces of both heroes show, after one hero alone hit it (T7.2)
+    plateDown: 6,              // a plate that is stepped on sinks this many units; the ring of light rises from it (T7.2)
+    openTime: 0.5,             // seconds a gate takes to open or close all the way
+    plateGap: 700,             // a plate that opens a gate for anyone ('any') stays at least this far from the crossing: nobody can step off and run over alone
+    nearGate: 150,             // 'any': the gate stays open after the plate is left only while a hero is on the crossing or this close to it
+    raftTurns: 3, raftBack: 140, raftDrift: 0.07,            // T8 - T9
+    orbSlow: 0.7, orbPass: 420, orbLight: 360,               // T9
+    boulderSpeed: 85, boulderBack: 120                       // T9
+  },
+  rescue: {
+    enabled: true,             // false = the old rule: a hit hero gets up alone after a moment
+    reachNear: 180,            // the first hero (Bubu, Boon) must stand this close to help: a hug, healing hands
+    reachFar: 620,             // the second hero (Leo, Killer) can help from this far: he sends a magic ball
+    ballSpeed: 900,            // how fast the magic ball flies to the friend
+    safeAfter: 2.6,            // seconds nothing can hit a hero who was just helped up
+    bothDown: 3,               // both heroes down at the same time: they get up alone after this many seconds
+    autoAfter: 0,              // a hero gets up alone after this many seconds (0 = never: only the friend can help). Not used while limit > 0
+    callEvery: 5,              // seconds between two calls for help
+    // ---- The ten seconds: a hit hero waits for his friend, and if nobody comes the level starts again ----
+    limit: 10,                 // seconds the friend has to help. 0 = no limit (the rule before this update)
+    limitMercy: 15,            // the limit after retryMercy restarts of the same chapter
+    retryMercy: 3,             // how many restarts before the limit grows. 0 = it never grows
+    bothDownRestart: true,     // both heroes down: the level starts again after bothDown seconds. false = both get up alone, as before
+    restart: 'level',          // 'level' = from the beginning of the chapter ('wave' is kept for later, not built)
+    retryScreen: 2.2           // seconds the "Încă o dată!" card stays on screen
+  },
+
+  // ---- Small enemies: beetles and pinecones (robots, snails and birds in the second game) ----
+  smallEnemy: {
+    hits: 2,                   // hits (stomp, claws or ball) before a small enemy disappears
+    respawn: 22                // seconds until another one appears in its place
+  },
+
+  // ---- Obstacles -----------------------------------------------------------
+  beetleSpeed: 150,
+  beetleWakeRadius: 205,
+  pineconeSpeed: 165,
+  mudSlow: 0.45,               // speed multiplier in mud
+  windEvery: 9,                // seconds between gusts on the windy hill
+  windDuration: 2.6,
+  windForce: 185,
+
+  // ---- Helpers -------------------------------------------------------------
+  butterflyEvery: [40, 70],    // a butterfly appears every 40 to 70 seconds
+  butterflyBoost: 1.5,         // speed multiplier
+  butterflyTime: 6,            // seconds of boost
+  hintAfter: 10,               // seconds without an egg before a golden arrow appears
+
+  // ---- Boss ----------------------------------------------------------------
+  boss: {
+    hits: 5,                   // balls in the nest needed to win (3 before the update, now a harder fight)
+    shakes: [2, 2, 3, 3, 3],   // stomps needed to shake Ciori down, per round
+    downTime: 5,               // seconds Ciori stays down
+    throwEvery: [3, 2.5, 2.1, 1.8, 1.6]   // seconds between pinecones, per round
+  },
+
+  // ---- Two mini-fights per level: one in the middle of the path, one at the nest ----
+  duel: {
+    enabled: true,             // false = no mini-fights, the nest opens right after the last eggs
+    hp: [3, 3, 4, 4, 4, 5],    // hits needed in the middle fight, per level (one less on Ușor, one more on Greu)
+    tiredTime: 2.4,            // seconds the guardian stays tired (the moment to hit it)
+    eggsPerHit: 4,             // golden eggs that fly out at every hit
+    eggsAtEnd: 8,
+    // the nest fight: the same guardian, bigger, harder
+    finalHp: [5, 5, 6, 6, 7, 8],   // hits needed at the nest, per level
+    finalSize: 1.3,            // guardian drawn and hit this many times bigger
+    finalSpeed: 1.25,          // multiplier on how fast it moves and attacks
+    finalPrep: 0.75,           // multiplier on the warning time before an attack (shorter warning)
+    finalTired: 0.75,          // multiplier on how long it stays tired (shorter window to hit)
+    finalExtra: 1,             // one more attack in every round
+    angryAt: 0.5,              // below this share of hits left it gets angry: one more attack, and it shakes
+    mercy: 0.06,               // every time a hero is hit in a fight the guardian gets this much slower and stays tired longer. 0 = off
+    mercyMax: 10               // counted up to this many hits. From then on every hit on the guardian counts at any time, like on "Ușor"
+  },
+
+  // ---- Controls (keys and controller/keyboard are chosen in Setări).
+  //      On a controller: ✕ = first power, ○ = help the friend, □ = second power, L3 (press the stick) = run ----
+  deadzone: 0.25,              // stick deadzone (0.25 or more)
+  vibration: true,
+  keys: [                      // starting keys: player 1, player 2 (KeyboardEvent.code names)
+    { up: 'KeyW', down: 'KeyS', left: 'KeyA', right: 'KeyD', a: 'Space', b: 'KeyE', c: 'KeyQ', r: 'ShiftLeft', g: 'KeyR' },   // a = first power (✕), b = help the friend (○), c = second power (□), r = run (L3), g = give an egg (L1)
+    { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', a: 'Enter', b: 'ShiftRight', c: 'Slash', r: 'AltRight', g: 'Period' }
+  ],
+
+  // ---- Run: press the left stick (L3) ----
+  sprint: {
+    enabled: true,
+    mult: 3,                   // how many times faster
+    maxSpeed: 1100,            // never faster than this, even with the rocket boost
+    mode: 'click',             // 'click' = one press, runs until the stick is let go. 'hold' = only while L3 is held
+    stopAfter: 0.25,           // seconds with the stick in the middle before the run ends
+    inDuel: true,              // false = no running during a mini-fight
+    max: 0,                    // seconds of running before a rest is needed. 0 = no limit
+    rest: 2,                   // the rest, when max is not 0
+    step: 12,                  // the hero moves in steps of at most this many units, so it cannot jump through a wall
+    wordGap: 6                 // at most one "run" word every this many seconds
+  },
+
+  // ---- Sound ---------------------------------------------------------------
+  volume: { music: 0.5, ambient: 0.7, characters: 0.8 },   // starting values, 0 to 1. Changeable in Setări.
+  footsteps: true,
+  babble: true,                // the heroes talk in their own invented words (30 each). false = only the sound effects
+  voice: true,                 // read level intros aloud (needs a system voice for the chosen language)
+  voiceRate: 0.9,
+
+  // ---- Look ----------------------------------------------------------------
+  fontTitle: 'Georgia, "Times New Roman", serif',
+  fontUI: '"Avenir Next", "Trebuchet MS", "Helvetica Neue", Arial, sans-serif',
+  maxRenderWidth: 1920,        // lower to 1600 or 1280 if the Mac struggles
+  saveKey: 'bubu-leo-oua-de-aur-v1',
+
+  // ---- The look of levels 7 - 12 and of the heroes (docs/24-sisteme-noi.md, S7) ----
+  // Every switch here can be turned off on its own, so an older Mac can still play well.
+  look: {
+    lights: true,          // the moving light map (S7.5). false = the old night vignette
+    front: true,           // big blurred things at the edges of the screen (S7.4)
+    motes: 40,             // tiny specks floating in the light. 0 = none
+    freeze: 0.06,          // seconds the game holds its breath at a big hit (S7.6). 0 = off
+    maxLights: 24,         // lights drawn in one frame. The ones nearest the middle of the screen win
+    lightGlow: 0.6,        // how strong the lights of the light map are over the ambient (the darker the ambient, the stronger)
+    kick: 0.04,            // at a big hit the camera comes closer by this much (4%) in kickIn seconds and goes back in kickOut (S7.6). 0 = no zoom
+    kickIn: 0.15,
+    kickOut: 0.4,
+    anticipate: 0.15,      // seconds a mechanism, or George before an attack, pulls back before it goes (S7.6). 0 = none
+    halo: 0.5,             // glow over the things that give light (torches, crystals, lava): alpha 0.35 - 0.6 around this value (S7.5). 0 = none
+    haloMax: 12,           // at most this many halos in one frame
+    waves: true,           // the water of the new levels: two rows of waves, a reflection and sparkles. false = the old shimmer
+    waveSpeedA: 14,        // units per second: the first row of waves goes right at this speed, the second goes left (waveSpeedB)
+    waveSpeedB: 9,
+    preview: false,        // true = the new frame (light map, front plane, haze) also on levels 1 - 6, to see it before 7 - 12 exist
+    frontFade: 0.2,        // seconds a thing of the front plane takes to fade when a hero comes near it
+    frontMin: 0.15,        // how much of it stays when it fades
+    frontPar: 1.15,        // the front plane moves this many times more than the camera (parallax)
+    frontNear: 220,        // a hero closer than this (on screen) to a thing of the front plane makes it fade, before he is under it
+    // how the heroes and George move (S7.3, second part)
+    tailLift: 0.18,        // how high the tail lifts at walking speed (radians). Running lifts it more, up to tailMax
+    tailMax: 0.5,
+    tailSpring: 70,        // how stiff the tail is: higher = it follows the body sooner, with less swing
+    armSwing: 0.45,        // how far Killer's arms swing when he walks (radians); running: armSwingRun
+    armSwingRun: 0.8,
+    breath: 0.02,          // breathing while standing still: the body grows from 1 to 1 + breath
+    blinkMin: 3,           // a blink every blinkMin to blinkMax seconds, at random
+    blinkMax: 6,
+    squashStart: -0.1,     // stretch when a hero starts to walk (negative = taller), squash when he stops
+    squashStop: 0.12,
+    squashLand: 0.18,      // landing after a jump or a drop
+    squashRun: -0.16,      // stretch when the run (L3) starts
+    // the Krea pictures (docs/05-pictura.md, "Imaginile Krea"; CLAUDE.md, rule 1)
+    art: true,             // true = heroes, enemies and the things of levels 1 - 6 and the arena are the Krea pictures. false = the painted ones
+    artSize: { boon: 150, killer: 132, george: 270, mini: 92, robot: 74, snail: 70, bird: 92, soldier: 120 },   // how tall each picture is drawn, in world units (George: at scale 1)
+    calm: true             // true = the ground of levels 1 - 6 is calm (few small things, the colors of the Krea maps)
+  },
+
+  // ---- The second game, "Cea mai grea luptă" (invented by the children) ---------------------
+  // villainName, heroes and boss take the place of the values with the same name above while that game is played.
+  // Everything else in CONFIG (difficulty, nest, rescue, mini-fights, sound...) is shared by the two games.
+  lupta: {
+    villainName: 'George cel Rău',
+    heroes: [
+      {
+        name: 'Boon',
+        power: 'spin', power2: 'throw',   // ✕: the claws. □: the boomerang bones
+        color: '#2FBFA8',      // player color on screen (rings, badges)
+        color2: '#B7D645',
+        speed: 330,
+        stompRadius: 220,      // the circle of the spinning claws: enemies inside are hit, and nothing can hit Boon
+        pullRadius: 300,       // rainbow crystals inside this circle fly to Boon
+        stompCooldown: 1.25,   // seconds from the start of one spin to the next
+        stunTime: 2.8,
+        spinTime: 0.85,        // how long the claws spin
+        throw: {               // □: the boomerang bones. The same rules as Killer's balls, his own numbers
+          look: 'bone',
+          speed: 700, speedMax: 1250,   // a little slower than the balls (760, 1400): easier for the younger player to follow
+          charge: 0.9,
+          n: 8, nMax: 12,
+          cooldown: 1.2,
+          life: 2.3, lifeMax: 3.8
+        }
+      },
+      {
+        name: 'Killer',
+        power: 'throw', power2: 'spin',   // ✕: the balls. □: the whirl gloves
+        color: '#3B6FE0',      // shirt (blue)
+        color2: '#E4583C',     // boots (red)
+        speed: 350,
+        kickSpeed: 760, kickSpeedMax: 1400, chargeTime: 0.9, ballsPerKick: 8, ballsPerKickMax: 12, kickCooldown: 1.2, ballLife: 2.3, ballLifeMax: 3.8,     // the same as Leo
+        spin: {                // □: the whirl gloves. The same rules as Boon's claws, his own numbers
+          look: 'gloves',
+          radius: 220, pull: 300,
+          time: 0.85,
+          cooldown: 1.6,       // Boon: 1.25. A little longer: the older player is shielded a little less often
+          stun: 2.8
+        }
+      }
+    ],
+    boss: {
+      hits: 6,                 // balls that must hit George while he lies on the ground (one more than for Ciori)
+      shakes: [2, 2, 3, 3, 3, 4],   // claw spins needed to shake George off his throne, per round
+      downTime: 5,
+      throwEvery: [3, 2.5, 2.1, 1.8, 1.6, 1.4],
+      roarRadius: 520,         // back on the throne George roars: heroes closer than this are pushed away (it does not hurt)
+      roarPush: 1500
+    },
+    levels: 7,                         // levels of the second game that exist. Part Two (levels 7 - 12) raises it as each new level is made
+    duelHp: [3, 3, 4, 5, 5, 6, 6],        // hits George takes in the middle fight, per level (the first game: CONFIG.duel.hp)
+    duelFinalHp: [5, 6, 6, 7, 8, 9, 9],   // hits George takes at the nest, per level (the first game: CONFIG.duel.finalHp)
+    // T15 (docs/28-t15-george-de-doua-ori.md): diamonds come only from defeated small enemies, George comes at half and at all of the team's quota.
+    // The numbers per level are starting points, to be tuned while the children play.
+    fieldEnemies: [12, 14, 15, 15, 17, 18, 18],   // small enemies on a level: robots, snails from the glowing trees and pinecones. Robots fill up the rest
+    treeSnails: 2,             // snails that crawl out of a glowing tree when it is shaken; like every small enemy they come back after a while
+    enemyDrop: 1,              // diamonds a defeated small enemy leaves on the ground
+    miniGeorge: { hp: 3, perLevel: [1, 1, 1, 2, 2, 2, 2], speed: 110, near: 640, drop: 1 },   // Little George: follows the nearest hero (within `near`), never hits
+    george: {
+      minT: 20,                                // the middle fight never starts in the first seconds of a level
+      midThrows: [2, 3, 3, 4, 4, 5, 5],           // bones and balls George throws in the middle fight, per level: they daze, like pinecones
+      nestEnemies: [2, 4, 5, 6, 8, 10, 10],        // small enemies he throws in the nest fight, in all, per level (half at half his hearts, the rest at his last heart)
+      enemyHp: [2, 2, 3, 3, 3, 3, 3],             // hearts of a thrown enemy, per level
+      chaseSpeed: 120,                         // how fast the enemies thrown at his last heart follow the heroes (a hero walks at about 150)
+      boneEvery: 2,                            // in the nest fight, above half his hearts: bones and balls thrown each time he loses a heart
+      flight: 0.9                              // seconds a thrown thing flies before it lands
+    },
+    bossSize: 1.5,             // how big George is in his arena (in the mini-fights he grows from level to level, see DUEL_DEFS_L)
+    shrink: 0.5,               // a hero who was hit is this small until the friend helps
+    rainbowBonus: 5,           // crystals for the team when all seven colors were gathered
+    birdSpeed: 250,            // big birds: how fast they fly
+    birdCarry: 1.7,            // seconds a bird carries a hero before it lets go
+    birdEvery: [7, 13]         // a bird comes every 7 to 13 seconds (per bird of the level)
+  }
+};
+
+let GAME = 'lupta';
+
+/* ==========================================================================
+   SOUND: everything is generated with the Web Audio API.
+   Sine and triangle waves, low-pass filters, a soft generated reverb.
+   ========================================================================== */
+const Snd = (() => {
+  let ac = null, master, musicBus, ambBus, chrBus, timer = null;
+  const vol = { music: CONFIG.volume.music, amb: CONFIG.volume.ambient, chr: CONFIG.volume.characters };
+  const outs = [null, null];          // where each hero's own sounds play: null = computer, or a bus on another speaker
+  const sinks = {};                   // deviceId -> { ac, bus }: one extra audio output per controller speaker
+  const noiseBufs = new WeakMap();
+  let song = null, songKey = null, step = 0, nextT = 0, duck = 1;
+  let amb = null, bedW = null, bedA = null, cricketT = 0;
+  const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
+
+  /* The last thing before any speaker: a limiter. A loud word, a stomp and the music at the same moment would otherwise
+     go over what a speaker can play and sound harsh (clipping). Measured by tests/sunete-limita.js. */
+  function toSpeaker(a, node) {
+    const lim = a.createDynamicsCompressor(), trim = a.createGain();
+    lim.threshold.value = -8; lim.knee.value = 4; lim.ratio.value = 20; lim.attack.value = 0.002; lim.release.value = 0.12;
+    trim.gain.value = 0.85;
+    node.connect(lim); lim.connect(trim); trim.connect(a.destination);
+  }
+  function init() {
+    if (ac) { if (ac.state === 'suspended') ac.resume(); for (const id in sinks) if (sinks[id].ac.state === 'suspended') sinks[id].ac.resume(); return; }
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    try { ac = new AC(); } catch (e) { ac = null; return; }
+    const comp = ac.createDynamicsCompressor();
+    comp.threshold.value = -16; comp.ratio.value = 3; comp.attack.value = 0.01; comp.release.value = 0.25;
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 6500; lp.Q.value = 0.3;
+    master = ac.createGain(); master.gain.value = 1.3;
+    master.connect(lp); lp.connect(comp); toSpeaker(ac, comp);
+    const rev = ac.createConvolver(); rev.buffer = impulse(2.6);
+    const revOut = ac.createGain(); revOut.gain.value = 0.55; rev.connect(revOut); revOut.connect(master);
+    musicBus = ac.createGain(); ambBus = ac.createGain(); chrBus = ac.createGain();
+    musicBus.connect(master); ambBus.connect(master); chrBus.connect(master);
+    const send = (bus, g) => { const s = ac.createGain(); s.gain.value = g; bus.connect(s); s.connect(rev); };
+    send(musicBus, 0.5); send(ambBus, 0.3); send(chrBus, 0.26);
+    // two soft noise beds for the ambience: water and wind
+    const bed = (type, f, q) => { const s = ac.createBufferSource(); s.buffer = nbuf(ac); s.loop = true; const fl = ac.createBiquadFilter(); fl.type = type; fl.frequency.value = f; fl.Q.value = q; const g = ac.createGain(); g.gain.value = 0; s.connect(fl); fl.connect(g); g.connect(ambBus); s.start(); return g; };
+    bedW = bed('lowpass', 900, 0.4); bedA = bed('bandpass', 420, 0.6);
+    applyVol(); applyAmb();
+    timer = setInterval(tick, 50);
+  }
+  function nbuf(c) {
+    let b = noiseBufs.get(c);
+    if (!b) { b = c.createBuffer(1, c.sampleRate * 1.5, c.sampleRate); const nd = b.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1; noiseBufs.set(c, b); }
+    return b;
+  }
+  function impulse(sec) {             // soft room: decaying, low-passed noise
+    const n = ac.sampleRate * sec | 0, b = ac.createBuffer(2, n, ac.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = b.getChannelData(ch); let v = 0;
+      for (let i = 0; i < n; i++) { const t = i / n; v += ((Math.random() * 2 - 1) * Math.pow(1 - t, 2.8) - v) * 0.22; d[i] = v * 1.5; }
+    }
+    return b;
+  }
+  function applyVol() {
+    if (!ac) return;
+    musicBus.gain.setTargetAtTime(vol.music * 0.55 * duck, ac.currentTime, 0.1);
+    ambBus.gain.setTargetAtTime(vol.amb, ac.currentTime, 0.05);
+    chrBus.gain.setTargetAtTime(vol.chr, ac.currentTime, 0.05);
+    for (const id in sinks) sinks[id].bus.gain.value = vol.chr * 1.6;
+  }
+  function applyAmb() {
+    if (!ac) return;
+    bedW.gain.setTargetAtTime(amb ? (amb.water || 0) * 0.05 : 0, ac.currentTime, 0.8);
+    bedA.gain.setTargetAtTime(amb ? (amb.wind || 0) * 0.045 : 0, ac.currentTime, 0.8);
+  }
+
+  // ---- building blocks: every sound is made on the bus it is given -----------
+  /* A controller's speaker is tiny: it cannot play low notes. On such a speaker (bus.small) anything low goes one or two octaves up. */
+  const smallUp = (bus, f) => !bus.small || f >= 260 ? 1 : f >= 130 ? 2 : 4;
+  function osc(bus, type, f, t, g, att, dec, o) {
+    const a = bus.context, os = a.createOscillator(), gn = a.createGain(), up = smallUp(bus, f);
+    if (up > 1) { f *= up; if (o) o = Object.assign({}, o, { f2: o.f2 ? o.f2 * up : 0, lp: o.lp ? o.lp * up : 0 }); }
+    os.type = type; os.frequency.setValueAtTime(f, t);
+    if (o && o.f2) os.frequency.exponentialRampToValueAtTime(o.f2, t + (o.gt || dec));
+    gn.gain.setValueAtTime(0.0001, t);
+    gn.gain.linearRampToValueAtTime(g, t + att);
+    gn.gain.exponentialRampToValueAtTime(0.0001, t + att + dec);
+    let node = os;
+    if (o && o.lp) { const fl = a.createBiquadFilter(); fl.type = 'lowpass'; fl.frequency.value = o.lp; os.connect(fl); node = fl; }
+    node.connect(gn); gn.connect(bus);
+    if (o && o.trem) {                     // a trembling note ("fup-fup"): a slow wave on top of the loudness
+      const lo = a.createOscillator(), lg = a.createGain();
+      lo.type = 'sine'; lo.frequency.value = o.trem; lg.gain.value = g * 0.4;
+      lo.connect(lg); lg.connect(gn.gain); lo.start(t); lo.stop(t + att + dec + 0.05);
+    }
+    os.start(t); os.stop(t + att + dec + 0.05);
+  }
+  function noise(bus, t, g, att, dec, type, f, f2, q) {
+    const a = bus.context, s = a.createBufferSource(); s.buffer = nbuf(a); s.loop = true;
+    if (bus.small && f < 700) { f *= 2.5; if (f2) f2 *= 2.5; }
+    const fl = a.createBiquadFilter(); fl.type = type; fl.frequency.setValueAtTime(f, t); fl.Q.value = q || 0.7;
+    if (f2) fl.frequency.exponentialRampToValueAtTime(f2, t + att + dec);
+    const gn = a.createGain();
+    gn.gain.setValueAtTime(0.0001, t); gn.gain.linearRampToValueAtTime(g, t + att); gn.gain.exponentialRampToValueAtTime(0.0001, t + att + dec);
+    s.connect(fl); fl.connect(gn); gn.connect(bus);
+    s.start(t, Math.random()); s.stop(t + att + dec + 0.05);
+  }
+  /* A tiny cartoon voice: a buzzy tone through a moving "mouth" filter. f0 -> f1 is the melody of the syllable. */
+  function voc(bus, t, f0, f1, dur, g, m0, m1) {
+    const a = bus.context, os = a.createOscillator(), o2 = a.createOscillator(), fl = a.createBiquadFilter(), gn = a.createGain();
+    if (bus.small && f0 < 260) { f0 *= 2; f1 *= 2; }
+    os.type = 'sawtooth'; o2.type = 'triangle';
+    os.frequency.setValueAtTime(f0, t); os.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    o2.frequency.setValueAtTime(f0, t); o2.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    fl.type = 'bandpass'; fl.Q.value = 2.2; fl.frequency.setValueAtTime(m0, t); fl.frequency.exponentialRampToValueAtTime(m1, t + dur);
+    g *= 2.1;
+    gn.gain.setValueAtTime(0.0001, t); gn.gain.linearRampToValueAtTime(g, t + 0.025); gn.gain.setValueAtTime(g, t + dur * 0.55); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.04);
+    const g2 = a.createGain(); g2.gain.value = 0.45;
+    os.connect(fl); fl.connect(gn); o2.connect(g2); g2.connect(gn); gn.connect(bus);
+    os.start(t); o2.start(t); os.stop(t + dur + 0.1); o2.stop(t + dur + 0.1);
+  }
+  /* A soft roar or growl: a low triangle that slides down, with a quick tremble (the "rrr"). Warm, never harsh. */
+  function growl(bus, t, f0, f1, dur, g, rate) {
+    const a = bus.context, up = smallUp(bus, f1), os = a.createOscillator(), o2 = a.createOscillator(), fl = a.createBiquadFilter(), gn = a.createGain(), tr = a.createGain(), lfo = a.createOscillator(), lg = a.createGain();
+    os.type = 'triangle'; o2.type = 'sine'; fl.type = 'lowpass'; fl.frequency.value = 1100 * up; fl.Q.value = 0.6;
+    for (const [o, m] of [[os, 1], [o2, 2]]) { o.frequency.setValueAtTime(f0 * up * m, t); o.frequency.exponentialRampToValueAtTime(f1 * up * m, t + dur); }
+    gn.gain.setValueAtTime(0.0001, t); gn.gain.linearRampToValueAtTime(g, t + 0.06); gn.gain.setValueAtTime(g, t + dur * 0.55); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.05);
+    lfo.frequency.value = rate || 23; lg.gain.value = 0.38; tr.gain.value = 0.62; lfo.connect(lg); lg.connect(tr.gain);
+    const g2 = a.createGain(); g2.gain.value = 0.3;
+    os.connect(fl); o2.connect(g2); g2.connect(fl); fl.connect(gn); gn.connect(tr); tr.connect(bus);
+    for (const o of [os, o2, lfo]) { o.start(t); o.stop(t + dur + 0.12); }
+    noise(bus, t, g * 0.18, 0.05, dur * 0.8, 'lowpass', 500, 220);
+  }
+  // Bubu speaks low and round, Leo higher and brighter.
+  // ---- instruments ---------------------------------------------------------
+  const kalimba = (bus, f, t, g) => { osc(bus, 'sine', f, t, g, 0.004, 1.25); osc(bus, 'sine', f * 3, t, g * 0.13, 0.003, 0.28); osc(bus, 'triangle', f * 5.42, t, g * 0.04, 0.002, 0.07); };
+  const marimba = (bus, f, t, g) => { osc(bus, 'sine', f, t, g, 0.005, 0.6); osc(bus, 'sine', f * 4, t, g * 0.2, 0.003, 0.12); osc(bus, 'triangle', f, t, g * 0.22, 0.004, 0.22, { lp: 900 }); };
+  const chime = (bus, f, t, g) => { osc(bus, 'sine', f, t, g, 0.004, 1.9); osc(bus, 'sine', f * 2.76, t, g * 0.26, 0.004, 1.0); osc(bus, 'sine', f * 5.4, t, g * 0.09, 0.003, 0.45); };
+  function flute(bus, f, t, dur, g) {
+    const os = ac.createOscillator(), gn = ac.createGain(), fl = ac.createBiquadFilter(), lfo = ac.createOscillator(), lg = ac.createGain();
+    os.type = 'triangle'; os.frequency.value = f; fl.type = 'lowpass'; fl.frequency.value = 1100 + f; fl.Q.value = 0.5;
+    lfo.frequency.value = 4.8; lg.gain.setValueAtTime(0, t); lg.gain.linearRampToValueAtTime(f * 0.007, t + 0.5);
+    lfo.connect(lg); lg.connect(os.frequency);
+    gn.gain.setValueAtTime(0.0001, t); gn.gain.linearRampToValueAtTime(g, t + 0.16); gn.gain.setValueAtTime(g, t + Math.max(0.2, dur - 0.3)); gn.gain.linearRampToValueAtTime(0.0001, t + dur);
+    os.connect(fl); fl.connect(gn); gn.connect(bus);
+    os.start(t); lfo.start(t); os.stop(t + dur + 0.05); lfo.stop(t + dur + 0.05);
+    noise(bus, t, g * 0.1, 0.1, dur * 0.8, 'bandpass', f * 2, 0, 3);
+  }
+
+  // ---- music: calm pentatonic patterns, a different one per level ------------
+  const MAJ = [0, 2, 4, 7, 9], MIN = [0, 3, 5, 7, 10], SUS = [0, 2, 5, 7, 9];
+  const SONGS = {
+    title:  { root: 60, sc: MAJ, bpm: 78,  seed: 5,  flute: 1 },
+    l0:     { root: 60, sc: MAJ, bpm: 86,  seed: 11 },
+    l1:     { root: 57, sc: MIN, bpm: 78,  seed: 23, flute: 1 },
+    l2:     { root: 62, sc: MAJ, bpm: 84,  seed: 31 },
+    l3:     { root: 65, sc: MAJ, bpm: 92,  seed: 47, flute: 1 },
+    l4:     { root: 55, sc: SUS, bpm: 76,  seed: 59, flute: 1, chimes: 1 },
+    l5:     { root: 58, sc: MAJ, bpm: 80,  seed: 67, flute: 1 },
+    boss:   { root: 62, sc: MIN, bpm: 112, seed: 83, shaker: 1 },
+    duel:   { root: 64, sc: MIN, bpm: 104, seed: 71, shaker: 1 },
+    duel2:  { root: 64, sc: MIN, bpm: 116, seed: 71, shaker: 1 },      // the nest fight: the same tune, a little faster
+    ending: { root: 60, sc: MAJ, bpm: 72,  seed: 97, flute: 1, chimes: 1 },
+    // the second game has its own tunes: glass bells instead of the kalimba, and a soft jungle drum
+    'L:title':  { root: 57, sc: MIN, bpm: 84,  seed: 105, flute: 1, glass: 1 },
+    'L:l0':     { root: 62, sc: SUS, bpm: 88,  seed: 111, glass: 1 },
+    'L:l1':     { root: 59, sc: MIN, bpm: 92,  seed: 123, glass: 1, drum: 1 },
+    'L:l2':     { root: 64, sc: SUS, bpm: 82,  seed: 131, flute: 1, glass: 1 },
+    'L:l3':     { root: 55, sc: MIN, bpm: 96,  seed: 147, flute: 1, drum: 1 },
+    'L:l4':     { root: 60, sc: SUS, bpm: 78,  seed: 159, flute: 1, glass: 1, chimes: 1 },
+    'L:l5':     { root: 57, sc: MIN, bpm: 90,  seed: 167, glass: 1, drum: 1 },
+    'L:boss':   { root: 57, sc: MIN, bpm: 118, seed: 183, shaker: 1, drum: 1 },
+    'L:duel':   { root: 59, sc: MIN, bpm: 108, seed: 171, shaker: 1, drum: 1 },
+    'L:duel2':  { root: 59, sc: MIN, bpm: 120, seed: 171, shaker: 1, drum: 1 },
+    'L:ending': { root: 62, sc: MAJ, bpm: 96,  seed: 197, flute: 1, chimes: 1, glass: 1, drum: 1 }
+  };
+  const setKey = key => (GAME === 'lupta' && key ? 'L:' : '') + key;      // the name of a tune or of an ambience in the game being played
+  function makeSong(p) {
+    const r = rng(p.seed);
+    const motif = () => {
+      const m = []; let d = 2 + (r() * 3 | 0);
+      for (let i = 0; i < 8; i++) {
+        if (i % 2 === 1 && r() < 0.42) { m.push(null); continue; }
+        d = clamp(d + [-2, -1, -1, 0, 1, 1, 2][r() * 7 | 0], 0, 9); m.push(d);
+      }
+      return m;
+    };
+    const A = motif(), B = motif(), C = motif(), E = A.slice(); E[5] = 1; E[6] = 0; E[7] = null;
+    const progs = [[0, 0, 3, 2, 4, 3, 0, 0], [0, 2, 3, 0, 4, 2, 3, 0], [0, 3, 0, 3, 2, 4, 3, 0]];
+    return { p, mel: [A, B, A, E, C, B, A, E], bass: progs[r() * 3 | 0], spb: 60 / p.bpm / 2 };
+  }
+  const deg = (p, d) => p.root + p.sc[((d % 5) + 5) % 5] + 12 * Math.floor(d / 5);
+  function schedule(st, t) {
+    const p = song.p, bar = (st >> 3) % 8, s = st & 7, hum = () => (Math.random() - 0.5) * 0.012;
+    const n = song.mel[bar][s];
+    if (n != null) { if (p.glass) chime(musicBus, mtof(deg(p, n) + 12), t + hum(), (s % 4 === 0 ? 0.1 : 0.07) + Math.random() * 0.02); else kalimba(musicBus, mtof(deg(p, n) + 12), t + hum(), (s % 4 === 0 ? 0.17 : 0.12) + Math.random() * 0.03); }
+    if (p.drum) { if (s === 0) osc(musicBus, 'sine', 84, t, 0.3, 0.005, 0.2, { f2: 52 }); else if (s === 3 || s === 6) osc(musicBus, 'sine', 150, t + hum(), 0.12, 0.004, 0.11, { f2: 104 }); }
+    const b = song.bass[bar];
+    if (s === 0) marimba(musicBus, mtof(deg(p, b) - 12), t, 0.24);
+    if (s === 4) marimba(musicBus, mtof(deg(p, b + 2) - 12), t + hum(), 0.15);
+    if (s === 6 && bar % 2 === 1) marimba(musicBus, mtof(deg(p, b + 1) - 12), t + hum(), 0.1);
+    if (s === 0 && bar % 4 === 0) chime(musicBus, mtof(deg(p, b) + 24), t, 0.045);
+    if (p.chimes && s === 3 && bar % 2 === 0) chime(musicBus, mtof(deg(p, b + 2) + 24), t, 0.03);
+    if (p.flute && s === 0 && bar % 2 === 0 && bar !== 0) flute(musicBus, mtof(deg(p, song.mel[bar][0] == null ? b : song.mel[bar][0]) + 12), t, song.spb * 7, 0.045);
+    if (p.shaker) {
+      noise(musicBus, t, s % 2 ? 0.012 : 0.022, 0.004, 0.05, 'bandpass', 2600, 0, 1.2);
+      if (s % 4 === 2) marimba(musicBus, mtof(deg(p, b + 2)), t, 0.09);
+    }
+  }
+  function tick() {
+    if (!ac || ac.state !== 'running') return;
+    if (amb && duck > 0.9) {                 // little living sounds of the valley
+      const t = ac.currentTime + 0.02;
+      if (amb.birds && Math.random() < amb.birds * 0.05) {
+        const f = 2300 + Math.random() * 1700, n = 2 + (Math.random() * 3 | 0), g = 0.018 + Math.random() * 0.016;
+        for (let i = 0; i < n; i++) osc(ambBus, 'sine', f * (1 + i * 0.04), t + i * 0.11, g, 0.012, 0.07, { f2: f * (Math.random() < 0.5 ? 1.25 : 0.8), gt: 0.07 });
+      }
+      if (amb.crickets) { cricketT -= 0.05; if (cricketT <= 0) { cricketT = 1.1 + Math.random() * 1.6; const f = 4100 + Math.random() * 500; for (let i = 0; i < 7; i++) osc(ambBus, 'sine', f, t + i * 0.045, 0.007, 0.006, 0.025); } }
+      if (amb.owl && Math.random() < 0.0035) { osc(ambBus, 'sine', 370, t, 0.03, 0.05, 0.3, { f2: 340 }); osc(ambBus, 'sine', 350, t + 0.45, 0.035, 0.05, 0.5, { f2: 300 }); }
+      if (amb.frogs && Math.random() < amb.frogs * 0.012) { const f = 190 + Math.random() * 90; for (let i = 0; i < 2; i++) osc(ambBus, 'triangle', f, t + i * 0.16, 0.03, 0.01, 0.09, { f2: f * 1.25, lp: 900 }); }
+      if (amb.robots && Math.random() < amb.robots * 0.01) { const n = 2 + (Math.random() * 3 | 0); for (let i = 0; i < n; i++) osc(ambBus, 'triangle', mtof(79 + PENT[Math.random() * 6 | 0]), t + i * 0.1, 0.014, 0.004, 0.06, { lp: 2600 }); }
+      if (amb.fire && Math.random() < 0.09) noise(ambBus, t, 0.03 + Math.random() * 0.03, 0.002, 0.03, 'bandpass', 1400 + Math.random() * 1200, 0, 2);
+    }
+    if (!song) return;
+    if (nextT < ac.currentTime) nextT = ac.currentTime + 0.05;
+    while (nextT < ac.currentTime + 0.25) { schedule(step, nextT); step++; nextT += song.spb; }
+  }
+  const AMBS = {
+    title: { birds: 0.3 }, l0: { birds: 0.4 }, l1: { birds: 0.5, owl: 1 }, l2: { birds: 0.25, water: 0.6 }, l3: { birds: 0.15, wind: 0.7 },
+    l4: { birds: 0.2, water: 1 }, l5: { birds: 0.08, crickets: 1, wind: 0.25 }, boss: { crickets: 1, wind: 0.35 }, ending: { crickets: 1 },
+    // the jungle at night: crickets, frogs, an owl, George's robots beeping far away, the fire of the torches
+    'L:title': { crickets: 1, frogs: 0.5 }, 'L:l0': { crickets: 1, frogs: 0.5, owl: 1 }, 'L:l1': { crickets: 0.6, robots: 1 }, 'L:l2': { water: 0.6, frogs: 1, crickets: 0.5 }, 'L:l3': { wind: 0.8, owl: 1 },
+    'L:l4': { water: 0.5, crickets: 1, frogs: 0.6 }, 'L:l5': { crickets: 1, wind: 0.3, robots: 0.6, fire: 1 }, 'L:boss': { wind: 0.3, fire: 1 }, 'L:ending': { crickets: 1, frogs: 0.3 }
+  };
+  function ambience(key) { amb = AMBS[setKey(key)] || AMBS[key] || null; applyAmb(); }
+  function music(key) {
+    const k2 = key && SONGS[setKey(key)] ? setKey(key) : key;
+    if (k2 === songKey) return;
+    songKey = k2; song = k2 && SONGS[k2] ? makeSong(SONGS[k2]) : null; step = 0; nextT = 0;
+    if (key !== 'duel' && key !== 'duel2') ambience(key);
+  }
+
+
+  // ---- the heroes' own language: 33 invented words each -------------------------
+  // A word is a list of syllables [vowel, semitones from the hero's base note, length in seconds, slide in semitones].
+  // Bubu: low, round, slow, sliding down. Leo: high, quick, bright, sliding up.
+  // Boon: a little dinosaur who growls his words. Killer: short, sporty shouts. Nothing is recorded: all is synthesized.
+  // note = the base note, form = how "big" the mouth is, gain = how loud, growl = how fast the voice trembles (a soft "rrr").
+  const VOICES = {
+    bubu:  [{ note: 43, form: 0.85, gain: 1.5 }, { note: 62, form: 1.15, gain: 0.95 }],
+    lupta: [{ note: 47, form: 0.8, gain: 1.45, growl: 24 }, { note: 66, form: 1.25, gain: 0.9 }]
+  };
+  const FORM = { a: [800, 1200], e: [500, 1900], i: [300, 2300], o: [500, 900], u: [320, 800] };
+  const BABBLE = {
+    bubu: [
+    { hello: [['u', 0, 0.22, 4], ['o', 5, 0.3, -3]], ready: [['o', -2, 0.14, 0], ['a', 3, 0.2, 5]],
+      egg: [[['o', 2, 0.14, 2]], [['u', 4, 0.12, 3]], [['a', 0, 0.12, 4]]], eggs5: [['o', 2, 0.1, 0], ['o', 4, 0.1, 0], ['o', 6, 0.1, 0], ['u', 8, 0.25, -2]],
+      star: [['u', 7, 0.2, 4], ['a', 12, 0.25, -4]], giant: [['o', 0, 0.3, -5], ['a', -2, 0.3, -5], ['a', -4, 0.35, -6], ['u', -6, 0.45, -8]],
+      power: [['a', 0, 0.12, -4], ['u', -2, 0.2, -3]], powerBig: [['u', -4, 0.3, -6], ['a', -1, 0.2, 4], ['o', -7, 0.4, -6]],
+      hurt: [['a', 2, 0.22, -8], ['u', -1, 0.3, -6]], dizzy: [['u', 0, 0.25, -2], ['o', -2, 0.25, 2], ['u', 0, 0.25, -2]],
+      recover: [['u', 3, 0.12, 1], ['o', 3, 0.2, 0]], drop: [['o', -4, 0.18, -5], ['u', -6, 0.2, -4]], regain: [['u', 3, 0.12, 2], ['o', 5, 0.2, 0]],
+      hide: [['i', 0, 0.14, 0], ['i', -1, 0.2, -2]], unhide: [['u', 1, 0.18, 3]],
+      beetleWake: [['a', 0, 0.1, 4], ['o', 0, 0.25, 2]], beetleStun: [['i', 3, 0.1, -2], ['i', 0, 0.1, -3], ['u', -2, 0.2, -4]],
+      wind: [['u', -3, 0.5, 4]], mud: [['o', -6, 0.1, -8], ['u', -8, 0.25, -10]], bridge: [['u', 2, 0.08, 0], ['o', 0, 0.08, 0], ['u', 2, 0.08, 0]],
+      butterfly: [['i', 7, 0.08, 0], ['i', 9, 0.08, 2], ['i', 12, 0.12, 4]], guardHit: [['u', -4, 0.12, 0], ['a', -6, 0.4, -10]],
+      notYet: [['a', 5, 0.15, 6], ['u', 2, 0.2, -3]], guardGone: [['u', 0, 0.14, -2], ['o', -2, 0.14, -2], ['u', -4, 0.3, -6]],
+      bored: [['u', 0, 0.3, 0], ['u', 0, 0.3, 0], ['u', -1, 0.4, -2]], callFriend: [['o', 7, 0.25, 4], ['u', 10, 0.3, 2]],
+      together: [['u', 3, 0.16, 2], ['a', 5, 0.25, 4]], nestOpen: [['a', 2, 0.14, 2], ['a', 4, 0.14, 2], ['o', 6, 0.4, -3]],
+      levelWin: [['u', 0, 0.16, 2], ['u', 3, 0.16, 2], ['u', 5, 0.16, 2], ['u', 7, 0.5, 3]],
+      bossDown: [['a', -2, 0.15, -2], ['a', -2, 0.15, -2], ['a', -2, 0.15, -2], ['a', -5, 0.4, -6]] ,
+      help: [['u', 5, 0.3, -4], ['u', 3, 0.36, -5]], rescue: [['o', 0, 0.12, 3], ['a', 4, 0.18, 2], ['u', 7, 0.3, -2]], thanks: [['a', 2, 0.14, 3], ['u', 5, 0.3, 2]] },
+    { hello: [['e', 0, 0.08, 7], ['o', 5, 0.25, 2]], ready: [['i', 0, 0.07, 5], ['a', 7, 0.14, 8]],
+      egg: [[['i', 0, 0.07, 3]], [['e', 3, 0.08, 2]], [['i', 5, 0.07, 3]]], eggs5: [['i', 2, 0.06, 0], ['i', 4, 0.06, 0], ['i', 6, 0.06, 0], ['a', 9, 0.16, 5]],
+      star: [['u', 9, 0.1, 4], ['e', 12, 0.16, 6]], giant: [['o', 0, 0.12, 6], ['o', 4, 0.12, 7], ['o', 7, 0.12, 8], ['o', 10, 0.42, 9]],
+      power: [['e', 0, 0.07, 6], ['i', 4, 0.1, 4]], powerBig: [['i', 2, 0.1, 9], ['a', 6, 0.1, 8], ['i', 10, 0.4, 6]],
+      hurt: [['a', 5, 0.14, -10], ['e', 3, 0.2, -6]], dizzy: [['e', 2, 0.1, -2], ['i', 0, 0.1, 2], ['e', 2, 0.1, -2], ['i', 0, 0.1, 2]],
+      recover: [['a', 7, 0.07, 0], ['a', 9, 0.12, 3]], drop: [['u', 4, 0.1, 4], ['a', 6, 0.1, -3], ['a', 2, 0.12, -4]],
+      regain: [['a', 4, 0.08, 4], ['a', 7, 0.2, 2]], hide: [['i', -2, 0.14, -1], ['i', -2, 0.14, -1]],
+      unhide: [['a', 5, 0.1, 6], ['o', 8, 0.12, 3]], beetleWake: [['o', 7, 0.1, 6], ['o', 10, 0.14, 4]],
+      beetleStun: [['a', 4, 0.08, -3], ['a', 0, 0.1, -5]], wind: [['i', 7, 0.25, 8], ['u', 9, 0.4, 6]],
+      mud: [['a', -2, 0.1, -6], ['e', -4, 0.14, -7]], bridge: [['i', 4, 0.06, 0], ['a', 2, 0.06, 0], ['i', 4, 0.06, 0]],
+      butterfly: [['i', 12, 0.06, 4], ['u', 14, 0.06, 2], ['i', 16, 0.12, 6]], guardHit: [['o', 10, 0.12, 4], ['e', 12, 0.4, 8]],
+      notYet: [['a', 6, 0.12, 2], ['a', 3, 0.16, -4]], guardGone: [['e', 7, 0.12, 3], ['e', 9, 0.12, 3], ['e', 12, 0.35, 6]],
+      bored: [['i', 9, 0.1, 0], ['i', 11, 0.1, -2], ['i', 12, 0.22, -3]], callFriend: [['u', 0, 0.12, 6], ['u', 5, 0.22, 6]],
+      together: [['i', 7, 0.1, 4], ['a', 11, 0.2, 6]], nestOpen: [['a', 5, 0.1, 3], ['a', 7, 0.1, 3], ['e', 9, 0.2, 2], ['a', 12, 0.2, 3]],
+      levelWin: [['e', 2, 0.1, 4], ['o', 4, 0.1, 4], ['e', 7, 0.1, 4], ['o', 9, 0.1, 4], ['e', 11, 0.3, 3]],
+      bossDown: [['a', 5, 0.1, -3], ['a', 5, 0.1, -3], ['a', 5, 0.1, -3], ['a', 2, 0.3, -6]] ,
+      help: [['e', 9, 0.16, -4], ['e', 9, 0.16, -4], ['o', 6, 0.3, -6]], rescue: [['a', 4, 0.07, 5], ['i', 9, 0.07, 3], ['a', 12, 0.22, 4]], thanks: [['i', 7, 0.08, 2], ['e', 10, 0.2, 5]] }
+    ],
+    lupta: [
+      // Boon
+      { hello: [['a', 0, 0.18, 3], ['o', 4, 0.16, 0], ['a', 7, 0.3, -5]], ready: [['a', 2, 0.1, 0], ['a', 2, 0.1, 0], ['o', 7, 0.28, 3]],
+        egg: [[['i', 9, 0.1, 3]], [['a', 7, 0.1, 4]], [['o', 5, 0.11, 5]]], eggs5: [['a', 0, 0.09, 2], ['a', 3, 0.09, 2], ['a', 7, 0.09, 2], ['o', 10, 0.28, 2]],
+        star: [['o', 5, 0.16, 7], ['i', 14, 0.3, -2]], giant: [['a', -3, 0.25, 3], ['o', 2, 0.25, 3], ['a', 7, 0.25, 3], ['o', 12, 0.5, -4]],
+        power: [['a', 3, 0.14, -6], ['a', 0, 0.16, -5]], powerBig: [['a', 5, 0.2, -7], ['o', 0, 0.2, -5], ['a', -4, 0.45, -8]],
+        hurt: [['i', 12, 0.14, -9], ['u', 4, 0.32, -7]], dizzy: [['o', 3, 0.2, 2], ['u', 1, 0.2, -2], ['o', 3, 0.2, 2], ['u', -1, 0.3, -3]],
+        recover: [['a', 0, 0.12, 5], ['a', 7, 0.22, 0]], drop: [['u', 2, 0.14, -4], ['o', -3, 0.24, -5]], regain: [['o', 2, 0.1, 4], ['a', 8, 0.2, 1]],
+        hide: [['u', 5, 0.12, 0], ['u', 5, 0.12, 0], ['i', 3, 0.2, -2]], unhide: [['a', 4, 0.2, 4]],
+        beetleWake: [['o', 7, 0.1, 5], ['a', 9, 0.28, -3]], beetleStun: [['a', 5, 0.1, -4], ['a', 2, 0.1, -4], ['a', -1, 0.22, -5]],
+        wind: [['o', 0, 0.55, 6]], mud: [['u', -5, 0.14, -6], ['o', -8, 0.28, -8]], bridge: [['a', 4, 0.08, 0], ['u', 1, 0.08, 0], ['a', 4, 0.08, 0], ['u', 1, 0.08, 0]],
+        butterfly: [['i', 10, 0.09, 2], ['a', 12, 0.09, 3], ['i', 15, 0.16, 5]], guardHit: [['a', -2, 0.14, 2], ['o', -5, 0.42, -9]],
+        notYet: [['o', 6, 0.16, 5], ['a', 3, 0.22, -4]], guardGone: [['a', 2, 0.14, -2], ['a', 0, 0.14, -2], ['o', -3, 0.34, -7]],
+        bored: [['o', 2, 0.34, -1], ['u', 0, 0.34, -1], ['o', -2, 0.44, -3]], callFriend: [['a', 9, 0.26, 5], ['o', 12, 0.34, 1]],
+        together: [['o', 5, 0.16, 3], ['a', 9, 0.26, 3]], nestOpen: [['a', 0, 0.14, 3], ['o', 4, 0.14, 3], ['a', 9, 0.42, -2]],
+        levelWin: [['a', 2, 0.16, 2], ['a', 5, 0.16, 2], ['a', 9, 0.16, 2], ['o', 12, 0.52, 2]],
+        bossDown: [['a', 0, 0.16, -3], ['a', 0, 0.16, -3], ['o', -3, 0.44, -7]],
+        help: [['i', 10, 0.22, -3], ['i', 8, 0.3, -4]], rescue: [['o', 2, 0.12, 4], ['a', 7, 0.14, 3], ['o', 11, 0.3, -2]], thanks: [['a', 6, 0.14, 4], ['o', 11, 0.3, 0]],
+        run: [['a', 7, 0.08, 7], ['o', 13, 0.15, 9]],
+        power2: [['o', 4, 0.1, 6], ['a', 10, 0.16, 5]], power2Big: [['o', 3, 0.12, 8], ['a', 9, 0.1, 7], ['u', 15, 0.26, 4]],
+        hurry: [['a', 6, 0.07, 9], ['a', 11, 0.07, 10], ['o', 17, 0.18, 8]] },
+      // Killer
+      { hello: [['a', 0, 0.09, 5], ['i', 7, 0.09, 0], ['a', 3, 0.2, 4]], ready: [['e', 4, 0.07, 0], ['e', 4, 0.07, 0], ['a', 9, 0.18, 5]],
+        egg: [[['a', 2, 0.07, 4]], [['i', 6, 0.07, 3]], [['e', 9, 0.07, 2]]], eggs5: [['a', 0, 0.06, 0], ['e', 3, 0.06, 0], ['a', 7, 0.06, 0], ['i', 12, 0.18, 3]],
+        star: [['i', 7, 0.1, 5], ['a', 14, 0.2, 2]], giant: [['a', 0, 0.1, 5], ['a', 5, 0.1, 5], ['a', 9, 0.1, 5], ['i', 14, 0.4, 5]],
+        power: [['a', 2, 0.07, 7], ['e', 7, 0.11, 2]], powerBig: [['e', 0, 0.09, 8], ['a', 7, 0.09, 6], ['e', 12, 0.36, 4]],
+        hurt: [['i', 8, 0.12, -9], ['a', 2, 0.22, -7]], dizzy: [['a', 3, 0.1, -3], ['e', 1, 0.1, 3], ['a', 3, 0.1, -3], ['e', 1, 0.14, -4]],
+        recover: [['e', 5, 0.07, 2], ['i', 10, 0.14, 2]], drop: [['o', 6, 0.1, -3], ['e', 3, 0.1, -3], ['o', 0, 0.14, -5]],
+        regain: [['e', 2, 0.08, 5], ['i', 9, 0.18, 1]], hide: [['e', 0, 0.12, -2], ['i', -2, 0.16, 0]],
+        unhide: [['e', 3, 0.09, 5], ['a', 8, 0.14, 2]], beetleWake: [['a', 9, 0.09, 4], ['e', 12, 0.16, 2]],
+        beetleStun: [['e', 6, 0.08, -4], ['a', 2, 0.12, -4]], wind: [['a', 5, 0.22, 7], ['e', 10, 0.36, 5]],
+        mud: [['e', 0, 0.1, -5], ['a', -3, 0.16, -6]], bridge: [['e', 5, 0.06, 0], ['e', 7, 0.06, 0], ['e', 5, 0.06, 0], ['e', 7, 0.06, 0]],
+        butterfly: [['a', 10, 0.06, 3], ['i', 14, 0.06, 3], ['a', 17, 0.12, 4]], guardHit: [['a', 7, 0.1, 5], ['i', 14, 0.36, 5]],
+        notYet: [['e', 7, 0.11, 0], ['e', 4, 0.16, -3]], guardGone: [['a', 5, 0.1, 4], ['a', 9, 0.1, 4], ['i', 14, 0.32, 4]],
+        bored: [['e', 7, 0.12, -1], ['e', 5, 0.12, -1], ['a', 3, 0.24, -2]], callFriend: [['a', 2, 0.12, 5], ['e', 7, 0.24, 5]],
+        together: [['e', 5, 0.1, 5], ['i', 12, 0.2, 3]], nestOpen: [['e', 2, 0.09, 3], ['a', 5, 0.09, 3], ['e', 9, 0.09, 3], ['i', 14, 0.24, 2]],
+        levelWin: [['a', 0, 0.09, 4], ['e', 4, 0.09, 4], ['a', 7, 0.09, 4], ['e', 11, 0.09, 4], ['i', 14, 0.32, 2]],
+        bossDown: [['e', 7, 0.09, -3], ['e', 7, 0.09, -3], ['a', 3, 0.3, -6]],
+        help: [['a', 10, 0.14, -5], ['a', 10, 0.14, -5], ['e', 6, 0.26, -5]], rescue: [['e', 2, 0.07, 5], ['a', 7, 0.07, 4], ['e', 12, 0.2, 3]], thanks: [['a', 5, 0.08, 3], ['i', 12, 0.2, 2]],
+        run: [['i', 9, 0.05, 8], ['a', 16, 0.13, 7]],
+        power2: [['e', 4, 0.06, 6], ['i', 10, 0.14, 5]], power2Big: [['e', 3, 0.07, 7], ['a', 8, 0.06, 6], ['i', 14, 0.22, 8]],
+        hurry: [['i', 6, 0.05, 10], ['i', 10, 0.05, 11], ['e', 15, 0.16, 9]] }
+    ]
+  };
+  // How loud a voice is: a quiet one never cuts in on a louder one that is still talking.
+  const TALK_PRIO = { hello: 3, ready: 3, egg: 1, eggs5: 2, star: 3, giant: 3, power: 2, powerBig: 3, hurt: 3, dizzy: 2, recover: 2, drop: 2, regain: 2, hide: 2, unhide: 1,
+    beetleWake: 2, beetleStun: 2, wind: 2, mud: 1, bridge: 1, butterfly: 3, guardHit: 3, notYet: 1, guardGone: 3, bored: 1, callFriend: 1, together: 2, nestOpen: 3, levelWin: 3, bossDown: 3,
+    help: 3, rescue: 3, thanks: 3 };
+  const talkBusy = [{ until: 0, prio: 0, last: -1 }, { until: 0, prio: 0, last: -1 }];
+  /* One syllable. Two triangle waves (the note and its octave) go through two "mouth" filters; a little of the plain note
+     keeps the tune clear. Loud enough to be heard next to the other sounds, also in a controller's small speaker. */
+  function syl(b, t, k, s, V) {
+    const [v, st, d, sl] = s, A = b.context, up = b.small && V.note + st < 56 ? 12 : 0, f0 = mtof(V.note + st + up), f1 = f0 * Math.pow(2, sl / 12);
+    const g = A.createGain(), G = 0.62 * (V.gain || 1);
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(G, t + 0.015); g.gain.setValueAtTime(G, t + d * 0.6); g.gain.exponentialRampToValueAtTime(0.0001, t + d + 0.05);
+    for (const [mul, lev] of [[1, 1], [2, 0.55]]) {
+      const o = A.createOscillator(), og = A.createGain(); o.type = 'triangle'; og.gain.value = lev;
+      o.frequency.setValueAtTime(f0 * mul, t); o.frequency.exponentialRampToValueAtTime(f1 * mul, t + d);
+      o.connect(og);
+      for (const F of FORM[v]) { const bp = A.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = F * V.form; bp.Q.value = 2.2; og.connect(bp); bp.connect(g); }
+      if (mul === 1) { const lp = A.createBiquadFilter(), dg = A.createGain(); lp.type = 'lowpass'; lp.frequency.value = 1500; dg.gain.value = 0.22; o.connect(lp); lp.connect(dg); dg.connect(g); }
+      o.start(t); o.stop(t + d + 0.1);
+    }
+    if (V.growl) {                       // Boon: the voice trembles quickly, a soft little roar
+      const tr = A.createGain(), lfo = A.createOscillator(), lg = A.createGain(); tr.gain.value = 0.68; lfo.frequency.value = V.growl; lg.gain.value = 0.32;
+      lfo.connect(lg); lg.connect(tr.gain); g.connect(tr); tr.connect(b); lfo.start(t); lfo.stop(t + d + 0.1);
+    } else g.connect(b);
+  }
+  /* Talk(k, word): hero k says one of its words. Routed like the hero's other sounds (own speaker when one was chosen). */
+  function talk(k, key) {
+    if (!ac || ac.state !== 'running' || !CONFIG.babble) return;
+    const tb = talkBusy[k], set = BABBLE[GAME] || BABBLE.bubu, w = set[k] && set[k][key]; if (!w) return;
+    const pr = TALK_PRIO[key] || 1, now = ac.currentTime;
+    if (now < tb.until && pr < tb.prio) return;
+    let syls = w;
+    if (Array.isArray(w[0][0])) { let i; do { i = Math.random() * w.length | 0; } while (w.length > 1 && i === tb.last); tb.last = i; syls = w[i]; }
+    const b = (outs[k] && outs[k].context.state === 'running') ? outs[k] : chrBus, V = (VOICES[GAME] || VOICES.bubu)[k];
+    let t = b.context.currentTime + 0.01 + (b.lead || 0);
+    for (const s of syls) { syl(b, t, k, s, V); t += s[2] * 0.85; }
+    tb.until = now + (t - b.context.currentTime); tb.prio = pr;
+  }
+
+  // ---- sound effects -------------------------------------------------------
+  const PENT = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21];
+  /* Every effect gets: b = the bus to play on, t = the time now on that bus, x = an optional value. */
+  const fx = {
+    // --- the heroes' own sounds (volume "Sunete personaje"; they can play in the controller) ---
+    egg(b, t, n) { const f = mtof(72 + PENT[(n || 0) % 10]); kalimba(b, f, t, 0.2); kalimba(b, f * 1.5, t + 0.07, 0.1); },
+    give(b, t) { kalimba(b, mtof(79), t, 0.16); kalimba(b, mtof(86), t + 0.09, 0.16); },                                                      // an egg leaves: two warm marimba notes, going up
+    star(b, t) { [0, 4, 7, 12, 16].forEach((d, i) => chime(b, mtof(79 + d), t + i * 0.07, 0.11)); },
+    giant(b, t) { [0, 4, 7, 12, 16, 19, 24].forEach((d, i) => { chime(b, mtof(67 + d), t + i * 0.09, 0.13); kalimba(b, mtof(55 + d), t + i * 0.09, 0.14); }); },
+    stomp(b, t) { osc(b, 'sine', 95, t, 0.75, 0.006, 0.4, { f2: 42, gt: 0.3 }); osc(b, 'triangle', 60, t, 0.3, 0.005, 0.25, { lp: 300 }); noise(b, t, 0.22, 0.005, 0.22, 'lowpass', 420, 120); },
+    kick(b, t, p) { const f = 210 + (p || 0) * 60; osc(b, 'sine', f, t, 0.5, 0.003, 0.13, { f2: f * 0.55, gt: 0.1 }); osc(b, 'triangle', f * 2.1, t, 0.12, 0.002, 0.05, { lp: 1800 }); noise(b, t, 0.08, 0.002, 0.04, 'bandpass', 900, 0, 1); },
+    bounce(b, t) { osc(b, 'sine', 300, t, 0.16, 0.003, 0.09, { f2: 200 }); },
+    bonk(b, t) { osc(b, 'sine', 330, t, 0.45, 0.004, 0.22, { f2: 150, gt: 0.2 }); marimba(b, 196, t + 0.02, 0.3); },
+    drop(b, t) { kalimba(b, mtof(76), t, 0.14); kalimba(b, mtof(72), t + 0.09, 0.12); kalimba(b, mtof(67), t + 0.18, 0.1); },
+    squelch(b, t) { noise(b, t, 0.2, 0.01, 0.1, 'lowpass', 500, 200); osc(b, 'sine', 140, t, 0.2, 0.01, 0.08, { f2: 90 }); },
+    step(b, t, x) {                    // x = hero * 2 + (left or right foot)
+      const k = x >> 1, alt = x & 1 ? 1.08 : 0.95;
+      if (k === 0) { osc(b, 'sine', 118 * alt, t, 0.15, 0.004, 0.09, { f2: 70 }); noise(b, t, 0.04, 0.003, 0.05, 'lowpass', 380, 160); }
+      else { osc(b, 'sine', 205 * alt, t, 0.075, 0.003, 0.05, { f2: 140 }); noise(b, t, 0.035, 0.002, 0.035, 'bandpass', 1500, 0, 1.2); }
+    },
+    // --- the world (volume "Sunete ambientale") ---
+    wake(b, t) { marimba(b, mtof(50), t, 0.3); marimba(b, mtof(53), t + 0.12, 0.3); },
+    stun(b, t) { marimba(b, mtof(64), t, 0.2); marimba(b, mtof(57), t + 0.08, 0.2); },
+    pop(b, t) { osc(b, 'sine', 420, t, 0.25, 0.003, 0.12, { f2: 760, gt: 0.1 }); },
+    rustle(b, t) { noise(b, t, 0.32, 0.02, 0.4, 'bandpass', 2200, 900, 0.8); },
+    butterfly(b, t) { [0, 2, 4, 7, 9, 12].forEach((d, i) => chime(b, mtof(84 + d), t + i * 0.05, 0.07)); },
+    wave(b, t) { [0, 4, 7, 12].forEach((d, i) => marimba(b, mtof(67 + d), t + i * 0.11, 0.28)); chime(b, mtof(91), t + 0.44, 0.1); },
+    win(b, t) { [0, 4, 7, 12, 7, 12, 16, 19, 24].forEach((d, i) => { marimba(b, mtof(60 + d), t + i * 0.13, 0.3); if (i % 2 === 0) chime(b, mtof(84 + d), t + i * 0.13, 0.07); }); },
+    caw(b, t) { for (let i = 0; i < 2; i++) { osc(b, 'triangle', 560, t + i * 0.2, 0.22, 0.01, 0.13, { f2: 370, gt: 0.12, lp: 1500 }); noise(b, t + i * 0.2, 0.05, 0.01, 0.1, 'bandpass', 1300, 800, 2); } },
+    whoosh(b, t) { noise(b, t, 0.6, 0.7, 1.8, 'bandpass', 300, 900, 1.0); },
+    swish(b, t) { noise(b, t, 0.3, 0.05, 0.35, 'bandpass', 500, 1800, 1.2); },
+    lantern(b, t) { chime(b, mtof(76 + PENT[Math.random() * 5 | 0]), t, 0.11); },
+    firework(b, t) { noise(b, t, 0.3, 0.01, 0.5, 'lowpass', 900, 200); for (let i = 0; i < 5; i++) chime(b, mtof(84 + PENT[Math.random() * 10 | 0]), t + 0.08 + i * 0.06, 0.06); },
+    ui(b, t) { kalimba(b, mtof(76), t, 0.13); },
+    no(b, t) { kalimba(b, mtof(67), t, 0.13); kalimba(b, mtof(64), t + 0.13, 0.13); },           // "not that one": two soft notes going down (a locked chapter)
+    ok(b, t) { kalimba(b, mtof(72), t, 0.18); kalimba(b, mtof(79), t + 0.08, 0.18); },
+    thud(b, t) { osc(b, 'sine', 120, t, 0.4, 0.004, 0.2, { f2: 60 }); noise(b, t, 0.1, 0.004, 0.1, 'lowpass', 500, 150); },
+    goal(b, t) { [0, 7, 12, 16].forEach((d, i) => marimba(b, mtof(62 + d), t + i * 0.08, 0.34)); chime(b, mtof(86), t + 0.3, 0.12); },
+    crack(b, t) { osc(b, 'triangle', 900, t, 0.3, 0.002, 0.06, { f2: 500, lp: 2500 }); noise(b, t, 0.18, 0.002, 0.06, 'bandpass', 1800, 0, 2); },
+    splash(b, t) { noise(b, t, 0.12, 0.02, 0.3, 'bandpass', 1200, 500, 0.8); },
+    tonk(b, t) { osc(b, 'triangle', 520, t, 0.22, 0.002, 0.07, { f2: 410, lp: 2200 }); osc(b, 'sine', 1040, t, 0.06, 0.002, 0.05); },   // the ball bounces off a guardian that is not tired yet
+    warn(b, t) { marimba(b, mtof(57), t, 0.26); marimba(b, mtof(57), t + 0.16, 0.26); },                                                 // a guardian gets ready to attack
+    squeak(b, t, p) { const f = 520 * (p || 1); voc(b, t, f * 1.4, f * 0.7, 0.24, 0.12, 1700, 900); },                                   // a guardian got hit
+    tired(b, t) { voc(b, t, 300, 190, 0.5, 0.07, 700, 450); },
+    duel(b, t) { [0, 3, 7, 10, 12].forEach((d, i) => marimba(b, mtof(57 + d), t + i * 0.09, 0.3)); osc(b, 'sine', 110, t, 0.3, 0.01, 0.5, { f2: 70 }); },
+    flee(b, t) { for (let i = 0; i < 5; i++) voc(b, t + i * 0.1, 700 + i * 90, 900 + i * 90, 0.07, 0.08, 1500, 2200); },
+    heal(b, t) { [0, 4, 7, 12].forEach((d, i) => kalimba(b, mtof(72 + d), t + i * 0.06, 0.2)); chime(b, mtof(91), t + 0.26, 0.1); },                    // a friend helped a hero up
+    grab(b, t) { osc(b, 'sine', 300, t, 0.3, 0.02, 0.3, { f2: 760, gt: 0.3 }); noise(b, t, 0.12, 0.04, 0.3, 'bandpass', 700, 1900, 1.2); },                 // a bird picks a hero up
+    poof(b, t) { noise(b, t, 0.22, 0.01, 0.22, 'lowpass', 1400, 300); osc(b, 'sine', 520, t, 0.2, 0.004, 0.16, { f2: 210 }); },                              // a small enemy disappears
+    bird(b, t) { for (let i = 0; i < 3; i++) osc(b, 'triangle', 1250 - i * 140, t + i * 0.13, 0.09, 0.01, 0.1, { f2: 900 - i * 100, lp: 3200 }); }            // a big bird is coming
+  };
+  /* The second game has its own sounds for the same moments: glass crystals, claws, bouncy balls, robots, George's roar.
+     A name that is not here uses the sound of the first game. */
+  const fx2 = {
+    egg(b, t, n) { const f = mtof(76 + PENT[(n || 0) % 10]); chime(b, f, t, 0.16); chime(b, f * 1.5, t + 0.05, 0.09); osc(b, 'sine', f * 4, t, 0.03, 0.002, 0.12); },          // a crystal rings like glass
+    star(b, t) { [0, 7, 12, 19, 24].forEach((d, i) => chime(b, mtof(74 + d), t + i * 0.08, 0.11)); },
+    giant(b, t) { [0, 2, 4, 7, 9, 12, 14, 16, 19, 24].forEach((d, i) => { chime(b, mtof(69 + d), t + i * 0.07, 0.12); if (i % 2) kalimba(b, mtof(57 + d), t + i * 0.07, 0.12); }); },
+    stomp(b, t) { for (let i = 0; i < 3; i++) noise(b, t + i * 0.09, 0.24, 0.015, 0.1, 'bandpass', 900, 2800, 1.4); osc(b, 'sine', 150, t, 0.4, 0.01, 0.4, { f2: 95, gt: 0.35 }); chime(b, mtof(88), t + 0.05, 0.05); },   // Boon's claws: three quick swishes
+    kick(b, t, p) { const f = 250 + (p || 0) * 70; osc(b, 'sine', f, t, 0.45, 0.004, 0.2, { f2: f * 2.1, gt: 0.12 }); osc(b, 'triangle', f * 1.5, t + 0.02, 0.14, 0.003, 0.08, { lp: 2000 }); },                        // Killer's kick: a springy "boing"
+    plate(b, t) { noise(b, t, 0.2, 0.004, 0.05, 'bandpass', 1400, 3200, 1.2); chime(b, mtof(91), t + 0.03, 0.07); },     // a stone plate clicks, a little bell rings (T7.2)
+    bridge(b, t, n) { const d = [0, 2, 4, 5, 7, 9, 11][(n || 0) % 7]; chime(b, mtof(79 + d), t, 0.07); osc(b, 'sine', mtof(91 + d), t, 0.02, 0.003, 0.25); },   // a plank of light appears: one glass note of a scale (T7.4)
+    plateOff(b, t) { chime(b, mtof(84), t, 0.06); },                                                                       // let go: the same bell, lower
+    cage(b, t) { noise(b, t, 0.18, 0.004, 0.04, 'bandpass', 1800, 3600, 1.5); noise(b, t + 0.12, 0.18, 0.004, 0.04, 'bandpass', 1800, 3600, 1.5); [0, 4, 7, 12].forEach((d, i) => chime(b, mtof(79 + d), t + 0.22 + i * 0.07, 0.1)); },   // the lock clicks twice, then a happy arpeggio (T7.2)
+    bounce(b, t) { osc(b, 'sine', 380, t, 0.15, 0.003, 0.1, { f2: 640, gt: 0.08 }); },
+    bonk(b, t) { osc(b, 'sine', 760, t, 0.4, 0.01, 0.36, { f2: 170, gt: 0.34 }); osc(b, 'triangle', 380, t + 0.03, 0.14, 0.01, 0.3, { f2: 110, lp: 1600 }); },                                                        // a hero shrinks
+    heal(b, t) { osc(b, 'sine', 180, t, 0.36, 0.01, 0.34, { f2: 760, gt: 0.3 }); [0, 7, 12].forEach((d, i) => chime(b, mtof(79 + d), t + 0.24 + i * 0.06, 0.1)); },                                                    // a hero grows back
+    drop(b, t) { chime(b, mtof(84), t, 0.1); chime(b, mtof(79), t + 0.08, 0.09); chime(b, mtof(72), t + 0.16, 0.08); },
+    squelch(b, t) { noise(b, t, 0.18, 0.015, 0.14, 'lowpass', 800, 260); osc(b, 'sine', 190, t, 0.18, 0.01, 0.12, { f2: 120 }); },
+    step(b, t, x) {
+      const k = x >> 1, alt = x & 1 ? 1.1 : 0.94;
+      if (k === 0) { osc(b, 'sine', 150 * alt, t, 0.12, 0.004, 0.07, { f2: 95 }); osc(b, 'sine', 135 * alt, t + 0.05, 0.07, 0.004, 0.06, { f2: 90 }); }
+      else { osc(b, 'sine', 240 * alt, t, 0.07, 0.003, 0.05, { f2: 170 }); osc(b, 'triangle', 900 * alt, t, 0.012, 0.003, 0.03, { lp: 2600 }); }
+    },
+    wake(b, t) { osc(b, 'triangle', 880, t, 0.16, 0.004, 0.09, { lp: 2800 }); osc(b, 'triangle', 1175, t + 0.13, 0.16, 0.004, 0.12, { lp: 2800 }); },                                                               // a robot switches on: beep-beep
+    stun(b, t) { osc(b, 'triangle', 880, t, 0.16, 0.004, 0.34, { f2: 220, gt: 0.32, lp: 2600 }); },                                                                                                                  // a robot runs down
+    poof(b, t) { noise(b, t, 0.2, 0.01, 0.22, 'lowpass', 1400, 300); [988, 740, 494].forEach((f, i) => osc(b, 'triangle', f, t + i * 0.07, 0.1, 0.004, 0.07, { lp: 2600 })); },
+    caw(b, t) { growl(b, t, 150, 88, 0.75, 0.42, 21); },                                                                                                                                                            // George's roar: low and warm, never harsh
+    pop(b, t) { osc(b, 'sine', 520, t, 0.22, 0.003, 0.12, { f2: 940, gt: 0.1 }); },
+    rustle(b, t) { noise(b, t, 0.3, 0.02, 0.45, 'lowpass', 420, 150); },
+    butterfly(b, t) { noise(b, t, 0.22, 0.05, 0.6, 'bandpass', 400, 2600, 1.1); osc(b, 'sine', 220, t, 0.2, 0.03, 0.55, { f2: 990, gt: 0.5 }); },                                                                  // the rocket
+    wave(b, t) { [0, 3, 7, 10].forEach((d, i) => marimba(b, mtof(62 + d), t + i * 0.11, 0.28)); chime(b, mtof(86), t + 0.44, 0.1); },
+    win(b, t) { [0, 5, 7, 12, 7, 12, 17, 19, 24].forEach((d, i) => { marimba(b, mtof(62 + d), t + i * 0.12, 0.3); if (i % 2 === 0) chime(b, mtof(86 + d), t + i * 0.12, 0.07); }); },
+    lantern(b, t) { noise(b, t, 0.2, 0.02, 0.28, 'lowpass', 1100, 320); osc(b, 'sine', 330, t, 0.1, 0.01, 0.2, { f2: 210 }); },                                                                                      // a torch catches fire
+    warn(b, t) { osc(b, 'triangle', 392, t, 0.2, 0.005, 0.12, { lp: 1800 }); osc(b, 'triangle', 392, t + 0.16, 0.2, 0.005, 0.12, { lp: 1800 }); },
+    tonk(b, t) { osc(b, 'triangle', 660, t, 0.2, 0.002, 0.08, { f2: 540, lp: 2400 }); osc(b, 'sine', 1320, t, 0.05, 0.002, 0.05); },
+    squeak(b, t, p) { const f = 300 * (p || 1); voc(b, t, f * 1.3, f * 0.7, 0.28, 0.13, 1000, 600); },                                                                                                              // George got hit
+    tired(b, t) { growl(b, t, 130, 80, 0.5, 0.2, 9); },
+    duel(b, t) { [0, 0, 3].forEach((d, i) => marimba(b, mtof(50 + d), t + i * 0.14, 0.32)); growl(b, t + 0.35, 150, 90, 0.7, 0.4, 21); },
+    flee(b, t) { for (let i = 0; i < 5; i++) voc(b, t + i * 0.11, 520 - i * 50, 380 - i * 40, 0.08, 0.09, 1200, 800); },
+    goal(b, t) { [0, 7, 12, 17].forEach((d, i) => marimba(b, mtof(64 + d), t + i * 0.08, 0.34)); chime(b, mtof(88), t + 0.3, 0.12); },
+    dash(b, t) { noise(b, t, 0.16, 0.015, 0.17, 'bandpass', 500, 2100, 1.1); osc(b, 'sine', 330, t, 0.1, 0.01, 0.16, { f2: 760, gt: 0.14 }); },      // starting to run: a short soft "whoosh" going up
+    // Boon throws the bones: three low "fup-fup-fup" with a tremble, and the bones knocking on a wall: a warm wooden "tock"
+    bone(b, t, v) { for (let i = 0; i < 3; i++) osc(b, 'triangle', 180 - i * 20, t + i * 0.055, 0.12 + (v || 0) * 0.05, 0.008, 0.09, { f2: 140 - i * 14, gt: 0.08, trem: 14 }); noise(b, t, 0.1, 0.01, 0.12, 'bandpass', 700, 420, 1.4); },
+    tock(b, t) { osc(b, 'sine', 520, t, 0.16, 0.004, 0.06, { f2: 430, gt: 0.05 }); noise(b, t, 0.07, 0.002, 0.03, 'bandpass', 1500, 900, 2.2); },
+    // Killer's whirl gloves: two "fuip" going up and a soft rubbery squeak
+    gloves(b, t) { for (let i = 0; i < 2; i++) noise(b, t + i * 0.12, 0.14, 0.012, 0.13, 'bandpass', 500, 1400, 1.2); osc(b, 'sine', 900, t + 0.1, 0.09, 0.01, 0.08, { f2: 700, gt: 0.07 }); },
+    // The ten seconds: a soft wooden knock every second (higher in the last three), and the three kind notes of "Încă o dată!"
+    tick(b, t, v) { osc(b, 'sine', v > 0.5 ? 880 : 660, t, 0.14, 0.004, 0.05, { f2: v > 0.5 ? 760 : 580, gt: 0.04 }); },
+    // a mechanism clicks before it moves (T6.9): a short soft wooden "tic" with a spark of air
+    click(b, t) { osc(b, 'triangle', 1250, t, 0.12, 0.002, 0.045, { f2: 900, gt: 0.04 }); noise(b, t, 0.04, 0.001, 0.05, 'bandpass', 2600, 1800, 2.0); },
+    // a gate opens for the first time (T7.1): a warm rising marimba arpeggio of four notes, a soft breath of air and one high bell
+    gateOpen(b, t) { [0, 4, 7, 12].forEach((d, i) => marimba(b, mtof(60 + d), t + 0.06 + i * 0.09, 0.26)); noise(b, t, 0.5, 0.08, 0.45, 'lowpass', 700, 260); chime(b, mtof(84), t + 0.42, 0.09); },
+    retry(b, t) { [72, 67, 64].forEach((n, i) => marimba(b, mtof(n), t + i * 0.16, 0.3)); chime(b, mtof(79), t + 0.42, 0.1); }
+  };
+  /* Running (L3) in the first game too: the same short soft whoosh. */
+  fx.dash = fx2.dash; fx.tick = fx2.tick; fx.retry = fx2.retry;
+  const CHR = { give: 1, egg: 1, star: 1, giant: 1, stomp: 1, kick: 1, bounce: 1, bonk: 1, drop: 1, squelch: 1, step: 1, swish: 1, heal: 1, grab: 1, dash: 1, bone: 1, tock: 1, gloves: 1 };
+  fx.dash = fx2.dash; fx.tick = fx2.tick; fx.retry = fx2.retry; fx.click = fx2.click;
+  /* play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. */
+  function play(name, arg, k, vol) {
+    const f = (GAME === 'lupta' && fx2[name]) || fx[name];
+    if (!ac || ac.state !== 'running' || !f) return;
+    let b = CHR[name] ? ((k === 0 || k === 1) && outs[k] && outs[k].context.state === 'running' ? outs[k] : chrBus) : ambBus;
+    if (vol != null && vol !== 1) {      // a quieter copy of the same sound (running footsteps): a small gain in front of the bus
+      const g = b.context.createGain(); g.gain.value = vol; g.connect(b); g.small = b.small; g.lead = b.lead; b = g;
+    }
+    try { f(b, b.context.currentTime + (b.lead || 0), arg); } catch (e) { console.error('sound ' + name, e); }      // lead: see setSink
+  }
+
+  // ---- the controller's own speaker (only when the system shows it as an audio output) ----
+  const canSink = () => !!(window.AudioContext && 'setSinkId' in AudioContext.prototype && navigator.mediaDevices && navigator.mediaDevices.enumerateDevices);
+  /* Chrome only tells the names of the speakers after the microphone permission was given (ask = true asks for it). */
+  async function listOutputs(ask) {
+    if (!canSink()) return null;
+    let denied = false;
+    if (ask) { try { const st = await navigator.mediaDevices.getUserMedia({ audio: true }); st.getTracks().forEach(tr => tr.stop()); } catch (e) { denied = true; } }
+    let ds = [];
+    try { ds = await navigator.mediaDevices.enumerateDevices(); } catch (e) { ds = []; }
+    const list = ds.filter(d => d.kind === 'audiooutput' && d.deviceId && d.deviceId !== 'default' && d.deviceId !== 'communications' && d.label).map(d => ({ id: d.deviceId, label: d.label }));
+    return { list, denied: denied && !list.length };
+  }
+  async function setSink(k, dev) {     // dev = { id, label } or null for the computer's speakers
+    if (!dev) { outs[k] = null; return true; }
+    try {
+      let s = sinks[dev.id];
+      if (!s) {
+        const c2 = new AudioContext(); await c2.setSinkId(dev.id);
+        // a small speaker: nothing below 200 Hz (it could not play it anyway), a little more "presence", then a compressor
+        const bus = c2.createGain(), hp = c2.createBiquadFilter(), pk = c2.createBiquadFilter(), comp = c2.createDynamicsCompressor();
+        hp.type = 'highpass'; hp.frequency.value = 200; pk.type = 'peaking'; pk.frequency.value = 2400; pk.Q.value = 0.8; pk.gain.value = 4;
+        bus.connect(hp); hp.connect(pk); pk.connect(comp); toSpeaker(c2, comp);
+        bus.small = !/built-?in|macbook|imac|display|hdmi|airpods|headphone|c[aă]ști|boxe/i.test(dev.label || '');      // low notes are moved up on small speakers (a controller), not on real ones
+        // A second audio output is filled in big blocks. A short sound that starts "now" would begin in a block that is already on its way
+        // and would be cut or lost (steps, kicks, short words). So every sound on this output starts a moment later: one block ahead.
+        bus.lead = Math.max(0.04, (c2.baseLatency || 0) + 0.03);
+        s = sinks[dev.id] = { ac: c2, bus }; applyVol();
+      }
+      if (s.ac.state === 'suspended') await s.ac.resume();
+      outs[k] = s.bus; return true;
+    } catch (e) { outs[k] = null; return false; }
+  }
+  function swapOuts() { const t = outs[0]; outs[0] = outs[1]; outs[1] = t; }
+
+  return {
+    init, play, talk, music, ambience, canSink, listOutputs, setSink, swapOuts, names: () => Object.keys(fx), names2: () => Object.keys(fx2), words: id => BABBLE[id || GAME] || BABBLE.bubu, debug: () => ({ ac, master, outs, sinks, chrBus, ambBus }),
+    get ready() { return !!ac && ac.state === 'running'; },
+    vol,
+    setVol(k, v) { if (!(k in vol) || !isFinite(v)) return; vol[k] = clamp(Math.round(v * 10) / 10, 0, 1); applyVol(); },
+    setDuck(d) { if (d !== duck) { duck = d; applyVol(); } }
+  };
+})();
+
+/* Voice-over with a system voice in the chosen language, when one is installed. */
+const Voice = {
+  v: null, ok: false, speaking: false, _hooked: false,
+  init() {
+    if (!('speechSynthesis' in window)) return;
+    this.pick();
+    if (!this._hooked) { this._hooked = true; try { speechSynthesis.addEventListener('voiceschanged', () => this.pick()); } catch (e) { /* ignore */ } }
+  },
+  pick() {
+    let vs = []; try { vs = speechSynthesis.getVoices(); } catch (e) { vs = []; }
+    const re = Opt.lang === 'en' ? /^en/i : /^ro/i;
+    this.v = vs.find(v => re.test(v.lang) && v.localService && (Opt.lang !== 'en' || /en[-_](US|GB)/i.test(v.lang))) || vs.find(v => re.test(v.lang) && v.localService) || vs.find(v => re.test(v.lang)) || null;
+    this.ok = !!this.v;
+  },
+  say(txt, keep) {
+    if (!CONFIG.voice || !this.v) return;
+    try {
+      if (!keep) speechSynthesis.cancel();
+      const parts = txt.match(/[^.!?…]+[.!?…]+/g) || [txt];
+      parts.forEach((s, i) => {
+        const u = new SpeechSynthesisUtterance(s.trim());
+        u.voice = this.v; u.lang = this.v.lang || (Opt.lang === 'en' ? 'en-US' : 'ro-RO'); u.rate = CONFIG.voiceRate; u.pitch = 1.08;
+        u.volume = Snd.vol.chr <= 0 ? 0 : clamp(0.4 + Snd.vol.chr * 0.6, 0, 1);
+        if (i === 0) u.onstart = () => { this.speaking = true; };
+        if (i === parts.length - 1) u.onend = u.onerror = () => { this.speaking = false; };
+        speechSynthesis.speak(u);
+      });
+    } catch (e) { /* ignore */ }
+  },
+  stop() { this.speaking = false; try { speechSynthesis.cancel(); } catch (e) { /* ignore */ } }
+};
+/* ==========================================================================
+   T13 audition page (not part of the game). Built by tools/auditie/build.sh:
+   01-config.js + GAME + 03-audio.js (the real game sounds) + this file.
+   It adds, only here, the new voice: soft consonants, the generated words, the phrases,
+   so the owner can listen (also in the controllers) before anything goes into the game.
+   ========================================================================== */
+(() => {
+  const $ = s => document.querySelector(s);
+  const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
+  const HERO = ['Boon', 'Killer'];
+  // the same voices as the game (03-audio.js, VOICES.lupta)
+  const VO = [{ note: 47, form: 0.8, gain: 1.45, growl: 24 }, { note: 66, form: 1.25, gain: 0.9 }];
+  const FORM = { a: [800, 1200], e: [500, 1900], i: [300, 2300], o: [500, 900], u: [320, 800] };
+  // where the "mouth" starts for each consonant, before it opens to the vowel
+  const LOCUS = { l: [320, 1000], r: [450, 1100], w: [320, 800], y: [300, 2300], b: [300, 800], d: [350, 1700], g: [300, 2200], n: [300, 1700], m: [300, 900] };
+  const bus = k => { const d = Snd.debug(); return d.outs[k] && d.outs[k].context.state === 'running' ? d.outs[k] : d.chrBus; };
+  const now = b => b.context.currentTime + (b.lead || 0) + 0.01;
+
+  /* A short hum through a low-pass: "m" and "n" (and a soft "r" at the end of a word for Boon). */
+  function murmur(A, out, t, f, dur, lp, g, trem) {
+    const o = A.createOscillator(), fl = A.createBiquadFilter(), gn = A.createGain();
+    o.type = 'triangle'; o.frequency.value = f; fl.type = 'lowpass'; fl.frequency.value = lp; fl.Q.value = 0.7;
+    gn.gain.setValueAtTime(0.0001, t); gn.gain.linearRampToValueAtTime(g, t + 0.012); gn.gain.setValueAtTime(g, t + dur * 0.6); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(fl); fl.connect(gn);
+    if (trem) { const tr = A.createGain(), lfo = A.createOscillator(), lg = A.createGain(); tr.gain.value = 0.6; lfo.frequency.value = trem; lg.gain.value = 0.4; lfo.connect(lg); lg.connect(tr.gain); gn.connect(tr); tr.connect(out); lfo.start(t); lfo.stop(t + dur + 0.02); }
+    else gn.connect(out);
+    o.start(t); o.stop(t + dur + 0.02);
+  }
+  /* Killer's "k" and "t": a 15 ms tap of a triangle wave through a low-pass. Not noise, not harsh. */
+  function tap(A, out, t, f, g) {
+    const o = A.createOscillator(), fl = A.createBiquadFilter(), gn = A.createGain();
+    o.type = 'triangle'; o.frequency.setValueAtTime(f, t); o.frequency.exponentialRampToValueAtTime(f * 0.7, t + 0.015);
+    fl.type = 'lowpass'; fl.frequency.value = 1800;
+    gn.gain.setValueAtTime(0.0001, t); gn.gain.linearRampToValueAtTime(g, t + 0.002); gn.gain.exponentialRampToValueAtTime(0.0001, t + 0.016);
+    o.connect(fl); fl.connect(gn); gn.connect(out); o.start(t); o.stop(t + 0.03);
+  }
+  /* One syllable: [vowel, semitones, length, slide, consonant before, sound after].
+     Without the last two it is exactly the syllable of the game. Returns how long it takes. */
+  function sylC(b, t, s, V, lev) {
+    const [v, st, d, sl, c, coda] = s, A = b.context;
+    const up = b.small && V.note + st < 56 ? 12 : 0, f0 = mtof(V.note + st + up), f1 = f0 * Math.pow(2, sl / 12);
+    const G = 0.62 * (V.gain || 1) * (lev == null ? 1 : lev);
+    const out = A.createGain();
+    if (V.growl) { const tr = A.createGain(), lfo = A.createOscillator(), lg = A.createGain(); tr.gain.value = 0.68; lfo.frequency.value = V.growl; lg.gain.value = 0.32; lfo.connect(lg); lg.connect(tr.gain); out.connect(tr); tr.connect(b); lfo.start(t); lfo.stop(t + d + 0.25); }
+    else out.connect(b);
+    let tv = t;
+    if (c === 'm' || c === 'n') { murmur(A, out, t, f0, 0.06, c === 'm' ? 380 : 480, G * 0.55); tv = t + 0.045; }
+    if (c === 'k' || c === 't') { tap(A, out, t, c === 'k' ? 720 : 1300, G * 0.3); tv = t + 0.018; }
+    const cd = 'bdg'.includes(c || '-') ? 0.035 : 'lrwy'.includes(c || '-') ? (c === 'w' || c === 'y' ? 0.07 : 0.05) : 0.03;
+    const g = A.createGain(), g0 = 'bdg'.includes(c || '-') ? 0.15 : 'lrwy'.includes(c || '-') ? 0.4 : 0;
+    const att = c && !'mnkt'.includes(c) ? cd : 0.015;
+    g.gain.setValueAtTime(Math.max(0.0001, G * g0), tv); g.gain.linearRampToValueAtTime(G, tv + att); g.gain.setValueAtTime(G, tv + Math.max(att, d * 0.6)); g.gain.exponentialRampToValueAtTime(0.0001, tv + d + 0.05);
+    g.connect(out);
+    if (c === 'r') { const lfo = A.createOscillator(), lg = A.createGain(); lfo.frequency.value = 28; lg.gain.value = G * 0.3; lfo.connect(lg); lg.connect(g.gain); lfo.start(tv); lfo.stop(tv + cd); }
+    const pStart = 'bdg'.includes(c || '-') ? f0 * Math.pow(2, -4 / 12) : f0;
+    for (const [mul, lv] of [[1, 1], [2, 0.55]]) {
+      const o = A.createOscillator(), og = A.createGain(); o.type = 'triangle'; og.gain.value = lv;
+      o.frequency.setValueAtTime(pStart * mul, tv); if (pStart !== f0) o.frequency.exponentialRampToValueAtTime(f0 * mul, tv + cd);
+      o.frequency.exponentialRampToValueAtTime(f1 * mul, tv + d);
+      o.connect(og);
+      FORM[v].forEach((F, j) => {
+        const bp = A.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 2.2;
+        const L = LOCUS[c];
+        if (L) { bp.frequency.setValueAtTime(L[j] * V.form, tv); bp.frequency.linearRampToValueAtTime(F * V.form, tv + cd); } else bp.frequency.value = F * V.form;
+        og.connect(bp); bp.connect(g);
+      });
+      if (mul === 1) { const lp = A.createBiquadFilter(), dg = A.createGain(); lp.type = 'lowpass'; lp.frequency.value = 1500; dg.gain.value = 0.22; o.connect(lp); lp.connect(dg); dg.connect(g); }
+      o.start(tv); o.stop(tv + d + 0.1);
+    }
+    let len = (tv - t) + d * 0.85;
+    if (coda === 'n' || coda === 'm') { murmur(A, out, tv + d * 0.85, f1, 0.07, 420, G * 0.5); len += 0.06; }
+    if (coda === 'r') { murmur(A, out, tv + d * 0.85, f1, 0.08, 520, G * 0.45, 28); len += 0.07; }
+    if (coda === 'k' || coda === 't') { tap(A, out, tv + d * 0.9, coda === 'k' ? 720 : 1300, G * 0.32); len += 0.04; }
+    return len;
+  }
+  function sayS(k, syls, t, lev) { const b = bus(k); if (t == null) t = now(b); for (const s of syls) t += sylC(b, t, s, VO[k], lev); return t; }
+  const lenOf = syls => syls.reduce((a, s) => a + s[2] * 0.85 + (s[4] && 'mn'.includes(s[4]) ? 0.045 : s[4] && 'kt'.includes(s[4]) ? 0.018 : 0) + (s[5] ? 0.06 : 0), 0);
+
+  // ---- the words: generated from rules and a fixed number (seed), the same every time ----
+  function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  const PHON = [
+    { // Boon: round, low, heavy, a little growl. o u a; r g b m w; ends in -ur, -o, -ar
+      seed: 7303, vow: 'ooouuuaaa', con: 'rrggbbmmw', onset: 0.75, coda: 'nr', codaP: 0.12, dur: [0.15, 0.21], tones: [0, 2, 4, 5, 7, -2], step: -2, slide: [-4, 1],
+      end: [['u', 'r'], ['o', null], ['a', 'r']] },
+    { // Killer: short, quick, like shouts at a match. e a i o; d g k t; ends in -k, -t, -e
+      seed: 7304, vow: 'eeeaaiiio', con: 'ddggkkt', onset: 0.85, coda: 'kt', codaP: 0.06, dur: [0.06, 0.09], tones: [0, 3, 5, 7, 10, 12], step: 3, slide: [-1, 4],
+      end: [['e', 'k'], ['a', 't'], ['e', null], ['i', 'k']] }
+  ];
+  // A few meanings from each of the 12 categories (the full list of 1000 comes in the implementation)
+  const LEX_SAMPLE = [
+    ['creat', 'Vietăți', 'pasăre|bird, fluture|butterfly, gândac|beetle, broască|frog, dinozaur|dinosaur, pisică|cat, peștișor|little fish, copil|child, mama|mom, prieten|friend, robot|robot, melc|snail'],
+    ['corp', 'Corp', 'mână|hand, picior|foot, ochi|eye, burtă|tummy, coadă|tail, cap|head, gheare|claws, dinte|tooth'],
+    ['natura', 'Natură', 'soare|sun, lună|moon, stea|star, ploaie|rain, vânt|wind, râu|river, junglă|jungle, frunză|leaf, floare|flower, copac|tree, piatră|stone, noapte|night'],
+    ['loc', 'Locuri', 'cuib|nest, casă|house, peșteră|cave, pod|bridge, poartă|gate, turn|tower, drum|road, deal|hill, canion|canyon, insulă|island'],
+    ['lucru', 'Lucruri', 'minge|ball, os|bone, mănușă|glove, cristal|crystal, felinar|lantern, cheie|key, bolovan|boulder, cușcă|cage, lumină|light, umbră|shadow'],
+    ['mancare', 'Mâncare', 'miere|honey, măr|apple, pâine|bread, lapte|milk, prăjitură|cake, banană|banana'],
+    ['actiune', 'Acțiuni', 'merg|walk, alerg|run, sar|jump, iau|take, dau|give, arunc|throw, ajut|help, caut|look for, găsesc|find, râd|laugh, dorm|sleep, vine|comes, lovesc|hit, deschid|open'],
+    ['simt', 'Stări', 'bucurie|joy, mirare|wonder, curajos|brave, obosit|tired, somn|sleepy, foame|hungry, drag|dear'],
+    ['insus', 'Însușiri', 'mare|big, mic|small, repede|fast, încet|slow, cald|warm, rece|cold, sus|up, jos|down, roșu|red, turcoaz|turquoise, frumos|pretty, bun|good'],
+    ['numar', 'Numere', 'unu|one, doi|two, trei|three, mult|many, acum|now, încă o dată|again, stânga|left, dreapta|right'],
+    ['mic', 'Cuvinte mici', 'eu|me, tu|you, noi|we, da|yes, nu|no, și|and, hai|come on, uite|look, ia|here, pa|bye, mulțumesc|thanks, bravo|well done, împreună|together, au|ouch'],
+    ['joc', 'Din joc', 'diamant|diamond, steluță|little star, placă|plate, banda|band, rază|ray, nivel|level, pac|bonk, ajutor|help!, deschis|open, cotă|share']
+  ];
+  const LEX = []; LEX_SAMPLE.forEach(([cat, name, s]) => s.split(', ').forEach(p => { const [ro, en] = p.split('|'); LEX.push({ id: LEX.length, cat, catName: name, ro, en }); }));
+  const plain = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  const STOP = new Set(LEX.flatMap(m => [plain(m.ro), plain(m.en)]).concat(['boon', 'killer', 'george', 'mama', 'tata', 'caca', 'pipi', 'prost', 'kaka', 'kuku', 'dede', 'gaga', 'mumu', 'bubu', 'leo', 'dumb', 'kill', 'dead', 'gun', 'kut', 'bum', 'murg']));
+  const near1 = (a, b) => { if (Math.abs(a.length - b.length) > 1) return false; let i = 0, j = 0, e = 0; while (i < a.length && j < b.length) { if (a[i] === b[j]) { i++; j++; continue; } if (++e > 1) return false; if (a.length > b.length) i++; else if (b.length > a.length) j++; else { i++; j++; } } return e + (a.length - i) + (b.length - j) <= 1; };
+  const shortCat = { mic: 1, corp: 1, actiune: 1 };
+  const x0 = s => s[4] || '';
+  function buildLex() {
+    const used = new Set(), out = [[], []];
+    PHON.forEach((P, k) => {
+      const r = mulberry32(P.seed), pick = s => s[r() * s.length | 0], rng = (a, b) => a + r() * (b - a);
+      for (const m of LEX) {
+        let ok = null;
+        for (let tries = 0; tries < 400 && !ok; tries++) {
+          const n = shortCat[m.cat] ? 1 + (r() < 0.6 ? 1 : 0) : 2 + (r() < 0.45 ? 1 : 0), syl = []; let w = '', tone = pick(P.tones);
+          for (let i = 0; i < n; i++) {
+            const last = i === n - 1; let v = pick(P.vow), c = r() < P.onset || i > 0 ? pick(P.con) : null, coda = null;
+            if (last) { const e = pick(P.end); v = e[0]; coda = e[1]; } else if (r() < P.codaP) coda = pick(P.coda);
+            if (i > 0 && !c) c = pick(P.con);
+            const d = +rng(P.dur[0], P.dur[1]).toFixed(3), sl = Math.round(rng(P.slide[0], P.slide[1]) + (last ? (k === 0 ? -2 : 2) : 0));
+            syl.push([v, tone, last ? +(d * 1.35).toFixed(3) : d, sl, c, coda]); w += (c || '') + v + (coda || '');
+            tone = Math.max(-5, Math.min(14, tone + P.step + Math.round(rng(-2, 3))));
+          }
+          const parts = syl.map(x => (x[4] || '') + x[0] + (x[5] || ''));
+          if (parts.some((q, i) => i && (q === parts[i - 1] || (syl[i - 1][5] && syl[i - 1][5] === x0(syl[i]))))) continue;
+          if (lenOf(syl) > 0.9 || used.has(w) || STOP.has(w) || [...STOP].some(s => s.length > 2 && (w.startsWith(s) || s === w))) continue;
+          if (tries < 200 && out[k].some(o => o.cat === m.cat && near1(o.w, w))) continue;
+          ok = { w, syl, cat: m.cat };
+        }
+        if (!ok) throw new Error('no word for ' + m.ro);
+        used.add(ok.w); out[k].push(ok);
+      }
+    });
+    return out;
+  }
+  const t0 = performance.now(); const WORDS = buildLex(); const genMs = performance.now() - t0;
+  const W = (k, ro) => { const m = LEX.find(x => x.ro === ro); return m ? WORDS[k][m.id] : null; };
+
+  // ---- the moments: game sound + exclamation (the 47 the kids already know) + words ----
+  const busy = [0, 0];
+  function exclLen(k, key) { const w = Snd.words('lupta')[k][key]; if (!w) return 0; const s = Array.isArray(w[0][0]) ? w[0] : w; return s.reduce((a, x) => a + x[2] * 0.85, 0) + 0.06; }
+  /* phrase: an exclamation, then 1 - 3 words. Shows the bubble with what it means. */
+  function phrase(k, excl, words, ro, en) {
+    const b = bus(k); let t = now(b);
+    if (excl) { Snd.talk(k, excl); t += exclLen(k, excl); }
+    const shown = [];
+    for (const r of words) { const w = W(k, r); if (!w) continue; t = sayS(k, w.syl, t) + 0.05; shown.push(w.w); }
+    bubble(k, shown.join(' '), lang === 'ro' ? ro : en);
+    busy[k] = b.context.currentTime + (t - now(b));
+    return t;
+  }
+  const step = (k, foot, vol) => Snd.play('step', k * 2 + (foot & 1), k, vol);
+  const HUM = [ // walking for a while: a soft little tune, quiet
+    [['u', 0, 0.16, 0, 'm'], ['u', 2, 0.16, 0, 'm'], ['o', 4, 0.26, -2, 'm']],
+    [['a', 0, 0.06, 0, 'd'], ['i', 3, 0.06, 0, 'd'], ['a', 5, 0.06, 0, 'd'], ['e', 7, 0.12, 2, 'd']]
+  ];
+  const PUFF = [[['u', -2, 0.07, -3]], [['a', 4, 0.04, -2]]];     // running: a little breath, very quiet
+  const EFFORT = [[['a', 0, 0.09, -5, 'g']], [['e', 5, 0.05, 3, 't', 'k']]];      // every hit: "ga!" for Boon, "tek!" for Killer
+  const SIT = [
+    { id: 'walk', ro: 'Merge', when: 'Pas la fiecare pas (ca acum). După 10 s de mers fără oprire: fredonează scurt și încet, apoi iar 10 s.', play(k) { for (let i = 0; i < 6; i++) setTimeout(() => step(k, i), i * 330); setTimeout(() => sayS(k, HUM[k], null, 0.45), 2000); } },
+    { id: 'run', ro: 'Aleargă (L3)', when: 'La pornire: „fiu” + exclamația + „Repede!” (o dată la 4 s). Cât aleargă: pași mai deși și o respirație mică la 0,45 s.', play(k) { Snd.play('dash', 0, k); setTimeout(() => phrase(k, 'run', ['repede'], 'Repede!', 'Fast!'), 120); for (let i = 0; i < 10; i++) setTimeout(() => step(k, i, 0.8), 600 + i * 200); for (let i = 0; i < 4; i++) setTimeout(() => sayS(k, PUFF[k], null, 0.3), 900 + i * 450); } },
+    { id: 'hit', ro: 'Lovește (✕)', when: 'La fiecare lovitură: sunetul puterii + un „ga!” / „tek!” scurt. Când nimerește un robot: „Pac!”, o dată din trei.', play(k) { Snd.play(k ? 'kick' : 'stomp', 0.5, k); sayS(k, EFFORT[k]); setTimeout(() => phrase(k, null, ['pac'], 'Pac!', 'Bonk!'), 450); } },
+    { id: 'power2', ro: 'A doua putere (□)', when: 'Sunetul puterii + exclamația + numele puterii („Os!” / „Mănușa!”). Fraza o dată la 4 s.', play(k) { Snd.play(k ? 'gloves' : 'bone', 0.6, k); phrase(k, 'power2', [k ? 'mănușă' : 'os'], k ? 'Mănușa!' : 'Os!', k ? 'Glove!' : 'Bone!'); } },
+    { id: 'enemy', ro: 'Învinge un robot', when: 'Robotul dispare, iese diamantul. „Pa, robotule!”, o dată din două.', play(k) { Snd.play('poof'); setTimeout(() => phrase(k, 'guardGone', ['pa', 'robot'], 'Pa, robotule!', 'Bye, robot!'), 250); } },
+    { id: 'hurt', ro: 'E lovit', when: 'Mereu: sunetul de lovit + exclamația + „Au!”. Dacă rămâne jos: „Ajutor!” către prieten.', play(k) { Snd.play('bonk', 0, k); phrase(k, 'hurt', ['au'], 'Au!', 'Ouch!'); setTimeout(() => phrase(k, 'help', ['ajutor'], 'Ajutor!', 'Help!'), 1300); } },
+    { id: 'star', ro: 'Ia o steluță', when: 'Mereu: clopoțeii + exclamația + „O steluță!”.', play(k) { Snd.play('star', 0, k); setTimeout(() => phrase(k, 'star', ['steluță'], 'O steluță!', 'A little star!'), 300); } },
+    { id: 'gem', ro: 'Ia un diamant', when: 'Cristalul sună mereu. „Diamant!” o dată din trei și nu mai des de 4 s.', play(k) { Snd.play('egg', 2, k); setTimeout(() => phrase(k, 'egg', ['diamant'], 'Un diamant!', 'A diamond!'), 150); } },
+    { id: 'give', ro: 'Dă un diamant (L1)', when: '„Ia, prietene!” Prietenul răspunde „Mulțumesc!” în controllerul lui.', play(k) { Snd.play('give', 0, k); phrase(k, 'callFriend', ['ia', 'prieten'], 'Ia, prietene!', 'Here, friend!'); setTimeout(() => phrase(1 - k, 'thanks', ['mulțumesc'], 'Mulțumesc!', 'Thanks!'), 1400); } },
+    { id: 'rescue', ro: 'Ajută prietenul (○)', when: 'Cel care ajută: „Hai, sus!”. Cel ajutat: „Mulțumesc!”. Fiecare în controllerul lui.', play(k) { Snd.play('heal', 0, 1 - k); phrase(k, 'rescue', ['hai', 'sus'], 'Hai, sus!', 'Up you get!'); setTimeout(() => phrase(1 - k, 'thanks', ['mulțumesc'], 'Mulțumesc!', 'Thanks!'), 1300); } },
+    { id: 'hello', ro: 'Începe nivelul', when: 'O dată, după poveste: „Hai, împreună!”.', play(k) { phrase(k, 'hello', ['hai', 'împreună'], 'Hai, împreună!', 'Come on, together!'); } },
+    { id: 'george', ro: 'Vine George', when: 'O dată, când apare: „Uite, vine George!”. Vesel, nu speriat.', play(k) { Snd.play('caw'); setTimeout(() => phrase(k, 'beetleWake', ['uite', 'vine'], 'Uite, vine George!', 'Look, George is coming!'), 700); } },
+    { id: 'plate', ro: 'Placă / poartă', when: 'Pe placă: „Împreună!” (o dată la 6 s). Poarta se deschide: „Poarta, deschis!”.', play(k) { Snd.play('plate', 0, k); phrase(k, 'together', ['împreună'], 'Împreună!', 'Together!'); setTimeout(() => { Snd.play('gateOpen'); phrase(1 - k, 'nestOpen', ['poartă', 'deschis'], 'Poarta s-a deschis!', 'The gate is open!'); }, 1300); } },
+    { id: 'win', ro: 'Câștigă nivelul', when: 'Amândoi, unul după altul: „Bravo nouă!”.', play(k) { Snd.play('win'); phrase(0, 'levelWin', ['bravo', 'noi'], 'Bravo nouă!', 'Well done, us!'); setTimeout(() => phrase(1, 'levelWin', ['bravo', 'noi'], 'Bravo nouă!', 'Well done, us!'), 1500); } },
+    { id: 'retry', ro: '„Încă o dată!”', when: 'Blând, fără tristețe: „Încă o dată!”.', play(k) { Snd.play('retry'); setTimeout(() => phrase(k, 'notYet', ['încă o dată'], 'Încă o dată!', 'Once more!'), 600); } },
+    { id: 'bored', ro: 'Stă degeaba', when: 'După 12 s fără nimic: „Hai! Uite!” (o dată, până se mișcă).', play(k) { phrase(k, 'bored', ['hai', 'uite'], 'Hai! Uite!', 'Come on! Look!'); } }
+  ];
+
+  // ---- the page ----
+  let lang = 'ro';
+  function bubble(k, word, mean) {
+    const el = $('#bub' + k); if (!el) return;
+    el.innerHTML = '<b>' + word.toUpperCase() + '</b><span>' + mean + '</span>'; el.classList.add('on');
+    clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('on'), 2200);
+  }
+  function rows() {
+    const tb = $('#sit tbody'); tb.innerHTML = '';
+    for (const s of SIT) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td><b>' + s.ro + '</b></td><td>' + s.when + '</td><td class="b"></td>';
+      [0, 1].forEach(k => { const bt = document.createElement('button'); bt.className = 'h' + k; bt.textContent = '▶ ' + HERO[k]; bt.onclick = () => { start(); s.play(k); }; tr.lastChild.appendChild(bt); });
+      tb.appendChild(tr);
+    }
+    const lx = $('#lex'); lx.innerHTML = '';
+    for (const [cat, name] of LEX_SAMPLE) {
+      const d = document.createElement('div'); d.className = 'cat'; d.innerHTML = '<h3>' + name + '</h3>';
+      for (const m of LEX.filter(x => x.cat === cat)) {
+        const r = document.createElement('div'); r.className = 'w';
+        r.innerHTML = '<span class="m">' + m.ro + ' <i>' + m.en + '</i></span>';
+        [0, 1].forEach(k => { const b = document.createElement('button'); b.className = 'h' + k; b.textContent = WORDS[k][m.id].w; b.onclick = () => { start(); sayS(k, WORDS[k][m.id].syl); bubble(k, WORDS[k][m.id].w, m.ro); }; r.appendChild(b); });
+        d.appendChild(r);
+      }
+      lx.appendChild(d);
+    }
+    $('#gen').textContent = LEX.length * 2 + ' cuvinte generate în ' + genMs.toFixed(1) + ' ms';
+  }
+  function start() { Snd.init(); $('#tap').style.display = 'none'; }
+  // speakers: the real code of the game (Snd.listOutputs, Snd.setSink)
+  let devs = [];
+  async function find() {
+    start();
+    const r = await Snd.listOutputs(true);
+    if (!r) { $('#spkMsg').textContent = 'Chrome-ul acesta nu poate alege difuzoare (lipsește setSinkId).'; return; }
+    devs = r.list;
+    $('#spkMsg').textContent = r.denied ? 'Chrome nu arată numele difuzoarelor fără permisiunea pentru microfon. Apasă iar și alege „Permite”.' : devs.length + ' ieșiri audio găsite. Controllerul apare doar cu cablu USB.';
+    [0, 1].forEach(k => {
+      const sel = $('#spk' + k); sel.innerHTML = '<option value="">Boxele calculatorului</option>' + devs.map(d => '<option value="' + d.id + '">' + d.label + '</option>').join('');
+      const pads = devs.filter(d => /controller|dualshock|dualsense|gamepad|wireless/i.test(d.label));
+      if (pads[k]) { sel.value = pads[k].id; pick(k); }
+    });
+  }
+  async function pick(k) { start(); const id = $('#spk' + k).value, d = devs.find(x => x.id === id) || null; const ok = await Snd.setSink(k, d); $('#st' + k).textContent = d ? (ok ? '✓ ' + d.label : '✗ nu merge') : 'boxele calculatorului'; }
+  // controllers: pad 1 = Boon, pad 2 = Killer. Stick = walk, L3 = run, ✕ hit, □ second power, ○ got hit, △ star
+  const pad = [{ prev: [], walkT: 0, walked: 0, foot: 0, runT: 0, puffT: 0, run: false }, { prev: [], walkT: 0, walked: 0, foot: 0, runT: 0, puffT: 0, run: false }];
+  let lastT = performance.now();
+  function poll() {
+    const tN = performance.now(), dt = Math.min(0.1, (tN - lastT) / 1000); lastT = tN;
+    const gps = [...(navigator.getGamepads ? navigator.getGamepads() : [])].filter(Boolean);
+    $('#pads').textContent = gps.length ? gps.map((g, i) => (i < 2 ? HERO[i] : '-') + ': ' + g.id.slice(0, 40)).join(' · ') : 'niciun controller (apasă un buton pe el)';
+    gps.slice(0, 2).forEach((g, k) => {
+      const p = pad[k], B = i => !!(g.buttons[i] && g.buttons[i].pressed), down = i => B(i) && !p.prev[i];
+      const ax = Math.hypot(g.axes[0] || 0, g.axes[1] || 0), dp = B(12) || B(13) || B(14) || B(15), moving = ax > 0.25 || dp;
+      if (down(0) || down(2) || down(1) || down(3) || down(10)) start();
+      if (down(0)) SIT[2].play(k); if (down(2)) SIT[3].play(k); if (down(1)) SIT[5].play(k); if (down(3)) SIT[6].play(k); if (down(4)) SIT[8].play(k);
+      if (down(10) && moving) { p.run = true; Snd.play('dash', 0, k); if (p.runT <= 0) { phrase(k, 'run', ['repede'], 'Repede!', 'Fast!'); p.runT = 4; } }
+      if (!moving) { p.run = false; p.walked = 0; }
+      p.runT -= dt;
+      if (moving) {
+        p.walkT -= dt; p.walked += dt;
+        if (p.walkT <= 0) { step(k, p.foot++, p.run ? 0.8 : 1); p.walkT = p.run ? 0.2 : 0.33; }
+        if (p.run) { p.puffT -= dt; if (p.puffT <= 0) { sayS(k, PUFF[k], null, 0.3); p.puffT = 0.45; } }
+        else if (p.walked > 10) { sayS(k, HUM[k], null, 0.45); p.walked = 0; }
+      }
+      p.prev = g.buttons.map(b => b.pressed);
+    });
+    requestAnimationFrame(poll);
+  }
+  window.addEventListener('load', () => {
+    rows();
+    $('#find').onclick = find; $('#spk0').onchange = () => pick(0); $('#spk1').onchange = () => pick(1);
+    $('#lang').onclick = () => { lang = lang === 'ro' ? 'en' : 'ro'; $('#lang').textContent = lang === 'ro' ? 'Balon: română' : 'Balon: engleză'; };
+    $('#test0').onclick = () => { start(); phrase(0, 'hello', ['eu', 'hai'], 'Eu sunt Boon! Hai!', 'I am Boon! Come on!'); };
+    $('#test1').onclick = () => { start(); phrase(1, 'hello', ['eu', 'hai'], 'Eu sunt Killer! Hai!', 'I am Killer! Come on!'); };
+    document.body.addEventListener('pointerdown', start, { once: true });
+    requestAnimationFrame(poll);
+  });
+  window.AUD = { WORDS, LEX, SIT, PHON, sayS, phrase, lenOf, genMs };
+})();
+
+</script>
+</body>
+</html>

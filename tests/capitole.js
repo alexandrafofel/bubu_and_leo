@@ -42,7 +42,7 @@ const other = game === 'lupta' ? 'bubu' : 'lupta';
   check('2a. "Începe!" porneste nivelul 1', s.st === 'play' && s.idx === 0, { st: s.st, idx: s.idx });
   await endLevel(30, 1); await wait(300);
   await ev(() => __game.Game.toTitle()); await wait(300); s = await st();
-  check('2b. dupa nivelul 1: trei butoane, "Continuă: Nivelul 2" ales din start', s.menu.length === 3 && s.menu[0] === 'Continuă: Nivelul 2' && s.menu[1] === 'Capitole' && s.menu[2] === 'Joc nou' && s.sel === 0, s.menu);
+  check('2b. dupa nivelul 1: trei butoane (patru cu Dicționar, cand erou a spus deja un cuvant), "Continuă: Nivelul 2" ales din start', (s.menu.length === 3 || (s.menu.length === 4 && s.menu[2] === 'Dicționar')) && s.menu[0] === 'Continuă: Nivelul 2' && s.menu[1] === 'Capitole' && s.menu[s.menu.length - 1] === 'Joc nou' && s.sel === 0, s.menu);
   check('2c. salvarea: continua de la capitolul 2, capitolele 1 si 2 deschise', s.level === 1 && s.max === 1 && s.open === 1, { level: s.level, max: s.max });
 
   // 3. the Chapters screen: chapters 1 and 2 open, the others locked; ✕ on a locked one starts nothing
@@ -96,7 +96,7 @@ const other = game === 'lupta' ? 'bubu' : 'lupta';
   check('P7. Enter in pauza nu l-a bagat pe al doilea erou in joc pe tastatura', j0 === false && s.joined[1] === false, s.joined);
 
   // 6. "New game": "No" erases nothing, "Yes" erases this game only
-  await ev(() => { __game.UI.menuSel = 2; }); await key('Space'); await wait(1300); s = await st();
+  await ev(() => { __game.UI.menuSel = __game.titleMenu().length - 1; }); await key('Space'); await wait(1300); s = await st();
   check('6a. "Joc nou" cu progres: intreaba intai, "Nu" e ales din start', s.ask && (await ev(() => __game.UI.ask.sel)) === 1, { ask: s.ask });
   await page.screenshot({ path: 'cap_' + game + '_joc_nou.png' });
   await key('Backspace'); s = await st();

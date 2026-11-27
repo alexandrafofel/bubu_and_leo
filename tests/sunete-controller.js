@@ -25,7 +25,7 @@ const { chromium } = require('./pw.js');
     const m = [meter(d.outs[0]), meter(d.outs[1])], main = meter(d.chrBus);
     await new Promise(r => setTimeout(r, 900));      // the new outputs need a moment to start
     for (const [name, k] of [['stomp', 0], ['bonk', 0], ['step', 0], ['egg', 0], ['kick', 1], ['bounce', 1], ['egg', 1]]) { S.play(name, 0, k); out.fx[name + k] = [await m[k](600), await main(130)]; await new Promise(r => setTimeout(r, 500)); }
-    for (const k of [0, 1]) for (const key of ['hello', 'power', 'hurt', 'egg', 'levelWin']) { await new Promise(r => setTimeout(r, 700)); S.talk(k, key); out.words[k + ':' + key] = [await m[k](900), await main(130)]; }
+    for (const k of [0, 1]) for (const key of ['hello', 'power', 'hurt', 'egg', 'levelWin']) { await new Promise(r => setTimeout(r, 700)); __game.CONFIG.words.gap = 0; __game.CONFIG.words.softGap = 0; S.talk(k, key); out.words[k + ':' + key] = [await m[k](900), await main(130)]; }
     return out;
   });
   console.log(JSON.stringify(r));

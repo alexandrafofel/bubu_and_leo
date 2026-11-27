@@ -568,3 +568,14 @@ Hotararea de proces: `balanseaza()` sta in `tests/common.js` si cheama `giveEgg`
 
 - **Lupta mare (Arena lui George) vine dupa nivelul 7**, la sfarsitul Partii a doua. Cerut de proprietara. `chapters()` pune nivelurile 1 - 6, apoi nivelurile Partii a doua, apoi lupta mare. Cand vor fi nivelurile 8 - 12, lupta mare se muta singura dupa ele.
 - **Salvarea tine ordinea capitolelor dupa nume** (`sl.order`: `L0` ... `L6`, `boss`; `chapterId`). La incarcare, `remapSave` pune fiecare rezultat la capitolul lui in ordinea de acum. O salvare fara `order` e socotita in ordinea veche (`oldChapterOrder`). "Continuă" duce la primul capitol nejucat; ce era deschis ramane deschis. Motiv: copiii care au castigat deja Arena nu trebuie sa o piarda, si nici sa sara peste nivelul 7.
+
+## Update 28 noiembrie 2026: T13, vocile eroilor
+
+- **Cuvinte inregistrate, nu 1000 de cuvinte sintetizate.** Proprietara a ascultat varianta sintetica si nu i-a placut ("sa fie cuvinte, nu sunete techno"). Vor doi copii care se joaca de-a dinozaurii. Motiv: copiii recunosc eroul dupa voce si vorbesc cu el.
+- **Exceptie de la regula 1: clipuri audio in fisier** (MP3 mono, 24 kHz, 56 kbps, 1,2 MB in total), aprobata de proprietara. Fara ele nu exista voce de copil.
+- **Doar cuvintele care se aud in joc:** 44 de replici pe erou, pentru fiecare moment (mers, fuga, lovit, stea, lovitura, George...). Nu un dictionar de o mie de cuvinte.
+- **Voci:** Boon, Seed Audio (voce de copil mic, varianta A); Killer, ElevenLabs "Jessica". Prima voce a lui Boon era de adult; proprietara a cerut voce de copil mic.
+- **Cuvantul iese in difuzorul controllerului eroului care vorbeste**, ca sunetele lui. Pauza intre doua cuvinte: 4 s (2,5 s pentru fredonat, rasuflat, efort).
+- **Balonul si dictionarul:** cuvantul apare scris, cu traducerea dedesubt, iar cuvintele aflate se strang in Dictionar (din meniul de start si din pauza). Setarea "Text la cuvinte" ascunde balonul, nu sunetul. Salvarea tine cuvintele (`d.g2.lex`).
+- **Cheia de config `CONFIG.words`,** nu `CONFIG.voice` (era deja luata de vocea sistemului).
+

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ro"><head><meta charset="utf-8"><title>T13 – Vocile lui Boon și Killer (de aprobat)</title>
+<style>
+body{margin:0;background:#FBF1DE;color:#4A2E52;font:16px/1.45 -apple-system,Segoe UI,sans-serif}
+main{max-width:1100px;margin:auto;padding:24px}
+h1{font-size:26px;margin:0 0 4px}h2{margin:28px 0 8px;font-size:20px}h3{margin:6px 0;font-size:15px;color:#7A4E3A}
+.note{background:#FFE7C2;border-radius:12px;padding:10px 14px;margin:10px 0}
+button{border:0;border-radius:10px;padding:6px 11px;margin:2px;font:inherit;cursor:pointer;color:#fff}
+.h0{background:#3F9A8E}.h1{background:#C8507A}.n{background:#8A5A9A}
+table{border-collapse:collapse;width:100%}td{padding:7px 8px;border-bottom:1px solid #EAD6BC;vertical-align:top}td.b{white-space:nowrap}
+.spk{display:grid;grid-template-columns:90px 1fr 1fr;gap:8px;align-items:center}
+select{font:inherit;padding:4px;border-radius:8px;border:1px solid #D9BFA0;background:#FFF9EF;color:#4A2E52}
+#lex{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:10px}
+.cat{background:#FFF8EC;border-radius:12px;padding:8px 10px}.w{display:flex;align-items:center;gap:4px}.w .m{flex:1}.w i{color:#9A7A6A;font-size:13px}.w button{min-width:84px;padding:3px 8px}
+.bubs{position:sticky;top:0;display:flex;gap:16px;justify-content:center;padding:6px;background:#FBF1DEee;z-index:2}
+.bub{min-width:230px;min-height:58px;border-radius:18px;background:#FFFDF6;box-shadow:0 2px 8px #6A427033;text-align:center;padding:6px 12px;opacity:.35;transition:opacity .2s}
+.bub.on{opacity:1}.bub b{display:block;font-size:22px;letter-spacing:1px}.bub span{font-size:14px;color:#7A5A6A}
+#b0 b,#bub0 b{color:#2E7F74}#bub1 b{color:#B23F69}
+#tap{position:fixed;inset:0;background:#FBF1DEf2;display:flex;align-items:center;justify-content:center;font-size:26px;z-index:9;cursor:pointer}
+</style></head><body>
+<div id="tap">Fă clic o dată pentru sunet</div>
+<div class="bubs"><div class="bub" id="bub0"><b>Boon</b><span>balonul lui</span></div><div class="bub" id="bub1"><b>Killer</b><span>balonul lui</span></div></div>
+<main>
+<h1>Vocile lui Boon și Killer — de ascultat și aprobat (T13)</h1>
+<p>Nimic de aici nu e încă în joc. Pașii, loviturile, cristalele și exclamațiile sunt chiar sunetele jocului. Nou sunt consoanele moi, cuvintele și frazele.</p>
+
+<h2>1. Difuzorul din controller</h2>
+<div class="note">Pe Mac, DualShock 4 are difuzor <b>doar cu cablu USB</b>. Prin Bluetooth macOS nu trimite sunet în controller. Chrome cere o dată permisiunea pentru microfon ca să afle numele difuzoarelor (nu înregistrează nimic).</div>
+<p><button class="n" id="find">Caută difuzoarele</button> <span id="spkMsg"></span></p>
+<div class="spk"><b>Boon</b><select id="spk0"></select><span><span id="st0">boxele calculatorului</span> <button class="h0" id="test0">▶ Test</button></span>
+<b>Killer</b><select id="spk1"></select><span><span id="st1">boxele calculatorului</span> <button class="h1" id="test1">▶ Test</button></span></div>
+<p><b>Cu controllerele în mână:</b> primul controller e Boon, al doilea Killer. Stick = merge (pași; după 10 s fredonează), L3 + stick = aleargă, ✕ lovește, □ a doua putere, ○ e lovit, △ steluța, L1 dă un diamant. <br><span id="pads"></span></p>
+
+<h2>2. Momentele din joc</h2>
+<p><button class="n" id="lang">Balon: română</button> Frazele nu se aud la fiecare eveniment: între două fraze ale aceluiași erou sunt cel puțin 4 secunde.</p>
+<table id="sit"><tbody></tbody></table>
+
+<h2>3. Cuvintele (o mostră din cele 1000)</h2>
+<p>Fiecare erou are limba lui. Cuvintele se fac singure din regulile de sunet ale eroului, mereu aceleași. <b>Boon:</b> rotund și jos, cu „rrr”: o, u, a și m, b, g, r, w, se termină în -ur, -o, -ar. <b>Killer:</b> scurt și repede, ca strigătele de la meci: e, i, a, o și d, g, k, t, se termină în -k, -t, -e. Apasă pe cuvânt ca să-l auzi. <span id="gen"></span></p>
+<div id="lex"></div>
+</main>
+<script>

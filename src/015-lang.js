@@ -17,6 +17,7 @@ const Opt = {
   lang: CONFIG.language === 'en' ? 'en' : 'ro',
   fullscreen: true,
   vibration: !!CONFIG.vibration,
+  words: !!CONFIG.words.bubble,                  // the balloon with the meaning of a word (T13)
   swap: false,                                   // false: player 1 plays Bubu. true: player 1 plays Leo.
   ctrl: ['pad', 'pad'],                          // 'pad' = controller, 'kb' = keyboard
   keys: CONFIG.keys.map(k => Object.assign({}, k)),
@@ -32,7 +33,7 @@ const STR = {
     't.padPress': 'Controller: apasă ✕', 't.padOk': 'Controller detectat', 't.kb': 'Tastatură', 't.ready': 'Gata!',
     't.xReady': '✕ = Gata', 't.press': 'Apasă ✕', 't.then': 'apoi pornim!', 't.onPad': 'pe controller',
     'george.half': 'George cel Rău s-a trezit!', 'george.final': 'George cel Rău: ultima luptă!', 'ban.gthrow': 'Ai grijă!', 'ban.glast': 'Ultima inimă! Vin după voi!', 'quota.extra': '+{0}', 'quota.far': 'Apropie-te de {0}!', 'quota.need': '{0} mai are nevoie de {1}!', 'quota.auto': '{0} îți trimite un ou.', 'quota.done': 'Ai găsit toate ouăle! Acum ajută-l și pe {0}: poți să-i dai cu {1}.', 'L:quota.done': 'Ai găsit toate cristalele! Acum ajută-l și pe {0}: poți să-i dai cu {1}.', 'quota.both': 'Amândoi ați găsit toate! La cuib!', 'L:quota.auto': '{0} îți trimite un cristal.', 'quota.one': 'un ou', 'quota.many': '{0} ouă', 'L:quota.one': 'un cristal', 'L:quota.many': '{0} cristale', 't.final': 'Marele final', 't.level': 'Nivelul {0}', 't.cont': 'Continuă: {0}', 't.new': 'Joc nou',
-    't.start': 'Începe!', 't.chapters': 'Capitole', 't.newAsk': 'Începi de la capăt? Se șterge tot ce ați adunat în acest joc.', 't.newYes': 'Da, de la capăt', 't.newNo': 'Nu',
+    't.start': 'Începe!', 't.chapters': 'Capitole', 't.dict': 'Dicționar', 'pause.dict': 'Dicționar', 'dict.title': 'Dicționar', 'dict.found': 'Cuvinte aflate: {0} din {1}', 'dict.page': 'Pagina {0} din {1}', 'dict.hint': '✕ ascultă   ·   ○ înapoi', 'set.words': 'Text la cuvinte', 't.newAsk': 'Începi de la capăt? Se șterge tot ce ați adunat în acest joc.', 't.newYes': 'Da, de la capăt', 't.newNo': 'Nu',
     'ch.title': 'Capitole', 'ch.part1': 'Partea întâi', 'ch.part2': 'Partea a doua: Stelele furate', 'ch.locked': 'Încă nu', 'ch.hint': '✕ joacă   ·   ○ înapoi',
     'pause.restart': 'Reia nivelul', 'pause.chapters': 'Capitole', 'pause.ask': 'Sigur? Ce ați adunat aici se pierde.', 'ask.yes': 'Da',
     't.voice': 'Voce: {0}', 't.novoice': 'Fără voce în română',
@@ -126,7 +127,7 @@ const STR = {
     't.padPress': 'Controller: press ✕', 't.padOk': 'Controller found', 't.kb': 'Keyboard', 't.ready': 'Ready!',
     't.xReady': '✕ = Ready', 't.press': 'Press ✕', 't.then': 'then off we go!', 't.onPad': 'on the controller',
     'george.half': 'George the Bad woke up!', 'george.final': 'George the Bad: the last fight!', 'ban.gthrow': 'Look out!', 'ban.glast': 'His last heart! They come for you!', 'quota.extra': '+{0}', 'quota.far': 'Come closer to {0}!', 'quota.need': '{0} still needs {1}!', 'quota.auto': '{0} sends you one.', 'quota.done': 'You found them all! Now help {0}: you can give them with {1}.', 'L:quota.done': 'You found all the crystals! Now help {0}: you can give them with {1}.', 'quota.both': 'You both found them all! To the nest!', 'quota.one': 'one egg', 'quota.many': '{0} eggs', 'L:quota.one': 'one crystal', 'L:quota.many': '{0} crystals', 't.final': 'Grand finale', 't.level': 'Level {0}', 't.cont': 'Continue: {0}', 't.new': 'New game',
-    't.start': 'Start!', 't.chapters': 'Chapters', 't.newAsk': 'Start over? Everything you gathered in this game is erased.', 't.newYes': 'Yes, start over', 't.newNo': 'No',
+    't.start': 'Start!', 't.chapters': 'Chapters', 't.dict': 'Dictionary', 'pause.dict': 'Dictionary', 'dict.title': 'Dictionary', 'dict.found': 'Words found: {0} of {1}', 'dict.page': 'Page {0} of {1}', 'dict.hint': '✕ listen   ·   ○ back', 'set.words': 'Text on words', 't.newAsk': 'Start over? Everything you gathered in this game is erased.', 't.newYes': 'Yes, start over', 't.newNo': 'No',
     'ch.title': 'Chapters', 'ch.part1': 'Part One', 'ch.part2': 'Part Two: The Stolen Stars', 'ch.locked': 'Not yet', 'ch.hint': '✕ play   ·   ○ back',
     'pause.restart': 'Restart level', 'pause.chapters': 'Chapters', 'pause.ask': 'Sure? What you gathered here is lost.', 'ask.yes': 'Yes',
     't.voice': 'Voice: {0}', 't.novoice': 'No English voice found',

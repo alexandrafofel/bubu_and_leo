@@ -43,7 +43,7 @@ Anexele din `anexe/` sunt liste generate din cod. Ele sunt mereu exacte, pentru 
 | 23 | [Update urmator: Partea a doua](23-update-partea-a-doua.md) | **Specificatie, neimplementata.** Rundele 7 - 12 din "Cea mai grea luptă": cerere, hotarari, intrebari, principii, planul in 36 de sarcini |
 | 24 | [Sisteme noi](24-sisteme-noi.md) | **Specificatie.** Butoane (✕, ○, □, L3), fuga, a doua putere, cele 10 secunde, capitole, scrisul de sus, stilul grafic |
 | 25 | [Nivelurile 7 - 12](25-niveluri-7-12.md) | **Specificatie.** Povestea, mecanismele de colaborare, cele sase niveluri, George, Sala Tronului, texte, sunete |
-| 26 | [Limba personajelor](26-limba-personajelor.md) | **Specificatie (T13).** Fiecare erou are propria limba, cu cam 1000 de cuvinte generate, fraze, balon cu traducerea si Dictionar |
+| 26 | [Limba personajelor](26-limba-personajelor.md) | **Implementat (T13), 28 noiembrie 2026.** Voci inregistrate pentru Boon si Killer (44 de replici pe erou), balon cu traducerea, Dictionar. Restul capitolului e specificatia veche |
 | 27 | [Cota de oua si cristale](27-cota-de-oua.md) | **Gata (T14, 22 noiembrie 2026).** Fiecare erou are de gasit un numar pe nivel, tine cel mult 150%, ii da prietenului cu L1; insigna verde / rosie |
 | 28 | [George vine de doua ori](28-t15-george-de-doua-ori.md) | **Gata (T15, 22 noiembrie 2026).** George vine la jumatatea cotei si la cota intreaga, maximul de diamante dispare, iar in lupta de la cuib arunca inamici mici cu 3 inimi. Analiza variantelor in G2. |
 

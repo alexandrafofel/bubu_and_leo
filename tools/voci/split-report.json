@@ -1,0 +1,442 @@
+{
+ "clips/boon/00_hello.mp3": {
+  "text": "Rrraa! Gromba, hai!",
+  "dur": 2.03,
+  "expect": 2.29
+ },
+ "clips/boon/01_ready.mp3": {
+  "text": "Mmm-gor!",
+  "dur": 1.25,
+  "expect": 0.63
+ },
+ "clips/boon/02_egg.mp3": {
+  "text": "Bum!",
+  "dur": 0.46,
+  "expect": 0.63
+ },
+ "clips/boon/03_egg.mp3": {
+  "text": "Gor-gor!",
+  "dur": 0.75,
+  "expect": 1.03
+ },
+ "clips/boon/04_egg.mp3": {
+  "text": "Mumbo!",
+  "dur": 0.66,
+  "expect": 1.03
+ },
+ "clips/boon/05_eggs5.mp3": {
+  "text": "Gromba-gromba-gor!",
+  "dur": 1.24,
+  "expect": 2.21
+ },
+ "clips/boon/06_star.mp3": {
+  "text": "Ooh, stelu-ra!",
+  "dur": 1.17,
+  "expect": 2.05
+ },
+ "clips/boon/07_giant.mp3": {
+  "text": "Rrraaaa, bumbo-gorrr!",
+  "dur": 1.99,
+  "expect": 2.05
+ },
+ "clips/boon/08_power.mp3": {
+  "text": "Grrra!",
+  "dur": 0.99,
+  "expect": 0.63
+ },
+ "clips/boon/09_powerBig.mp3": {
+  "text": "Graaa-rur!",
+  "dur": 1.45,
+  "expect": 1.03
+ },
+ "clips/boon/10_hurt.mp3": {
+  "text": "Aau-uur!",
+  "dur": 1.41,
+  "expect": 1.03
+ },
+ "clips/boon/11_dizzy.mp3": {
+  "text": "Uuu-rrr-uuu.",
+  "dur": 0.71,
+  "expect": 1.17
+ },
+ "clips/boon/12_recover.mp3": {
+  "text": "Hmm, gor.",
+  "dur": 1.03,
+  "expect": 0.99
+ },
+ "clips/boon/13_drop.mp3": {
+  "text": "Oop-ur!",
+  "dur": 1.7,
+  "expect": 1.17
+ },
+ "clips/boon/14_regain.mp3": {
+  "text": "Ha-gor!",
+  "dur": 0.63,
+  "expect": 1.17
+ },
+ "clips/boon/15_hide.mp3": {
+  "text": "Șșt, bur.",
+  "dur": 0.96,
+  "expect": 0.99
+ },
+ "clips/boon/16_unhide.mp3": {
+  "text": "Bu-bu!",
+  "dur": 1.3,
+  "expect": 1.17
+ },
+ "clips/boon/17_beetleWake.mp3": {
+  "text": "Oo-oo, mor!",
+  "dur": 2.18,
+  "expect": 1.89
+ },
+ "clips/boon/18_beetleStun.mp3": {
+  "text": "Gor-rur!",
+  "dur": 0.86,
+  "expect": 1.17
+ },
+ "clips/boon/19_wind.mp3": {
+  "text": "Wuuu-rrr!",
+  "dur": 1.25,
+  "expect": 0.72
+ },
+ "clips/boon/20_mud.mp3": {
+  "text": "Bluub-bur!",
+  "dur": 1.19,
+  "expect": 1.17
+ },
+ "clips/boon/21_bridge.mp3": {
+  "text": "Pas-pas-pas!",
+  "dur": 1.26,
+  "expect": 1.62
+ },
+ "clips/boon/22_butterfly.mp3": {
+  "text": "Oooh, flur!",
+  "dur": 1.74,
+  "expect": 1.44
+ },
+ "clips/boon/23_guardHit.mp3": {
+  "text": "Pac! Gra!",
+  "dur": 1.62,
+  "expect": 1.44
+ },
+ "clips/boon/24_notYet.mp3": {
+  "text": "Mmm-nu, gor.",
+  "dur": 2.24,
+  "expect": 1.44
+ },
+ "clips/boon/25_guardGone.mp3": {
+  "text": "Hoho, pa-pa, mor!",
+  "dur": 3.18,
+  "expect": 3.06
+ },
+ "clips/boon/26_bored.mp3": {
+  "text": "Mmm... bu-ur?",
+  "dur": 2.41,
+  "expect": 1.98
+ },
+ "clips/boon/27_callFriend.mp3": {
+  "text": "Ia-ia, bur!",
+  "dur": 1.61,
+  "expect": 1.89
+ },
+ "clips/boon/28_together.mp3": {
+  "text": "Gro-ma-gor!",
+  "dur": 1.64,
+  "expect": 1.62
+ },
+ "clips/boon/29_nestOpen.mp3": {
+  "text": "Wooo, bumbo-gor!",
+  "dur": 1.97,
+  "expect": 2.34
+ },
+ "clips/boon/30_levelWin.mp3": {
+  "text": "Hurraa, gromba!",
+  "dur": 1.82,
+  "expect": 2.34
+ },
+ "clips/boon/31_bossDown.mp3": {
+  "text": "Rrra-hohoho!",
+  "dur": 1.78,
+  "expect": 2.07
+ },
+ "clips/boon/32_help.mp3": {
+  "text": "Aau, bur-bur!",
+  "dur": 1.54,
+  "expect": 1.89
+ },
+ "clips/boon/33_rescue.mp3": {
+  "text": "Hai, sus, gor!",
+  "dur": 1.87,
+  "expect": 1.88
+ },
+ "clips/boon/34_thanks.mp3": {
+  "text": "Mulțumesc, bur!",
+  "dur": 2.26,
+  "expect": 2.04
+ },
+ "clips/boon/35_run.mp3": {
+  "text": "Rrraa-pa!",
+  "dur": 1.09,
+  "expect": 1.02
+ },
+ "clips/boon/36_power2.mp3": {
+  "text": "Bum-os!",
+  "dur": 0.72,
+  "expect": 1.02
+ },
+ "clips/boon/37_power2Big.mp3": {
+  "text": "Grra-os-gromba!",
+  "dur": 3.19,
+  "expect": 1.8
+ },
+ "clips/boon/38_hurry.mp3": {
+  "text": "Repede-repede, gor!",
+  "dur": 2.48,
+  "expect": 3.21
+ },
+ "clips/boon/39_puff.mp3": {
+  "text": "Huh-ha, huh-ha.",
+  "dur": 1.86,
+  "expect": 2.04
+ },
+ "clips/boon/40_hum.mp3": {
+  "text": "Mm-bu-mm-bu, mm-gor.",
+  "dur": 0.96,
+  "expect": 1.65
+ },
+ "clips/boon/41_effort.mp3": {
+  "text": "Ga!",
+  "dur": 0.41,
+  "expect": 0.63
+ },
+ "clips/boon/42_effort.mp3": {
+  "text": "Hup!",
+  "dur": 0.56,
+  "expect": 0.63
+ },
+ "clips/boon/43_george.mp3": {
+  "text": "Rrr, George, gor!",
+  "dur": 2.52,
+  "expect": 1.88
+ },
+ "clips/killer/00_hello.mp3": {
+  "text": "Hei, kita-dek! Hai!",
+  "dur": 1.43,
+  "expect": 1.78
+ },
+ "clips/killer/01_ready.mp3": {
+  "text": "Dek-dek!",
+  "dur": 0.56,
+  "expect": 0.68
+ },
+ "clips/killer/02_egg.mp3": {
+  "text": "Tik!",
+  "dur": 0.59,
+  "expect": 0.42
+ },
+ "clips/killer/03_egg.mp3": {
+  "text": "Gek-gek!",
+  "dur": 1.22,
+  "expect": 0.68
+ },
+ "clips/killer/04_egg.mp3": {
+  "text": "Kita!",
+  "dur": 1.2,
+  "expect": 0.68
+ },
+ "clips/killer/05_eggs5.mp3": {
+  "text": "Tikadi-tikadi-gek!",
+  "dur": 1.74,
+  "expect": 1.99
+ },
+ "clips/killer/06_star.mp3": {
+  "text": "Iii, stelu-dek!",
+  "dur": 1.22,
+  "expect": 1.36
+ },
+ "clips/killer/07_giant.mp3": {
+  "text": "Hiii-iii, kitadek!",
+  "dur": 1.47,
+  "expect": 1.63
+ },
+ "clips/killer/08_power.mp3": {
+  "text": "Tek!",
+  "dur": 0.4,
+  "expect": 0.42
+ },
+ "clips/killer/09_powerBig.mp3": {
+  "text": "Gaa-dek!",
+  "dur": 0.7,
+  "expect": 0.68
+ },
+ "clips/killer/10_hurt.mp3": {
+  "text": "Iii-ik!",
+  "dur": 0.73,
+  "expect": 0.68
+ },
+ "clips/killer/11_dizzy.mp3": {
+  "text": "Ii-ii-ii, dek.",
+  "dur": 2.11,
+  "expect": 1.54
+ },
+ "clips/killer/12_recover.mp3": {
+  "text": "Hm, dek!",
+  "dur": 0.96,
+  "expect": 0.65
+ },
+ "clips/killer/13_drop.mp3": {
+  "text": "Oops-ik!",
+  "dur": 0.66,
+  "expect": 0.77
+ },
+ "clips/killer/14_regain.mp3": {
+  "text": "Ha-tek!",
+  "dur": 0.63,
+  "expect": 0.77
+ },
+ "clips/killer/15_hide.mp3": {
+  "text": "Șt, gik.",
+  "dur": 0.97,
+  "expect": 0.65
+ },
+ "clips/killer/16_unhide.mp3": {
+  "text": "Tik-tak!",
+  "dur": 0.64,
+  "expect": 0.77
+ },
+ "clips/killer/17_beetleWake.mp3": {
+  "text": "Ooh, kita!",
+  "dur": 1.02,
+  "expect": 1.24
+ },
+ "clips/killer/18_beetleStun.mp3": {
+  "text": "Dek-dek, ik.",
+  "dur": 1.0,
+  "expect": 1.24
+ },
+ "clips/killer/19_wind.mp3": {
+  "text": "Fiii-uu!",
+  "dur": 1.03,
+  "expect": 0.77
+ },
+ "clips/killer/20_mud.mp3": {
+  "text": "Pliip-gek!",
+  "dur": 0.72,
+  "expect": 0.77
+ },
+ "clips/killer/21_bridge.mp3": {
+  "text": "Tip-tip-tip!",
+  "dur": 0.77,
+  "expect": 1.06
+ },
+ "clips/killer/22_butterfly.mp3": {
+  "text": "Iiih, flut!",
+  "dur": 1.79,
+  "expect": 1.48
+ },
+ "clips/killer/23_guardHit.mp3": {
+  "text": "Pac! Tek!",
+  "dur": 1.48,
+  "expect": 1.48
+ },
+ "clips/killer/24_notYet.mp3": {
+  "text": "Nu, dek.",
+  "dur": 1.46,
+  "expect": 1.48
+ },
+ "clips/killer/25_guardGone.mp3": {
+  "text": "Hihi, pa-pa, dek!",
+  "dur": 3.19,
+  "expect": 3.14
+ },
+ "clips/killer/26_bored.mp3": {
+  "text": "Hm, dek... gik?",
+  "dur": 2.52,
+  "expect": 2.31
+ },
+ "clips/killer/27_callFriend.mp3": {
+  "text": "Ia-ia, kita!",
+  "dur": 1.72,
+  "expect": 2.4
+ },
+ "clips/killer/28_together.mp3": {
+  "text": "Di-gi-dek!",
+  "dur": 1.46,
+  "expect": 1.66
+ },
+ "clips/killer/29_nestOpen.mp3": {
+  "text": "Uuu, kitadek!",
+  "dur": 2.25,
+  "expect": 2.4
+ },
+ "clips/killer/30_levelWin.mp3": {
+  "text": "Hurraa, dek-dek!",
+  "dur": 2.68,
+  "expect": 2.4
+ },
+ "clips/killer/31_bossDown.mp3": {
+  "text": "Hihihi-dek!",
+  "dur": 2.82,
+  "expect": 2.12
+ },
+ "clips/killer/32_help.mp3": {
+  "text": "Iii, dek-dek!",
+  "dur": 2.75,
+  "expect": 1.94
+ },
+ "clips/killer/33_rescue.mp3": {
+  "text": "Hai, sus, tek!",
+  "dur": 1.25,
+  "expect": 0.98
+ },
+ "clips/killer/34_thanks.mp3": {
+  "text": "Mulțumesc, dek!",
+  "dur": 1.03,
+  "expect": 1.06
+ },
+ "clips/killer/35_run.mp3": {
+  "text": "Hii-dek-dek!",
+  "dur": 0.78,
+  "expect": 0.73
+ },
+ "clips/killer/36_power2.mp3": {
+  "text": "Dek-mănușa!",
+  "dur": 0.98,
+  "expect": 0.93
+ },
+ "clips/killer/37_power2Big.mp3": {
+  "text": "Hii-mănușa-kita!",
+  "dur": 1.04,
+  "expect": 1.34
+ },
+ "clips/killer/38_hurry.mp3": {
+  "text": "Repede-repede, tek!",
+  "dur": 1.26,
+  "expect": 1.67
+ },
+ "clips/killer/39_puff.mp3": {
+  "text": "Ha-ha-ha, ha-ha.",
+  "dur": 1.04,
+  "expect": 1.26
+ },
+ "clips/killer/40_hum.mp3": {
+  "text": "Tiri-dek, tiri-dek, tek.",
+  "dur": 1.37,
+  "expect": 1.79
+ },
+ "clips/killer/41_effort.mp3": {
+  "text": "Tek!",
+  "dur": 0.46,
+  "expect": 0.33
+ },
+ "clips/killer/42_effort.mp3": {
+  "text": "Gik!",
+  "dur": 0.58,
+  "expect": 0.33
+ },
+ "clips/killer/43_george.mp3": {
+  "text": "Ooh, George, dek!",
+  "dur": 1.85,
+  "expect": 1.18
+ }
+}
