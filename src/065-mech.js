@@ -283,7 +283,7 @@ function openGate(L, g) {
   if (!g.opened) {                                 // the first time: a short stop, the camera comes closer, both heroes feel it
     g.opened = true;
     mechClick(g.x, g.y); bigHit();
-    Snd.play('gateOpen');
+    Snd.play('gateOpen'); { const nh = P.heroes.filter(h => isJoined(h.k)); if (nh.length) say(nh[(P.gateSaid = (P.gateSaid | 0) + 1) % nh.length].k, 'nestOpen'); }
     for (let k = 0; k < 2; k++) if (isJoined(k)) Input.rumble(k, 0.3, 0.6, 220);
   }
 }
@@ -347,5 +347,5 @@ function updateToy(dt) {
   const target = toy.both ? Math.sin(toy.t * 2.6) * 0.2 : on[0] ? -0.14 : on[1] ? 0.14 : 0;
   toy.va += ((target - toy.ang) * 40 - toy.va * 6) * dt; toy.ang += toy.va * dt;
   toy.laughT -= dt;
-  if (toy.both && toy.laughT <= 0) { toy.laughT = 4; for (const h of on) Snd.talk(h.k, 'levelWin'); }
+  if (toy.both && toy.laughT <= 0) { toy.laughT = 4; for (const h of on) say(h.k, 'levelWin'); }
 }

@@ -5,7 +5,7 @@ const boot = require('./common.js');
   const { page, done } = await boot();
   const r = await page.evaluate(async () => {
     const G = __game, S = G.Snd, d = S.debug(), ac = d.ac; if (!ac) return { error: 'no audio' };
-    await ac.resume();
+    await ac.resume(); G.CONFIG.words.on = false;       // this test is about the synthesized words (BABBLE); the recorded voice has tests/limba.js
     const words = S.words(), other = S.words(G.GAME === 'lupta' ? 'bubu' : 'lupta');
     const out = { keys: [words[0] && Object.keys(words[0]).length, words[1] && Object.keys(words[1]).length], same: null, peaks: {} };
     const sig = w => JSON.stringify(w);

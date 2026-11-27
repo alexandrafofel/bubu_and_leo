@@ -194,6 +194,20 @@ const CONFIG = {
   volume: { music: 0.5, ambient: 0.7, characters: 0.8 },   // starting values, 0 to 1. Changeable in Setări.
   footsteps: true,
   babble: true,                // the heroes talk in their own invented words (30 each). false = only the sound effects
+
+  // ---- The voices of Boon and Killer (T13): short recorded lines of two children playing dinosaurs (docs/26-limba-personajelor.md)
+  words: {
+    on: true,                   // false = the old synthesized words instead of the recorded lines
+    gain: [1, 1],               // how loud each hero's voice is (Boon, Killer)
+    gap: 4,                     // seconds of quiet between two lines of the same hero (not for the loud moments: hurt, star, help...)
+    softGap: 2.5,               // the same for the small noises (a hum, a puff, "ga!")
+    humEvery: 10,               // seconds of walking before the hero hums a little tune
+    puffEvery: 2.6,             // seconds of running between two puffs
+    effortOdds: 0.34,           // how often a hit comes with a little "ga!" (1 in 3)
+    humGain: 0.5, puffGain: 0.4, effortGain: 0.75,        // small noises are quieter
+    bubble: true,               // the balloon with the meaning of the word (changeable in Setări: "Text la cuvinte")
+    bubbleTime: 2.4             // seconds the balloon stays
+  },
   voice: true,                 // read level intros aloud (needs a system voice for the chosen language)
   voiceRate: 0.9,
 

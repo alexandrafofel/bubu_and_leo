@@ -2,7 +2,22 @@
 
 > **Un singur joc (18 noiembrie 2026).** "Bubu și Leo" a fost scos. Tot ce e specificat aici se implementeaza **doar in "Cea mai grea luptă"**. Unde scrie "ambele jocuri", "primul joc", variante `L:` sau teste pentru `bubu`, se citeste: un singur joc, textele lui (varianta `L:`), un singur rand de teste. Nu se mai scrie cod pentru primul joc.
 
-Status: **specificatie, neimplementata.** Vezi `23-update-partea-a-doua.md` pentru cerere, hotarari si planul in 36 de sarcini, si `../prompts/06-prompt-partea-a-doua.md` (T13) pentru promptul gata de lipit.
+Status: **implementat pe 28 noiembrie 2026, cu alta forma** (vezi sectiunea de mai jos). Textul de dupa ea este specificatia veche, pastrata ca istorie. Pe scurt: nu 1000 de cuvinte sintetizate, ci 44 de replici inregistrate pe erou. Specificatia veche: Vezi `23-update-partea-a-doua.md` pentru cerere, hotarari si planul in 36 de sarcini, si `../prompts/06-prompt-partea-a-doua.md` (T13) pentru promptul gata de lipit.
+
+## Cum a fost implementat (28 noiembrie 2026)
+
+Proprietara a respins varianta sintetica ("sa fie cuvinte, nu sunete techno") si a cerut voci inregistrate, ca doi copii care se joaca de-a dinozaurii.
+
+- **Clipurile:** 44 de replici pe erou, in `tools/voci/catalog.py` (cheie, text spus, romana, engleza). Ordinea liniilor este id-ul cuvantului: nu o schimba, doar adauga la sfarsit. Boon: Seed Audio (voce de copil mic). Killer: ElevenLabs, vocea Jessica. Se genereaza cu Krea (`generate_audio`) in loturi de 11 replici, se taie cu `tools/voci/split.py` (ffmpeg, tacerile dintre replici) si se impacheteaza cu `python3 tools/pack-voices.py` in `src/017-voci-data.js` (nu se editeaza). MP3 mono 24 kHz, 1,2 MB in total.
+- **Redarea:** `Snd.talk(k, cheie)` (`03-audio.js`) alege o replica a momentului, o decodeaza o data si o reda prin Web Audio in difuzorul controllerului eroului (cu limitator). Intoarce id-ul replicii sau -1. Cand clipurile lipsesc sau `CONFIG.words.on` e oprit, raman vechile silabe sintetice (`BABBLE`).
+- **Momentele:** mers lung (fredonat, la 10 s), fuga (rasuflat, la 2,6 s), lovit, stea, lovitura, George si celelalte din `NEED` in `tests/limba.js`. Jocul cheama `say(k, cheie)` (`07-play.js`), nu `Snd.talk`.
+- **Balonul:** cuvantul scris si traducerea dedesubt, deasupra eroului, in culoarea lui (`drawWordBubbles`, `08-draw.js`). Nu acopera un erou si nu coboara sub banda de sus.
+- **Dictionarul:** din meniul de start (cand exista cuvinte) si din pauza. ✕ asculta un cuvant aflat, sagetile schimba eroul, ○ iese. Cuvintele se salveaza in `d.g2.lex`.
+- **Setari:** "Text la cuvinte" (Da/Nu) ascunde balonul si lasa sunetul.
+- **Reglaj:** `CONFIG.words` (`on`, `gain`, `gap`, `softGap`, `humEvery`, `puffEvery`, `effortOdds`, `bubble`, `bubbleTime`).
+- **Test:** `tests/limba.js` (13 verificari).
+
+---
 
 Cererea proprietarei (18 noiembrie 2026): "personajele sa aiba o limba a lor (undeva la 1000 de cuvinte in vocabular)".
 

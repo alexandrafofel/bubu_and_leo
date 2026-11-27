@@ -15,7 +15,7 @@ Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece sec
 
 ## Regulile care nu se schimba fara acordul proprietarei
 
-1. Un singur fisier HTML final, complet independent. Fara biblioteci, fara fisiere audio, fara adrese de internet in cod. Sunetele se fac cu Web Audio. Din 23 noiembrie 2026 (aprobat de proprietara) personajele si lucrurile nivelurilor sunt imagini facute cu Krea, puse in fisier ca WebP (`art/krea/`, `tools/pack-art.py`, `src/016-art-data.js`). Restul se deseneaza pe canvas. Vezi `docs/05-pictura.md`, "Imaginile Krea".
+1. Un singur fisier HTML final, complet independent. Fara biblioteci, fara fisiere audio, fara adrese de internet in cod. Sunetele se fac cu Web Audio. Din 23 noiembrie 2026 (aprobat de proprietara) personajele si lucrurile nivelurilor sunt imagini facute cu Krea, puse in fisier ca WebP (`art/krea/`, `tools/pack-art.py`, `src/016-art-data.js`). Restul se deseneaza pe canvas. A doua exceptie, din 28 noiembrie 2026 (aprobata de proprietara): vocile lui Boon si Killer sunt clipuri inregistrate cu AI (Krea: Seed Audio si ElevenLabs), puse in fisier ca MP3 (`tools/voci/`, `tools/pack-voices.py`, `src/017-voci-data.js`) si redate cu Web Audio. Vezi `docs/05-pictura.md`, "Imaginile Krea", si `docs/26-limba-personajelor.md`.
 2. Trebuie sa mearga offline in Google Chrome pe macOS.
 3. Toate textele din joc exista in romana si in engleza, in tabelul `STR` din `src/015-lang.js`. Nu scrie text direct in cod: adauga o cheie in `STR.ro` si `STR.en` si foloseste `T('cheie')`.
 4. Stilul vizual: pictura in acuarela dintr-o carte pentru copii. Fara contururi negre, fara gri, fara negru. Umbrele sunt violet cald sau maro (`SHADOW = '#6A4270'`). Vezi `docs/15-culori.md`.
@@ -45,6 +45,7 @@ Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece sec
 | Lumina si materialele stilului nou (`lit`, `KEY`, `FILL`, `MATERIALS`), `CONFIG.look` | `src/02-core.js`, `src/01-config.js` | `docs/05-pictura.md`, `docs/03-config.md` |
 | Testul stilului grafic (pixeli gri, fara gradienti pe cadru, buget +20%) | `tests/stil-grafic.js`, `tests/performanta.js` | `docs/17-testare.md` |
 | Muzica, efecte, vocea | `src/03-audio.js` | `docs/06-sunet.md` |
+| Vocile eroilor: cuvintele (`talk`, `voiceInfo`, `CONFIG.words`, `say`, `wordSaid`), balonul cu traducerea (`drawWordBubbles`), dictionarul (`openDict`, `Save.lexAdd`, `d.g2.lex`), clipurile (`tools/voci/catalog.py`, `split.py`, `pack-voices.py`) | `src/03-audio.js`, `src/07-play.js`, `src/08-draw.js`, `src/09-screens.js`, `src/017-voci-data.js` | `docs/26-limba-personajelor.md`, `docs/06-sunet.md` |
 | Controllere si tastatura | `src/04-input.js` | `docs/07-control.md` |
 | Cum arata personajele si obiectele | `src/05-chars.js` | `docs/08-personaje.md` |
 | Cum arata Boon, Killer, George si lumea lor | `src/055-lupta.js` | `docs/21-cea-mai-grea-lupta.md` |
@@ -75,6 +76,7 @@ Urmatorul update ("Partea a doua": rundele 7 - 12, a doua putere, fuga, zece sec
 - `src/016-art-data.js` se genereaza cu `python3 tools/pack-art.py` din `art/krea/*.png`. Nu il edita. O imagine noua se pune in `art/krea/`. Un desen cu imagine verifica intai `artOn() && artOk('nume')`, ca pictura veche sa ramana cand imaginea lipseste sau `CONFIG.look.art` e oprit.
 - In luptele cu George primele `CONFIG.ring.hits` lovituri nu pun eroul jos (`hitHero`). Un test care vrea un erou jos intr-o lupta pune `h.ringHits = CONFIG.ring.hits` inainte, sau `CONFIG.ring.on = false`.
 
+- Vocile eroilor (T13): un moment al jocului face un erou sa vorbeasca prin `say(k, 'cheie')` (`07-play.js`), nu prin `Snd.talk` direct: `say` pune si balonul si cuvantul in dictionar. Cheia de config e `CONFIG.words` (nu `CONFIG.voice`: aceea e vocea sistemului care citeste povestile; doua chei cu acelasi nume in obiect se calca fara eroare). Id-ul unui cuvant este pozitia lui in `tools/voci/catalog.py`: nu muta si nu sterge linii, doar adauga la sfarsit (salvarea tine id-urile). Pauza dintre doua cuvinte (`CONFIG.words.gap`) merge pe ceasul real, nu pe cel al jocului: un test care vrea un cuvant asteapta cateva secunde reale.
 - Regulile G1 - G10 (`065-mech.js`) se aplica oricarei porti noi. O reteta noua (T8 - T12) are nevoie si de un caz in `mechSteps`, daca intrarile ei nu se fac stand pe ele (`actOf`). Cine muta un erou direct (nu prin viteza) trebuie sa respecte G4/G5: nu il pune dincolo de o banda (`bandSide`).
 - O poarta noua (T8 - T12) trebuie sa ceara doi eroi. Un erou de pe trecere nu apasa nimic (`heroCrossing` in `inputRaw`). Testul de colaborare din `tests/mecanisme.js` pica daca un erou singur trece. Intrarile pe care le misca altcineva decat eroii (tinte, manivele) pun `inp.raw`.
 - Primul jucator porneste pe "Ușor" (`CONFIG.defaultDifficulty`). Un test care masoara timpii portilor pune intai `Game.diff` pe `'normal'`.

@@ -31,6 +31,7 @@ const Snd = (() => {
     const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 6500; lp.Q.value = 0.3;
     master = ac.createGain(); master.gain.value = 1.3;
     master.connect(lp); lp.connect(comp); toSpeaker(ac, comp);
+    loadVoices();
     const rev = ac.createConvolver(); rev.buffer = impulse(2.6);
     const revOut = ac.createGain(); revOut.gain.value = 0.55; rev.connect(revOut); revOut.connect(master);
     musicBus = ac.createGain(); ambBus = ac.createGain(); chrBus = ac.createGain();
@@ -329,7 +330,7 @@ const Snd = (() => {
   // How loud a voice is: a quiet one never cuts in on a louder one that is still talking.
   const TALK_PRIO = { hello: 3, ready: 3, egg: 1, eggs5: 2, star: 3, giant: 3, power: 2, powerBig: 3, hurt: 3, dizzy: 2, recover: 2, drop: 2, regain: 2, hide: 2, unhide: 1,
     beetleWake: 2, beetleStun: 2, wind: 2, mud: 1, bridge: 1, butterfly: 3, guardHit: 3, notYet: 1, guardGone: 3, bored: 1, callFriend: 1, together: 2, nestOpen: 3, levelWin: 3, bossDown: 3,
-    help: 3, rescue: 3, thanks: 3 };
+    help: 3, rescue: 3, thanks: 3, run: 2, power2: 2, power2Big: 3, hurry: 2, george: 2, hum: 0, puff: 0, effort: 0 };
   const talkBusy = [{ until: 0, prio: 0, last: -1 }, { until: 0, prio: 0, last: -1 }];
   /* One syllable. Two triangle waves (the note and its octave) go through two "mouth" filters; a little of the plain note
      keeps the tune clear. Loud enough to be heard next to the other sounds, also in a controller's small speaker. */
@@ -350,19 +351,62 @@ const Snd = (() => {
       lfo.connect(lg); lg.connect(tr.gain); g.connect(tr); tr.connect(b); lfo.start(t); lfo.stop(t + d + 0.1);
     } else g.connect(b);
   }
-  /* Talk(k, word): hero k says one of its words. Routed like the hero's other sounds (own speaker when one was chosen). */
+  /* ---- recorded voices (T13) ----
+     Boon and Killer have a voice: short clips of two children playing dinosaurs (src/017-voci-data.js, made by tools/voci).
+     A clip plays through the same bus as the hero's other sounds, so it comes out of his own controller.
+     A moment (the key of talk) has one or more lines; the position of a line in VOICE_DATA is its id (kept forever, saves use it).
+     When a key has no clip, or the clips are not decoded yet, the old synthesized word is used. */
+  const voice = { buf: [[], []], by: [{}, {}], ready: false, last: [-1, -1], lastKey: [{}, {}], until: [0, 0], said: [{ t: -99 }, { t: -99 }] };
+  const voiceSet = () => (typeof VOICE_DATA !== 'undefined' && VOICE_DATA[GAME]) || null;
+  function loadVoices() {
+    const set = voiceSet(); if (!set || voice.ready || voice.loading) return;
+    voice.loading = true;
+    let todo = 0; for (const L of set) todo += L.length;
+    set.forEach((L, k) => L.forEach((w, i) => {
+      (voice.by[k][w.k] = voice.by[k][w.k] || []).push(i);
+      try {
+        const bin = atob(w.d), u = new Uint8Array(bin.length); for (let j = 0; j < bin.length; j++) u[j] = bin.charCodeAt(j);
+        ac.decodeAudioData(u.buffer, b => { voice.buf[k][i] = b; if (--todo === 0) voice.ready = true; }, () => { --todo; });
+      } catch (e) { --todo; }
+    }));
+  }
+  /* A line of the voice. quiet = 0..1 (a hum or a puff is quieter). Returns the id of the line, or -1. */
+  function voiceSay(k, id, quiet) {
+    const buf = voice.buf[k][id], b = (outs[k] && outs[k].context.state === 'running') ? outs[k] : chrBus; if (!buf) return -1;
+    const A = b.context, src = A.createBufferSource(), g = A.createGain();
+    src.buffer = buf; g.gain.value = (CONFIG.words.gain[k] || 1) * (quiet == null ? 1 : quiet);
+    src.connect(g); g.connect(b); src.start(A.currentTime + 0.01 + (b.lead || 0));
+    return id;
+  }
+  /* Talk(k, key): hero k says a line for this moment. Routed like the hero's other sounds (own speaker when one was chosen).
+     Returns the id of the line that was said (so the game can show the balloon and fill the dictionary), or -1. */
   function talk(k, key) {
-    if (!ac || ac.state !== 'running' || !CONFIG.babble) return;
-    const tb = talkBusy[k], set = BABBLE[GAME] || BABBLE.bubu, w = set[k] && set[k][key]; if (!w) return;
-    const pr = TALK_PRIO[key] || 1, now = ac.currentTime;
-    if (now < tb.until && pr < tb.prio) return;
+    if (!ac || ac.state !== 'running' || !CONFIG.babble) return -1;
+    const pr = TALK_PRIO[key] != null ? TALK_PRIO[key] : 1, tb = talkBusy[k], now = ac.currentTime, V = CONFIG.words;
+    const ids = voice.ready && V.on ? voice.by[k][key] : null;
+    if (ids && ids.length && voice.buf[k][ids[0]]) {
+      if (now < tb.until && pr < tb.prio) return -1;                              // a louder word is still going
+      const soft = key === 'hum' || key === 'puff' || key === 'effort';          // small noises: they never cut in on a word
+      if (soft && now < tb.until) return -1;
+      // the lines are not said at every moment: between two lines of a hero there is a pause (not for the loud ones)
+      if (pr < 3 && now - voice.said[k].t < (soft ? V.softGap : V.gap)) return -1;
+      let id; do { id = ids[Math.random() * ids.length | 0]; } while (ids.length > 1 && id === voice.last[k]);
+      voice.last[k] = id;
+      voiceSay(k, id, key === 'hum' ? V.humGain : key === 'puff' ? V.puffGain : key === 'effort' ? V.effortGain : 1);
+      const dur = voice.buf[k][id].duration; tb.until = now + dur; tb.prio = pr; voice.said[k].t = now + dur;
+      return id;
+    }
+    const set = BABBLE[GAME] || BABBLE.bubu, w = set[k] && set[k][key]; if (!w) return -1;
+    if (now < tb.until && pr < tb.prio) return -1;
     let syls = w;
     if (Array.isArray(w[0][0])) { let i; do { i = Math.random() * w.length | 0; } while (w.length > 1 && i === tb.last); tb.last = i; syls = w[i]; }
-    const b = (outs[k] && outs[k].context.state === 'running') ? outs[k] : chrBus, V = (VOICES[GAME] || VOICES.bubu)[k];
+    const b = (outs[k] && outs[k].context.state === 'running') ? outs[k] : chrBus, Vv = (VOICES[GAME] || VOICES.bubu)[k];
     let t = b.context.currentTime + 0.01 + (b.lead || 0);
-    for (const s of syls) { syl(b, t, k, s, V); t += s[2] * 0.85; }
+    for (const s of syls) { syl(b, t, k, s, Vv); t += s[2] * 0.85; }
     tb.until = now + (t - b.context.currentTime); tb.prio = pr;
+    return -1;
   }
+  const voiceInfo = (k, id) => { const set = voiceSet(); return set && set[k] && set[k][id] ? set[k][id] : null; };
 
   // ---- sound effects -------------------------------------------------------
   const PENT = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21];
@@ -518,7 +562,7 @@ const Snd = (() => {
   function swapOuts() { const t = outs[0]; outs[0] = outs[1]; outs[1] = t; }
 
   return {
-    init, play, talk, music, ambience, canSink, listOutputs, setSink, swapOuts, names: () => Object.keys(fx), names2: () => Object.keys(fx2), words: id => BABBLE[id || GAME] || BABBLE.bubu, debug: () => ({ ac, master, outs, sinks, chrBus, ambBus }),
+    init, play, talk, voiceInfo, sayWord: (k, id) => voiceSay(k, id), voiceReady: () => voice.ready, voiceCount: k => voice.buf[k].filter(Boolean).length, music, ambience, canSink, listOutputs, setSink, swapOuts, names: () => Object.keys(fx), names2: () => Object.keys(fx2), words: id => BABBLE[id || GAME] || BABBLE.bubu, debug: () => ({ ac, master, outs, sinks, chrBus, ambBus }),
     get ready() { return !!ac && ac.state === 'running'; },
     vol,
     setVol(k, v) { if (!(k in vol) || !isFinite(v)) return; vol[k] = clamp(Math.round(v * 10) / 10, 0, 1); applyVol(); },

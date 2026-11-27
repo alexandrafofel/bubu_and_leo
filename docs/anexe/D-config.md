@@ -194,6 +194,18 @@ Valorile asa cum sunt acum in src/01-config.js. Explicatia fiecarei valori si mo
 | `volume.characters` | `0.8` |  |
 | `footsteps` | `true` |  |
 | `babble` | `true` |  |
+| `words.on` | `true` |  |
+| `words.gain` | `[1,1]` |  |
+| `words.gap` | `4` |  |
+| `words.softGap` | `2.5` |  |
+| `words.humEvery` | `10` |  |
+| `words.puffEvery` | `2.6` |  |
+| `words.effortOdds` | `0.34` |  |
+| `words.humGain` | `0.5` |  |
+| `words.puffGain` | `0.4` |  |
+| `words.effortGain` | `0.75` |  |
+| `words.bubble` | `true` |  |
+| `words.bubbleTime` | `2.4` |  |
 | `voice` | `true` |  |
 | `voiceRate` | `0.9` |  |
 | `fontTitle` | `"Georgia, \"Times New Roman\", serif"` |  |

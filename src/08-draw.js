@@ -905,12 +905,43 @@ function drawFront(c, v) {
   }
   c.globalAlpha = 1;
 }
+/* The balloon with the meaning of the word a hero just said (T13): the word as he said it, and under it what it means.
+   One balloon per hero. It sits over his head, in his color; if there is no room above (the band at the top), it goes under him.
+   It never covers a hero and never goes over the band. */
+function drawWordBubbles(c, v) {
+  P.wordBoxes = [];
+  if (!Opt.words || !P.words) return;
+  const boxes = P.wordBoxes;       // what was drawn this frame (the tests look at it)
+  for (const h of P.heroes) {
+    const w = P.words[h.k]; if (!w || !isJoined(h.k)) continue;
+    const a = clamp(Math.min(w.t / 0.15, (CONFIG.words.bubbleTime - w.t) / 0.3), 0, 1); if (a <= 0) continue;
+    const col = CONFIG.heroes[h.k].color, head = (w.fresh ? '★ ' : '') + w.say;
+    setFont(c, 30, false, 'bold'); const w1 = c.measureText(head).width; setFont(c, 24, false, 'bold'); const w2 = c.measureText(w.mean).width;
+    const bw = Math.max(w1, w2) + 44, bh = 84, sx = (h.x - v.l) * v.z, hy = (h.y - v.tp) * v.z;
+    let by = hy - 215 * v.z, below = false;
+    if (by - bh / 2 < HUD_TOP + 12) { by = hy + 150 * v.z; below = true; }               // no room above: under him
+    let bx = clamp(sx, bw / 2 + 14, W - bw / 2 - 14); by = clamp(by, HUD_TOP + 12 + bh / 2, H - 14 - bh / 2);
+    for (const o of boxes) if (Math.abs(o.x - bx) < (o.w + bw) / 2 && Math.abs(o.y - by) < bh + 6) by = o.y + (by >= o.y ? bh + 8 : -bh - 8);     // two balloons never lie on each other
+    boxes.push({ k: h.k, x: bx, y: by, w: bw, h: bh });
+    c.save(); c.globalAlpha = a * 0.97;
+    c.fillStyle = 'rgba(255,248,230,0.96)'; c.strokeStyle = rgba(col, 0.95); c.lineWidth = 5; c.lineJoin = 'round';
+    c.beginPath(); c.roundRect(bx - bw / 2, by - bh / 2, bw, bh, 26); c.fill(); c.stroke();
+    const tx = clamp(sx, bx - bw / 2 + 36, bx + bw / 2 - 36), ty = below ? by - bh / 2 : by + bh / 2;      // the little tail points at the hero
+    c.beginPath(); c.moveTo(tx - 14, ty + (below ? 2 : -2)); c.lineTo(tx, ty + (below ? -22 : 22)); c.lineTo(tx + 14, ty + (below ? 2 : -2)); c.closePath(); c.fill();
+    c.beginPath(); c.moveTo(tx - 14, ty + (below ? 0 : 0)); c.lineTo(tx, ty + (below ? -22 : 22)); c.lineTo(tx + 14, ty); c.stroke();
+    c.beginPath(); c.moveTo(tx - 13, ty + (below ? 3 : -3)); c.lineTo(tx + 13, ty + (below ? 3 : -3)); c.strokeStyle = 'rgba(255,248,230,0.96)'; c.lineWidth = 7; c.stroke();
+    text(c, head, bx, by - 15, 30, col, { halo: 0, shadow: 0, weight: 'bold' });
+    text(c, w.mean, bx, by + 19, 24, '#6A4250', { halo: 0, shadow: 0, weight: 'bold' });
+    c.restore();
+  }
+}
 function drawPlay(c) {
   const v = drawWorld(c);
   drawLightMap(c, v);
   drawMotes(c, v);
   drawFront(c, v);
   drawHints(c, v);
+  drawWordBubbles(c, v);
   drawEdgePulse(c);
   drawHUD(c);
 }

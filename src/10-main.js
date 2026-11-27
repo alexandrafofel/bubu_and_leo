@@ -28,7 +28,7 @@ addEventListener('keydown', e => {
 document.addEventListener('fullscreenchange', () => { Opt.fullscreen = !!document.fullscreenElement; if (Game.state !== 'boot') Save.write(); });
 
 Game.toTitle = function () {
-  Game.state = 'title'; Game.paused = false; UI.ready = [false, false]; UI.menuSel = 0; UI.startT = -1; UI.lostK = -1; UI.set = null; UI.ask = null;
+  Game.state = 'title'; Game.paused = false; UI.ready = [false, false]; UI.menuSel = 0; UI.startT = -1; UI.lostK = -1; UI.set = null; UI.dict = null; UI.ask = null;
   Input.autoJoin = true; Input.kbJoin = true; Input.bindTo = null;
   Voice.stop(); Save.load(); Snd.music('title'); Snd.setDuck(1);
 };
@@ -73,7 +73,8 @@ function update(dt) {
       Snd.init(); Voice.init(); restoreSpeakers();
       Game.toTitle();
     }
-  } else if (UI.set && (st === 'title' || (st === 'play' && Game.paused))) updateSettings(dt);
+  } else if (UI.dict && (st === 'title' || (st === 'play' && Game.paused))) updateDict(dt);
+  else if (UI.set && (st === 'title' || (st === 'play' && Game.paused))) updateSettings(dt);
   else if (st === 'title') updateTitle(dt);
   else if (st === 'chapters') updateChapters(dt);
   else if (st === 'loading') {
@@ -91,7 +92,7 @@ function update(dt) {
     if (UI.retryT > CONFIG.rescue.retryScreen) { UI.skipIntro = true; Snd.setDuck(1); Game.goLevel(Game.levelIdx); }      // the same chapter, without its story again
   } else if (st === 'intro') {
     UI.introT += dt;
-    if (UI.introT > 0.8 && pressedGo()) { Voice.stop(); Snd.setDuck(1); Snd.play('ok'); Game.state = 'play'; Snd.talk(0, 'hello'); Snd.talk(1, 'hello'); }
+    if (UI.introT > 0.8 && pressedGo()) { Voice.stop(); Snd.setDuck(1); Snd.play('ok'); Game.state = 'play'; say(0, 'hello'); say(1, 'hello'); }
   } else if (st === 'play') {
     if (Game.paused) updatePause();
     else {
@@ -123,11 +124,12 @@ function draw() {
   else if (st === 'chapters') drawChapters(c, t);
   else if (st === 'loading') drawLoading(c, t);
   else if (st === 'intro') { drawIntro(c, t); ov = levelOverlay(P.L); }
-  else if (st === 'play') { drawPlay(c); if (Game.paused && !UI.set) drawPause(c, t); ov = levelOverlay(P.L); }
+  else if (st === 'play') { drawPlay(c); if (Game.paused && !UI.set && !UI.dict) drawPause(c, t); ov = levelOverlay(P.L); }
   else if (st === 'retry') { drawRetry(c, t); ov = levelOverlay(P.L); }
   else if (st === 'levelEnd') { drawLevelEnd(c, t); ov = levelOverlay(P.L); }
   else if (st === 'ending') { drawEnding(c, t); ov = UI.endOv; }
   if (UI.set && (st === 'title' || st === 'play')) { UI.hits.length = 0; drawSettings(c, t); }
+  if (UI.dict && (st === 'title' || st === 'play')) { UI.hits.length = 0; drawDict(c, t); }
   // the paper texture, the warm light and the vignette lie over everything
   if (ov) { c.globalCompositeOperation = 'multiply'; c.drawImage(ov, 0, 0, W, H); c.globalCompositeOperation = 'source-over'; }
 }
@@ -145,5 +147,5 @@ function frame(ts) {
 Save.load(); Save.apply(); setLanguage(Opt.lang);
 resize();
 initScreens();
-window.__game = { Game, Input, UI, Save, CONFIG, Opt, STR, T, Snd, Voice, Perf, get P() { return P; }, get GAME() { return GAME; }, setGame, buildLevel, genLevel, startPlay, startDuel, duelHit, openNest, hitHero, getUp, tryRescue, hurtSmall, throwRing, recallBalls, startSpin, abil, hasAbil, makeEgg, collectEgg, quotaState, quotaOn, giveEgg, updateGifts, updateAutoGive, sendEgg, waitBanner, newBall, quotaOk, isJoined, drawBadge, teamFound, teamNeed, updateGeorge, dropGems, hurtSmall, georgeEnemies, georgeNestThrows, levelProgress, chapters, chapterLabel, titleMenu, chapterLayout, HUD_TOP, HERO_BOX, camTarget, update, draw, openSettings, closeSettings, swapHeroes, settingsRows, KEY_FIELDS, startRun, stopRun, canRun, rescueLimit, drawRetry };
+window.__game = { Game, Input, UI, Save, CONFIG, Opt, STR, T, Snd, Voice, Perf, openDict, closeDict, dictList, pauseRows, titleMenu, get P() { return P; }, get GAME() { return GAME; }, setGame, buildLevel, genLevel, startPlay, startDuel, duelHit, openNest, hitHero, getUp, tryRescue, hurtSmall, throwRing, recallBalls, startSpin, abil, hasAbil, makeEgg, collectEgg, quotaState, quotaOn, giveEgg, updateGifts, updateAutoGive, sendEgg, waitBanner, newBall, quotaOk, isJoined, drawBadge, teamFound, teamNeed, updateGeorge, dropGems, hurtSmall, georgeEnemies, georgeNestThrows, levelProgress, chapters, chapterLabel, titleMenu, chapterLayout, HUD_TOP, HERO_BOX, camTarget, update, draw, openSettings, closeSettings, swapHeroes, settingsRows, KEY_FIELDS, startRun, stopRun, canRun, rescueLimit, drawRetry };
 requestAnimationFrame(ts => { _last = ts; requestAnimationFrame(frame); });

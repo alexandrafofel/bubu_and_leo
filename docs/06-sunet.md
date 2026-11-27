@@ -341,3 +341,7 @@ Toate sunt in `fx2` (`03-audio.js`), deci merg doar in "Cea mai grea luptă".
 ## Update 26 noiembrie 2026 (T7.4): `bridge`
 
 O nota de sticla pentru fiecare scandura de lumina care apare. Cele sapte scanduri canta o gama (do, re, mi, fa, sol, la, si). Balansoarul nu are sunet propriu: cei doi eroi spun `levelWin` cand se leagana (cel mult o data la 4 s).
+
+## Update 28 noiembrie 2026 (T13): vocile eroilor
+
+Boon si Killer vorbesc cu clipuri inregistrate (`src/017-voci-data.js`, 44 pe erou), nu cu silabe sintetizate. `talk(k, cheie)` alege o replica, o reda in difuzorul eroului (`outs[k]`, cu `lead`) si intoarce id-ul ei. Fiecare cuvant are pauza lui (`CONFIG.words.gap`, 4 s; `softGap` 2,5 s pentru fredonat, rasuflat si efort). Clipurile au varful sub 0,9. Difuzorul controllerului merge doar prin USB pe Mac. Fara clipuri sau cu `CONFIG.words.on = false` raman silabele vechi (`BABBLE`). Detalii: `26-limba-personajelor.md`.

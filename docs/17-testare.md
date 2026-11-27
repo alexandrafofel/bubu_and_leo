@@ -717,3 +717,7 @@ Tot pe 27 noiembrie 2026:
 
 - `stil-grafic.js` verifica planul din fata pe capitolele 0 - 6, adica acum pe nivelurile 1 - 7 (inainte capitolul 6 era Arena). Asa s-au gasit pixelii gri ai planului din fata pe nivelul 7 (`05-pictura.md`).
 - `puteri-doi.js`, verificarea 6, numara doar vibratiile manusilor (`spinBeat`: 0.7, 0.9, 110 ms). Inainte numara orice vibratie pe controllerul lui Killer si, din cand in cand, una venea de la un cristal sau o lovitura (4 in loc de 3).
+
+## Update 28 noiembrie 2026: `tests/limba.js` (T13)
+
+13 verificari: clipurile decodate, toate momentele au replica la ambii eroi, texte in romana si engleza, durata si varful, vocile se deosebesc, cuvantul iese in difuzorul eroului lui, balonul si dictionarul, setarea "Text la cuvinte", fredonat si rasuflat, salvarea cuvintelor. Pauza dintre cuvinte merge pe ceasul real, deci testul asteapta cateva secunde reale (`setTimeout`) inainte sa astepte un cuvant. Intra in `toate.sh`.

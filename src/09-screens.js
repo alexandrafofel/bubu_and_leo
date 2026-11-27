@@ -53,6 +53,10 @@ const Save = {
   slot(id) { const d = this.data; if (!d) return null; return (id || GAME) === 'lupta' ? (d.g2 || null) : d; },      // the progress of one game
   /* the progress of the chosen game, made if it is not there yet */
   own() { const d = this.data || (this.data = {}); return GAME === 'lupta' ? (d.g2 = d.g2 || {}) : d; },
+  /* The dictionary (T13): the words each hero has said, by id. Lives in the slot of the game, in the field lex: { '0': [ids], '1': [ids] }. A save without it has no words yet. */
+  lexOf(k) { const sl = this.own(), lx = sl.lex = (sl.lex && typeof sl.lex === 'object') ? sl.lex : {}; return Array.isArray(lx[k]) ? lx[k] : (lx[k] = []); },
+  lexCount() { const sl = this.slot(); const lx = sl && sl.lex; return lx ? (Array.isArray(lx[0]) ? lx[0].length : 0) + (Array.isArray(lx[1]) ? lx[1].length : 0) : 0; },
+  lexAdd(k, id) { const l = this.lexOf(k); if (l.indexOf(id) >= 0) return false; l.push(id); this.write(); return true; },
   /* "New game": the progress of the chosen game is erased. The other game and the settings stay. */
   newGame() { const sl = this.own(); sl.level = 0; sl.max = 0; sl.results = []; sl.eggs = 0; sl.stars = 0; Game.results = []; this.write(); },
   /* Chapter i is over with result r. The chapter keeps its best result, "Continue" moves on only if this was the chapter it
@@ -71,7 +75,7 @@ const Save = {
   write() {
     const d = this.data || {};
     d.v = 4; d.game = GAME; d.diff = Game.diff; if (d.g2) d.g2.order = chapters('lupta').map(chapterId);      // the order of the chapters this save was made with d.vol = { music: Snd.vol.music, amb: Snd.vol.amb, chr: Snd.vol.chr };
-    d.opt = { lang: Opt.lang, fullscreen: Opt.fullscreen, vibration: Opt.vibration, swap: Opt.swap, ctrl: Opt.ctrl, keys: Opt.keys, guide: Opt.guide, sink: Opt.sink };
+    d.opt = { lang: Opt.lang, fullscreen: Opt.fullscreen, vibration: Opt.vibration, swap: Opt.swap, ctrl: Opt.ctrl, keys: Opt.keys, guide: Opt.guide, sink: Opt.sink, words: Opt.words };
     this.data = d;
     try { localStorage.setItem(CONFIG.saveKey, JSON.stringify(d)); } catch (e) { /* private mode */ }
   },
@@ -85,6 +89,7 @@ const Save = {
     if (o.lang === 'ro' || o.lang === 'en') Opt.lang = o.lang;
     if (typeof o.fullscreen === 'boolean') Opt.fullscreen = o.fullscreen;
     if (typeof o.vibration === 'boolean') Opt.vibration = o.vibration;
+    if (typeof o.words === 'boolean') Opt.words = o.words;
     Opt.swap = !!o.swap;
     for (let k = 0; k < 2; k++) {
       if (o.ctrl && (o.ctrl[k] === 'kb' || o.ctrl[k] === 'pad')) Opt.ctrl[k] = o.ctrl[k];
@@ -204,6 +209,7 @@ function titleMenu() {
   const items = [];
   if (Save.hasProgress()) items.push({ id: 'cont', label: T('t.cont', chapterLabel(Save.slot().level)) });
   if (Save.maxOpen() >= 0) items.push({ id: 'chap', label: T('t.chapters') });
+  if (Save.lexCount() > 0) items.push({ id: 'dict', label: T('t.dict') });      // the words the heroes have said (T13)
   items.push({ id: 'new', label: items.length ? T('t.new') : T('t.start') });
   return items;
 }
@@ -212,6 +218,7 @@ function titleGo() {
   const items = titleMenu(), it = items[clamp(UI.menuSel | 0, 0, items.length - 1)];
   if (it.id === 'cont') Game.startGame(true);
   else if (it.id === 'chap') Game.toChapters();
+  else if (it.id === 'dict') openDict();
   else if (Save.hasProgress() || Save.maxOpen() >= 0) askYesNo(T('t.new'), T('t.newAsk'), T('t.newYes'), () => Game.startGame(false));      // there is something to lose: ask first
   else Game.startGame(false);
 }
@@ -297,10 +304,11 @@ function drawTitle(c, t) {
   text(c, any ? T('t.then') : T('t.onPad'), W / 2, 834, 40, '#7A4A52', {});
   // the buttons: in the middle, between the two players' cards, the last one just above the bottom line
   const items = titleMenu(), n = items.length;
+  const stp = n > 3 ? 48 : 54, y1 = n > 3 ? 1018 : 1010, hh = n > 3 ? 22 : 24;      // four buttons are a little closer together
   for (let i = 0; i < n; i++) {
-    const sel = clamp(UI.menuSel | 0, 0, n - 1) === i, yy = 1010 - (n - 1 - i) * 54;
-    card(c, W / 2 - 260, yy - 24, 520, 48, sel ? '#F8C24E' : '#FFF3DC', 50 + i);
-    hitAdd(W / 2 - 260, yy - 26, 520, 52, 'tmenu', i);
+    const sel = clamp(UI.menuSel | 0, 0, n - 1) === i, yy = y1 - (n - 1 - i) * stp;
+    card(c, W / 2 - 260, yy - hh, 520, hh * 2, sel ? '#F8C24E' : '#FFF3DC', 50 + i);
+    hitAdd(W / 2 - 260, yy - hh - 2, 520, hh * 2 + 4, 'tmenu', i);
     fitText(c, items[i].label, W / 2, yy, 32, 480, sel ? '#6A3A30' : '#8A6A6A', { halo: 0, shadow: 0, weight: sel ? 'bold' : '600' });
   }
   text(c, (Voice.ok ? T('t.voice', Voice.v.name) : T('t.novoice')) + '   ·   ' + T('t.foot'), W / 2, 1056, 20, 'rgba(110,80,90,0.85)', { shadow: 0 });
@@ -623,6 +631,7 @@ function pauseRows() {
     { kind: 'go', label: T('pause.set'), ok: openSettings, more: true },
     { kind: 'go', label: T('pause.restart'), ok: leave(() => Game.goLevel(Game.levelIdx)) },        // the same chapter from its beginning
     { kind: 'go', label: T('pause.chapters'), ok: leave(() => Game.toChapters()) },
+    { kind: 'go', label: T('pause.dict'), ok: openDict, more: true },
     { kind: 'go', label: T('pause.quit'), ok: () => { Game.paused = false; Game.toTitle(); } }
   ];
 }
@@ -714,6 +723,7 @@ function settingsRows() {
     { kind: 'opt', label: T('set.fs'), value: yn(!!document.fullscreenElement), chg: () => { toggleFullscreen(); Snd.play('ui'); } },
     vol('set.music', 'music'), vol('set.amb', 'amb', 'pop'), vol('set.chr', 'chr', 'egg'),
     { kind: 'opt', label: T('set.vib'), value: yn(Opt.vibration), chg: () => { Opt.vibration = !Opt.vibration; Snd.play('ui'); Input.rumble(0, 0.6, 0.6, 200); Input.rumble(1, 0.6, 0.6, 200); Save.write(); } },
+    { kind: 'opt', label: T('set.words'), value: yn(Opt.words), chg: () => { Opt.words = !Opt.words; Snd.play('ui'); } },
     { kind: 'go', label: T('set.player', 1, CONFIG.heroes[heroOf(0)].name), dot: CONFIG.heroes[heroOf(0)].color, more: true, ok: () => setPage('player', 0) },
     { kind: 'go', label: T('set.player', 2, CONFIG.heroes[heroOf(1)].name), dot: CONFIG.heroes[heroOf(1)].color, more: true, ok: () => setPage('player', 1) },
     { kind: 'go', label: T('set.back'), ok: settingsBack }
@@ -975,4 +985,73 @@ function drawEnding(c, t) {
     c.globalAlpha = 1;
   }
   if (te > 12) { text(c, T('fest.end'), W / 2, 330, 70, '#FFF0D0', { title: true, haloCol: 'rgba(106,66,112,0.55)' }); richText(c, pressText(), W / 2, 1020, 44, '#FFF0D0', { pulse: Math.sin(t * 5), haloCol: 'rgba(106,66,112,0.6)' }); }
+}
+
+/* ---------- the dictionary (T13, docs/26-limba-personajelor.md) ---------- */
+/* Every line a hero can say, with what it means. A word the hero has said (in a balloon) is shown; the others are three dots.
+   Arrows move, ✕ listens to a word (in that hero's own controller), ○ goes back. Nothing here is a test and nothing runs out. */
+const DICT_COLS = 4, DICT_ROWS = 4, DICT_PAGE = DICT_COLS * DICT_ROWS;
+function dictList(k) { const set = typeof VOICE_DATA !== 'undefined' && VOICE_DATA[GAME]; return set && set[k] ? set[k] : []; }
+function openDict() {
+  UI.dict = { k: 0, sel: 0, t: 0 }; UI.ask = null;
+  Input.autoJoin = false; Input.kbJoin = false; Snd.play('ok');
+}
+function closeDict() { UI.dict = null; Input.autoJoin = true; Input.kbJoin = Game.state !== 'chapters'; Snd.play('ok'); }
+function dictSay(k, i) {
+  if (!Save.lexOf(k).includes(i)) { Snd.play('no', 0, k); UI.dict.shake = 0.35; return; }
+  Snd.sayWord(k, i); UI.dict.played = i; UI.dict.playedT = 0;
+}
+function updateDict(dt) {
+  const D = UI.dict, M = Input.menu, ck = hitFind(UI.click), hv = hitFind(UI.hover), n = dictList(D.k).length;
+  D.t += dt; D.shake = Math.max(0, (D.shake || 0) - dt); D.playedT = (D.playedT || 0) + dt;
+  if (M.back || (ck && ck.id === 'dBack')) { closeDict(); return; }
+  const setK = k => { if (k !== D.k) { D.k = k; D.sel = Math.min(D.sel, Math.max(0, dictList(k).length - 1)); Snd.play('ui'); } };
+  if (ck && ck.id === 'dtab') { setK(ck.v); return; }
+  if (hv && hv.id === 'dcard') D.sel = hv.v;
+  if (D.sel < 0) {                                           // on the two tabs at the top
+    if (M.left) setK(0); if (M.right) setK(1);
+    if (M.down) { D.sel = 0; Snd.play('ui'); }
+    return;
+  }
+  const col = D.sel % DICT_COLS;
+  if (M.left && col > 0) { D.sel--; Snd.play('ui'); }
+  if (M.right && col < DICT_COLS - 1 && D.sel + 1 < n) { D.sel++; Snd.play('ui'); }
+  if (M.down && D.sel + DICT_COLS < n) { D.sel += DICT_COLS; Snd.play('ui'); }
+  if (M.up) { if (D.sel % DICT_PAGE < DICT_COLS) { if (D.sel < DICT_PAGE) { D.sel = -1; Snd.play('ui'); } else { D.sel -= DICT_COLS; Snd.play('ui'); } } else { D.sel -= DICT_COLS; Snd.play('ui'); } }
+  if (ck && ck.id === 'dcard') { D.sel = ck.v; dictSay(D.k, ck.v); return; }
+  if (M.ok && D.sel >= 0) dictSay(D.k, D.sel);
+}
+function drawDict(c, t) {
+  const D = UI.dict, k = D.k, list = dictList(k), lex = Save.lexOf(k), col = CONFIG.heroes[k].color, ink = '#5A58B0';
+  drawDim(c, 0.72);
+  card(c, 50, 40, W - 100, H - 80, '#FFF6E2', 91);
+  text(c, T('dict.title'), W / 2, 112, 84, ink, { title: true });
+  card(c, 80, 62, 270, 80, '#FFF3DC', 92); hitAdd(80, 62, 270, 80, 'dBack');
+  iconArrow(c, 120, 102, Math.PI, 20, '#C4573D'); fitText(c, T('set.back'), 238, 102, 32, 150, '#7A4A52', { halo: 0, shadow: 0, weight: 'bold' });
+  // the two heroes: tabs
+  for (let j = 0; j < 2; j++) {
+    const x = W / 2 - 440 + j * 460, hc = CONFIG.heroes[j].color, on = j === k, got = Save.lexOf(j).length, tot = dictList(j).length;
+    card(c, x, 168, 420, 64, on ? hc : '#FFF3DC', 93 + j); hitAdd(x, 168, 420, 64, 'dtab', j);
+    if (D.sel < 0 && on) { c.strokeStyle = '#F8C24E'; c.lineWidth = 6; c.beginPath(); c.roundRect(x - 6, 162, 432, 76, 30); c.stroke(); }
+    fitText(c, CONFIG.heroes[j].name + '   ' + got + ' / ' + tot, x + 210, 201, 36, 380, on ? '#FFFFFF' : '#8A6A6A', { halo: 0, shadow: 0, weight: 'bold' });
+  }
+  // the cards of this page
+  const page = Math.floor(Math.max(0, D.sel) / DICT_PAGE), x0 = 90, cw = 424, chh = 148, gx = 20, gy = 18, y0 = 262;
+  for (let r = 0; r < DICT_PAGE; r++) {
+    const i = page * DICT_PAGE + r; if (i >= list.length) break;
+    const cx = x0 + (r % DICT_COLS) * (cw + gx), cy = y0 + Math.floor(r / DICT_COLS) * (chh + gy), sel = D.sel === i, known = lex.includes(i), w = list[i];
+    const sh = sel && D.shake > 0 ? Math.sin(D.shake * 60) * 8 : 0;
+    card(c, cx + sh, cy, cw, chh, sel ? '#FFE6A0' : known ? '#FFFBEF' : '#F3E8D2', 100 + i); hitAdd(cx, cy, cw, chh, 'dcard', i);
+    if (sel) { c.strokeStyle = col; c.lineWidth = 6; c.beginPath(); c.roundRect(cx + sh - 4, cy - 4, cw + 8, chh + 8, 30); c.stroke(); }
+    if (known) {
+      const talking = D.played === i && D.playedT < 1.4;
+      fitText(c, (talking ? '♪ ' : '') + w.say, cx + cw / 2 + sh, cy + 52, 40, cw - 50, col, { halo: 0, shadow: 0, weight: 'bold' });
+      fitText(c, w[Opt.lang === 'en' ? 'en' : 'ro'], cx + cw / 2 + sh, cy + 108, 30, cw - 50, '#6A4250', { halo: 0, shadow: 0, weight: 'bold' });
+    } else {
+      for (let d = 0; d < 3; d++) { c.fillStyle = 'rgba(150,110,100,0.32)'; c.beginPath(); c.arc(cx + cw / 2 - 40 + d * 40, cy + chh / 2, 9, 0, TAU); c.fill(); }
+    }
+  }
+  const pages = Math.ceil(list.length / DICT_PAGE);
+  text(c, T('dict.found', lex.length, list.length) + (pages > 1 ? '     ' + T('dict.page', page + 1, pages) : ''), W / 2, 1000, 32, ink, { halo: 0, shadow: 0, weight: 'bold' });
+  richText(c, T('dict.hint'), W / 2, 1044, 26, '#7A4A52', { weight: 'bold' });
 }
