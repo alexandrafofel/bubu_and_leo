@@ -247,7 +247,7 @@ Ce mai stie nivelul 7 (T7.5):
 - Poarta A: doua tinte, `allWithin`, 4 secunde unul de altul. Poarta B: patru tinte in ordine, `seq`: Boon, Killer, Killer, Boon. O tinta gresita reia secventa (nu pe Ușor).
 - Benzile rulante: `L.belts`, `L.beltDir`, 140 de unitati pe secunda (`CONFIG.mech.beltPush`). Celulele lor au codul 1, dar nu incetinesc.
 - Butonul rosu (`L.toy`, `kind: 'button'`): robotii danseaza 5 secunde, o data la 30 (`CONFIG.mech.danceTime`, `danceEvery`).
-- Harta de fundal si zidul sunt imagini Krea (`art/krea/`), aprobate de proprietara.
+- Nivelul 8 nu are inca imagini Krea proprii: e pictat pe canvas, cu paleta `works`.
 
 ### Nivelul 9: Lacul Nuferilor Uriași (`lake`)
 
@@ -257,5 +257,6 @@ Ce mai stie nivelul 7 (T7.5):
 - Pluta, manivelele si regulile lor: `docs/10-gameplay.md`, "Plutele si manivelele (T8)".
 - Jucaria nivelului: nuferii (`L.toy`, `kind: 'lilies'`, `updateToy`). Un erou care calca pe unul sare (`boing`). Sunt doar pe mal.
 - Steaua de pe insulita: un nufar de piatra la marginea apei, luata cu o lovitura de invartire sau cu o minge, ca steaua stalpului de la nivelul 7.
-- Harta de fundal nu e facuta cu Krea: contul nu mai avea credit. Nivelul e pictat pe canvas. Cand exista credit: se genereaza harta, se arata proprietarei, apoi se pune in `art/krea/`.
+- Nivelul e mai lung: 4800 de unitati in loc de 3200 (`w: 4800` in definitie; `buildLevel` ia `def.w || 3200`). Cuibul sta la `WW - 250`. Are 50 de copaci, 15 pietre si mai multi roboti.
+- Imaginile Krea dupa harta aprobata (`art/krea-ref/nivel9-harta.jpg`, 27 noiembrie 2026): `lake_tree1`, `lake_tree2` (salcii), `lake_bush` (papura), `lake_rock`, `lake_spark` (cristal), `lake_flowers` (nuferi), in `PALS_ART.lake`.
 - Nu sunt facute cristalele plutitoare din `25-niveluri-7-12.md` (banda B).

@@ -459,7 +459,13 @@ function cageHitBy(cg, k) {
 function cageOpen(cg, k) {
   cg.done = true; cg.doneT = P.time; cg.by = k;
   const s = P.L.stars.find(x => x.kind === 'cage' && !x.got);
-  if (s) { s.hidden = false; collectStar(s, k); }
+  if (s) {                                              // the star hops out in front of the cage and waits on the ground to be picked up
+    const L = P.L, free = (x, y) => x > 60 && y > 160 && x < L.W - 60 && y < L.H - 60 && L.grid[L.ci(x, y)] < 1 && !L.solids.some(o => dist(o.x, o.y, x, y) < o.r + 40);
+    const spots = [[0, 140], [-150, 110], [150, 110], [0, 220], [-220, 40], [220, 40], [0, -170]];
+    let to = spots.map(([dx, dy]) => [cg.x + dx, cg.y + dy]).find(([x, y]) => free(x, y));
+    if (!to) { const h = P.heroes[k]; to = [h.x, h.y]; }    // nowhere free: it lands at the hero who opened it
+    s.hidden = false; s.sx = cg.x; s.sy = cg.y - 90; s.x = s.sx; s.y = s.sy; s.tx = to[0]; s.ty = to[1]; s.pop = 0.001;
+  }
   Snd.play('cage'); P.banner = { kind: 'cage', t: 3 };
   for (let j = 0; j < 2; j++) if (isJoined(j)) Input.rumble(j, 0.4, 0.6, 200);
 }

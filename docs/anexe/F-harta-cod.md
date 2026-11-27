@@ -152,42 +152,42 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 794-806 | Boon's boomerang bone: two round ends and a shaft, cream amber, with a small crack. |
 | 807-811 | What a thrown thing looks like: Killer's and Leo's ball, or Boon's bone. |
 
-## 06-level.js (1392 linii)
+## 06-level.js (1396 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 2-67 | LEVELS: definitions, generator (with a reachability check so every egg can |
-| 68-127 | The tin wall of level 8 (T8): riveted panels with seams, a lit top edge and a violet shadow on its right side. The sliding door is drawn every frame (drawDoor). |
-| 128-133 | The palette of a level: PALS, with the calm Krea colors over it when the new look is on. |
-| 134-157 | What the slow ground looks like: mud in the first game; slime, quicksand or tangled vines in the second. [dark rim, body, light, blotch 1, blotch 2, shine] |
-| 158-200 | The order of the second game before 27 November 2026: six levels, the big fight, then the levels of Part Two. |
-| 201-226 | How long a level lasts (seconds): the sun, the medal and the help in updatePlay read this, not CONFIG.levelDuration. |
-| 227-243 | the path from the start to the nest |
-| 244-277 | water |
-| 278-324 | bands (T7, levels 7 - 12): a chasm, water, lava or a wall from the top to the bottom |
-| 325-386 | bonus stars: one per third of the map |
-| 387-395 | the toy of the level (T7.4): a seesaw from a fallen trunk. Two heroes at its ends make it rock; it gives nothing |
-| 396-404 | the toy of level 8 (T8): a big red button. Pressed, every robot on the screen dances for 5 seconds (once in 30 seconds) |
-| 405-414 | the toy of level 9 (T8): three giant lily pads on a bank. Whoever steps on one jumps high (only how it looks) with a "boing" |
-| 415-443 | mud, pinecone lanes, windmills |
-| 444-469 | trees, rocks, haystacks |
-| 470-510 | reachability (flood fill from the start) |
-| 511-527 | beetles |
-| 528-540 | sparkling trees (hide eggs) and the treetop star |
-| 541-580 | T15: enough small enemies to give the diamonds (they are the only place diamonds come from) |
-| 581-604 | golden eggs, in waves from left to right |
-| 605-619 | lanterns along the path (sunset level) |
-| 620-668 | painting |
-| 669-687 | The decor of the second game: as many kinds, with the same ways of reacting, but the things of a jungle at night. |
-| 688-733 | One picture of a kind of decor, drawn once and cached. v = which of the 4 looks it has. |
-| 734-823 | The decor of the second game (the jungle at night). Glowing things get a soft halo of their own color. |
-| 824-1110 | Second game: a rock with little crystals growing on it, a big glowing mushroom, a torch, a totem with a rainbow pinwheel. |
-| 1111-1122 | A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). |
-| 1123-1133 | The door of the hideout: an arched wooden door with a rainbow knob. x = middle, y = the ground line. |
-| 1134-1298 | Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). |
-| 1299-1392 | The boss arena: one screen, the tallest tree in the valley. |
+| 68-131 | The tin wall of level 8 (T8): riveted panels with seams, a lit top edge and a violet shadow on its right side. The sliding door is drawn every frame (drawDoor). |
+| 132-137 | The palette of a level: PALS, with the calm Krea colors over it when the new look is on. |
+| 138-161 | What the slow ground looks like: mud in the first game; slime, quicksand or tangled vines in the second. [dark rim, body, light, blotch 1, blotch 2, shine] |
+| 162-204 | The order of the second game before 27 November 2026: six levels, the big fight, then the levels of Part Two. |
+| 205-230 | How long a level lasts (seconds): the sun, the medal and the help in updatePlay read this, not CONFIG.levelDuration. |
+| 231-247 | the path from the start to the nest |
+| 248-281 | water |
+| 282-328 | bands (T7, levels 7 - 12): a chasm, water, lava or a wall from the top to the bottom |
+| 329-390 | bonus stars: one per third of the map |
+| 391-399 | the toy of the level (T7.4): a seesaw from a fallen trunk. Two heroes at its ends make it rock; it gives nothing |
+| 400-408 | the toy of level 8 (T8): a big red button. Pressed, every robot on the screen dances for 5 seconds (once in 30 seconds) |
+| 409-418 | the toy of level 9 (T8): three giant lily pads on a bank. Whoever steps on one jumps high (only how it looks) with a "boing" |
+| 419-447 | mud, pinecone lanes, windmills |
+| 448-473 | trees, rocks, haystacks |
+| 474-514 | reachability (flood fill from the start) |
+| 515-531 | beetles |
+| 532-544 | sparkling trees (hide eggs) and the treetop star |
+| 545-584 | T15: enough small enemies to give the diamonds (they are the only place diamonds come from) |
+| 585-608 | golden eggs, in waves from left to right |
+| 609-623 | lanterns along the path (sunset level) |
+| 624-672 | painting |
+| 673-691 | The decor of the second game: as many kinds, with the same ways of reacting, but the things of a jungle at night. |
+| 692-737 | One picture of a kind of decor, drawn once and cached. v = which of the 4 looks it has. |
+| 738-827 | The decor of the second game (the jungle at night). Glowing things get a soft halo of their own color. |
+| 828-1114 | Second game: a rock with little crystals growing on it, a big glowing mushroom, a torch, a totem with a rainbow pinwheel. |
+| 1115-1126 | A bunch of hanging vines with leaves and a few glowing flowers. sway moves the lower ends (the bunch over the door is drawn every frame). |
+| 1127-1137 | The door of the hideout: an arched wooden door with a rainbow knob. x = middle, y = the ground line. |
+| 1138-1302 | Granulation speckles, watercolor blooms and the warm afternoon light (at night: the cool light of the moon). |
+| 1303-1396 | The boss arena: one screen, the tallest tree in the valley. |
 
-## 065-mech.js (508 linii)
+## 065-mech.js (514 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -209,8 +209,8 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 271-273 | The gate in front of the heroes: the first one that is not fixed yet (G2 fixes every gate both have passed). |
 | 274-412 | Every frame, after the heroes and the thrown things (updatePlay). docs/25, 3.2 and 3.6. |
 | 413-444 | The step of hero h at the gate in front, for the arrow (guideTarget). |
-| 445-465 | A power of hero h (spin or stomp; powerSweep calls this once per power id, and the spin every frame). |
-| 466-508 | Every frame: the wobble runs down, and a ball thrown by a hero counts once when it passes the cage. |
+| 445-471 | A power of hero h (spin or stomp; powerSweep calls this once per power id, and the spin every frame). |
+| 472-514 | Every frame: the wobble runs down, and a ball thrown by a hero counts once when it passes the cage. |
 
 ## 07-play.js (1192 linii)
 
