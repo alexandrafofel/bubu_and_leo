@@ -185,7 +185,10 @@ const boot = require('./common.js');
     const starGot0 = L.stars.filter(s => s.kind === 'cage' && s.got).length;
     cg.hit = [-99, -99]; cg.done = false; cg.wobT = 0;
     cageSwing(a, 9003); sec(0.5); cageSwing(b, 9004);
-    out.cageBoth = { done: cg.done, by: cg.by, star: L.stars.filter(s => s.kind === 'cage' && s.got).length - starGot0, banner: P.banner && P.banner.kind };
+    const cs = L.stars.find(s => s.kind === 'cage');
+    out.cageBoth = { done: cg.done, by: cg.by, banner: P.banner && P.banner.kind, gotAtOnce: cs.got, shown: !cs.hidden };
+    sec(1); out.cageBoth.land = { x: cs.x | 0, y: cs.y | 0, cell: L.grid[L.ci(cs.x, cs.y)], pop: cs.pop, solid: L.solids.some(o => dist(o.x, o.y, cs.x, cs.y) < o.r + 20) };
+    a.x = cs.x - 30; a.y = cs.y; step(3); out.cageBoth.star = L.stars.filter(s => s.kind === 'cage' && s.got).length - starGot0;
     // 7. sunetele noi exista
     out.sounds = ['plate', 'plateOff', 'cage'].map(n => Snd.names2().includes(n));
     // 8. pentru captura: placa apasata si cusca deschisa; apoi se vede placa libera
@@ -199,7 +202,7 @@ const boot = require('./common.js');
   check('cusca: un singur erou nu o deschide, o clatina', c3.cageOne.done === false && c3.cageOne.wob === true, c3.cageOne);
   check('cusca: aceeasi lovitura numarata o singura data', c3.cageDup.done === false, c3.cageDup);
   check('cusca: al doilea erou dupa 5 s nu deschide', c3.cageLate === false, c3.cageLate);
-  check('cusca: amandoi in 4 s o deschid, steluta e stransa', c3.cageBoth.done === true && c3.cageBoth.by === 1 && c3.cageBoth.star === 1, c3.cageBoth);
+  check('cusca: amandoi in 4 s o deschid, steluta sare afara pe pamant liber si se ia', c3.cageBoth.done === true && c3.cageBoth.by === 1 && !c3.cageBoth.gotAtOnce && c3.cageBoth.shown && c3.cageBoth.land.cell < 1 && !c3.cageBoth.land.solid && !c3.cageBoth.land.pop && c3.cageBoth.star === 1, c3.cageBoth);
   check('sunetele placilor si cuștii exista', c3.sounds.every(Boolean), c3.sounds);
 
   // ---------- partea a patra (T7.3): regulile de siguranta G1 - G10 si mechSteps ----------

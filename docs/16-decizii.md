@@ -593,3 +593,5 @@ Hotararea de proces: `balanseaza()` sta in `tests/common.js` si cheama `giveEgg`
 - **G11: un erou pe apa inchisa este dus pe mal.** Gasit de boti: dupa o lupta cu George, un erou putea sta pe trecerea unei porti care se inchisese. Un copil ar fi ramas blocat. Acum e dus la nivelul docului, pe partea lui.
 - **Harta nivelului 9 e pictata pe canvas.** Contul Krea a ramas fara credit. Harta Krea se face cand exista credit si se arata proprietarei inainte sa intre in joc.
 - **`balanseaza()` din teste nu mai muta un erou in apa.** Ajutorul de test care muta eroul langa prieten l-a pus pe trecerea unei porti inchise (prietenul era pe pluta). Acum cauta un loc liber pe partea prietenului si, daca nu exista, asteapta.
+
+- **Steluta din cusca sare afara si se ia cu mana (27 noiembrie 2026).** Pana acum se numara in clipa in care se deschidea cusca, iar imaginea `cage_open` avea o stea pictata deasupra. Copiii vedeau steaua pictata si nu o puteau lua. Steaua pictata a fost stearsa din imagine. Cusca deschisa arunca steaua pe pamant liber, in fata ei (`cageOpen`), si un erou o ia mergand la ea.
