@@ -102,17 +102,29 @@ const CONFIG = {
   // ---- Co-op mechanisms of levels 7 - 12 (T7): bands cut the map, each crossing opens only when both heroes do their part.
   // docs/25-niveluri-7-12.md, 3.1 - 3.6; src/065-mech.js
   mech: {
+    raftW: 170,                // the raft of level 9 (T8): its size
+    raftBoard: 0.35,           // seconds a hero stands at the dock before he steps on the raft
+    raftTurn: 0.8,             // seconds a turn of the crank takes to move the raft one step
+    raftBack: 140,             // an empty raft comes back by itself, this many units a second ...
+    raftBackDelay: 1.5,        // ... after this many seconds
+    raftDrift: 0.05,           // the current of the second band pulls the raft back this much of the way each second when nobody turns
+    raftGrace: 1.5,            // seconds after a turn before the current starts to pull
+    raftSolo: 1.1,             // alone, the other hero's crank turns by itself this often (seconds)
+    crankReach: 200,           // a spin this close to a crank is a turn
     autoOpen: 180,             // seconds without progress before a gate opens by itself (T7.3). 0 = never
     hintAfter: 40,             // seconds without progress before both players get an arrow to their own switch (T7.3)
     easy: 1.6,                 // on "Ușor": time windows and "stays open" times are this much longer
-    cageWindow: 1.5,           // both heroes must hit the star cage within this many seconds (T7.2)
-    cageReach: 150,            // a power of a hero (or a ball he threw) this close to the cage counts as a hit on it (T7.2)
+    cageWindow: 4,           // both heroes must hit the star cage within this many seconds (T7.2)
+    cageReach: 230,            // a power of a hero (or a ball he threw) this close to the cage counts as a hit on it (T7.2)
     cageWobble: 0.6,           // seconds the cage shakes, and the faces of both heroes show, after one hero alone hit it (T7.2)
+    targetReach: 190,          // a power of a hero this close to a target of his color counts as a hit (T8)
+    targetOn: 0.4,             // seconds a target stays "on" after a hit (T8)
+    danceTime: 5, danceEvery: 30,   // the red button of level 8: the robots dance this many seconds, and the button rests this long (T8)
+    beltPush: 140,             // the conveyor belts of level 8 push a hero this many units per second (T8)
     plateDown: 6,              // a plate that is stepped on sinks this many units; the ring of light rises from it (T7.2)
     openTime: 0.5,             // seconds a gate takes to open or close all the way
     plateGap: 700,             // a plate that opens a gate for anyone ('any') stays at least this far from the crossing: nobody can step off and run over alone
     nearGate: 150,             // 'any': the gate stays open after the plate is left only while a hero is on the crossing or this close to it
-    raftTurns: 3, raftBack: 140, raftDrift: 0.07,            // T8 - T9
     orbSlow: 0.7, orbPass: 420, orbLight: 360,               // T9
     boulderSpeed: 85, boulderBack: 120                       // T9
   },
@@ -152,7 +164,8 @@ const CONFIG = {
   // ---- Helpers -------------------------------------------------------------
   butterflyEvery: [40, 70],    // a butterfly appears every 40 to 70 seconds
   butterflyBoost: 1.5,         // speed multiplier
-  butterflyTime: 6,            // seconds of boost
+  butterflyTime: 10,           // seconds of the rocket: both heroes are fast, shine, cannot be hurt, turn every small enemy they touch into a diamond and take a heart from George
+  rocketGeorgeCd: 1.2,         // a hero with the rocket can take a heart from George once in this many seconds
   hintAfter: 10,               // seconds without an egg before a golden arrow appears
 
   // ---- Boss ----------------------------------------------------------------
@@ -324,20 +337,20 @@ const CONFIG = {
       roarRadius: 520,         // back on the throne George roars: heroes closer than this are pushed away (it does not hurt)
       roarPush: 1500
     },
-    levels: 7,                         // levels of the second game that exist. Part Two (levels 7 - 12) raises it as each new level is made
-    duelHp: [3, 3, 4, 5, 5, 6, 6],        // hits George takes in the middle fight, per level (the first game: CONFIG.duel.hp)
-    duelFinalHp: [5, 6, 6, 7, 8, 9, 9],   // hits George takes at the nest, per level (the first game: CONFIG.duel.finalHp)
+    levels: 9,                         // levels of the second game that exist. Part Two (levels 7 - 12) raises it as each new level is made
+    duelHp: [3, 3, 4, 5, 5, 6, 6, 7, 7],        // hits George takes in the middle fight, per level (the first game: CONFIG.duel.hp)
+    duelFinalHp: [5, 6, 6, 7, 8, 9, 9, 10, 10],   // hits George takes at the nest, per level (the first game: CONFIG.duel.finalHp)
     // T15 (docs/28-t15-george-de-doua-ori.md): diamonds come only from defeated small enemies, George comes at half and at all of the team's quota.
     // The numbers per level are starting points, to be tuned while the children play.
-    fieldEnemies: [12, 14, 15, 15, 17, 18, 18],   // small enemies on a level: robots, snails from the glowing trees and pinecones. Robots fill up the rest
+    fieldEnemies: [12, 14, 15, 15, 17, 18, 18, 20, 20],   // small enemies on a level: robots, snails from the glowing trees and pinecones. Robots fill up the rest
     treeSnails: 2,             // snails that crawl out of a glowing tree when it is shaken; like every small enemy they come back after a while
     enemyDrop: 1,              // diamonds a defeated small enemy leaves on the ground
-    miniGeorge: { hp: 3, perLevel: [1, 1, 1, 2, 2, 2, 2], speed: 110, near: 640, drop: 1 },   // Little George: follows the nearest hero (within `near`), never hits
+    miniGeorge: { hp: 3, perLevel: [1, 1, 1, 2, 2, 2, 2, 2, 2], speed: 110, near: 640, drop: 1 },   // Little George: follows the nearest hero (within `near`), never hits
     george: {
       minT: 20,                                // the middle fight never starts in the first seconds of a level
-      midThrows: [2, 3, 3, 4, 4, 5, 5],           // bones and balls George throws in the middle fight, per level: they daze, like pinecones
-      nestEnemies: [2, 4, 5, 6, 8, 10, 10],        // small enemies he throws in the nest fight, in all, per level (half at half his hearts, the rest at his last heart)
-      enemyHp: [2, 2, 3, 3, 3, 3, 3],             // hearts of a thrown enemy, per level
+      midThrows: [2, 3, 3, 4, 4, 5, 5, 5, 5],           // bones and balls George throws in the middle fight, per level: they daze, like pinecones
+      nestEnemies: [2, 4, 5, 6, 8, 10, 10, 11, 11],        // small enemies he throws in the nest fight, in all, per level (half at half his hearts, the rest at his last heart)
+      enemyHp: [2, 2, 3, 3, 3, 3, 3, 3, 3],             // hearts of a thrown enemy, per level
       chaseSpeed: 120,                         // how fast the enemies thrown at his last heart follow the heroes (a hero walks at about 150)
       boneEvery: 2,                            // in the nest fight, above half his hearts: bones and balls thrown each time he loses a heart
       flight: 0.9                              // seconds a thrown thing flies before it lands
@@ -468,6 +481,10 @@ const STR = {
     'lvl.vines.intro': 'Lianele atârnă pe stâncă. Se spune că în spatele lor este o ușă spre o ascunzătoare, cu o stea pe care puțini au găsit-o. Căutați cu atenție!',
     'lvl.canyon.name': 'Canionul Podurilor de Lumină',
     'lvl.canyon.intro': 'George cel Rău s-a întors și a furat steluțele! Porniți după el. Aveți puteri noi: apăsați □. Boon aruncă oase-bumerang. Killer își învârte mănușile. Apăsați stick-ul ca să fugiți. Dacă prietenul e lovit, aveți zece secunde: ○!',
+    'lvl.lake.name': 'Lacul Nuferilor Uriași',
+    'lvl.lake.intro': 'Lacul e prea adânc. Unul urcă pe plută. Celălalt învârte manivela cu puterea lui care se rotește. Apoi faceți schimb.',
+    'lvl.works.name': 'Atelierul lui George',
+    'lvl.works.intro': 'George cel Rău își construiește roboții aici! Zidurile se deschid doar dacă loviți țintele: cele turcoaz sunt ale lui Boon, cele albastre ale lui Killer. Atenție la benzile rulante și la roțile dințate!',
     'lvl.road.name': 'Drumul Torțelor',
     'lvl.road.intro': 'Torțele se aprind când treceți pe lângă ele. Este ultimul drum până la arena lui George. Gropi, roboți, melci și vânt: rămâneți împreună!',
     'lvl.arena.name': 'Arena lui George',
@@ -561,6 +578,10 @@ const STR = {
     'lvl.vines.intro': 'Vines hang down the cliff. They say there is a door behind them, to a hideout with a star that few have ever found. Look carefully!',
     'lvl.canyon.name': 'The Canyon of Light Bridges',
     'lvl.canyon.intro': 'George the Bad came back and stole the little stars! Go after him. You have new powers: press □. Boon throws boomerang bones. Killer spins his gloves. Press the stick to run. If your friend gets hit you have ten seconds: ○!',
+    'lvl.lake.name': 'The Lake of Giant Lilies',
+    'lvl.lake.intro': 'The lake is too deep. One of you climbs on the raft. The other turns the crank with the power that spins. Then swap.',
+    'lvl.works.name': "George's Workshop",
+    'lvl.works.intro': 'George the Bad builds his robots here! The walls open only when you hit the targets: the turquoise ones are Boon\'s, the blue ones are Killer\'s. Watch out for the conveyor belts and the rolling gears!',
     'lvl.road.name': 'Torch Road',
     'lvl.road.intro': "The torches light up as you walk past. This is the last road to George's arena. Pits, robots, snails and wind: stay together!",
     'lvl.arena.name': "George's Arena",
@@ -1941,6 +1962,9 @@ const Snd = (() => {
     kick(b, t, p) { const f = 250 + (p || 0) * 70; osc(b, 'sine', f, t, 0.45, 0.004, 0.2, { f2: f * 2.1, gt: 0.12 }); osc(b, 'triangle', f * 1.5, t + 0.02, 0.14, 0.003, 0.08, { lp: 2000 }); },                        // Killer's kick: a springy "boing"
     plate(b, t) { noise(b, t, 0.2, 0.004, 0.05, 'bandpass', 1400, 3200, 1.2); chime(b, mtof(91), t + 0.03, 0.07); },     // a stone plate clicks, a little bell rings (T7.2)
     bridge(b, t, n) { const d = [0, 2, 4, 5, 7, 9, 11][(n || 0) % 7]; chime(b, mtof(79 + d), t, 0.07); osc(b, 'sine', mtof(91 + d), t, 0.02, 0.003, 0.25); },   // a plank of light appears: one glass note of a scale (T7.4)
+    crank(b, t, n) { const d = [0, 2, 4, 7][(n || 0) % 4]; for (let i = 0; i < 3; i++) noise(b, t + i * 0.07, 0.1, 0.004, 0.05, 'bandpass', 700 + d * 60, 1800, 1.6); chime(b, mtof(74 + d), t + 0.1, 0.06); },   // four soft wooden clicks, a little higher each turn (T8)
+    raftGo(b, t) { noise(b, t, 0.5, 0.05, 0.06, 'bandpass', 420, 640, 0.8); },                                              // the raft moves: soft water
+    boing(b, t) { osc(b, 'sine', 330, t, 0.4, 0.004, 0.22, { f2: 760, gt: 0.22 }); osc(b, 'triangle', 660, t + 0.02, 0.2, 0.004, 0.1, { f2: 1180, gt: 0.2, lp: 2200 }); },   // a lily pad springs (T8)
     plateOff(b, t) { chime(b, mtof(84), t, 0.06); },                                                                       // let go: the same bell, lower
     cage(b, t) { noise(b, t, 0.18, 0.004, 0.04, 'bandpass', 1800, 3600, 1.5); noise(b, t + 0.12, 0.18, 0.004, 0.04, 'bandpass', 1800, 3600, 1.5); [0, 4, 7, 12].forEach((d, i) => chime(b, mtof(79 + d), t + 0.22 + i * 0.07, 0.1)); },   // the lock clicks twice, then a happy arpeggio (T7.2)
     bounce(b, t) { osc(b, 'sine', 380, t, 0.15, 0.003, 0.1, { f2: 640, gt: 0.08 }); },
@@ -2578,7 +2602,24 @@ function drawSleeper(c, b, t) {
   if (isLupta()) drawRobot(c, b, t); else drawBeetle(c, b, t);
 }
 /* The small enemy that comes down a lane: a rolling pinecone, or a sticky snail. */
-function drawRoller(c, o, x, y, t) { if (isLupta()) drawSnail(c, x, y, t, o); else drawCone(c, x, y, o.rot, o.r, 0); }
+function drawRoller(c, o, x, y, t) {
+  const L = typeof P !== 'undefined' && P && P.L;
+  if (isLupta() && L && L.def && L.def.roller === 'gear') drawRollGear(c, o, x, y);      // T8: in George's workshop the rollers are big gears
+  else if (isLupta()) drawSnail(c, x, y, t, o); else drawCone(c, x, y, o.rot, o.r, 0);
+}
+/* A big gear that rolls down its lane (T8): painted tin, a ring of teeth that turns with the rolling, a bright hub. */
+function drawRollGear(c, o, x, y) {
+  const r = (o.r || 26) * 1.25, y0 = y - r * 0.9, a = o.rot || 0;
+  c.fillStyle = rgba(SHADOW, 0.24); c.beginPath(); c.ellipse(x, y + 2, r * 0.95, r * 0.32, 0, 0, TAU); c.fill();
+  c.save(); c.translate(x, y0); c.rotate(a);
+  c.fillStyle = '#C8A040';
+  for (let i = 0; i < 9; i++) { c.save(); c.rotate(i / 9 * TAU); c.beginPath(); c.roundRect(-r * 0.17, -r * 1.12, r * 0.34, r * 0.4, 3); c.fill(); c.restore(); }
+  c.beginPath(); c.arc(0, 0, r * 0.82, 0, TAU); c.fill();
+  c.fillStyle = '#E8C868'; c.beginPath(); c.arc(-r * 0.12, -r * 0.14, r * 0.66, 0, TAU); c.fill();
+  c.fillStyle = '#9A6A48'; for (let i = 0; i < 4; i++) { c.beginPath(); c.arc(Math.cos(i / 4 * TAU) * r * 0.46, Math.sin(i / 4 * TAU) * r * 0.46, r * 0.11, 0, TAU); c.fill(); }
+  c.fillStyle = '#FFF6E2'; c.beginPath(); c.arc(0, 0, r * 0.26, 0, TAU); c.fill();
+  c.restore();
+}
 
 /* ==========================================================================
    THE SECOND GAME, "CEA MAI GREA LUPTĂ": its characters and things.
@@ -3172,6 +3213,27 @@ function drawBridge(c, g, t) {
 }
 /* The seesaw of level 7 (T7.4): the Krea picture, rocking around its log. */
 function drawToy(c, toy) {
+  if (toy && toy.kind === 'button') {                  // T8: the big red button. Cool = it is tired (pale) for a while after the dance
+    const d = toy.down || 0, tired = toy.cool > 0 && toy.danceT <= 0, tt = P.time;
+    c.fillStyle = rgba(SHADOW, 0.22); c.beginPath(); c.ellipse(toy.x, toy.y + 16, 70, 20, 0, 0, TAU); c.fill();
+    c.fillStyle = '#7A86B0'; c.beginPath(); c.ellipse(toy.x, toy.y + 8, 66, 24, 0, 0, TAU); c.fill();
+    c.fillStyle = '#A8B4D8'; c.beginPath(); c.ellipse(toy.x, toy.y + 2, 60, 21, 0, 0, TAU); c.fill();
+    c.fillStyle = tired ? '#D8A0AE' : '#C4304A'; c.beginPath(); c.ellipse(toy.x, toy.y - 10 + d * 9, 46, 30 - d * 6, 0, 0, TAU); c.fill();
+    c.fillStyle = tired ? '#F0CAD2' : '#FF6A80'; c.beginPath(); c.ellipse(toy.x - 8, toy.y - 20 + d * 9, 26, 13, -0.2, 0, TAU); c.fill();
+    if (toy.danceT > 0) for (let i = 0; i < 3; i++) { const u = ((tt * 0.8 + i / 3) % 1); c.globalAlpha = 1 - u; text(c, i % 2 ? '♪' : '♫', toy.x - 30 + i * 30, toy.y - 60 - u * 70, 38, RAINBOW[(i * 2) % 7], { halo: 0, shadow: 0, weight: 'bold' }); c.globalAlpha = 1; }
+    return;
+  }
+  if (toy && toy.kind === 'lilies') {                  // T8: three bouncy lily pads. Whoever stands on one jumps (the pad squashes, then springs back)
+    for (const q of toy.pads) {
+      const d = q.down || 0, R = 60;
+      c.fillStyle = rgba(SHADOW, 0.2); c.beginPath(); c.ellipse(q.x + 4, q.y + 12, R, R * 0.5, 0, 0, TAU); c.fill();
+      c.fillStyle = '#1F6A52'; c.beginPath(); c.ellipse(q.x, q.y + 4, R, R * 0.58 - d * 4, 0, 0, TAU); c.fill();
+      c.fillStyle = '#58C890'; c.beginPath(); c.ellipse(q.x, q.y - 2 + d * 4, R - 6, R * 0.5 - d * 4, 0, 0, TAU); c.fill();
+      c.fillStyle = '#FF8AB8'; for (let i = 0; i < 5; i++) { const a = i * TAU / 5; c.beginPath(); c.ellipse(q.x + Math.cos(a) * 9, q.y - 4 + d * 4 + Math.sin(a) * 6, 7, 4.5, a, 0, TAU); c.fill(); }
+      c.fillStyle = '#FFD84A'; c.beginPath(); c.arc(q.x, q.y - 4 + d * 4, 4, 0, TAU); c.fill();
+    }
+    return;
+  }
   if (!toy || toy.kind !== 'seesaw') return;
   c.fillStyle = rgba(SHADOW, 0.18); c.beginPath(); c.ellipse(toy.x, toy.y + 14, 150, 26, 0, 0, TAU); c.fill();
   c.save(); c.translate(toy.x, toy.y); c.rotate(toy.ang || 0);
@@ -3179,9 +3241,107 @@ function drawToy(c, toy) {
   else { c.fillStyle = '#C8925E'; c.fillRect(-150, -14, 300, 22); c.fillStyle = '#9A6A48'; c.beginPath(); c.arc(0, 14, 22, 0, TAU); c.fill(); }
   c.restore();
 }
+/* The stepping lilies that grow over a water crossing when it opens (a gate that opens by itself or for a hero who waits for help). */
+function drawLilyPath(c, g, t) {
+  const v = clamp(g.vis || 0, 0, 1); if (v < 0.03) return;
+  const n = 7;
+  for (let i = 0; i < n; i++) {
+    const u = clamp(v * (n + 1) - i, 0, 1); if (u <= 0) continue;
+    const x = g.x - g.half - 20 + (i + 0.5) / n * (g.half * 2 + 40), y = g.y + Math.sin(i * 1.7 + t) * 5, R = 40 * easeBack(u);
+    c.fillStyle = rgba(SHADOW, 0.2); c.beginPath(); c.ellipse(x + 3, y + 5, R, R * 0.6, 0, 0, TAU); c.fill();
+    c.fillStyle = '#2F8A6A'; c.beginPath(); c.ellipse(x, y, R, R * 0.62, 0, 0, TAU); c.fill();
+    c.fillStyle = '#5AC08A'; c.beginPath(); c.ellipse(x - 3, y - 3, R * 0.8, R * 0.46, 0, 0, TAU); c.fill();
+    c.fillStyle = '#2A4A8A'; c.beginPath(); c.moveTo(x, y); c.lineTo(x + R * 0.9, y - R * 0.12); c.lineTo(x + R * 0.9, y + R * 0.12); c.closePath(); c.fill();
+  }
+}
+/* The crank: a wooden post with a wheel and a handle, and a rope that runs to the raft. It turns a third of a circle for each turn. */
+function drawCrank(c, p, g, t) {
+  const r = g && g.raft, x = p.x, y = p.y;
+  if (r) {                                              // the rope to the raft (hangs a little in the middle)
+    const [ra, rb] = raftEnds(r), tx = p.side === 'far' ? r.x + CONFIG.mech.raftW / 2 - 10 : r.x - CONFIG.mech.raftW / 2 + 10, ty = r.y;
+    c.strokeStyle = '#B08A5C'; c.lineWidth = 5; c.lineCap = 'round'; c.beginPath(); c.moveTo(x, y - 40); c.quadraticCurveTo((x + tx) / 2, (y - 40 + ty) / 2 + 36, tx, ty); c.stroke();
+  }
+  c.fillStyle = rgba(SHADOW, 0.24); c.beginPath(); c.ellipse(x + 4, y + 8, 40, 13, 0, 0, TAU); c.fill();
+  c.fillStyle = '#8A5E3C'; c.fillRect(x - 9, y - 52, 18, 62); c.fillStyle = '#B07A4E'; c.fillRect(x - 9, y - 52, 8, 62);
+  c.save(); c.translate(x, y - 46); c.rotate(p.ang || 0);
+  const glow = p.turnAnim > 0 ? p.turnAnim : 0;
+  c.fillStyle = glow > 0 ? mix('#C8925E', '#FFE8A8', glow * 0.6) : '#C8925E'; c.beginPath(); c.arc(0, 0, 34, 0, TAU); c.fill();
+  c.fillStyle = '#E2B27C'; c.beginPath(); c.arc(0, 0, 26, 0, TAU); c.fill();
+  c.strokeStyle = '#8A5E3C'; c.lineWidth = 5; for (let i = 0; i < 3; i++) { const a = i * TAU / 3; c.beginPath(); c.moveTo(0, 0); c.lineTo(Math.cos(a) * 32, Math.sin(a) * 32); c.stroke(); }
+  c.fillStyle = '#E4583C'; c.beginPath(); c.arc(26, 0, 7, 0, TAU); c.fill();                  // the handle
+  c.fillStyle = '#8A5E3C'; c.beginPath(); c.arc(0, 0, 7, 0, TAU); c.fill();
+  c.restore();
+}
+/* The raft: a giant lily leaf with a raised rim and a pink flower. It bobs a little on the water, and more when it moves. */
+function drawRaft(c, r, t) {
+  const W = CONFIG.mech.raftW, bob = Math.sin(t * 2 + r.g.ph) * (r.moving ? 4 : 2), x = r.x, y = r.y + bob, w = W / 2, h = 62;
+  c.fillStyle = rgba(SHADOW, 0.24); c.beginPath(); c.ellipse(x + 5, y + 14, w + 4, h * 0.7, 0, 0, TAU); c.fill();
+  c.fillStyle = '#1F6A52'; c.beginPath(); c.ellipse(x, y + 4, w + 2, h, 0, 0, TAU); c.fill();                 // the rim
+  c.fillStyle = '#3FB08A'; c.beginPath(); c.ellipse(x, y, w - 4, h - 6, 0, 0, TAU); c.fill();
+  c.fillStyle = '#5AC08A'; c.beginPath(); c.ellipse(x - 6, y - 6, w - 24, h - 22, 0, 0, TAU); c.fill();
+  c.strokeStyle = 'rgba(31,106,82,0.55)'; c.lineWidth = 3; for (let i = 0; i < 8; i++) { const a = i * TAU / 8 + 0.2; c.beginPath(); c.moveTo(x, y); c.lineTo(x + Math.cos(a) * (w - 14), y + Math.sin(a) * (h - 12)); c.stroke(); }
+  c.fillStyle = '#2A4A8A'; c.beginPath(); c.moveTo(x, y); c.lineTo(x + w + 4, y - 14); c.lineTo(x + w + 4, y + 14); c.closePath(); c.fill();   // the notch of a lily leaf
+  for (const [dx, dy, col] of [[-w + 24, -h + 24, '#FFB0D8'], [w - 40, h - 26, '#FFFFFF']]) {             // a flower or two on the rim
+    c.fillStyle = col; for (let i = 0; i < 5; i++) { const a = i * TAU / 5; c.beginPath(); c.ellipse(x + dx + Math.cos(a) * 7, y + dy + Math.sin(a) * 5, 6, 4, a, 0, TAU); c.fill(); }
+    c.fillStyle = '#FFD84A'; c.beginPath(); c.arc(x + dx, y + dy, 3.5, 0, TAU); c.fill();
+  }
+  if (r.moving) { c.strokeStyle = 'rgba(207,230,255,0.5)'; c.lineWidth = 3; for (let i = 0; i < 3; i++) { c.beginPath(); c.ellipse(x, y + 10, w + 8 + i * 12 + (t * 30 % 12), h + 4 + i * 6, 0, 0, TAU); c.stroke(); } }
+}
+/* The sliding door of a tin wall (T8): a panel with chevrons that goes up when the gate opens. Behind it the floor of the crossing. */
+function drawDoor(c, g, t) {
+  const v = clamp(g.vis || 0, 0, 1), x0 = g.x - g.half - 8, w = g.half * 2 + 16, y0 = g.y - g.h / 2 + 4, hh = g.h - 8, W = (P.L.pal.wall || ['#7A86B0', '#A8B4D8', '#E6ECFF', '#4A5278']);
+  if (v > 0.02) { c.fillStyle = P.L.pal.path; c.fillRect(x0, y0, w, hh); c.fillStyle = rgba(SHADOW, 0.22); c.fillRect(x0, y0, w, 10); }      // the opening
+  const ph = hh * (1 - v); if (ph < 2) return;
+  c.fillStyle = W[0]; c.fillRect(x0, y0, w, ph);
+  c.fillStyle = rgba(W[1], 0.8); c.fillRect(x0 + 6, y0 + 6, w - 12, Math.max(0, ph - 12));
+  c.save(); c.beginPath(); c.rect(x0, y0, w, ph); c.clip();
+  c.strokeStyle = rgba('#F4C860', 0.9); c.lineWidth = 8; c.lineCap = 'round';
+  for (let k = -1; k < 5; k++) { const yy = y0 + k * 34 + ((t * 8) % 34) * (g.state === 'open' ? 1 : 0); c.beginPath(); c.moveTo(x0 + 14, yy + 18); c.lineTo(x0 + w / 2, yy); c.lineTo(x0 + w - 14, yy + 18); c.stroke(); }
+  c.restore();
+  c.fillStyle = W[3]; c.fillRect(x0, y0 + ph - 7, w, 7);
+  c.fillStyle = W[2]; for (const px of [x0 + 10, x0 + w - 10]) { c.beginPath(); c.arc(px, y0 + 12, 4, 0, TAU); c.fill(); }
+}
+/* A target (T8): a round board on a stake, turquoise for Boon, blue for Killer. It flashes when it is hit and shakes when the wrong hero hits it.
+   In a sequence a lamp above it tells whose turn it is. */
+function drawTarget(c, inp, g, t) {
+  const col = inp.who === 0 ? '#3FD0C0' : '#4A78E0', dark = inp.who === 0 ? '#1F8A86' : '#2A3FA0', R = 40, cy = inp.y - 66;
+  const sh = (inp.shakeT || 0) > 0 ? Math.sin(t * 50) * 6 * inp.shakeT : 0, k = 1 + (inp.flash || 0) * 0.18;
+  c.fillStyle = rgba(SHADOW, 0.22); c.beginPath(); c.ellipse(inp.x + 3, inp.y + 6, 34, 11, 0, 0, TAU); c.fill();
+  c.fillStyle = '#9A6A58'; c.fillRect(inp.x - 5, cy, 10, 66);
+  c.save(); c.translate(inp.x + sh, cy); c.scale(k, k);
+  c.fillStyle = dark; c.beginPath(); c.arc(0, 0, R + 5, 0, TAU); c.fill();
+  c.fillStyle = col; c.beginPath(); c.arc(0, 0, R, 0, TAU); c.fill();
+  c.fillStyle = '#FFF6E2'; c.beginPath(); c.arc(0, 0, R * 0.66, 0, TAU); c.fill();
+  c.fillStyle = col; c.beginPath(); c.arc(0, 0, R * 0.42, 0, TAU); c.fill();
+  c.fillStyle = '#FFF6E2'; c.beginPath(); c.arc(0, 0, R * 0.18, 0, TAU); c.fill();
+  c.restore();
+  if (inp.flash > 0.05) { c.strokeStyle = rgba('#FFF3C0', inp.flash); c.lineWidth = 5; c.beginPath(); c.arc(inp.x, cy, R + 14 + (1 - inp.flash) * 30, 0, TAU); c.stroke(); }
+  const idx = g ? g.inputs.indexOf(inp.id) : -1, seq = g && g.rule === 'seq';
+  const lit = seq ? g.step === idx && g.state !== 'open' : (inp.on || P.time - inp.lastT < (g ? g.window : 0));
+  const done = seq && g.step > idx;
+  c.fillStyle = done ? '#9AE8A0' : lit ? '#FFE070' : '#C9BEDD'; c.beginPath(); c.arc(inp.x, cy - R - 24, 11, 0, TAU); c.fill();
+  if (lit) { c.fillStyle = rgba('#FFE070', 0.35 + 0.2 * Math.sin(t * 6)); c.beginPath(); c.arc(inp.x, cy - R - 24, 24, 0, TAU); c.fill(); }
+}
+/* The arrows that run on a conveyor belt (T8). */
+function drawBelts(c, t) {
+  const L = P.L; if (!L.belts || !L.belts.length) return;
+  const M = SLOW_COLS.belt;
+  for (const b of L.belts) {
+    c.save(); c.beginPath(); c.rect(b.x - 60, b.y0, 120, b.y1 - b.y0); c.clip();
+    c.strokeStyle = rgba(M[5], 0.75); c.lineWidth = 7; c.lineCap = 'round'; c.lineJoin = 'round';
+    const off = (t * 70 * b.dir) % 80;
+    for (let y = b.y0 - 80; y < b.y1 + 80; y += 80) { const yy = y + off; c.beginPath(); c.moveTo(b.x - 30, yy - 14 * b.dir); c.lineTo(b.x, yy + 12 * b.dir); c.lineTo(b.x + 30, yy - 14 * b.dir); c.stroke(); }
+    c.restore();
+    c.strokeStyle = rgba(M[0], 0.8); c.lineWidth = 6; c.strokeRect(b.x - 60, b.y0, 120, b.y1 - b.y0);
+  }
+}
 function drawMechs(c, t) {
   const L = P.L; if (!L) return;
-  for (const g of L.gates || []) if (g.kind === 'chasm') drawBridge(c, g, t);
+  drawBelts(c, t);
+  for (const g of L.gates || []) if (g.kind === 'chasm') drawBridge(c, g, t); else if (g.kind === 'wall') drawDoor(c, g, t); else if (g.kind === 'water') drawLilyPath(c, g, t);
+  for (const p of L.inputs || []) if (p.kind === 'crank') drawCrank(c, p, L.gates[p.gate], t);
+  for (const r of L.rafts || []) drawRaft(c, r, t);
+  for (const p of L.inputs || []) if (p.kind === 'target') drawTarget(c, p, L.gates[p.gate], t);
   if (L.toy) drawToy(c, L.toy);
   for (const p of L.inputs || []) if (p.kind === 'plate') drawPlate(c, p, t);
   if (L.cage) drawCage(c, L.cage, t);
@@ -3324,10 +3484,37 @@ const LEVEL_DEFS_L = [
   { key: 'canyon', music: 'l5', pal: 'canyon', look: 'diorama', ambient: '#FFE9D6', icons: ['plate', 'bridge', 'star'],
     trees: 22, rocks: 26, beetles: [0, 1, 2], lanes: [0, 0, 1], conesPerLane: 1, coneSpeed: 0.55, mud: [0, 0, 0], sparkle: [1, 1, 2], wind: 0.7, birds: 2,
     bands: [{ at: 0.335, kind: 'chasm', w: 200, mech: 'plates1' }, { at: 0.665, kind: 'chasm', w: 200, mech: 'plates2' }],
-    stars: ['islet', 'nook', 'treetop'], toy: 'seesaw', cage: true }
+    stars: ['islet', 'nook', 'treetop'], toy: 'seesaw', cage: true },
+  // Level 8: George's workshop. Targets in two colors on a tin wall, conveyor belts, rolling gears, many robots (T8)
+  { key: 'works', music: 'l4', pal: 'works', look: 'diorama', ambient: '#C8C0F0', icons: ['target', 'robot', 'gear'],
+    trees: 14, rocks: 30, beetles: [3, 5, 6], lanes: [1, 1, 2], conesPerLane: 1, coneSpeed: 0.7, roller: 'gear', mud: [2, 3, 3], slowKind: 'belt', sparkle: [1, 2, 2], lanterns: true,
+    bands: [{ at: 0.335, kind: 'wall', w: 120, mech: 'targets1' }, { at: 0.665, kind: 'wall', w: 120, mech: 'targets2' }],
+    stars: ['guarded', 'treetop', 'nook'], toy: 'button' },
+  { key: 'lake', music: 'l2', pal: 'lake', night: true, look: 'diorama', ambient: '#9AA8F0', icons: ['raft', 'crank', 'egg'],
+    trees: 34, rocks: 10, beetles: [1, 2, 2], lanes: [1, 1, 1], conesPerLane: 1, coneSpeed: 0.5, mud: [1, 1, 2], slowKind: 'slime', sparkle: [1, 2, 2],
+    bands: [{ at: 0.335, kind: 'water', w: 400, mech: 'raft1' }, { at: 0.665, kind: 'water', w: 480, mech: 'raft2' }],
+    stars: ['islet', 'nook', 'guarded'], toy: 'lilies' }
 ];
 const BOSS_DEF_L = { key: 'arena', music: 'boss', night: true, icons: ['boon', 'ciori', 'killer'] };
 
+/* The tin wall of level 8 (T8): riveted panels with seams, a lit top edge and a violet shadow on its right side. The sliding door is drawn every frame (drawDoor). */
+function paintWall(c, L, P, r) {
+  const W = P.wall || ['#7A86B0', '#A8B4D8', '#E6ECFF', '#4A5278'];
+  for (const g of L.gates) {
+    if (g.kind !== 'wall') continue;
+    const poly = (k, off) => { c.beginPath(); for (let y = L.top - 20; y <= L.H + 40; y += 20) c.lineTo(bandX(g, y) - g.half * k + (off || 0), y); for (let y = L.H + 40; y >= L.top - 20; y -= 20) c.lineTo(bandX(g, y) + g.half * k + (off || 0), y); c.closePath(); };
+    c.fillStyle = rgba(SHADOW, 0.28); poly(1, 22); c.fill();                   // the shadow it throws to the right
+    c.fillStyle = W[3]; poly(1.06); c.fill();
+    c.fillStyle = W[0]; poly(1); c.fill();
+    c.fillStyle = rgba(W[1], 0.7); poly(0.62); c.fill();
+    for (let y = L.top; y < L.H + 40; y += 90) {                                // seams between the sheets, and rivets on both edges
+      const mx = bandX(g, y);
+      c.strokeStyle = rgba(W[3], 0.55); c.lineWidth = 3; c.beginPath(); c.moveTo(mx - g.half, y); c.lineTo(mx + g.half, y); c.stroke();
+      c.fillStyle = W[2]; for (const sd of [-1, 1]) for (const dy of [14, 76]) { c.beginPath(); c.arc(mx + sd * (g.half - 12), y + dy, 4.5, 0, TAU); c.fill(); }
+    }
+    for (const sd of [-1, 1]) { const pts = []; for (let y = L.top - 20; y <= L.H + 40; y += 30) pts.push([bandX(g, y) + sd * (g.half - 4), y]); brushLine(c, pts, 7, W[2], 0.7, 31 + sd); }
+  }
+}
 const PALS = {
   meadow: { g0: '#CBD08F', g1: '#B4C283', tints: ['#E6D58A', '#A9BF7E', '#DCC47C', '#C7D39A', '#EBCB9C', '#B9CC8A'], canopy: ['#8FAF6A', '#A3BC72', '#7E9F63', '#B9C77A'], flowers: ['#E7A6A1', '#F3D36B', '#FBF3DE', '#E58F6B'], path: '#EBCB9E', trunk: '#9A6B4C', rock: '#C8AE98' },
   forest: { g0: '#AEBB80', g1: '#94A974', tints: ['#7F9B66', '#B9BF7F', '#8CA36B', '#C9B97A', '#9DAE78'], canopy: ['#6F9160', '#84A066', '#5F8459', '#9DB06C', '#7A9A72'], flowers: ['#F3D36B', '#E7A6A1', '#FBF3DE'], path: '#DCC090', trunk: '#8A6048', rock: '#B9A092' },
@@ -3343,6 +3530,9 @@ const PALS = {
   road:   { night: true, g0: '#5C417C', g1: '#4C366C', tints: RAINBOW, canopy: ['#B0589A', '#8A58B8', '#D8704A', '#5A6FC8', '#C8508A'], flowers: ['#FFD84A', '#FF9A5A', '#FF8AB8', '#7AF0C8'], path: '#A88AC4', trunk: '#5E3E6E', rock: '#A088C0' },
   canyon: { g0: '#E8B48A', g1: '#D99A78', tints: ['#EEBE92', '#DCA27E', '#F2C8A0', '#E2AA86'], canopy: ['#6FB08A', '#8AC07A', '#4F9A8A', '#B8C86A'], flowers: ['#FF8AB8', '#FFD84A', '#FFF6E8', '#B09AFF'], path: '#F6D9B0', trunk: '#8A5A6A', rock: '#C98A7A',
             chasm: ['#3A4A8A', '#6A7AC0', '#D8DCF6'] },      // level 7: a high plateau at sunrise. chasm: the bottom of the chasm, its light middle, the mist
+  lake:   { night: true, g0: '#3F6A8A', g1: '#34587A', tints: RAINBOW, canopy: ['#3FB08A', '#5AC08A', '#2F8AA8', '#7AC8A0'], flowers: ['#FFB0D8', '#FFFFFF', '#FFD84A', '#B09AFF'], path: '#8AB0C8', trunk: '#4E5A7A', rock: '#7A98B8', water: ['#1E3A78', '#2A4A8A', '#4A78C0', '#CFE6FF'] },
+  works:  { night: true, g0: '#5A6A8A', g1: '#4A587A', tints: RAINBOW, canopy: ['#C8A040', '#D86A4A', '#5AA0A8', '#8A7AC0'], flowers: ['#FFD84A', '#7AF0C8', '#FF8AB8'], path: '#A8B0C8', trunk: '#6A5A7A', rock: '#8A98B8',
+            wall: ['#7A86B0', '#A8B4D8', '#E6ECFF', '#4A5278'] },      // level 8: tin and violet, never grey. wall: the tin of the walls, its light, its shine, its shadow
   sunset: { g0: '#D6B87E', g1: '#C5A674', tints: ['#E4A771', '#DB9C79', '#CBB47C', '#E2BB8C', '#D8A07A'], canopy: ['#D98A52', '#E2A04F', '#C96F4E', '#E6B65A', '#B98A5A'], flowers: ['#F3D36B', '#E58F6B', '#FBF3DE'], path: '#EECFA2', trunk: '#8A5A48', rock: '#C4A08E' }
 };
 /* The calm look of the Krea maps (CONFIG.look.art and CONFIG.look.calm): every level has its own ground color, a clean cream path,
@@ -3375,7 +3565,7 @@ const levelDefs = () => isLupta() ? LEVEL_DEFS_L : LEVEL_DEFS;
 const levelDef = idx => levelDefs()[idx % levelDefs().length];
 /* What the slow ground looks like: mud in the first game; slime, quicksand or tangled vines in the second. [dark rim, body, light, blotch 1, blotch 2, shine] */
 const SLOW_COLS = { mud: ['#7E5A4C', '#A07A5C', '#B08A68', '#8A6452', '#B8926E', '#DCC0A0'], slime: ['#3F8A62', '#6FD08A', '#A8EC98', '#58BF7A', '#B7F0A0', '#EEFFD8'],
-  sand: ['#8A7AA0', '#D6C592', '#E8DAAC', '#C8B486', '#EADCA8', '#FFF6D8'], vines: ['#1F5A4A', '#2F7A5A', '#4E9A6A', '#2A6A52', '#62B07A', '#B7E6B0'] };
+  sand: ['#8A7AA0', '#D6C592', '#E8DAAC', '#C8B486', '#EADCA8', '#FFF6D8'], belt: ['#5A4A8A', '#7A6AB0', '#9A8AD0', '#6A5AA0', '#8A7AC0', '#E6DCFF'], vines: ['#1F5A4A', '#2F7A5A', '#4E9A6A', '#2A6A52', '#62B07A', '#B7E6B0'] };
 // the sky goes from afternoon to dusk over the levels. In the second game it is always counted over 6 levels: Part Two has its own colors
 const skyTOf = idx => { const n = isLupta() ? 6 : levelCount(); return n === 1 ? 0.4 : Math.min(idx, n - 1) / (n - 1) * 0.95; };
 
@@ -3555,6 +3745,15 @@ function genLevel(idx, seed) {
     }
   };
 
+  // T8: a conveyor belt is a strip 3 cells wide and 10 - 16 long. It carries a hero 140 units per second, up or down (L.beltDir: 1 = down, -1 = up)
+  L.belts = []; L.beltDir = new Int8Array(cols * rows);
+  const beltStrip = (x, y) => {
+    const cx0 = (x / CS | 0) - 1, len = 10 + (r() * 7 | 0), cy0 = clamp((y / CS | 0) - (len >> 1), (top / CS | 0) + 2, rows - len - 2), dir = r() < 0.5 ? -1 : 1;
+    for (let cy = cy0; cy < cy0 + len; cy++) for (let d = 0; d < 3; d++) { const cx = cx0 + d; if (!inW(cx, cy)) return false; const i = cy * cols + cx; if (G[i] !== 0 || (F[i] & 30)) return false; }
+    for (let cy = cy0; cy < cy0 + len; cy++) for (let d = 0; d < 3; d++) { const i = cy * cols + cx0 + d; G[i] = 1; L.beltDir[i] = dir; }
+    L.belts.push({ x: (cx0 + 1.5) * CS, y0: cy0 * CS, y1: (cy0 + len) * CS, dir }); return true;
+  };
+
   // ---- bonus stars: one per third of the map --------------------------------
   const kinds = def.stars.slice(0, clamp(CONFIG.starsPerLevel | 0, 0, 3));
   let guardSpots = [];
@@ -3584,6 +3783,7 @@ function genLevel(idx, seed) {
         for (let t = 0; t < 80 && !done; t++) {
           const y = top + 260 + r() * (WH - top - 480);
           if (Math.abs(y - g.y) < 380) continue;
+          if (L.solids.some(o => dist(o.x, o.y, bandLeft(g, y) - 55, y) < o.r + 90 || dist(o.x, o.y, bandRight(g, y) + 55, y) < o.r + 90 || dist(o.x, o.y, bandX(g, y), y) < o.r + 40)) continue;     // a hero must be able to stand at the edge and throw (nothing in the way)
           L.stars.push({ x: bandX(g, y), y, kind, pillar: true }); done = true;
         }
       }
@@ -3625,12 +3825,32 @@ function genLevel(idx, seed) {
       L.toy = { kind: 'seesaw', x, y, ang: 0, va: 0, laughT: 0 }; mark(x, y, 190, 3);
     }
   }
+  // ---- the toy of level 8 (T8): a big red button. Pressed, every robot on the screen dances for 5 seconds (once in 30 seconds) ----
+  if (def.toy === 'button' && L.gates.length >= 2) {
+    const xa = L.gates[0].at * WW + 260, xb = L.gates[1].at * WW - 260;
+    for (let t = 0; t < 300 && !L.toy; t++) {
+      const x = lerp(xa, xb, r()), y = lerp(top + 220, WH - 220, r());
+      if (!pathFar(x, y, 160) || pathDist(x, y) > 480 || !areaClear(x, y, 100)) continue;
+      L.toy = { kind: 'button', x, y, danceT: 0, cool: 0, down: 0 }; mark(x, y, 120, 3);
+    }
+  }
+  // ---- the toy of level 9 (T8): three giant lily pads on a bank. Whoever steps on one jumps high (only how it looks) with a "boing" ----
+  if (def.toy === 'lilies' && L.gates.length >= 1) {
+    const xa = 300, xb = L.gates[0].at * WW - 330, pads = [];
+    for (let t = 0; t < 400 && pads.length < 3; t++) {
+      const x = lerp(xa, xb, r()), y = lerp(top + 220, WH - 220, r());
+      if (!pathFar(x, y, 130) || pathDist(x, y) > 560 || !areaClear(x, y, 80) || pads.some(q => dist(q.x, q.y, x, y) < 250)) continue;
+      pads.push({ x, y, down: 0, jump: 0, cool: 0 }); mark(x, y, 100, 3);
+    }
+    if (pads.length) L.toy = { kind: 'lilies', pads, x: pads[0].x, y: pads[0].y };
+  }
   // ---- mud, pinecone lanes, windmills ---------------------------------------
   for (let k = 0; k < NW; k++) {
     const [x0, x1] = region(k);
     for (let m = 0, t = 0; m < dv(def.mud, k) && t < 80; t++) {
       const x = lerp(x0 + 100, x1 - 100, r()), y = lerp(top + 150, WH - 150, r());
       if (dist(x, y, L.spawn.x, L.spawn.y) < 330 || dist(x, y, L.nest.x, L.nest.y) < 300) continue;
+      if (def.slowKind === 'belt') { if (beltStrip(x, y)) m++; continue; }
       mudEllipse(x, y, 110 + r() * 80, 80 + r() * 60); m++;
     }
     for (let m = 0, t = 0; m < dv(def.lanes, k) && t < 120; t++) {
@@ -4140,6 +4360,9 @@ function cellBlobs(c, L, type, rad, col, alpha, seed, jit) {
 
 const NIGHT_HILLS = ['#5A56A8', '#4A4A98', '#3E4288'];
 function paintLevel(L) {
+  for (const g of L.gates || []) if (g.kind === 'water' && !g.waterPainted) {      // T8: the crossing of a water band is water too: the raft floats on it (closeGates gives the cells their code back)
+    g.waterPainted = true; for (const i of g.cells) { L.grid[i] = 2; L.waterCells.push(i); }
+  }
   const cv = makeCanvas(L.W, L.H), c = cv.getContext('2d'), P = L.pal, r = rng(L.seed + 999), G = L.grid, top = L.top, sl = 1 + L.skyT * 0.7, N = !!L.night;
   const A = P.art && artReady();          // the calm Krea look: the things of the level are pictures, the ground has few small things
   const typeAt = (x, y) => G[L.ci(x, y)];
@@ -4190,6 +4413,14 @@ function paintLevel(L) {
       else if (hash(52, i) < 0.3) { c.strokeStyle = 'rgba(244,251,240,0.5)'; c.lineWidth = 2.2; c.beginPath(); c.arc(x, y + 10, 14 + hash(53, i) * 10, Math.PI * 1.15, Math.PI * 1.85); c.stroke(); }
     }
   }
+  if (L.gates && L.gates.some(g => g.kind === 'water')) for (const st of L.stars) if (st.pillar) {      // T8: the star of the lake sits on a big lily pad in the middle of the water (a thrown thing takes it)
+    c.fillStyle = rgba(SHADOW, 0.25); c.beginPath(); c.ellipse(st.x + 6, st.y + 34, 86, 40, 0, 0, TAU); c.fill();
+    c.fillStyle = '#1F6A52'; c.beginPath(); c.ellipse(st.x, st.y + 28, 84, 40, 0, 0, TAU); c.fill();
+    c.fillStyle = '#3FB08A'; c.beginPath(); c.ellipse(st.x, st.y + 22, 76, 34, 0, 0, TAU); c.fill();
+    c.fillStyle = '#5AC08A'; c.beginPath(); c.ellipse(st.x - 6, st.y + 18, 54, 22, 0, 0, TAU); c.fill();
+    c.fillStyle = '#FFB0D8'; for (let i = 0; i < 6; i++) { const a = i * TAU / 6; c.beginPath(); c.ellipse(st.x + Math.cos(a) * 14, st.y + 18 + Math.sin(a) * 8, 11, 6, a, 0, TAU); c.fill(); }
+  }
+  if (L.gates && L.gates.some(g => g.kind === 'wall')) paintWall(c, L, P, r);      // T8: the tin walls of the workshop
   if (L.gates && L.gates.some(g => g.kind === 'chasm')) paintChasm(c, L, P, r);      // T7.4: the chasms of the bands, and the pillar of the star
   for (const b of L.bridges) {
     wash(c, b.x - 10, b.y + 14, b.w / 2 + 6, b.h / 2 + 4, SHADOW, { a: 0.3, seed: 3, edge: 0 });
@@ -4609,7 +4840,15 @@ function genArena() {
    dy: the input lies on its bank, next to the band, this far above (-) or below (+) the crossing. */
 const MECH_RECIPES = {
   plates1: { rule: 'any', stay: 1.5, inputs: [{ kind: 'plate', who: -1, side: 'near', along: true }, { kind: 'plate', who: -1, side: 'far', along: true }] },
-  plates2: { rule: 'all', stay: 5, inputs: [{ kind: 'plate', who: 0, side: 'near', dy: -520 }, { kind: 'plate', who: 1, side: 'near', dy: 520 }] }
+  plates2: { rule: 'all', stay: 5, inputs: [{ kind: 'plate', who: 0, side: 'near', dy: -520 }, { kind: 'plate', who: 1, side: 'near', dy: 520 }] },
+  // Level 8 (T8): targets on the face of the wall, each for one hero only (who 0 = turquoise = Boon, who 1 = blue = Killer).
+  // face: the target sits against the wall, on the near bank, this far from it (not 150 away like the plates).
+  targets1: { rule: 'allWithin', stay: 5, window: 4, inputs: [{ kind: 'target', who: 0, side: 'near', dy: -300, face: true }, { kind: 'target', who: 1, side: 'near', dy: 300, face: true }] },
+  targets2: { rule: 'seq', stay: 6, inputs: [{ kind: 'target', who: 0, side: 'near', dy: -440, face: true }, { kind: 'target', who: 1, side: 'near', dy: 130, face: true },
+                                             { kind: 'target', who: 1, side: 'near', dy: -140, face: true }, { kind: 'target', who: 0, side: 'near', dy: 430, face: true }] },
+  // Level 9 (T8): the raft. A hero rides, the other one turns the crank (a spin close to it) on his own bank. need = turns to cross.
+  raft1: { rule: 'raft', need: 3, inputs: [{ kind: 'crank', who: -1, side: 'near', dy: -330 }, { kind: 'crank', who: -1, side: 'far', dy: -330 }] },
+  raft2: { rule: 'raft', need: 3, current: true, inputs: [{ kind: 'crank', who: -1, side: 'near', dy: -330 }, { kind: 'crank', who: -1, side: 'far', dy: -330 }] }
 };
 const MECH_INPUT_R = { plate: 60, target: 46, crank: 50, pedestal: 50, cage: 70, test: 40 };
 
@@ -4627,6 +4866,7 @@ function placeMechInputs(L, r, mark) {
     const i = ci(x, y); if (!L.reach[i] || L.grid[i] !== 0 || (L.flag[i] & 32)) return false;
     for (const s of L.solids) if (dist(x, y, s.x, s.y) < s.r + rad + 12) return false;
     for (const p of L.inputs) if (dist(x, y, p.x, p.y) < p.r + rad + 40) return false;
+    for (const ln of L.lanes) if (Math.abs(x - ln.x) < 130) return false;       // not on the lane of a rolling gear or snail (T8)
     if (L.toy && dist(x, y, L.toy.x, L.toy.y) < 320) return false;       // not on the seesaw (T7.4)
     return dist(x, y, L.spawn.x, L.spawn.y) > 170 && dist(x, y, L.nest.x, L.nest.y) > 230;
   };
@@ -4634,7 +4874,7 @@ function placeMechInputs(L, r, mark) {
   for (let gi = 0; gi < L.gates.length; gi++) {
     const g = L.gates[gi], R = MECH_RECIPES[g.mech];
     if (!R) { console.error('T7: no recipe called ' + g.mech); return false; }
-    g.rule = R.rule; g.stay = R.stay || 0; g.window = R.window || 0;
+    g.rule = R.rule; g.stay = R.stay || 0; g.window = R.window || 0; g.need = R.need || 0; g.current = !!R.current;
     const next = L.gates[gi + 1], prev = L.gates[gi - 1];
     for (const d of R.inputs) {
       const rad = MECH_INPUT_R[d.kind] || 50;
@@ -4651,7 +4891,8 @@ function placeMechInputs(L, r, mark) {
       } else {
         let y = g.y + d.dy;
         y = clamp(y, L.top + 140, L.H - 140);
-        want = { x: d.side === 'far' ? bandRight(g, y) + 150 : bandLeft(g, y) - 150, y };
+        const off = d.face ? 105 : 150;
+        want = { x: d.side === 'far' ? bandRight(g, y) + off : bandLeft(g, y) - off, y };
       }
       if (!want) return false;
       let spot = null;                             // the closest good place around the one we want
@@ -4678,7 +4919,10 @@ function closeGates(L) {
     g.state = 'closed'; g.open = 0; g.vis = 0; g.moveTo = 0; g.moveT = 9; g.stayT = 0; g.step = 0; g.idleT = 0; g.opened = false; g.solid = true;
     for (const i of g.cells) L.grid[i] = g.code;
   }
-  for (const p of L.inputs || []) { p.on = p.raw = p.was = p.realWas = false; p.onT = 0; p.lastT = -99; p.n = 0; p.sink = 0; }
+  for (const p of L.inputs || []) { p.on = p.raw = p.was = p.realWas = false; p.onT = 0; p.lastT = -99; p.n = 0; p.sink = 0; p.turnAnim = 0; p.ang = 0; }
+  for (const h of P.heroes || []) h.riding = null;
+  L.rafts = (L.gates || []).filter(g => g.kind === 'water').map(g => ({ g, u: 0, tu: 0, riders: [], emptyT: 0, lastTurn: -99, soloT: 0, board: [0, 0], dis: [0, 0], x: 0, y: g.y, wob: 0, moving: false }));
+  for (const r of L.rafts) { r.g.raft = r; raftPlace(r); }
   // G10: on a restart everything starts from zero: the gates, the time without progress, the cage and its star
   for (const g of L.gates || []) { g.pastN = 0; g.g3 = false; g.auto = false; }
   if (L.cage) {
@@ -4718,6 +4962,7 @@ function heroCrossing(h) {
    ('test', and the ones of T8 - T12) keep the value someone else gave them in inp.raw. */
 function inputRaw(inp) {
   if (inp.kind === 'plate') return plateBy(inp) >= 0;
+  if (inp.kind === 'target') return P.time < (inp.hitUntil || 0);          // a hit by the right hero keeps it on for a moment (targetHit)
   return !!inp.raw;
 }
 /* The hero who presses a plate (-1 = nobody). Only the one who is pressing gets the vibration (T7.2). */
@@ -4728,6 +4973,110 @@ function plateBy(inp) {
     if (dist(h.x, h.y, inp.x, inp.y) < 55) return h.k;
   }
   return -1;
+}
+
+/* ---------- the targets of level 8 (T8, docs/25-niveluri-7-12.md, 3.4) ----------
+   Turquoise ones listen only to Boon, blue ones only to Killer. Any power of the right hero counts: the claws spinning
+   or a stomp close to it, a bone or a ball that flies into it. A hit of the wrong hero only shakes it. */
+function targetHit(inp, k) {
+  const M = CONFIG.mech;
+  if (inp.who >= 0 && inp.who !== k) { inp.shakeT = 0.5; Snd.play('click'); return false; }
+  inp.hitUntil = P.time + M.targetOn; inp.flash = 1; inp.lastHitBy = k;
+  Snd.play('plate'); Input.rumble(k, 0, 0.5, 90); burst(inp.x, inp.y, 6, { speed: 120, life: 0.5 });
+  return true;
+}
+/* A power of hero h (powerSweep: once per power id). */
+function targetSwing(h, id) {
+  const L = P.L; if (!L.inputs || !L.inputs.length || !isJoined(h.k) || h.down) return;
+  for (const inp of L.inputs) {
+    if (inp.kind !== 'target' || inp.swing === h.k + ':' + id) continue;
+    if (dist(h.x, h.y, inp.x, inp.y) > CONFIG.mech.targetReach) continue;
+    inp.swing = h.k + ':' + id; targetHit(inp, h.k);
+  }
+}
+/* Every frame: the flash runs down, and a bone or a ball in the air counts once when it reaches a target. */
+function updateTargets(dt) {
+  const L = P.L; if (!L.inputs) return;
+  for (const inp of L.inputs) {
+    if (inp.kind !== 'target') continue;
+    inp.flash = Math.max(0, (inp.flash || 0) - dt * 2.2); inp.shakeT = Math.max(0, (inp.shakeT || 0) - dt);
+    for (const f of P.flock) if (f.state === 'fly' && f.tgt !== inp.id && isJoined(f.owner) && dist(f.x, f.y, inp.x, inp.y) < inp.r + 28) { f.tgt = inp.id; targetHit(inp, f.owner); }
+  }
+}
+
+/* ---------- the raft and the cranks of level 9 (T8, docs/25-niveluri-7-12.md, 3.4 and 3.5) ----------
+   A hero who stands at the dock steps on the raft and rides. The other one turns the crank on his bank with the spin power:
+   each turn moves the raft 1/need of the way. At the far bank the riders step off; an empty raft comes back by itself.
+   The second band has a current: when nobody turns, the raft slides back. A rider cannot walk but can use his powers. */
+const RAFT_RIDE = [[-34, -4], [34, 6]];
+function raftEnds(r) { const g = r.g, w = CONFIG.mech.raftW; return [g.x - g.half + w / 2 + 8, g.x + g.half - w / 2 - 8]; }
+function raftPlace(r) { const [a, b] = raftEnds(r); r.x = lerp(a, b, r.u); r.y = r.g.y + Math.sin(P.time * 1.6 + r.g.ph) * 3; }
+/* Boon's or Killer's spin close to a crank (powerSweep: once per power id). The one who rides turns nothing. */
+function crankSwing(h, id) {
+  const L = P.L; if (!L.rafts || !L.rafts.length || !isJoined(h.k) || h.down || heroCrossing(h)) return;
+  for (const inp of L.inputs) {
+    if (inp.kind !== 'crank' || inp.swing === h.k + ':' + id || dist(h.x, h.y, inp.x, inp.y) > CONFIG.mech.crankReach) continue;
+    inp.swing = h.k + ':' + id; raftTurn(L.gates[inp.gate].raft, inp, h.k);
+  }
+}
+function raftTurn(r, inp, k) {
+  if (!r || r.g.state === 'fixed') return;
+  inp.turnAnim = 1; inp.n++; r.lastTurn = P.time; Snd.play('crank', inp.n % 4, k); if (k >= 0) Input.rumble(k, 0, 0.3, 70);
+  if (r.riders.length && r.tu < 1) r.tu = Math.min(1, r.tu + 1 / r.g.need);
+}
+function raftDismount(r, h, far) {
+  const g = r.g, k = h.k; h.riding = null; r.riders = r.riders.filter(x => x !== h);
+  h.x = far ? g.x + g.half + 85 : g.x - g.half - 85; h.y = g.y + (k ? 40 : -40); h.vx = h.vy = 0; h.px = h.x; h.py = h.y;
+  Snd.play('plate', 0, k); burst(h.x, h.y, 6, { speed: 110, life: 0.5 });
+}
+function updateRafts(dt) {
+  const L = P.L; if (!L.rafts || !L.rafts.length || !L.inputs) return;
+  const M = CONFIG.mech, easy = mechEasy(), solo = soloK();
+  for (const inp of L.inputs) if (inp.kind === 'crank') { inp.turnAnim = Math.max(0, (inp.turnAnim || 0) - dt * 1.4); inp.ang = ((inp.n || 0) - 1) * 2.1 + (inp.n ? easeBack(1 - inp.turnAnim) * 2.1 : 0); }
+  for (const r of L.rafts) {
+    const g = r.g, fixed = g.state === 'fixed';
+    // boarding at the near dock
+    const dockNear = r.u <= 0.02 && !r.moving && !fixed;
+    for (const h of P.heroes) {
+      if (h.riding) continue;
+      const k = h.k, can = dockNear && isJoined(k) && !h.down && !h.carried && r.riders.length < 2 && dist(h.x, h.y, r.x, r.y) < 175 && h.x < g.x - g.half + 20;
+      r.board[k] = can ? r.board[k] + dt : 0;
+      if (r.board[k] >= M.raftBoard) { r.board[k] = 0; h.riding = r; r.riders.push(h); Snd.play('plate', 0, k); }
+    }
+    // a rider at the near dock steps back to the bank by pushing the stick to the left
+    for (const h of r.riders.slice()) {
+      const s = Input.slots[h.k]; r.dis[h.k] = (r.u <= 0.02 && !r.moving && s.x < -0.4) ? r.dis[h.k] + dt : 0;
+      if (r.dis[h.k] > 0.25) { r.dis[h.k] = 0; raftDismount(r, h, false); }
+    }
+    // the crossing is open (a hero waited for help, or it opened by itself): the water is a path of lilies, the riders may walk
+    if ((g.state === 'open' || g.state === 'fixed') && g.open > 0.9) for (const h of r.riders.slice()) { h.riding = null; r.riders = r.riders.filter(x => x !== h); }
+    // alone: the crank of the hero nobody plays turns by itself, so one child can cross too
+    if (solo >= 0 && r.riders.length && r.tu < 1 && !fixed) { r.soloT += dt; if (r.soloT >= M.raftSolo) { r.soloT = 0; r.lastTurn = P.time; r.tu = Math.min(1, r.tu + 1 / g.need); } } else r.soloT = 0;
+    // the current (second band): nobody turns, the raft slides back
+    if (g.current && r.riders.length && r.u < 1 && !fixed && P.time - r.lastTurn > M.raftGrace) r.tu = Math.max(0, r.tu - M.raftDrift * (easy ? 0.5 : 1) * dt);
+    // an empty raft far from the near dock comes back by itself
+    if (!r.riders.length && r.u > 0.001 && !fixed) { r.emptyT += dt; if (r.emptyT > M.raftBackDelay) r.tu = 0; } else r.emptyT = 0;
+    if (fixed) r.tu = 1;
+    const travel = Math.max(80, raftEnds(r)[1] - raftEnds(r)[0]), back = !r.riders.length && r.tu < r.u;
+    const rate = back ? M.raftBack / travel : (1 / g.need) / M.raftTurn;
+    const prev = r.u; r.moving = Math.abs(r.tu - r.u) > 0.002;
+    r.u += clamp(r.tu - r.u, -rate * dt, rate * dt);
+    if (Math.abs(r.tu - r.u) <= 0.002) r.u = r.tu;
+    r.wob = Math.max(0, r.wob - dt * 2); if (r.moving && Math.floor(prev * 40) !== Math.floor(r.u * 40) && Math.random() < 0.3) Snd.play('raftGo', 0, -1, 0.5);
+    raftPlace(r);
+    // nobody stays inside the closed water: a hero who is on the cells of a closed crossing without riding (a gate that closed on him,
+    // a push) steps out on the bank of his side, at the level of the dock
+    if (g.solid && g.open < 0.5 && !fixed) for (const h of P.heroes) {
+      if (!isJoined(h.k) || h.riding || h.carried || !onGateCells(h, g)) continue;
+      const far = h.x > bandX(g, h.y); h.x = far ? g.x + g.half + 85 : g.x - g.half - 85; h.y = g.y + (h.k ? 40 : -40); h.vx = h.vy = 0; h.px = h.x; h.py = h.y;
+      P.pushedOut = (P.pushedOut || 0) + 1; Snd.play('plate', 0, h.k); burst(h.x, h.y, 6, { speed: 110, life: 0.5 });
+    }
+    // riders go with the raft; at the far dock they step off
+    for (const h of r.riders.slice()) {
+      const o = RAFT_RIDE[r.riders.indexOf(h)] || RAFT_RIDE[0]; h.x = r.x + o[0]; h.y = r.y + o[1]; h.vx = h.vy = 0; h.px = h.x; h.py = h.y;
+      if (r.u >= 0.995 && !r.moving) raftDismount(r, h, true);
+    }
+  }
 }
 
 /* ---------- helpers of the safety rules (T7.3, docs/25-niveluri-7-12.md, 3.6) ---------- */
@@ -4747,7 +5096,7 @@ function frontGate(L) { for (const g of L.gates || []) if (g.state !== 'fixed') 
 
 /* Every frame, after the heroes and the thrown things (updatePlay). docs/25, 3.2 and 3.6. */
 function updateMechs(dt) {
-  updateCage(dt); updateToy(dt);
+  updateCage(dt); updateToy(dt); updateTargets(dt); updateRafts(dt);
   const L = P.L; if (!L.gates || !L.gates.length) return;
   const M = CONFIG.mech, easy = mechEasy(), ef = easy ? M.easy : 1, solo = soloK();
   for (const inp of L.inputs) {
@@ -4825,7 +5174,16 @@ function mechSteps(g) {
   const ins = g.inputs.map(id => L.inputs[id]), solo = soloK();
   const far = h => h.x > bandX(g, h.y);
   const actOf = p => p.kind === 'target' ? 'throw' : p.kind === 'crank' ? 'spin' : p.kind === 'pedestal' ? 'carry' : p.kind === 'slot' ? 'push' : 'stand';
-  const at = (p, h) => ({ x: p.x, y: p.y, act: actOf(p), inp: p.id });
+  // a target: stand a little way from it, where there is room (the nearest free place of a few), and aim at it
+  const spot = p => {
+    for (const [dx, dy] of [[-130, 0], [-100, -70], [-100, 70], [-70, 0], [-70, -90], [-70, 90], [0, 0]]) {
+      const x = p.x + dx, y = p.y + dy; if (L.grid[L.ci(x, y)] !== 0 || (L.flag[L.ci(x, y)] & 32)) continue;
+      if (L.solids.some(so => dist(x, y, so.x, so.y) < so.r + HERO_R + 8)) continue;
+      return { x, y };
+    }
+    return { x: p.x, y: p.y };
+  };
+  const at = (p, h) => p.kind === 'target' ? Object.assign(spot(p), { act: 'throw', inp: p.id, ax: p.x, ay: p.y }) : { x: p.x, y: p.y, act: actOf(p), inp: p.id };
   const cross = h => far(h) ? { x: g.x + g.w / 2 + 110, y: g.y, act: 'stand' } : { x: g.x - g.w / 2 - 70, y: g.y, act: 'cross' };   // wait by the crossing; once open, go
   const go = h => far(h) ? { x: g.x + g.w / 2 + 110, y: g.y, act: 'stand' } : { x: g.x + g.w / 2 + 110, y: g.y, act: 'cross' };
   const mine = (h, p) => (p.who === -1 || p.who === h.k) && (p.side === 'far') === far(h) && !inputVirtual(p, solo);
@@ -4838,6 +5196,16 @@ function mechSteps(g) {
     for (const p of ins) if (mine(h, p) && !used.has(p)) { const d = dist(h.x, h.y, p.x, p.y) + (p.who === h.k ? 0 : 400); if (d < bd) { bd = d; best = p; } }
     return best;
   };
+  if (g.rule === 'raft' && g.raft) {       // T8: one rides, the other turns the crank on his bank; then they swap
+    const r = g.raft, dock = { x: g.x - g.half - 45, y: g.y, act: 'ride' }, hold = { x: r.x, y: r.y, act: 'stand' };
+    if (open) { for (const h of hs) out[h.k] = go(h); return out; }
+    const crankAt = h => { const p = ins.find(q => (q.side === 'far') === far(h)); return p ? at(p, h) : null; };
+    if (hs.length === 1) { const h = hs[0]; out[h.k] = h.riding ? hold : far(h) ? go(h) : dock; return out; }
+    let rider = hs.find(h => h.riding);
+    if (!rider) { const nh = hs.filter(h => !far(h)); if (nh.length) rider = nh.reduce((a, b) => dist(a.x, a.y, dock.x, dock.y) <= dist(b.x, b.y, dock.x, dock.y) ? a : b); }
+    for (const h of hs) out[h.k] = h === rider ? (h.riding ? hold : dock) : (crankAt(h) || cross(h));
+    return out;
+  }
   if (hs.length === 1) {                   // G6: alone, his own input (if he has one), then over
     const h = hs[0], p = open ? null : pick(h);
     out[h.k] = p && !p.on ? at(p, h) : go(h);
@@ -4859,7 +5227,8 @@ function mechSteps(g) {
   // all, allWithin, seq (and the kinds of T8 - T12): everyone to his own input; once it is open, everyone over
   for (const h of hs) {
     if (open) { out[h.k] = go(h); continue; }
-    const p = pick(h);
+    let p = pick(h);
+    if (g.rule === 'seq' && ins[g.step] && p !== ins[g.step]) p = null;       // a sequence: only the hero whose turn it is goes to his input, the other waits
     if (p) { used.add(p); out[h.k] = at(p, h); } else out[h.k] = cross(h);
   }
   return out;
@@ -4932,7 +5301,25 @@ function updateCage(dt) {
    A hero at each end makes it rock, and both laugh. It gives nothing: it is only for fun. */
 const SEESAW_END = 120;
 function updateToy(dt) {
-  const L = P.L, toy = L && L.toy; if (!toy || toy.kind !== 'seesaw') return;
+  const L = P.L, toy = L && L.toy; if (!toy) return;
+  if (toy.kind === 'button') {                           // T8: the red button of the workshop. Whoever steps on it makes every robot dance for 5 seconds, once in 30
+    toy.danceT = Math.max(0, toy.danceT - dt); toy.cool = Math.max(0, toy.cool - dt);
+    const h = P.heroes.find(q => isJoined(q.k) && !q.down && !q.carried && dist(q.x, q.y, toy.x, toy.y) < 70), on = !!h;
+    toy.down += ((on ? 1 : 0) - toy.down) * Math.min(1, dt * 14);
+    if (on && !toy.was && toy.cool <= 0) { toy.danceT = CONFIG.mech.danceTime; toy.cool = CONFIG.mech.danceEvery; Snd.play('plate'); say(h.k, 'levelWin'); Input.rumble(h.k, 0, 0.5, 120); burst(toy.x, toy.y - 20, 12, { speed: 200, life: 0.7 }); }
+    toy.was = on; return;
+  }
+  if (toy.kind === 'lilies') {                           // T8: a hero who steps on a pad jumps high (h.z only: how it looks), with a "boing"
+    for (const q of toy.pads) {
+      q.cool = Math.max(0, q.cool - dt); q.jump = Math.max(0, q.jump - dt);
+      const h = P.heroes.find(x => isJoined(x.k) && !x.down && !x.carried && !x.riding && dist(x.x, x.y, q.x, q.y) < 55);
+      q.down += ((h && q.cool <= 0 ? 1 : 0) - q.down) * Math.min(1, dt * 14);
+      if (h && q.cool <= 0) { q.cool = 1.1; q.jump = 0.55; q.by = h; Snd.play('boing', 0, h.k); h.squash = 0.25; burst(q.x, q.y, 8, { speed: 130, life: 0.5, cols: ['#CFE6FF', '#FFFFFF'] }); }
+      if (q.jump > 0 && q.by) q.by.z = Math.max(q.by.z, Math.sin((1 - q.jump / 0.55) * Math.PI) * 90);
+    }
+    return;
+  }
+  if (toy.kind !== 'seesaw') return;
   const on = [-1, 1].map(side => P.heroes.find(h => isJoined(h.k) && !h.down && !h.carried && dist(h.x, h.y, toy.x + side * SEESAW_END, toy.y) < 70));
   toy.both = !!(on[0] && on[1] && on[0] !== on[1]);
   toy.t = (toy.t || 0) + dt;
@@ -5306,7 +5693,7 @@ function ringFight() {
   return !!(P.L.arena && P.boss && P.boss.state !== 'won');
 }
 function hitHero(h, sx, sy) {
-  if (h.down || h.dizzy > 0 || h.inv > 0 || P.done || h.safe || h.shield || h.carried) return;
+  if (h.down || h.dizzy > 0 || h.inv > 0 || h.boost > 0 || P.done || h.safe || h.shield || h.carried) return;      // the rocket: nothing hurts
   if (!Input.slots[h.k].joined) return;          // a hero nobody controls cannot lose eggs
   if (ringFight() && (h.ringHits || 0) < CONFIG.ring.hits) {      // the ring: one piece turns red. No egg falls, he stays on his feet
     const R = CONFIG.ring; h.ringHits = (h.ringHits || 0) + 1; h.ringFlash = 0.4; P.hits++;
@@ -5399,7 +5786,10 @@ function powerSweep(h, id) {
   const L = P.L, cfg = abil(h.k, 'spin'), R = cfg.radius;
   const stun = cfg.stun * (rank(h.k) === 0 ? 1.3 : 1);
   let stunned = 0;
+  crankSwing(h, id);                                  // T8: a spin close to a crank of the raft is a turn
+  targetSwing(h, id);                                 // T8: a power close to a target of this hero's color is a hit on it
   cageSwing(h, id);                                   // T7.2: a power this close to the star cage is a hit on it
+  for (const s of P.stars) if (s.pillar && !s.got && !s.hidden && !s.pop && dist(s.x, s.y, h.x, h.y) < R + 110) collectStar(s, h.k);   // the star on the pillar: a stomp from the edge shakes it down too
   for (const b of L.beetles) if (b.state !== 'dead' && b.sweep !== id && dist(b.x, b.y, h.x, h.y) < R + b.r) {
     b.sweep = id; stunned++;
     if (hurtSmall(b)) { b.state = 'dead'; b.t = CONFIG.smallEnemy.respawn; } else { b.state = 'stun'; b.t = stun; }
@@ -5568,7 +5958,8 @@ function updateHero(h, dt) {
   else if (!h.safe && wasSafe && s.joined) say(h.k, 'unhide');
   updateRun(h, s, ix, iy, dt);
   let sp = cfg.speed;
-  h.inMud = L.grid[L.ci(h.x, h.y)] === 1;
+  const beltDir = L.beltDir ? L.beltDir[L.ci(h.x, h.y)] : 0;      // T8: on a conveyor belt (code 1 too) a hero is carried, not slowed
+  h.inMud = L.grid[L.ci(h.x, h.y)] === 1 && !beltDir;
   if (h.inMud && !h.wasMud && s.joined) say(h.k, 'mud'); h.wasMud = h.inMud;
   const onBridge = !!(L.flag[L.ci(h.x, h.y)] & 8); if (onBridge && !h.wasBridge && s.joined) say(h.k, 'bridge'); h.wasBridge = onBridge;
   if (h.inMud) sp *= L.def.slow || CONFIG.mudSlow;
@@ -5580,7 +5971,9 @@ function updateHero(h, dt) {
   if (h.spinT >= 0) sp *= 0.8;
   if (h.run) sp = Math.min(sp * CONFIG.sprint.mult, CONFIG.sprint.maxSpeed);      // running: three times faster, but never over the limit
   const m = Math.hypot(ix, iy), f = m > 0.01 ? (0.45 + 0.55 * Math.min(1, m)) / m : 0;
-  h.vx += (ix * f * sp - h.vx) * Math.min(1, dt * 12); h.vy += (iy * f * sp - h.vy) * Math.min(1, dt * 12);
+  const push = beltDir && !h.down && !h.carried ? beltDir * CONFIG.mech.beltPush : 0;
+  h.vx += (ix * f * sp - h.vx) * Math.min(1, dt * 12); h.vy += (iy * f * sp + push - h.vy) * Math.min(1, dt * 12);
+  if (h.riding) h.vx = h.vy = 0;                      // T8: a rider goes with the raft (updateRafts), he does not walk
   if (m > 0.3) { h.ax = ix / m; h.ay = iy / m; P.tut[h.k].moved += dt; }
   // bored: standing still for 8 seconds while a player holds this hero
   h.idleT = (s.joined && !h.moving && !h.charging && h.dizzy <= 0) ? (h.idleT || 0) + dt : 0;
@@ -5594,7 +5987,7 @@ function updateHero(h, dt) {
       h.px = h.x; h.py = h.y;
       h.x += h.vx * sdt; h.y += h.vy * sdt;
       if (wind) { h.x += P.wind.dir * wind * sdt; h.y += wind * 0.12 * sdt; }
-      collide(L, h, HERO_R, false);
+      if (!h.riding) collide(L, h, HERO_R, false);
     }
   }
   if (h.run && h.moving) {               // the trail of three ghosts, and a little dust at every step
@@ -5713,7 +6106,7 @@ function stepFlyBall(b, dt) {
     }
     if (L.birds) for (const bd of L.birds) if (bd.state === 'fly' && bd.kickHit !== b.kick && dist(bd.x, bd.y, b.x, b.y) < 62 + b.r) { bd.kickHit = b.kick; hitBird(bd); }
     for (let j = P.eggs.length - 1; j >= 0; j--) { const e = P.eggs[j]; if (e.state === 'idle' && e.delay <= 0 && !(e.wait > 0) && dist(e.x, e.y, b.x, b.y) < e.r + b.r + 20) { collectEgg(e, b.owner); } }
-    for (const s of P.stars) if (!s.got && !s.hidden && !s.pop && dist(s.x, s.y, b.x, b.y) < 26 + b.r + 16) collectStar(s, b.owner);
+    for (const s of P.stars) if (!s.got && !s.hidden && !s.pop && dist(s.x, s.y, b.x, b.y) < 26 + b.r + 16 + (s.pillar ? 40 : 0)) collectStar(s, b.owner);
     if (P.boss) bossBall(b);
     if (P.duel) duelBall(b);
     if (b.state !== 'fly') return true;
@@ -5773,6 +6166,8 @@ function updateEnemies(dt) {
       continue;
     }
     b.t -= dt; b.cool = Math.max(0, (b.cool || 0) - dt);
+    if (L.toy && L.toy.danceT > 0 && !b.look && b.state !== 'stun' && b.state !== 'knock') { b.dance = true; b.px = b.x; b.py = b.y; continue; }      // T8: the robots dance, they do not hunt
+    b.dance = false;
     let near = null, nd = 1e9;
     for (const h of P.heroes) { const d = dist(h.x, h.y, b.x, b.y); if (d < nd) { nd = d; near = h; } }
     const mul = enemyMul(b.x, b.y);
@@ -5886,6 +6281,24 @@ function updateBoss(dt) {
   stepProj(bs.proj, dt);
 }
 /* ---------- second game: big birds that pick a hero up and carry him a little way (it does not hurt) ---------- */
+/* The rocket (butterflyTime seconds, both heroes): a hero who touches a small enemy turns it into a diamond on the spot,
+   and a hero who touches George takes one heart from him (once in CONFIG.rocketGeorgeCd seconds). */
+function rocketKill(e) { e.hp = 1; return hurtSmall(e); }
+function updateRocketTouch(dt) {
+  const L = P.L; if (P.duel) P.duel.rocketCd = Math.max(0, (P.duel.rocketCd || 0) - dt);
+  for (const h of P.heroes) {
+    if (!(h.boost > 0) || h.down || h.safe || h.carried || !Input.slots[h.k].joined) continue;
+    const hr = HERO_R + 14;
+    for (const b of L.beetles) if (b.state !== 'dead' && b.state !== 'sleep' && dist(b.x, b.y, h.x, h.y) < b.r + hr) { if (rocketKill(b)) { b.state = 'dead'; b.t = CONFIG.smallEnemy.respawn; Snd.play('star', 0, h.k, 0.6); } }
+    for (const c of L.cones) if (c.state === 'roll' && dist(c.x, c.y, h.x, h.y) < c.r + hr) { if (rocketKill(c)) { c.state = 'gone'; c.t = CONFIG.smallEnemy.respawn; } }
+    if (L.birds) for (const bd of L.birds) if (bd.state === 'fly' && dist(bd.x, bd.y, h.x, h.y - 30) < 70 + hr) { if (bd.grab) dropHero(bd); if (rocketKill(bd)) { bd.state = 'gone'; bd.t = CONFIG.smallEnemy.respawn; } }
+    const d = P.duel;
+    if (d && !d.over && d.rocketCd <= 0 && d.state !== 'enter' && d.state !== 'flee' && d.state !== 'hurt' && dist(h.x, h.y, d.x, d.y) < d.R + hr) { d.rocketCd = CONFIG.rocketGeorgeCd; duelHit(h.k); }
+  }
+  for (const h of P.heroes) if (h.boost > 0 && Math.random() < dt * 40) {      // sparkles falling off a shining hero
+    const a = Math.random() * TAU; part(h.x + Math.cos(a) * 50, h.y - 40 + Math.sin(a) * 50, { vx: Math.cos(a) * 60, vy: Math.sin(a) * 60 - 30, life: 0.6, max: 0.6, size: 7, col: Math.random() < 0.5 ? '#FFFFFF' : '#FFE08A', kind: 'spark' });
+  }
+}
 function hitBird(bd) {
   if (bd.grab) dropHero(bd);
   if (hurtSmall(bd)) { bd.state = 'gone'; bd.t = CONFIG.smallEnemy.respawn; }
@@ -6013,6 +6426,7 @@ function updatePlay(dt) {
   updateQuotaMsg();
   updateAutoGive(dt);
   updateEnemies(dt);
+  updateRocketTouch(dt);
   if (L.birds) updateBirds(dt);
   if (P.boss) updateBoss(dt);
   if (P.duel) updateDuel(dt);
@@ -6180,7 +6594,7 @@ function duelFighter() {
 /* While a hero waits for the friend's help the fight rests: the guardian finishes what it was doing, hurts nobody and starts no new attack. */
 const duelWaiting = () => P.heroes.some(h => h.down);
 /* Nothing touches a hero hidden in the nest. A player on "Ușor" who only helps (the guardian is after the friend) is spared too. */
-const duelSpares = h => h.safe || duelWaiting() || (rank(h.k) === 0 && P.duel.target !== h.k && Input.slots[1 - h.k].joined);
+const duelSpares = h => h.safe || h.boost > 0 || duelWaiting() || (rank(h.k) === 0 && P.duel.target !== h.k && Input.slots[1 - h.k].joined);
 /* A tired guardian can always be hit. On "Ușor" every hit counts at any time, except on a guardian that is only waiting for a hero to be helped up. */
 const duelCanHurt = (k, how) => P.duel.state === 'tired' || (how === 'ball' && P.duel.state === 'stag') || ((rank(k) === 0 || (CONFIG.duel.mercy > 0 && (P.duel.downs || 0) >= CONFIG.duel.mercyMax)) && !duelWaiting());
 function duelEggs(n) {
@@ -6689,7 +7103,14 @@ function drawHeroFull(c, h) {
     c.strokeStyle = rgba(fcfg.color, 0.55 + pu * 0.4); c.lineWidth = 7; c.setLineDash([14, 10]); c.lineDashOffset = -t * 30;
     c.beginPath(); c.ellipse(h.x, h.y + 2, 64 + pu * 8, 27 + pu * 3, 0, 0, TAU); c.stroke(); c.setLineDash([]);
   }
-  if (h.boost > 0) { const g = c.createRadialGradient(h.x, h.y - 40, 10, h.x, h.y - 40, 110); g.addColorStop(0, 'rgba(255,214,140,0.5)'); g.addColorStop(1, 'rgba(255,214,140,0)'); c.fillStyle = g; c.beginPath(); c.arc(h.x, h.y - 40, 110, 0, TAU); c.fill(); }
+  if (h.boost > 0) {                       // the rocket: a golden shine AROUND the hero (clear in the middle, so you still see who it is); in the last 2 seconds it flickers
+    const fl = h.boost < 2 ? 0.55 + 0.45 * Math.abs(Math.sin(P.time * 14)) : 1, pu = 0.9 + Math.sin(P.time * 9) * 0.1;
+    c.save(); c.globalCompositeOperation = 'lighter';
+    const g = c.createRadialGradient(h.x, h.y - 40, 40, h.x, h.y - 40, 150 * pu); g.addColorStop(0, 'rgba(255,214,120,0)'); g.addColorStop(0.45, 'rgba(255,214,120,' + 0.3 * fl + ')'); g.addColorStop(1, 'rgba(255,200,110,0)');
+    c.fillStyle = g; c.beginPath(); c.arc(h.x, h.y - 40, 150 * pu, 0, TAU); c.fill();
+    for (let i = 0; i < 6; i++) { const a = P.time * 2.2 + i * TAU / 6; drawStarSpark(c, h.x + Math.cos(a) * 74, h.y - 40 + Math.sin(a) * 58, 8 + 3 * Math.sin(P.time * 8 + i), 0.85 * fl); }
+    c.restore();
+  }
   if (h.safe) { c.strokeStyle = rgba('#7FB06A', 0.9); c.lineWidth = 5; c.setLineDash([12, 9]); c.beginPath(); c.ellipse(h.x, h.y + 2, 58, 24, 0, 0, TAU); c.stroke(); c.setLineDash([]); }
   if (h.spinT >= 0) { if (h.spinLook === 'gloves') drawGloveRing(c, h); else drawClawRing(c, h); }
   if (h.run) drawRunTrail(c, h);           // running: three ghosts behind, then the speed lines
@@ -6852,7 +7273,9 @@ function drawWorld(c) {
     }
     else if (it.k === 1) {                 // beetles (robots in the second game): they blink when hit and pop up when a new one arrives
       if (o.flash > 0 && Math.sin(t * 45) > 0) c.globalAlpha = 0.45;
+      if (o.dance) { c.save(); const w = Math.sin(t * 9 + (o.seed || 0)); c.translate(o.x, o.y - Math.abs(w) * 10); c.rotate(w * 0.16); c.translate(-o.x, -o.y); }      // T8: the robots dance
       if (o.born > 0) { const k = 1 - o.born / 0.5; c.save(); c.translate(o.x, o.y); c.scale(k, k); c.translate(-o.x, -o.y); drawSleeper(c, o, t); c.restore(); } else drawSleeper(c, o, t);
+      if (o.dance) c.restore();
       c.globalAlpha = 1; if (o.state === 'stun') drawDizzyStars(c, o.x, o.y - 52, t); drawSmallHp(c, o, o.x, o.y - 78);
     }
     else if (it.k === 2) {                 // pinecones (sticky snails in the second game)
@@ -7303,9 +7726,16 @@ function addLight(x, y, r, col, a, glow) {
   const o = _lightPool[_lights.length] || (_lightPool[_lights.length] = {});
   o.x = x; o.y = y; o.r = r; o.col = col; o.a = a; o.glow = !!glow; _lights.push(o);       // glow: it also gets a halo, it gives light by itself
 }
+/* A little four-pointed sparkle (the rocket's shine). */
+function drawStarSpark(c, x, y, r, a) {
+  c.fillStyle = 'rgba(255,248,214,' + a + ')'; c.beginPath();
+  for (let i = 0; i < 8; i++) { const ang = i * Math.PI / 4 - Math.PI / 2, rr = i % 2 ? r * 0.3 : r; c.lineTo(x + Math.cos(ang) * rr, y + Math.sin(ang) * rr); }
+  c.closePath(); c.fill();
+}
 function collectLights(L) {
   _lights.length = 0;
   for (const h of P.heroes) addLight(h.x, h.y - 70, 150, mix(CONFIG.heroes[h.k].color, '#FFF6E0', 0.5), 0.45);
+  for (const h of P.heroes) if (h.boost > 0) addLight(h.x, h.y - 60, 200, '#FFE9A8', 0.45, true);                  // the rocket: a big warm light around the shining hero
   for (const p of L.inputs || []) if (p.kind === 'plate' && p.on) addLight(p.x, p.y, 110, '#FFF0C0', 0.5);      // a pressed plate glows (T7.2)
   for (const g of L.gates || []) if (g.kind === 'chasm' && g.vis > 0.2) addLight(g.x, g.y, 170, '#FFF2D8', 0.45 * Math.min(1, g.vis), true);   // the bridge of light shines (T7.4)
   if (L.cage && L.cage.done) addLight(L.cage.x, L.cage.y - 90, 150, '#FFE9A8', 0.6, true);                      // the open cage shines
@@ -8020,6 +8450,10 @@ function drawIntroIconL(c, kind, x, y, t, Lx) {
   else if (kind === 'door') { c.beginPath(); c.arc(x, y, 86, 0, TAU); c.clip(); c.fillStyle = '#6E62A8'; c.fillRect(x - 90, y - 90, 180, 180); paintDoor(c, x, y + 66); }
   else if (kind === 'lantern') { paintTorch(c, x, y + 74); drawFlame(c, x, y - 12, t, 1.1, 1); }
   else if (kind === 'plate') { if (artOk('plate_both')) drawArt(c, 'plate_both', x, y + 70, 120, 0.5); else { c.fillStyle = '#D9A07E'; c.beginPath(); c.ellipse(x, y + 30, 70, 34, 0, 0, TAU); c.fill(); } }
+  else if (kind === 'target') { c.fillStyle = '#9A6A58'; c.fillRect(x - 5, y + 10, 10, 60); for (const [rr, cc] of [[44, '#2A3FA0'], [40, '#4A78E0'], [27, '#FFF6E2'], [17, '#3FD0C0'], [7, '#FFF6E2']]) { c.fillStyle = cc; c.beginPath(); c.arc(x, y + 4, rr, 0, TAU); c.fill(); } }
+  else if (kind === 'raft') { c.fillStyle = '#1F6A52'; c.beginPath(); c.ellipse(x, y + 24, 76, 40, 0, 0, TAU); c.fill(); c.fillStyle = '#3FB08A'; c.beginPath(); c.ellipse(x, y + 18, 70, 34, 0, 0, TAU); c.fill(); c.fillStyle = '#FFB0D8'; for (let i = 0; i < 5; i++) { const a = i * TAU / 5; c.beginPath(); c.ellipse(x + Math.cos(a) * 12, y + 12 + Math.sin(a) * 8, 9, 6, a, 0, TAU); c.fill(); } }
+  else if (kind === 'crank') { c.fillStyle = '#8A5E3C'; c.fillRect(x - 8, y - 6, 16, 80); c.save(); c.translate(x, y - 8); c.rotate(t * 1.4); c.fillStyle = '#C8925E'; c.beginPath(); c.arc(0, 0, 40, 0, TAU); c.fill(); c.fillStyle = '#E2B27C'; c.beginPath(); c.arc(0, 0, 31, 0, TAU); c.fill(); c.fillStyle = '#E4583C'; c.beginPath(); c.arc(30, 0, 8, 0, TAU); c.fill(); c.restore(); }
+  else if (kind === 'gear') { drawGear(c, x, y + 6, 40, '#C8A040', t); }
   else if (kind === 'bridge') { for (let i = 0; i < 7; i++) { const u = clamp((t * 1.4) % 3 * 3 - i * 0.5, 0, 1); c.globalAlpha = u; c.fillStyle = mix(RAINBOW[i], '#FFF6E0', 0.3); c.beginPath(); c.roundRect(x - 98 + i * 28, y - 40, 24, 100, 6); c.fill(); } c.globalAlpha = 1; }
   else return false;
   return true;

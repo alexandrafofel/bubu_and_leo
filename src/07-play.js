@@ -363,7 +363,7 @@ function ringFight() {
   return !!(P.L.arena && P.boss && P.boss.state !== 'won');
 }
 function hitHero(h, sx, sy) {
-  if (h.down || h.dizzy > 0 || h.inv > 0 || P.done || h.safe || h.shield || h.carried) return;
+  if (h.down || h.dizzy > 0 || h.inv > 0 || h.boost > 0 || P.done || h.safe || h.shield || h.carried) return;      // the rocket: nothing hurts
   if (!Input.slots[h.k].joined) return;          // a hero nobody controls cannot lose eggs
   if (ringFight() && (h.ringHits || 0) < CONFIG.ring.hits) {      // the ring: one piece turns red. No egg falls, he stays on his feet
     const R = CONFIG.ring; h.ringHits = (h.ringHits || 0) + 1; h.ringFlash = 0.4; P.hits++;
@@ -456,7 +456,10 @@ function powerSweep(h, id) {
   const L = P.L, cfg = abil(h.k, 'spin'), R = cfg.radius;
   const stun = cfg.stun * (rank(h.k) === 0 ? 1.3 : 1);
   let stunned = 0;
+  crankSwing(h, id);                                  // T8: a spin close to a crank of the raft is a turn
+  targetSwing(h, id);                                 // T8: a power close to a target of this hero's color is a hit on it
   cageSwing(h, id);                                   // T7.2: a power this close to the star cage is a hit on it
+  for (const s of P.stars) if (s.pillar && !s.got && !s.hidden && !s.pop && dist(s.x, s.y, h.x, h.y) < R + 110) collectStar(s, h.k);   // the star on the pillar: a stomp from the edge shakes it down too
   for (const b of L.beetles) if (b.state !== 'dead' && b.sweep !== id && dist(b.x, b.y, h.x, h.y) < R + b.r) {
     b.sweep = id; stunned++;
     if (hurtSmall(b)) { b.state = 'dead'; b.t = CONFIG.smallEnemy.respawn; } else { b.state = 'stun'; b.t = stun; }
@@ -625,7 +628,8 @@ function updateHero(h, dt) {
   else if (!h.safe && wasSafe && s.joined) say(h.k, 'unhide');
   updateRun(h, s, ix, iy, dt);
   let sp = cfg.speed;
-  h.inMud = L.grid[L.ci(h.x, h.y)] === 1;
+  const beltDir = L.beltDir ? L.beltDir[L.ci(h.x, h.y)] : 0;      // T8: on a conveyor belt (code 1 too) a hero is carried, not slowed
+  h.inMud = L.grid[L.ci(h.x, h.y)] === 1 && !beltDir;
   if (h.inMud && !h.wasMud && s.joined) say(h.k, 'mud'); h.wasMud = h.inMud;
   const onBridge = !!(L.flag[L.ci(h.x, h.y)] & 8); if (onBridge && !h.wasBridge && s.joined) say(h.k, 'bridge'); h.wasBridge = onBridge;
   if (h.inMud) sp *= L.def.slow || CONFIG.mudSlow;
@@ -637,7 +641,9 @@ function updateHero(h, dt) {
   if (h.spinT >= 0) sp *= 0.8;
   if (h.run) sp = Math.min(sp * CONFIG.sprint.mult, CONFIG.sprint.maxSpeed);      // running: three times faster, but never over the limit
   const m = Math.hypot(ix, iy), f = m > 0.01 ? (0.45 + 0.55 * Math.min(1, m)) / m : 0;
-  h.vx += (ix * f * sp - h.vx) * Math.min(1, dt * 12); h.vy += (iy * f * sp - h.vy) * Math.min(1, dt * 12);
+  const push = beltDir && !h.down && !h.carried ? beltDir * CONFIG.mech.beltPush : 0;
+  h.vx += (ix * f * sp - h.vx) * Math.min(1, dt * 12); h.vy += (iy * f * sp + push - h.vy) * Math.min(1, dt * 12);
+  if (h.riding) h.vx = h.vy = 0;                      // T8: a rider goes with the raft (updateRafts), he does not walk
   if (m > 0.3) { h.ax = ix / m; h.ay = iy / m; P.tut[h.k].moved += dt; }
   // bored: standing still for 8 seconds while a player holds this hero
   h.idleT = (s.joined && !h.moving && !h.charging && h.dizzy <= 0) ? (h.idleT || 0) + dt : 0;
@@ -651,7 +657,7 @@ function updateHero(h, dt) {
       h.px = h.x; h.py = h.y;
       h.x += h.vx * sdt; h.y += h.vy * sdt;
       if (wind) { h.x += P.wind.dir * wind * sdt; h.y += wind * 0.12 * sdt; }
-      collide(L, h, HERO_R, false);
+      if (!h.riding) collide(L, h, HERO_R, false);
     }
   }
   if (h.run && h.moving) {               // the trail of three ghosts, and a little dust at every step
@@ -770,7 +776,7 @@ function stepFlyBall(b, dt) {
     }
     if (L.birds) for (const bd of L.birds) if (bd.state === 'fly' && bd.kickHit !== b.kick && dist(bd.x, bd.y, b.x, b.y) < 62 + b.r) { bd.kickHit = b.kick; hitBird(bd); }
     for (let j = P.eggs.length - 1; j >= 0; j--) { const e = P.eggs[j]; if (e.state === 'idle' && e.delay <= 0 && !(e.wait > 0) && dist(e.x, e.y, b.x, b.y) < e.r + b.r + 20) { collectEgg(e, b.owner); } }
-    for (const s of P.stars) if (!s.got && !s.hidden && !s.pop && dist(s.x, s.y, b.x, b.y) < 26 + b.r + 16) collectStar(s, b.owner);
+    for (const s of P.stars) if (!s.got && !s.hidden && !s.pop && dist(s.x, s.y, b.x, b.y) < 26 + b.r + 16 + (s.pillar ? 40 : 0)) collectStar(s, b.owner);
     if (P.boss) bossBall(b);
     if (P.duel) duelBall(b);
     if (b.state !== 'fly') return true;
@@ -830,6 +836,8 @@ function updateEnemies(dt) {
       continue;
     }
     b.t -= dt; b.cool = Math.max(0, (b.cool || 0) - dt);
+    if (L.toy && L.toy.danceT > 0 && !b.look && b.state !== 'stun' && b.state !== 'knock') { b.dance = true; b.px = b.x; b.py = b.y; continue; }      // T8: the robots dance, they do not hunt
+    b.dance = false;
     let near = null, nd = 1e9;
     for (const h of P.heroes) { const d = dist(h.x, h.y, b.x, b.y); if (d < nd) { nd = d; near = h; } }
     const mul = enemyMul(b.x, b.y);
@@ -943,6 +951,24 @@ function updateBoss(dt) {
   stepProj(bs.proj, dt);
 }
 /* ---------- second game: big birds that pick a hero up and carry him a little way (it does not hurt) ---------- */
+/* The rocket (butterflyTime seconds, both heroes): a hero who touches a small enemy turns it into a diamond on the spot,
+   and a hero who touches George takes one heart from him (once in CONFIG.rocketGeorgeCd seconds). */
+function rocketKill(e) { e.hp = 1; return hurtSmall(e); }
+function updateRocketTouch(dt) {
+  const L = P.L; if (P.duel) P.duel.rocketCd = Math.max(0, (P.duel.rocketCd || 0) - dt);
+  for (const h of P.heroes) {
+    if (!(h.boost > 0) || h.down || h.safe || h.carried || !Input.slots[h.k].joined) continue;
+    const hr = HERO_R + 14;
+    for (const b of L.beetles) if (b.state !== 'dead' && b.state !== 'sleep' && dist(b.x, b.y, h.x, h.y) < b.r + hr) { if (rocketKill(b)) { b.state = 'dead'; b.t = CONFIG.smallEnemy.respawn; Snd.play('star', 0, h.k, 0.6); } }
+    for (const c of L.cones) if (c.state === 'roll' && dist(c.x, c.y, h.x, h.y) < c.r + hr) { if (rocketKill(c)) { c.state = 'gone'; c.t = CONFIG.smallEnemy.respawn; } }
+    if (L.birds) for (const bd of L.birds) if (bd.state === 'fly' && dist(bd.x, bd.y, h.x, h.y - 30) < 70 + hr) { if (bd.grab) dropHero(bd); if (rocketKill(bd)) { bd.state = 'gone'; bd.t = CONFIG.smallEnemy.respawn; } }
+    const d = P.duel;
+    if (d && !d.over && d.rocketCd <= 0 && d.state !== 'enter' && d.state !== 'flee' && d.state !== 'hurt' && dist(h.x, h.y, d.x, d.y) < d.R + hr) { d.rocketCd = CONFIG.rocketGeorgeCd; duelHit(h.k); }
+  }
+  for (const h of P.heroes) if (h.boost > 0 && Math.random() < dt * 40) {      // sparkles falling off a shining hero
+    const a = Math.random() * TAU; part(h.x + Math.cos(a) * 50, h.y - 40 + Math.sin(a) * 50, { vx: Math.cos(a) * 60, vy: Math.sin(a) * 60 - 30, life: 0.6, max: 0.6, size: 7, col: Math.random() < 0.5 ? '#FFFFFF' : '#FFE08A', kind: 'spark' });
+  }
+}
 function hitBird(bd) {
   if (bd.grab) dropHero(bd);
   if (hurtSmall(bd)) { bd.state = 'gone'; bd.t = CONFIG.smallEnemy.respawn; }
@@ -1070,6 +1096,7 @@ function updatePlay(dt) {
   updateQuotaMsg();
   updateAutoGive(dt);
   updateEnemies(dt);
+  updateRocketTouch(dt);
   if (L.birds) updateBirds(dt);
   if (P.boss) updateBoss(dt);
   if (P.duel) updateDuel(dt);

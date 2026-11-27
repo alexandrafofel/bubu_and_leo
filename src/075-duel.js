@@ -73,7 +73,7 @@ function duelFighter() {
 /* While a hero waits for the friend's help the fight rests: the guardian finishes what it was doing, hurts nobody and starts no new attack. */
 const duelWaiting = () => P.heroes.some(h => h.down);
 /* Nothing touches a hero hidden in the nest. A player on "Ușor" who only helps (the guardian is after the friend) is spared too. */
-const duelSpares = h => h.safe || duelWaiting() || (rank(h.k) === 0 && P.duel.target !== h.k && Input.slots[1 - h.k].joined);
+const duelSpares = h => h.safe || h.boost > 0 || duelWaiting() || (rank(h.k) === 0 && P.duel.target !== h.k && Input.slots[1 - h.k].joined);
 /* A tired guardian can always be hit. On "Ușor" every hit counts at any time, except on a guardian that is only waiting for a hero to be helped up. */
 const duelCanHurt = (k, how) => P.duel.state === 'tired' || (how === 'ball' && P.duel.state === 'stag') || ((rank(k) === 0 || (CONFIG.duel.mercy > 0 && (P.duel.downs || 0) >= CONFIG.duel.mercyMax)) && !duelWaiting());
 function duelEggs(n) {

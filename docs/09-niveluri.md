@@ -233,3 +233,29 @@ Ce mai stie nivelul 7 (T7.5):
 - Dupa el vine lupta mare, care e mereu ultimul capitol (27 noiembrie 2026). Dupa ultimul capitol, ecranul de final de nivel duce la ecranul de start.
 - Botii il termina singuri (cam 90 s) si in doi (cam 185 s), cu cel mai lung timp fara progres de 13 - 17 s (`17-testare.md`).
 - George lupta mereu pe partea eroilor (`10-gameplay.md`).
+
+
+## Update 27 noiembrie 2026: nivelurile 8 si 9 (T8)
+
+`CONFIG.lupta.levels` este 9. Fiecare lista pe niveluri din `CONFIG.lupta` are acum al noualea numar.
+
+### Nivelul 8: Atelierul lui George (`works`)
+
+- Definitia: `LEVEL_DEFS_L[7]` in `src/06-level.js`. Muzica `l4`, paleta `works`, `look: 'diorama'`.
+- Doua benzi `wall` (cod 3): `targets1` (poarta A) si `targets2` (poarta B).
+- Tintele sunt turcoaz (Boon) sau albastre (Killer). O putere a eroului lor conteaza (`targetHit`). A celuilalt doar scutura tinta.
+- Poarta A: doua tinte, `allWithin`, 4 secunde unul de altul. Poarta B: patru tinte in ordine, `seq`: Boon, Killer, Killer, Boon. O tinta gresita reia secventa (nu pe Ușor).
+- Benzile rulante: `L.belts`, `L.beltDir`, 140 de unitati pe secunda (`CONFIG.mech.beltPush`). Celulele lor au codul 1, dar nu incetinesc.
+- Butonul rosu (`L.toy`, `kind: 'button'`): robotii danseaza 5 secunde, o data la 30 (`CONFIG.mech.danceTime`, `danceEvery`).
+- Harta de fundal si zidul sunt imagini Krea (`art/krea/`), aprobate de proprietara.
+
+### Nivelul 9: Lacul Nuferilor Uriași (`lake`)
+
+- Definitia: `LEVEL_DEFS_L[8]`. Muzica `l2`, paleta `lake` (noapte), `look: 'diorama'`.
+- Doua benzi `water` (cod 2), late de 400 si 480: `raft1` si `raft2` (`need: 3`, a doua are `current: true`).
+- Apa se picteaza din `L.waterCells` cu valuri (`paintWater`). Celulele trecerii sunt 0 la generare si primesc codul 2 in `closeGates`, la `startPlay`.
+- Pluta, manivelele si regulile lor: `docs/10-gameplay.md`, "Plutele si manivelele (T8)".
+- Jucaria nivelului: nuferii (`L.toy`, `kind: 'lilies'`, `updateToy`). Un erou care calca pe unul sare (`boing`). Sunt doar pe mal.
+- Steaua de pe insulita: un nufar de piatra la marginea apei, luata cu o lovitura de invartire sau cu o minge, ca steaua stalpului de la nivelul 7.
+- Harta de fundal nu e facuta cu Krea: contul nu mai avea credit. Nivelul e pictat pe canvas. Cand exista credit: se genereaza harta, se arata proprietarei, apoi se pune in `art/krea/`.
+- Nu sunt facute cristalele plutitoare din `25-niveluri-7-12.md` (banda B).

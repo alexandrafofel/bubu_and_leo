@@ -162,9 +162,18 @@ Se rostogolesc de sus in jos pe culoar. La capat dispar 1.4 s si pornesc din nou
 
 Doar pe nivelurile cu `wind`: `calm` 9 s (variaza), `warn` 1 s (sunet si cateva frunze), `blow` 2.6 s. Puterea urca lin. Impinge eroii (x `wind` din dificultate) si mingea. Pe ecran: frunze care zboara si dungi crem. Morile se invart mai repede.
 
+## Racheta (27 noiembrie 2026)
+
+Cine atinge racheta, ambii eroi primesc `CONFIG.butterflyTime` = 10 secunde de racheta (`h.boost`). Cat tine:
+
+- Eroii merg mai repede (x 1.5) si **nu pot fi loviti** (`hitHero` iese din prima, proiectilele lui George trec prin ei, `duelSpares`).
+- **Stralucesc foarte tare**: halou alb-auriu, scantei care se rotesc, lumina mare in harta de lumina (`collectLights`) si o fasie luminoasa peste erou. In ultimele 2 secunde lumina palpaie.
+- Un inamic mic atins (robot, melc, con, pasare) moare pe loc si lasa diamantul (`updateRocketTouch`, `rocketKill` prin `hurtSmall`).
+- George atins pierde o inimioara (`duelHit`, cel mult una la `CONFIG.rocketGeorgeCd` = 1.2 s).
+
 ## Fluturele
 
-Apare la 40 pana la 70 de secunde, pe marginea ecranului, si zboara in jurul eroilor. Cine il atinge da ambilor viteza x 1.5 pentru 6 s. Pleaca dupa 18 s daca nu e prins.
+Apare la 40 pana la 70 de secunde, pe marginea ecranului, si zboara in jurul eroilor. Cine il atinge da ambilor racheta pentru 10 s (vezi mai jos). Pleaca dupa 18 s daca nu e prins.
 
 La nivelul 5, primul fluture zboara spre cascada si sta acolo pana la 40 s. Este un indiciu pentru pestera, fara cuvinte.
 
@@ -513,3 +522,29 @@ Regulile G1 - G10 din `docs/25-niveluri-7-12.md`, 3.6. Fiecare are in cod un com
 - **Ce arunca George ramane pe aceeasi parte.** Inamicii aruncati (`georgeEnemies`), salturile lui (`duelSnap`) si diamantele care sar din el (`duelEggs`) cad doar pe partea eroilor.
 - **Lupta de la jumatate nu aterizeaza in cuib** (pe toate nivelurile). Un erou in cuib e ascuns; daca George statea in cuib, nimeni nu avea pe cine lovi si nici el pe cine ataca, iar lupta nu se mai termina. Acum locul e la cel putin `nestSafeRadius` + 160 de cuib.
 - **Lupta de la jumatate se da pe loc deschis.** La alegerea locului, fiecare copac sau stanca la mai putin de 240 scade din scor (`room`). Altfel George ateriza printre copaci si mingile lui Killer se loveau de ei.
+
+
+## Update 27 noiembrie 2026: plutele si manivelele (T8)
+
+Retetele `raft1` si `raft2` (`src/065-mech.js`) au regula `'raft'`. Fiecare poarta de apa are o pluta (`L.rafts`, `g.raft`).
+
+**Cum se trece:**
+- Un erou sta la docul din stanga (la 0.35 s, `CONFIG.mech.raftBoard`) si urca. Doi eroi pot urca.
+- Cine e pe pluta nu merge si nu apasa nimic (`heroCrossing`). Poate folosi puterile, dar nu invarte manivela.
+- Celalalt erou sta langa manivela de pe malul lui (`crankReach` 200) si da o lovitura de invartire: ✕ la Boon, □ la Killer (`crankSwing`, o data pentru fiecare id de putere).
+- Fiecare invartire aduce `1 / need` din drum. Pluta se misca in 0.8 s (`raftTurn`).
+- La malul celalalt calatorul coboara singur (`raftDismount`). Pluta goala se intoarce singura dupa 1.5 s, cu 140 de unitati pe secunda.
+- Cine vrea sa coboare la doc impinge bastonul spre stanga (x sub -0.4, 0.25 s).
+- Dupa ce cineva a trecut, rolurile se schimba: cel de dincolo are manivela lui, pe malul de dincolo.
+
+**Curentul** (a doua banda): daca nimeni nu invarte `raftGrace` (1.5 s), pluta aluneca inapoi cu `raftDrift` (0.05 din drum pe secunda, jumatate pe Ușor). Cu 3 invartiri si lovituri la 1.6 s distanta se trece usor.
+
+**Un singur jucator (G6):** manivela eroului care nu joaca se invarte singura la 1.1 s (`raftSolo`).
+
+**G11, nimeni nu ramane pe apa:** un erou care sta pe celulele unei treceri inchise fara sa fie pe pluta este dus pe malul lui, la nivelul docului (`updateRafts`, `P.pushedOut`). Se poate intampla daca o poarta se inchide peste el.
+
+**G3, G7:** cand un erou e la pamant sau cand trec 180 s fara progres, apa se face drum de nuferi: oamenii de pe pluta coboara si pot merge pe nuferi (`g.open > 0.9`).
+
+**Nivelul 8, tintele:** `targetHit(inp, k)` aprinde tinta 0.4 s (`CONFIG.mech.targetOn`). `targetReach` (190) e raza in care o putere conteaza. In G6 tintele eroului care lipseste sunt "facute" (`inputVirtual`).
+
+**Racheta** (nu e parte din T8, dar a venit odata cu el): vezi sectiunea "Racheta" de mai sus.

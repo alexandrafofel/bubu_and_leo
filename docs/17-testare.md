@@ -721,3 +721,19 @@ Tot pe 27 noiembrie 2026:
 ## Update 28 noiembrie 2026: `tests/limba.js` (T13)
 
 13 verificari: clipurile decodate, toate momentele au replica la ambii eroi, texte in romana si engleza, durata si varful, vocile se deosebesc, cuvantul iese in difuzorul eroului lui, balonul si dictionarul, setarea "Text la cuvinte", fredonat si rasuflat, salvarea cuvintelor. Pauza dintre cuvinte merge pe ceasul real, deci testul asteapta cateva secunde reale (`setTimeout`) inainte sa astepte un cuvant. Intra in `toate.sh`.
+
+
+## Update 27 noiembrie 2026: T8, nivelurile 8 si 9
+
+| Test | Ce face | Rezultat |
+|---|---|---|
+| `nivele-bot-mers.js` | Un bot singur prin nivelurile 1 - 9. Apoi doi boti pe nivelurile 7, 8 si 9, Ușor/Normal si Normal/Normal. La nivelul 9 botii folosesc `mechSteps`: unul urca pe pluta, celalalt invarte manivela. `CAPITOL=8` porneste doar nivelul 9. `DIFF=normal/normal` o singura dificultate. `DBG=1` (sau 2, 3, 4) pune in iesire jurnalul pozitiilor, al portilor si al plutelor. | 10 din 10 cu Normal/Normal |
+| `mecanisme.js`, partea T8 | Nivelul 8: inchis la inceput, tinta singura, tinta tarziu, doua tinte, ordinea gresita si buna, un singur jucator (G6), G7, G3, George pe partea eroilor. Nivelul 9: inchis la inceput, urcat pe pluta, pluta sta fara manivela, cine e pe pluta nu invarte, trecerea, un singur jucator, curentul, G11, G7, G3, George. | trece |
+| `capturi-ecran.js` | `p2_works_*` (inceput, poarta A cu o tinta, deschisa, poarta B, deschisa) si `p2_lake_*` (inceput, pluta, pluta la mijloc, curentul). | privite |
+
+Ce au gasit botii in nivelul 9 (nu in joc, in teste):
+- Un bot ramas in cercul de pietre din jurul unui robot adormit. Botul are acum plasa lui (merge la intamplare dupa 8 s fara progres spre tinta, si lasa un inamic pe care mingile nu il ajung).
+- `balanseaza()` care muta un erou in apa (vezi `16-decizii.md`).
+- Ambele au fost greseli ale botului. Singura greseala a jocului a fost G11.
+
+Un test nou cu o lovitura de tinta foloseste `targetHit(inp, inp.who)`, nu `inp.raw` (`raw` nu are efect la tinte). O lovitura de manivela: `crankSwing(h, id)` cu un `id` nou.

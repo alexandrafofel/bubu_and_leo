@@ -2,7 +2,7 @@
 
 > **Un singur joc (18 noiembrie 2026).** "Bubu și Leo" a fost scos. Tot ce e specificat aici se implementeaza **doar in "Cea mai grea luptă"**. Unde scrie "ambele jocuri", "primul joc", variante `L:` sau teste pentru `bubu`, se citeste: un singur joc, textele lui (varianta `L:`), un singur rand de teste. Nu se mai scrie cod pentru primul joc.
 
-Status: **specificatie, neimplementata.** Vezi `23-update-partea-a-doua.md` pentru cerere, hotarari si cele 36 de sarcini, si `24-sisteme-noi.md` pentru butoane, fuga, a doua putere, cele 10 secunde, capitole si stilul grafic.
+Status: **specificatie; nivelurile 7, 8 si 9 sunt implementate** (T7, T8), restul nu. Ce e facut: `09-niveluri.md`, `10-gameplay.md`. Vezi `23-update-partea-a-doua.md` pentru cerere, hotarari si cele 36 de sarcini, si `24-sisteme-noi.md` pentru butoane, fuga, a doua putere, cele 10 secunde, capitole si stilul grafic.
 
 Cuprins: 1. Povestea. 2. Cum arata un nivel nou. 3. Mecanismele (cadrul comun). 4. Cele sase niveluri. 5. George in mini-lupte. 6. Sala Tronului. 7. "Va urma" si finalul. 8. Texte. 9. Sunete. 10. Decor si numarul de elemente. 11. Teste.
 
@@ -193,6 +193,8 @@ Paletele noi se adauga in `PALS`, cu aceleasi campuri ca cele de acum (`g0`, `g1
 
 ### Nivelul 8: Atelierul lui George (`works`)
 
+> **Facut (T8, 27 noiembrie 2026).** Muzica e `l4`. Vezi `09-niveluri.md`.
+
 **Ideea:** tinte in doua culori. Fiecare o loveste pe a lui.
 
 | | |
@@ -216,6 +218,8 @@ Paletele noi se adauga in `PALS`, cu aceleasi campuri ca cele de acum (`g0`, `g1
 Paleta `works`: `g0 '#5A6A8A'`, `g1 '#4A587A'`, `canopy ['#C8A040', '#D86A4A', '#5AA0A8', '#8A7AC0']`, `flowers ['#FFD84A', '#7AF0C8', '#FF8AB8']`, `path '#A8B0C8'`, `trunk '#6A5A7A'`, `rock '#8A98B8'`. "Copacii" sunt lampi si stive de piese. "Pietrele" sunt suruburi si piulite.
 
 ### Nivelul 9: Lacul Nuferilor Uriași (`lake`)
+
+> **Facut (T8, 27 noiembrie 2026).** Diferente fata de text: muzica e `l2`; `raft2` are 3 invartiri (nu 4); cristalele plutitoare ale benzii B nu sunt facute; harta e pictata pe canvas (nu Krea). Vezi `09-niveluri.md`.
 
 **Ideea:** pluta. Tu invarti manivela, eu plutesc.
 

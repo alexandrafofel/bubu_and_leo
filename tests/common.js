@@ -17,7 +17,15 @@ const BALANSEAZA = `window.balanseaza = function () {
   const g = P.heroes[from], f = P.heroes[1 - from];
   if (g.down || g.dizzy > 0 || g.carried || f.down) return false;
   const R = G.CONFIG.quota.giveRange;
-  if (Math.hypot(g.x - f.x, g.y - f.y) > R * 0.6) { g.x = f.x + (from ? 90 : -90); g.y = f.y; return true; }
+  if (Math.hypot(g.x - f.x, g.y - f.y) > R * 0.6) {
+    // next to the friend, but only on a free spot of his side of the bands (a friend on a raft has none: the giver waits)
+    const L = P.L, side = typeof bandSide === 'function' ? bandSide(L, f.x, f.y) : 0;
+    for (const [dx, dy] of [[from ? 90 : -90, 0], [from ? -90 : 90, 0], [0, 90], [0, -90], [from ? 90 : -90, 90], [from ? 90 : -90, -90]]) {
+      const x = f.x + dx, y = f.y + dy;
+      if (L.grid[L.ci(x, y)] < 2 && (typeof bandSide !== 'function' || bandSide(L, x, y) === side) && !(typeof onGateCells === 'function' && L.gates && L.gates.some(q => q.solid && Math.abs(x - q.x) < q.half + 60))) { g.x = x; g.y = y; return true; }
+    }
+    return false;
+  }
   return G.giveEgg(from) || true;
 };`;
 /* boot(opts): opens the game in a headless Chrome, clicks once (sound), and (unless opts.manual === false)

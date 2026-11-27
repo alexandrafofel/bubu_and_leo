@@ -392,3 +392,13 @@ Retetele (`plates1`, `plates2`, apoi cele din T8 - T12) sunt in `MECH_RECIPES`, 
 ### `CONFIG.lupta` pentru nivelul 7 (T7.4, T7.5)
 
 `CONFIG.lupta.levels` este 7. Listele pe niveluri (`duelHp`, `duelFinalHp`, `fieldEnemies`, `miniGeorge.perLevel`, `george.midThrows`, `george.nestEnemies`, `george.enemyHp`) au al saptelea numar egal cu al saselea: nivelul 7 e la fel de greu ca nivelul 6, iar greul nou vine din porti.
+
+
+## Update 27 noiembrie 2026: chei noi in `CONFIG.mech` (T8)
+
+- `beltPush` (140): cat impinge o banda rulanta un erou, unitati pe secunda.
+- `targetOn` (0.4), `targetReach` (190): cat sta aprinsa o tinta lovita si de la ce raza conteaza o putere.
+- `danceTime` (5), `danceEvery` (30): butonul rosu din atelier.
+- `raftBoard` (0.35), `raftBack` (140), `raftGrace` (1.5), `raftDrift` (0.05), `raftSolo` (1.1), `crankReach` (200): plutele si manivelele nivelului 9.
+- Atentie: o cheie scrisa de doua ori in acelasi obiect se calca fara eroare. `raftDrift` a fost o data de doua ori; verifica cu `grep`.
+- `CONFIG.lupta.levels` este 9; fiecare lista pe niveluri are al noualea numar.

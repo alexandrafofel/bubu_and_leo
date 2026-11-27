@@ -338,4 +338,21 @@ function drawSleeper(c, b, t) {
   if (isLupta()) drawRobot(c, b, t); else drawBeetle(c, b, t);
 }
 /* The small enemy that comes down a lane: a rolling pinecone, or a sticky snail. */
-function drawRoller(c, o, x, y, t) { if (isLupta()) drawSnail(c, x, y, t, o); else drawCone(c, x, y, o.rot, o.r, 0); }
+function drawRoller(c, o, x, y, t) {
+  const L = typeof P !== 'undefined' && P && P.L;
+  if (isLupta() && L && L.def && L.def.roller === 'gear') drawRollGear(c, o, x, y);      // T8: in George's workshop the rollers are big gears
+  else if (isLupta()) drawSnail(c, x, y, t, o); else drawCone(c, x, y, o.rot, o.r, 0);
+}
+/* A big gear that rolls down its lane (T8): painted tin, a ring of teeth that turns with the rolling, a bright hub. */
+function drawRollGear(c, o, x, y) {
+  const r = (o.r || 26) * 1.25, y0 = y - r * 0.9, a = o.rot || 0;
+  c.fillStyle = rgba(SHADOW, 0.24); c.beginPath(); c.ellipse(x, y + 2, r * 0.95, r * 0.32, 0, 0, TAU); c.fill();
+  c.save(); c.translate(x, y0); c.rotate(a);
+  c.fillStyle = '#C8A040';
+  for (let i = 0; i < 9; i++) { c.save(); c.rotate(i / 9 * TAU); c.beginPath(); c.roundRect(-r * 0.17, -r * 1.12, r * 0.34, r * 0.4, 3); c.fill(); c.restore(); }
+  c.beginPath(); c.arc(0, 0, r * 0.82, 0, TAU); c.fill();
+  c.fillStyle = '#E8C868'; c.beginPath(); c.arc(-r * 0.12, -r * 0.14, r * 0.66, 0, TAU); c.fill();
+  c.fillStyle = '#9A6A48'; for (let i = 0; i < 4; i++) { c.beginPath(); c.arc(Math.cos(i / 4 * TAU) * r * 0.46, Math.sin(i / 4 * TAU) * r * 0.46, r * 0.11, 0, TAU); c.fill(); }
+  c.fillStyle = '#FFF6E2'; c.beginPath(); c.arc(0, 0, r * 0.26, 0, TAU); c.fill();
+  c.restore();
+}

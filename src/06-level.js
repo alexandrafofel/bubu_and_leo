@@ -52,10 +52,37 @@ const LEVEL_DEFS_L = [
   { key: 'canyon', music: 'l5', pal: 'canyon', look: 'diorama', ambient: '#FFE9D6', icons: ['plate', 'bridge', 'star'],
     trees: 22, rocks: 26, beetles: [0, 1, 2], lanes: [0, 0, 1], conesPerLane: 1, coneSpeed: 0.55, mud: [0, 0, 0], sparkle: [1, 1, 2], wind: 0.7, birds: 2,
     bands: [{ at: 0.335, kind: 'chasm', w: 200, mech: 'plates1' }, { at: 0.665, kind: 'chasm', w: 200, mech: 'plates2' }],
-    stars: ['islet', 'nook', 'treetop'], toy: 'seesaw', cage: true }
+    stars: ['islet', 'nook', 'treetop'], toy: 'seesaw', cage: true },
+  // Level 8: George's workshop. Targets in two colors on a tin wall, conveyor belts, rolling gears, many robots (T8)
+  { key: 'works', music: 'l4', pal: 'works', look: 'diorama', ambient: '#C8C0F0', icons: ['target', 'robot', 'gear'],
+    trees: 14, rocks: 30, beetles: [3, 5, 6], lanes: [1, 1, 2], conesPerLane: 1, coneSpeed: 0.7, roller: 'gear', mud: [2, 3, 3], slowKind: 'belt', sparkle: [1, 2, 2], lanterns: true,
+    bands: [{ at: 0.335, kind: 'wall', w: 120, mech: 'targets1' }, { at: 0.665, kind: 'wall', w: 120, mech: 'targets2' }],
+    stars: ['guarded', 'treetop', 'nook'], toy: 'button' },
+  { key: 'lake', music: 'l2', pal: 'lake', night: true, look: 'diorama', ambient: '#9AA8F0', icons: ['raft', 'crank', 'egg'],
+    trees: 34, rocks: 10, beetles: [1, 2, 2], lanes: [1, 1, 1], conesPerLane: 1, coneSpeed: 0.5, mud: [1, 1, 2], slowKind: 'slime', sparkle: [1, 2, 2],
+    bands: [{ at: 0.335, kind: 'water', w: 400, mech: 'raft1' }, { at: 0.665, kind: 'water', w: 480, mech: 'raft2' }],
+    stars: ['islet', 'nook', 'guarded'], toy: 'lilies' }
 ];
 const BOSS_DEF_L = { key: 'arena', music: 'boss', night: true, icons: ['boon', 'ciori', 'killer'] };
 
+/* The tin wall of level 8 (T8): riveted panels with seams, a lit top edge and a violet shadow on its right side. The sliding door is drawn every frame (drawDoor). */
+function paintWall(c, L, P, r) {
+  const W = P.wall || ['#7A86B0', '#A8B4D8', '#E6ECFF', '#4A5278'];
+  for (const g of L.gates) {
+    if (g.kind !== 'wall') continue;
+    const poly = (k, off) => { c.beginPath(); for (let y = L.top - 20; y <= L.H + 40; y += 20) c.lineTo(bandX(g, y) - g.half * k + (off || 0), y); for (let y = L.H + 40; y >= L.top - 20; y -= 20) c.lineTo(bandX(g, y) + g.half * k + (off || 0), y); c.closePath(); };
+    c.fillStyle = rgba(SHADOW, 0.28); poly(1, 22); c.fill();                   // the shadow it throws to the right
+    c.fillStyle = W[3]; poly(1.06); c.fill();
+    c.fillStyle = W[0]; poly(1); c.fill();
+    c.fillStyle = rgba(W[1], 0.7); poly(0.62); c.fill();
+    for (let y = L.top; y < L.H + 40; y += 90) {                                // seams between the sheets, and rivets on both edges
+      const mx = bandX(g, y);
+      c.strokeStyle = rgba(W[3], 0.55); c.lineWidth = 3; c.beginPath(); c.moveTo(mx - g.half, y); c.lineTo(mx + g.half, y); c.stroke();
+      c.fillStyle = W[2]; for (const sd of [-1, 1]) for (const dy of [14, 76]) { c.beginPath(); c.arc(mx + sd * (g.half - 12), y + dy, 4.5, 0, TAU); c.fill(); }
+    }
+    for (const sd of [-1, 1]) { const pts = []; for (let y = L.top - 20; y <= L.H + 40; y += 30) pts.push([bandX(g, y) + sd * (g.half - 4), y]); brushLine(c, pts, 7, W[2], 0.7, 31 + sd); }
+  }
+}
 const PALS = {
   meadow: { g0: '#CBD08F', g1: '#B4C283', tints: ['#E6D58A', '#A9BF7E', '#DCC47C', '#C7D39A', '#EBCB9C', '#B9CC8A'], canopy: ['#8FAF6A', '#A3BC72', '#7E9F63', '#B9C77A'], flowers: ['#E7A6A1', '#F3D36B', '#FBF3DE', '#E58F6B'], path: '#EBCB9E', trunk: '#9A6B4C', rock: '#C8AE98' },
   forest: { g0: '#AEBB80', g1: '#94A974', tints: ['#7F9B66', '#B9BF7F', '#8CA36B', '#C9B97A', '#9DAE78'], canopy: ['#6F9160', '#84A066', '#5F8459', '#9DB06C', '#7A9A72'], flowers: ['#F3D36B', '#E7A6A1', '#FBF3DE'], path: '#DCC090', trunk: '#8A6048', rock: '#B9A092' },
@@ -71,6 +98,9 @@ const PALS = {
   road:   { night: true, g0: '#5C417C', g1: '#4C366C', tints: RAINBOW, canopy: ['#B0589A', '#8A58B8', '#D8704A', '#5A6FC8', '#C8508A'], flowers: ['#FFD84A', '#FF9A5A', '#FF8AB8', '#7AF0C8'], path: '#A88AC4', trunk: '#5E3E6E', rock: '#A088C0' },
   canyon: { g0: '#E8B48A', g1: '#D99A78', tints: ['#EEBE92', '#DCA27E', '#F2C8A0', '#E2AA86'], canopy: ['#6FB08A', '#8AC07A', '#4F9A8A', '#B8C86A'], flowers: ['#FF8AB8', '#FFD84A', '#FFF6E8', '#B09AFF'], path: '#F6D9B0', trunk: '#8A5A6A', rock: '#C98A7A',
             chasm: ['#3A4A8A', '#6A7AC0', '#D8DCF6'] },      // level 7: a high plateau at sunrise. chasm: the bottom of the chasm, its light middle, the mist
+  lake:   { night: true, g0: '#3F6A8A', g1: '#34587A', tints: RAINBOW, canopy: ['#3FB08A', '#5AC08A', '#2F8AA8', '#7AC8A0'], flowers: ['#FFB0D8', '#FFFFFF', '#FFD84A', '#B09AFF'], path: '#8AB0C8', trunk: '#4E5A7A', rock: '#7A98B8', water: ['#1E3A78', '#2A4A8A', '#4A78C0', '#CFE6FF'] },
+  works:  { night: true, g0: '#5A6A8A', g1: '#4A587A', tints: RAINBOW, canopy: ['#C8A040', '#D86A4A', '#5AA0A8', '#8A7AC0'], flowers: ['#FFD84A', '#7AF0C8', '#FF8AB8'], path: '#A8B0C8', trunk: '#6A5A7A', rock: '#8A98B8',
+            wall: ['#7A86B0', '#A8B4D8', '#E6ECFF', '#4A5278'] },      // level 8: tin and violet, never grey. wall: the tin of the walls, its light, its shine, its shadow
   sunset: { g0: '#D6B87E', g1: '#C5A674', tints: ['#E4A771', '#DB9C79', '#CBB47C', '#E2BB8C', '#D8A07A'], canopy: ['#D98A52', '#E2A04F', '#C96F4E', '#E6B65A', '#B98A5A'], flowers: ['#F3D36B', '#E58F6B', '#FBF3DE'], path: '#EECFA2', trunk: '#8A5A48', rock: '#C4A08E' }
 };
 /* The calm look of the Krea maps (CONFIG.look.art and CONFIG.look.calm): every level has its own ground color, a clean cream path,
@@ -103,7 +133,7 @@ const levelDefs = () => isLupta() ? LEVEL_DEFS_L : LEVEL_DEFS;
 const levelDef = idx => levelDefs()[idx % levelDefs().length];
 /* What the slow ground looks like: mud in the first game; slime, quicksand or tangled vines in the second. [dark rim, body, light, blotch 1, blotch 2, shine] */
 const SLOW_COLS = { mud: ['#7E5A4C', '#A07A5C', '#B08A68', '#8A6452', '#B8926E', '#DCC0A0'], slime: ['#3F8A62', '#6FD08A', '#A8EC98', '#58BF7A', '#B7F0A0', '#EEFFD8'],
-  sand: ['#8A7AA0', '#D6C592', '#E8DAAC', '#C8B486', '#EADCA8', '#FFF6D8'], vines: ['#1F5A4A', '#2F7A5A', '#4E9A6A', '#2A6A52', '#62B07A', '#B7E6B0'] };
+  sand: ['#8A7AA0', '#D6C592', '#E8DAAC', '#C8B486', '#EADCA8', '#FFF6D8'], belt: ['#5A4A8A', '#7A6AB0', '#9A8AD0', '#6A5AA0', '#8A7AC0', '#E6DCFF'], vines: ['#1F5A4A', '#2F7A5A', '#4E9A6A', '#2A6A52', '#62B07A', '#B7E6B0'] };
 // the sky goes from afternoon to dusk over the levels. In the second game it is always counted over 6 levels: Part Two has its own colors
 const skyTOf = idx => { const n = isLupta() ? 6 : levelCount(); return n === 1 ? 0.4 : Math.min(idx, n - 1) / (n - 1) * 0.95; };
 
@@ -283,6 +313,15 @@ function genLevel(idx, seed) {
     }
   };
 
+  // T8: a conveyor belt is a strip 3 cells wide and 10 - 16 long. It carries a hero 140 units per second, up or down (L.beltDir: 1 = down, -1 = up)
+  L.belts = []; L.beltDir = new Int8Array(cols * rows);
+  const beltStrip = (x, y) => {
+    const cx0 = (x / CS | 0) - 1, len = 10 + (r() * 7 | 0), cy0 = clamp((y / CS | 0) - (len >> 1), (top / CS | 0) + 2, rows - len - 2), dir = r() < 0.5 ? -1 : 1;
+    for (let cy = cy0; cy < cy0 + len; cy++) for (let d = 0; d < 3; d++) { const cx = cx0 + d; if (!inW(cx, cy)) return false; const i = cy * cols + cx; if (G[i] !== 0 || (F[i] & 30)) return false; }
+    for (let cy = cy0; cy < cy0 + len; cy++) for (let d = 0; d < 3; d++) { const i = cy * cols + cx0 + d; G[i] = 1; L.beltDir[i] = dir; }
+    L.belts.push({ x: (cx0 + 1.5) * CS, y0: cy0 * CS, y1: (cy0 + len) * CS, dir }); return true;
+  };
+
   // ---- bonus stars: one per third of the map --------------------------------
   const kinds = def.stars.slice(0, clamp(CONFIG.starsPerLevel | 0, 0, 3));
   let guardSpots = [];
@@ -312,6 +351,7 @@ function genLevel(idx, seed) {
         for (let t = 0; t < 80 && !done; t++) {
           const y = top + 260 + r() * (WH - top - 480);
           if (Math.abs(y - g.y) < 380) continue;
+          if (L.solids.some(o => dist(o.x, o.y, bandLeft(g, y) - 55, y) < o.r + 90 || dist(o.x, o.y, bandRight(g, y) + 55, y) < o.r + 90 || dist(o.x, o.y, bandX(g, y), y) < o.r + 40)) continue;     // a hero must be able to stand at the edge and throw (nothing in the way)
           L.stars.push({ x: bandX(g, y), y, kind, pillar: true }); done = true;
         }
       }
@@ -353,12 +393,32 @@ function genLevel(idx, seed) {
       L.toy = { kind: 'seesaw', x, y, ang: 0, va: 0, laughT: 0 }; mark(x, y, 190, 3);
     }
   }
+  // ---- the toy of level 8 (T8): a big red button. Pressed, every robot on the screen dances for 5 seconds (once in 30 seconds) ----
+  if (def.toy === 'button' && L.gates.length >= 2) {
+    const xa = L.gates[0].at * WW + 260, xb = L.gates[1].at * WW - 260;
+    for (let t = 0; t < 300 && !L.toy; t++) {
+      const x = lerp(xa, xb, r()), y = lerp(top + 220, WH - 220, r());
+      if (!pathFar(x, y, 160) || pathDist(x, y) > 480 || !areaClear(x, y, 100)) continue;
+      L.toy = { kind: 'button', x, y, danceT: 0, cool: 0, down: 0 }; mark(x, y, 120, 3);
+    }
+  }
+  // ---- the toy of level 9 (T8): three giant lily pads on a bank. Whoever steps on one jumps high (only how it looks) with a "boing" ----
+  if (def.toy === 'lilies' && L.gates.length >= 1) {
+    const xa = 300, xb = L.gates[0].at * WW - 330, pads = [];
+    for (let t = 0; t < 400 && pads.length < 3; t++) {
+      const x = lerp(xa, xb, r()), y = lerp(top + 220, WH - 220, r());
+      if (!pathFar(x, y, 130) || pathDist(x, y) > 560 || !areaClear(x, y, 80) || pads.some(q => dist(q.x, q.y, x, y) < 250)) continue;
+      pads.push({ x, y, down: 0, jump: 0, cool: 0 }); mark(x, y, 100, 3);
+    }
+    if (pads.length) L.toy = { kind: 'lilies', pads, x: pads[0].x, y: pads[0].y };
+  }
   // ---- mud, pinecone lanes, windmills ---------------------------------------
   for (let k = 0; k < NW; k++) {
     const [x0, x1] = region(k);
     for (let m = 0, t = 0; m < dv(def.mud, k) && t < 80; t++) {
       const x = lerp(x0 + 100, x1 - 100, r()), y = lerp(top + 150, WH - 150, r());
       if (dist(x, y, L.spawn.x, L.spawn.y) < 330 || dist(x, y, L.nest.x, L.nest.y) < 300) continue;
+      if (def.slowKind === 'belt') { if (beltStrip(x, y)) m++; continue; }
       mudEllipse(x, y, 110 + r() * 80, 80 + r() * 60); m++;
     }
     for (let m = 0, t = 0; m < dv(def.lanes, k) && t < 120; t++) {
@@ -868,6 +928,9 @@ function cellBlobs(c, L, type, rad, col, alpha, seed, jit) {
 
 const NIGHT_HILLS = ['#5A56A8', '#4A4A98', '#3E4288'];
 function paintLevel(L) {
+  for (const g of L.gates || []) if (g.kind === 'water' && !g.waterPainted) {      // T8: the crossing of a water band is water too: the raft floats on it (closeGates gives the cells their code back)
+    g.waterPainted = true; for (const i of g.cells) { L.grid[i] = 2; L.waterCells.push(i); }
+  }
   const cv = makeCanvas(L.W, L.H), c = cv.getContext('2d'), P = L.pal, r = rng(L.seed + 999), G = L.grid, top = L.top, sl = 1 + L.skyT * 0.7, N = !!L.night;
   const A = P.art && artReady();          // the calm Krea look: the things of the level are pictures, the ground has few small things
   const typeAt = (x, y) => G[L.ci(x, y)];
@@ -918,6 +981,14 @@ function paintLevel(L) {
       else if (hash(52, i) < 0.3) { c.strokeStyle = 'rgba(244,251,240,0.5)'; c.lineWidth = 2.2; c.beginPath(); c.arc(x, y + 10, 14 + hash(53, i) * 10, Math.PI * 1.15, Math.PI * 1.85); c.stroke(); }
     }
   }
+  if (L.gates && L.gates.some(g => g.kind === 'water')) for (const st of L.stars) if (st.pillar) {      // T8: the star of the lake sits on a big lily pad in the middle of the water (a thrown thing takes it)
+    c.fillStyle = rgba(SHADOW, 0.25); c.beginPath(); c.ellipse(st.x + 6, st.y + 34, 86, 40, 0, 0, TAU); c.fill();
+    c.fillStyle = '#1F6A52'; c.beginPath(); c.ellipse(st.x, st.y + 28, 84, 40, 0, 0, TAU); c.fill();
+    c.fillStyle = '#3FB08A'; c.beginPath(); c.ellipse(st.x, st.y + 22, 76, 34, 0, 0, TAU); c.fill();
+    c.fillStyle = '#5AC08A'; c.beginPath(); c.ellipse(st.x - 6, st.y + 18, 54, 22, 0, 0, TAU); c.fill();
+    c.fillStyle = '#FFB0D8'; for (let i = 0; i < 6; i++) { const a = i * TAU / 6; c.beginPath(); c.ellipse(st.x + Math.cos(a) * 14, st.y + 18 + Math.sin(a) * 8, 11, 6, a, 0, TAU); c.fill(); }
+  }
+  if (L.gates && L.gates.some(g => g.kind === 'wall')) paintWall(c, L, P, r);      // T8: the tin walls of the workshop
   if (L.gates && L.gates.some(g => g.kind === 'chasm')) paintChasm(c, L, P, r);      // T7.4: the chasms of the bands, and the pillar of the star
   for (const b of L.bridges) {
     wash(c, b.x - 10, b.y + 14, b.w / 2 + 6, b.h / 2 + 4, SHADOW, { a: 0.3, seed: 3, edge: 0 });

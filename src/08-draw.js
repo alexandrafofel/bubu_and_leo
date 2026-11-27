@@ -141,7 +141,14 @@ function drawHeroFull(c, h) {
     c.strokeStyle = rgba(fcfg.color, 0.55 + pu * 0.4); c.lineWidth = 7; c.setLineDash([14, 10]); c.lineDashOffset = -t * 30;
     c.beginPath(); c.ellipse(h.x, h.y + 2, 64 + pu * 8, 27 + pu * 3, 0, 0, TAU); c.stroke(); c.setLineDash([]);
   }
-  if (h.boost > 0) { const g = c.createRadialGradient(h.x, h.y - 40, 10, h.x, h.y - 40, 110); g.addColorStop(0, 'rgba(255,214,140,0.5)'); g.addColorStop(1, 'rgba(255,214,140,0)'); c.fillStyle = g; c.beginPath(); c.arc(h.x, h.y - 40, 110, 0, TAU); c.fill(); }
+  if (h.boost > 0) {                       // the rocket: a golden shine AROUND the hero (clear in the middle, so you still see who it is); in the last 2 seconds it flickers
+    const fl = h.boost < 2 ? 0.55 + 0.45 * Math.abs(Math.sin(P.time * 14)) : 1, pu = 0.9 + Math.sin(P.time * 9) * 0.1;
+    c.save(); c.globalCompositeOperation = 'lighter';
+    const g = c.createRadialGradient(h.x, h.y - 40, 40, h.x, h.y - 40, 150 * pu); g.addColorStop(0, 'rgba(255,214,120,0)'); g.addColorStop(0.45, 'rgba(255,214,120,' + 0.3 * fl + ')'); g.addColorStop(1, 'rgba(255,200,110,0)');
+    c.fillStyle = g; c.beginPath(); c.arc(h.x, h.y - 40, 150 * pu, 0, TAU); c.fill();
+    for (let i = 0; i < 6; i++) { const a = P.time * 2.2 + i * TAU / 6; drawStarSpark(c, h.x + Math.cos(a) * 74, h.y - 40 + Math.sin(a) * 58, 8 + 3 * Math.sin(P.time * 8 + i), 0.85 * fl); }
+    c.restore();
+  }
   if (h.safe) { c.strokeStyle = rgba('#7FB06A', 0.9); c.lineWidth = 5; c.setLineDash([12, 9]); c.beginPath(); c.ellipse(h.x, h.y + 2, 58, 24, 0, 0, TAU); c.stroke(); c.setLineDash([]); }
   if (h.spinT >= 0) { if (h.spinLook === 'gloves') drawGloveRing(c, h); else drawClawRing(c, h); }
   if (h.run) drawRunTrail(c, h);           // running: three ghosts behind, then the speed lines
@@ -304,7 +311,9 @@ function drawWorld(c) {
     }
     else if (it.k === 1) {                 // beetles (robots in the second game): they blink when hit and pop up when a new one arrives
       if (o.flash > 0 && Math.sin(t * 45) > 0) c.globalAlpha = 0.45;
+      if (o.dance) { c.save(); const w = Math.sin(t * 9 + (o.seed || 0)); c.translate(o.x, o.y - Math.abs(w) * 10); c.rotate(w * 0.16); c.translate(-o.x, -o.y); }      // T8: the robots dance
       if (o.born > 0) { const k = 1 - o.born / 0.5; c.save(); c.translate(o.x, o.y); c.scale(k, k); c.translate(-o.x, -o.y); drawSleeper(c, o, t); c.restore(); } else drawSleeper(c, o, t);
+      if (o.dance) c.restore();
       c.globalAlpha = 1; if (o.state === 'stun') drawDizzyStars(c, o.x, o.y - 52, t); drawSmallHp(c, o, o.x, o.y - 78);
     }
     else if (it.k === 2) {                 // pinecones (sticky snails in the second game)
@@ -755,9 +764,16 @@ function addLight(x, y, r, col, a, glow) {
   const o = _lightPool[_lights.length] || (_lightPool[_lights.length] = {});
   o.x = x; o.y = y; o.r = r; o.col = col; o.a = a; o.glow = !!glow; _lights.push(o);       // glow: it also gets a halo, it gives light by itself
 }
+/* A little four-pointed sparkle (the rocket's shine). */
+function drawStarSpark(c, x, y, r, a) {
+  c.fillStyle = 'rgba(255,248,214,' + a + ')'; c.beginPath();
+  for (let i = 0; i < 8; i++) { const ang = i * Math.PI / 4 - Math.PI / 2, rr = i % 2 ? r * 0.3 : r; c.lineTo(x + Math.cos(ang) * rr, y + Math.sin(ang) * rr); }
+  c.closePath(); c.fill();
+}
 function collectLights(L) {
   _lights.length = 0;
   for (const h of P.heroes) addLight(h.x, h.y - 70, 150, mix(CONFIG.heroes[h.k].color, '#FFF6E0', 0.5), 0.45);
+  for (const h of P.heroes) if (h.boost > 0) addLight(h.x, h.y - 60, 200, '#FFE9A8', 0.45, true);                  // the rocket: a big warm light around the shining hero
   for (const p of L.inputs || []) if (p.kind === 'plate' && p.on) addLight(p.x, p.y, 110, '#FFF0C0', 0.5);      // a pressed plate glows (T7.2)
   for (const g of L.gates || []) if (g.kind === 'chasm' && g.vis > 0.2) addLight(g.x, g.y, 170, '#FFF2D8', 0.45 * Math.min(1, g.vis), true);   // the bridge of light shines (T7.4)
   if (L.cage && L.cage.done) addLight(L.cage.x, L.cage.y - 90, 150, '#FFE9A8', 0.6, true);                      // the open cage shines

@@ -318,3 +318,10 @@ Pe canvas: fundul prapastiei (`paintChasm`, o data) si podul de lumina (`drawBri
 ## Update 27 noiembrie 2026: planul din fata pe lumina de zi
 
 Planul din fata (`paintFront`) isi ia culoarea din lumina nivelului (`levelAmbient`), amestecata 70% spre violet. Pe nivelul 7 (rasarit, `#FFE9D6`) asta dadea un mov cenusiu, cu pixeli gri la margini. Cand lumina e deschisa (media canalelor peste 75%), amestecul e 80% spre `#3A1A60`, un violet mai saturat. Nivelurile de noapte nu se schimba.
+
+
+## Update 27 noiembrie 2026: lacul, pluta, manivela (T8)
+
+- Nivelul 9 e pictat pe canvas (`PALS.lake`, noapte). Apa are valuri facute o data (`paintWater`, `matPattern`) si oglindire pe mal. Harta Krea lipseste (fara credit); se arata proprietarei inainte sa intre.
+- `drawRaft` (frunza de nufar cu margini ridicate, sageata spre malul urmator, un sector albastru care arata cat din drum a facut), `drawCrank` (manivela de lemn cu franghie spre pluta), `drawLilyPath` (nuferii care apar cand apa se face drum), `drawToy` pentru nuferii-trambulina.
+- Nivelul 8: tinte turcoaz si albastre (`drawTarget`), usa glisanta (`drawDoor`), benzi rulante cu sageti in miscare (`drawBelts`).
