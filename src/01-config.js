@@ -132,12 +132,14 @@ const CONFIG = {
   },
 
   // ---- Small enemies: beetles and pinecones (robots, snails and birds in the second game) ----
-  kids: {                      // the enemies drawn by the children (27 November 2026, art/krea-ref/inamici-copii-desen.jpg)
+  kids: {                      // the enemies drawn by the children (27 - 28 November 2026, art/krea-ref/*desen*.jpg)
     on: true,
-    every: 2,                  // every 2nd small enemy (robot, snail, George's thrown ones) is one of them; the total stays the same
-    looks: ['kid_car', 'kid_bird', 'kid_frog', 'kid_boy', 'kid_penguin'],
-    size: { kid_car: 76, kid_bird: 92, kid_frog: 62, kid_boy: 94, kid_penguin: 90 },     // how tall each picture is drawn, in world units (a robot is 74)
-    face: { kid_car: -1, kid_bird: 1, kid_frog: -1, kid_boy: 1, kid_penguin: 1 }           // which way the picture looks (-1 = left)
+    every: 1,                  // every small enemy (robot, snail, George's thrown ones) is one of them, in turn; the total stays the same. 2 = every 2nd
+    looks: ['kid_car', 'kid_dragon', 'kid_bird', 'kid_cyclops', 'kid_frog', 'kid_bat', 'kid_boy', 'kid_kite', 'kid_penguin', 'kid_king'],
+    size: { kid_car: 76, kid_bird: 92, kid_frog: 62, kid_boy: 94, kid_penguin: 90,                   // how tall each picture is drawn, in world units (a robot is 74)
+            kid_dragon: 98, kid_cyclops: 92, kid_bat: 86, kid_kite: 100, kid_king: 98 },
+    face: { kid_car: -1, kid_bird: 1, kid_frog: -1, kid_boy: 1, kid_penguin: 1,                        // which way the picture looks (-1 = left)
+            kid_dragon: -1, kid_cyclops: 1, kid_bat: 1, kid_kite: 1, kid_king: 1 }
   },
   smallEnemy: {
     hits: 2,                   // hits (stomp, claws or ball) before a small enemy disappears
@@ -219,6 +221,9 @@ const CONFIG = {
   words: {
     on: true,                   // false = the old synthesized words instead of the recorded lines
     gain: [1, 1],               // how loud each hero's voice is (Boon, Killer)
+    introGain: 1.2,             // the heroes' start-card lines (INTRO_VOICE): a little louder than a word
+    introGap: 0.45,             // seconds between two start-card lines
+    introDelay: 0.7,            // seconds after the card appears before the first line
     padGain: 1.4,               // voices on a controller's small speaker: a little louder, with the speech band lifted and the low part lowered
     gap: 4,                     // seconds of quiet between two lines of the same hero (not for the loud moments: hurt, star, help...)
     softGap: 2.5,               // the same for the small noises (a hum, a puff, "ga!")

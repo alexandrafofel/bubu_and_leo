@@ -737,3 +737,5 @@ Ce au gasit botii in nivelul 9 (nu in joc, in teste):
 - Ambele au fost greseli ale botului. Singura greseala a jocului a fost G11.
 
 Un test nou cu o lovitura de tinta foloseste `targetHit(inp, inp.who)`, nu `inp.raw` (`raw` nu are efect la tinte). O lovitura de manivela: `crankSwing(h, id)` cu un `id` nou.
+
+- `tests/intro-voci.js` (28 noiembrie 2026): fiecare capitol are dialog in romana si engleza, cu un clip pe replica si acelasi erou; amandoi vorbesc; pe cartonas replicile se spun pe rand, fiecare in difuzorul eroului ei; ✕ le opreste. E un test de sunet: se ruleaza singur.

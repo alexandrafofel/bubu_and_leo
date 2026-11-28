@@ -10,7 +10,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 |---|---|
 | 1-16 | tot fisierul |
 
-## 01-config.js (359 linii)
+## 01-config.js (364 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -23,28 +23,29 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 77-86 | Rescue: a hero who was hit cannot walk until the friend comes and presses □ (both games) |
 | 87-124 | Co-op mechanisms of levels 7 - 12 (T7): bands cut the map, each crossing opens only when both heroes do their part. |
 | 125-133 | The ten seconds: a hit hero waits for his friend, and if nobody comes the level starts again |
-| 134-146 | Small enemies: beetles and pinecones (robots, snails and birds in the second game) |
-| 147-155 | Obstacles |
-| 156-162 | Helpers |
-| 163-170 | Boss |
-| 171-189 | Two mini-fights per level: one in the middle of the path, one at the nest |
-| 190-198 | Controls (keys and controller/keyboard are chosen in Setări). |
-| 199-212 | Run: press the left stick (L3) |
-| 213-217 | Sound |
-| 218-234 | The voices of Boon and Killer (T13): short recorded lines of two children playing dinosaurs (docs/26-limba-personajelor.md) |
-| 235-240 | Look |
-| 241-282 | The look of levels 7 - 12 and of the heroes (docs/24-sisteme-noi.md, S7) |
-| 283-359 | The second game, "Cea mai grea luptă" (invented by the children) |
+| 134-148 | Small enemies: beetles and pinecones (robots, snails and birds in the second game) |
+| 149-157 | Obstacles |
+| 158-164 | Helpers |
+| 165-172 | Boss |
+| 173-191 | Two mini-fights per level: one in the middle of the path, one at the nest |
+| 192-200 | Controls (keys and controller/keyboard are chosen in Setări). |
+| 201-214 | Run: press the left stick (L3) |
+| 215-219 | Sound |
+| 220-239 | The voices of Boon and Killer (T13): short recorded lines of two children playing dinosaurs (docs/26-limba-personajelor.md) |
+| 240-245 | Look |
+| 246-287 | The look of levels 7 - 12 and of the heroes (docs/24-sisteme-noi.md, S7) |
+| 288-364 | The second game, "Cea mai grea luptă" (invented by the children) |
 
-## 015-lang.js (246 linii)
+## 015-lang.js (268 linii)
 
 | Liniile | Sectiunea |
 |---|---|
 | 2-10 | SETTINGS chosen in the game's "Setări" menu (saved on this computer) and |
 | 11-13 | Puts the chosen game's own heroes, villain and boss values into CONFIG. |
 | 14-99 | A text of one of the two games, whichever game is being played (for the screen where the game is chosen). |
-| 100-237 | the second game, "Cea mai grea luptă". A key that starts with L: takes the place of the same key without it. |
-| 238-246 | Readable name of a keyboard key, for the "choose the keys" screen. |
+| 100-256 | the second game, "Cea mai grea luptă". A key that starts with L: takes the place of the same key without it. |
+| 257-259 | The start card as a talk between the heroes (tools/voci/intro.py): [{ w: 0 Boon / 1 Killer, text }], or null for a chapter without one. |
+| 260-268 | Readable name of a keyboard key, for the "choose the keys" screen. |
 
 ## 02-core.js (812 linii)
 
@@ -74,7 +75,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 747-748 | A painted card (panel) used by menus and story screens. |
 | 749-812 | Things that never change are painted once and then stamped: much faster per frame. |
 
-## 03-audio.js (634 linii)
+## 03-audio.js (663 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -85,18 +86,18 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 118-130 | A soft roar or growl: a low triangle that slides down, with a quick tremble (the "rrr"). Warm, never harsh. |
 | 131-145 | instruments |
 | 146-239 | music: calm pentatonic patterns, a different one per level |
-| 240-372 | the heroes' own language: 33 invented words each |
-| 373-390 | A line of the voice. quiet = 0..1 (a hum or a puff is quieter). Returns the id of the line, or -1. |
-| 391-437 | The speech chain of a small speaker: lift 1 - 4 kHz, where a tiny speaker is loud and words are understood, and make it louder. |
-| 438-439 | sound effects |
-| 440-441 | Every effect gets: b = the bus to play on, t = the time now on that bus, x = an optional value. |
-| 442-457 | the heroes' own sounds (volume "Sunete personaje"; they can play in the controller) |
-| 458-544 | the world (volume "Sunete ambientale") |
-| 545-548 | Running (L3) in the first game too: the same short soft whoosh. |
-| 549-559 | play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. |
-| 560-561 | the controller's own speaker (only when the system shows it as an audio output) |
-| 562-602 | Chrome only tells the names of the speakers after the microphone permission was given (ask = true asks for it). |
-| 603-634 | Voice-over with a system voice in the chosen language, when one is installed. |
+| 240-401 | the heroes' own language: 33 invented words each |
+| 402-419 | A line of the voice. quiet = 0..1 (a hum or a puff is quieter). Returns the id of the line, or -1. |
+| 420-466 | The speech chain of a small speaker: lift 1 - 4 kHz, where a tiny speaker is loud and words are understood, and make it louder. |
+| 467-468 | sound effects |
+| 469-470 | Every effect gets: b = the bus to play on, t = the time now on that bus, x = an optional value. |
+| 471-486 | the heroes' own sounds (volume "Sunete personaje"; they can play in the controller) |
+| 487-573 | the world (volume "Sunete ambientale") |
+| 574-577 | Running (L3) in the first game too: the same short soft whoosh. |
+| 578-588 | play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. |
+| 589-590 | the controller's own speaker (only when the system shows it as an audio output) |
+| 591-631 | Chrome only tells the names of the speakers after the microphone permission was given (ask = true asks for it). |
+| 632-663 | Voice-over with a system voice in the chosen language, when one is installed. |
 
 ## 04-input.js (166 linii)
 
@@ -294,7 +295,7 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 982-997 | The moving decor on screen (snails, ladybugs), every frame. All other decor is already in the level picture. |
 | 998-1022 | George's arena (the last level of the second game) |
 
-## 09-screens.js (1062 linii)
+## 09-screens.js (1085 linii)
 
 | Liniile | Sectiunea |
 |---|---|
@@ -317,14 +318,14 @@ Fiecare fisier este impartit in sectiuni. O sectiune incepe la un comentariu-tit
 | 216-358 | What the chosen button does, once every player who joined is "Ready!". |
 | 359-431 | the little picture at the top of a card: the level's sky and ground and the three pictures of its story card. Painted once. |
 | 432-452 | level story card |
-| 453-495 | The pictures on the story card of the second game. Returns false for a picture that is the same in both games. |
-| 496-496 | level end |
-| 497-629 | Three little medals give the bigger player something extra to aim for. |
-| 630-654 | pause |
-| 655-834 | settings |
-| 835-849 | After a restart: send each hero's sounds to the speaker chosen last time, if Chrome still shows it. |
-| 850-993 | the Sunset Festival |
-| 994-1062 | the dictionary (T13, docs/26-limba-personajelor.md) |
+| 453-518 | The pictures on the story card of the second game. Returns false for a picture that is the same in both games. |
+| 519-519 | level end |
+| 520-652 | Three little medals give the bigger player something extra to aim for. |
+| 653-677 | pause |
+| 678-857 | settings |
+| 858-872 | After a restart: send each hero's sounds to the speaker chosen last time, if Chrome still shows it. |
+| 873-1016 | the Sunset Festival |
+| 1017-1085 | the dictionary (T13, docs/26-limba-personajelor.md) |
 
 ## 10-main.js (152 linii)
 

@@ -1,0 +1,432 @@
+{
+ "intro-clips/ro/glade_1.mp3": [
+  0,
+  3.99,
+  "Și eu sunt Killer! Cristalele le au monștrii lui George. Hai să-i prindem!"
+ ],
+ "intro-clips/ro/glade_3.mp3": [
+  5.43,
+  8.28,
+  "Dacă unul cade, celălalt vine repede și apasă cercul!"
+ ],
+ "intro-clips/ro/robots_0.mp3": [
+  9.77,
+  12.05,
+  "Șșt! Aici dorm monștrii lui George."
+ ],
+ "intro-clips/ro/robots_2.mp3": [
+  13.49,
+  16.62,
+  "Florile mari care sclipesc ascund cristale. Lovește-le!"
+ ],
+ "intro-clips/ro/snails_1.mp3": [
+  18.19,
+  20.12,
+  "Trecem apa pe pod sau sărim pe pietre."
+ ],
+ "intro-clips/ro/snails_3.mp3": [
+  21.47,
+  24.68,
+  "Și atenție: când avem jumătate din cristale, vine George!"
+ ],
+ "intro-clips/ro/ridge_0.mp3": [
+  26.1,
+  27.66,
+  "Ce vânt bate pe culme!"
+ ],
+ "intro-clips/ro/ridge_2.mp3": [
+  29.01,
+  30.84,
+  "Sau le speriem cu ghearele și cu mingea."
+ ],
+ "intro-clips/ro/vines_1.mp3": [
+  32.2,
+  34.17,
+  "Și acolo e o stea pe care puțini au găsit-o!"
+ ],
+ "intro-clips/ro/vines_3.mp3": [
+  35.53,
+  37.17,
+  "La sfârșit intrăm amândoi în cuib!"
+ ],
+ "intro-clips/ro/road_0.mp3": [
+  38.56,
+  40.47,
+  "Torțele se aprind când trecem pe lângă ele."
+ ],
+ "intro-clips/ro/road_2.mp3": [
+  41.87,
+  44.44,
+  "Gropi, monștri și vânt... Nu ne despărțim!"
+ ],
+ "intro-clips/ro/canyon_1.mp3": [
+  45.8,
+  49.91,
+  "Avem puteri noi! Apasă pătratul: eu îmi învârt mănușile."
+ ],
+ "intro-clips/ro/canyon_3.mp3": [
+  51.32,
+  54.27,
+  "Podul de lumină apare dacă stăm amândoi pe plăcile care sclipesc."
+ ],
+ "intro-clips/ro/works_0.mp3": [
+  55.66,
+  57.08,
+  "Aici își face George monștrii!"
+ ],
+ "intro-clips/ro/works_2.mp3": [
+  58.51,
+  61.88,
+  "Țintele albastre sunt ale mele. Cele turcoaz sunt ale lui Boon."
+ ],
+ "intro-clips/ro/works_4.mp3": [
+  63.28,
+  65.41,
+  "Butonul roșu îi face pe monștri să danseze!"
+ ],
+ "intro-clips/ro/lake_1.mp3": [
+  66.79,
+  70.2,
+  "Unul urcă pe plută. Celălalt învârte manivela de pe mal."
+ ],
+ "intro-clips/ro/lake_3.mp3": [
+  71.6,
+  76.88,
+  "Apoi facem schimb! Pe a doua apă curentul trage pluta înapoi: învârte repede!"
+ ],
+ "intro-clips/ro/arena_0.mp3": [
+  78.55,
+  81.54,
+  "Asta e arena lui George! Stă pe tronul lui de piatră."
+ ],
+ "intro-clips/ro/arena_2.mp3": [
+  83.16,
+  85.76,
+  "Și când George cade, eu îl lovesc cu mingea!"
+ ],
+ "intro-clips/ro/glade_0.mp3": [
+  0,
+  5.79,
+  "Salut! Eu sunt Boon. George cel Rău a ascuns cristalele curcubeu prin junglă!"
+ ],
+ "intro-clips/ro/glade_2.mp3": [
+  8.39,
+  13.56,
+  "Cu butonul X îmi rotesc ghearele. Killer aruncă mingi."
+ ],
+ "intro-clips/ro/glade_4.mp3": [
+  15.37,
+  19.23,
+  "Apasă stickul ca să fugi. Rrrr, hai!"
+ ],
+ "intro-clips/ro/robots_1.mp3": [
+  20.1,
+  24.78,
+  "Trecem încet pe lângă ei. Dacă se trezesc, îi lovim de două ori."
+ ],
+ "intro-clips/ro/robots_3.mp3": [
+  27.66,
+  31.25,
+  "Fiecare trebuie să găsească cincisprezece cristale."
+ ],
+ "intro-clips/ro/snails_0.mp3": [
+  34.22,
+  39.83,
+  "Uite râul! Pe mal sunt urme lipicioase. Prin ele mergem încet."
+ ],
+ "intro-clips/ro/snails_2.mp3": [
+  40.75,
+  45.19,
+  "Ai prea multe cristale? Dă-mi unul cu butonul L unu!"
+ ],
+ "intro-clips/ro/ridge_1.mp3": [
+  46.97,
+  51.03,
+  "Păsările mari ne pot ridica în aer. Fugi de umbra lor!"
+ ],
+ "intro-clips/ro/ridge_3.mp3": [
+  51.59,
+  55.94,
+  "Atenție la nisipul mișcător. Stăm aproape unul de altul!"
+ ],
+ "intro-clips/ro/vines_0.mp3": [
+  56.47,
+  61.7,
+  "Lianele atârnă pe stâncă. Se zice că în spatele lor e o ușă secretă."
+ ],
+ "intro-clips/ro/vines_2.mp3": [
+  62.51,
+  64.37,
+  "Căutăm cu atenție peste tot."
+ ],
+ "intro-clips/ro/road_1.mp3": [
+  0.4,
+  3.11,
+  "E ultimul drum până la arena lui George."
+ ],
+ "intro-clips/ro/road_3.mp3": [
+  7.96,
+  12.3,
+  "Împreună suntem cei mai tari. Rrrr!"
+ ],
+ "intro-clips/ro/canyon_0.mp3": [
+  15.32,
+  18.31,
+  "George s-a întors și a furat steluțele!"
+ ],
+ "intro-clips/ro/canyon_2.mp3": [
+  21.92,
+  24.31,
+  "Și eu arunc oase-bumerang!"
+ ],
+ "intro-clips/ro/canyon_4.mp3": [
+  27.63,
+  32.19,
+  "Dacă unul cade, celălalt are zece secunde să-l ajute cu cercul!"
+ ],
+ "intro-clips/ro/works_1.mp3": [
+  35.61,
+  38.84,
+  "Zidurile se deschid doar dacă lovim țintele."
+ ],
+ "intro-clips/ro/works_3.mp3": [
+  42.65,
+  47.74,
+  "La al doilea zid le lovim pe rând. Și ferește-te de benzile care te duc!"
+ ],
+ "intro-clips/ro/lake_0.mp3": [
+  51.34,
+  53.84,
+  "Lacul e prea adânc ca să trecem înot."
+ ],
+ "intro-clips/ro/lake_2.mp3": [
+  57.36,
+  61.65,
+  "Manivela o învârt cu butonul X. Killer o învârte cu pătratul."
+ ],
+ "intro-clips/ro/arena_1.mp3": [
+  63.84,
+  67.3,
+  "Eu zgârii tronul cu ghearele, ca să cadă George!"
+ ],
+ "intro-clips/ro/arena_3.mp3": [
+  70.64,
+  73.48,
+  "De șase ori! Împreună putem!"
+ ],
+ "intro-clips/en/glade_1.mp3": [
+  0,
+  4.08,
+  "And I'm Killer! George's monsters have the crystals. Let's catch them!"
+ ],
+ "intro-clips/en/glade_3.mp3": [
+  5.52,
+  8.53,
+  "If one of us falls, the other runs over and presses the circle!"
+ ],
+ "intro-clips/en/robots_0.mp3": [
+  9.94,
+  12.63,
+  "Shh! George's monsters sleep here."
+ ],
+ "intro-clips/en/robots_2.mp3": [
+  14.11,
+  17.3,
+  "The big sparkly flowers hide crystals. Hit them!"
+ ],
+ "intro-clips/en/snails_1.mp3": [
+  18.75,
+  21.26,
+  "We cross the water on the bridge or jump on the stones."
+ ],
+ "intro-clips/en/snails_3.mp3": [
+  22.65,
+  25.92,
+  "And watch out: when we have half of the crystals, George comes!"
+ ],
+ "intro-clips/en/ridge_0.mp3": [
+  27.3,
+  28.58,
+  "So windy on the ridge!"
+ ],
+ "intro-clips/en/ridge_2.mp3": [
+  30.0,
+  31.97,
+  "Or we scare them with the claws and the ball."
+ ],
+ "intro-clips/en/vines_1.mp3": [
+  33.38,
+  35.89,
+  "And there is a star that only a few have ever found!"
+ ],
+ "intro-clips/en/vines_3.mp3": [
+  37.37,
+  39.12,
+  "At the end we both go into the nest!"
+ ],
+ "intro-clips/en/road_0.mp3": [
+  40.62,
+  42.55,
+  "The torches light up when we walk past them."
+ ],
+ "intro-clips/en/road_2.mp3": [
+  44.04,
+  46.99,
+  "Pits, monsters and wind... We don't split up!"
+ ],
+ "intro-clips/en/canyon_1.mp3": [
+  48.47,
+  51.88,
+  "We have new powers! Press the square: I spin my gloves."
+ ],
+ "intro-clips/en/canyon_3.mp3": [
+  53.36,
+  56.32,
+  "The light bridge appears when we both stand on the shiny plates."
+ ],
+ "intro-clips/en/works_0.mp3": [
+  57.95,
+  60.11,
+  "This is where George makes his monsters!"
+ ],
+ "intro-clips/en/works_2.mp3": [
+  61.71,
+  65.01,
+  "The blue targets are mine. The turquoise ones are Boon's."
+ ],
+ "intro-clips/en/works_4.mp3": [
+  66.56,
+  68.69,
+  "The red button makes the monsters dance!"
+ ],
+ "intro-clips/en/lake_1.mp3": [
+  70.23,
+  73.91,
+  "One of us climbs on the raft. The other turns the crank on the bank."
+ ],
+ "intro-clips/en/lake_3.mp3": [
+  75.53,
+  80.87,
+  "Then we swap! On the second water the current pulls the raft back: turn fast!"
+ ],
+ "intro-clips/en/arena_0.mp3": [
+  82.53,
+  85.97,
+  "This is George's arena! He sits on his stone throne."
+ ],
+ "intro-clips/en/arena_2.mp3": [
+  87.62,
+  90.14,
+  "And when George falls, I hit him with the ball!"
+ ],
+ "intro-clips/en/glade_0.mp3": [
+  0.39,
+  7.42,
+  "Hi! I'm Boon. George the Bad hid the rainbow crystals all over the jungle!"
+ ],
+ "intro-clips/en/glade_2.mp3": [
+  10.33,
+  14.84,
+  "With the X button I spin my claws. Killer throws balls."
+ ],
+ "intro-clips/en/glade_4.mp3": [
+  17.17,
+  20.81,
+  "Press the stick to run. Rrrr, come on!"
+ ],
+ "intro-clips/en/robots_1.mp3": [
+  22.55,
+  27.65,
+  "We tiptoe past them. If they wake up, we hit them twice."
+ ],
+ "intro-clips/en/robots_3.mp3": [
+  28.89,
+  32.26,
+  "Each of us has to find fifteen crystals."
+ ],
+ "intro-clips/en/snails_0.mp3": [
+  34.85,
+  41.18,
+  "Look, the river! There are sticky trails on the bank. We walk slowly in them."
+ ],
+ "intro-clips/en/snails_2.mp3": [
+  44.84,
+  48.61,
+  "Too many crystals? Give me one with the L one button!"
+ ],
+ "intro-clips/en/ridge_1.mp3": [
+  51.99,
+  57.22,
+  "The big birds can lift us up in the air. Run away from their shadow!"
+ ],
+ "intro-clips/en/ridge_3.mp3": [
+  61.71,
+  65.52,
+  "Watch out for the quicksand. We stay close together!"
+ ],
+ "intro-clips/en/vines_0.mp3": [
+  68.6,
+  74.14,
+  "Vines hang down the cliff. They say there is a secret door behind them."
+ ],
+ "intro-clips/en/vines_2.mp3": [
+  77.9,
+  80.12,
+  "We look carefully everywhere."
+ ],
+ "intro-clips/en/road_1.mp3": [
+  0,
+  3.1,
+  "It's the last road to George's arena."
+ ],
+ "intro-clips/en/road_3.mp3": [
+  4.44,
+  9.85,
+  "Together we're the strongest. Rrrr!"
+ ],
+ "intro-clips/en/canyon_0.mp3": [
+  11.47,
+  14.88,
+  "George came back and stole the little stars!"
+ ],
+ "intro-clips/en/canyon_2.mp3": [
+  16.24,
+  19.22,
+  "And I throw boomerang bones!"
+ ],
+ "intro-clips/en/canyon_4.mp3": [
+  22.11,
+  28.36,
+  "If one of us falls, the other has ten seconds to help with the circle!"
+ ],
+ "intro-clips/en/works_1.mp3": [
+  31.25,
+  34.79,
+  "The walls only open if we hit the targets."
+ ],
+ "intro-clips/en/works_3.mp3": [
+  37.25,
+  44.75,
+  "At the second wall we hit them in order. And watch out for the moving belts!"
+ ],
+ "intro-clips/en/lake_0.mp3": [
+  46.61,
+  49.33,
+  "The lake is too deep to swim across."
+ ],
+ "intro-clips/en/lake_2.mp3": [
+  51.97,
+  57.16,
+  "I turn the crank with the X button. Killer turns it with the square."
+ ],
+ "intro-clips/en/arena_1.mp3": [
+  58.19,
+  62.49,
+  "I scratch the throne with my claws, so George falls down!"
+ ],
+ "intro-clips/en/arena_3.mp3": [
+  64.98,
+  68.64,
+  "Six times! Together we can do it!"
+ ]
+}

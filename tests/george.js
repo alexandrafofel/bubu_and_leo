@@ -58,10 +58,10 @@ const MUTA = +process.env.MUTA || 0;
     const P = fresh(1), L = P.L, o = {};
     o.waves = L.waves.every(w => w.length === 0); o.total = L.totalEggs === 2 * P.q;
     for (let i = 0; i < 60 * 12; i++) { for (const t of L.trees) if (t.spark && t.spark.active && !t.spark.done) shakeTree(t, 1, true); for (const b of L.beetles) b.cool = 999; calm(); step(1); }
-    o.goalEggs = P.eggs.filter(e => e.goal).length; o.snails = L.beetles.filter(b => b.look === 'snail').length; o.wave = P.wave;
+    o.goalEggs = P.eggs.filter(e => e.goal).length; o.snails = L.beetles.filter(b => b.look === 'snail' || b.wasSnail).length; o.wave = P.wave;
     return o;
   });
-  ok(2, 'valurile si copacii nu dau diamante; copacii dau melci', r2.waves && r2.total && r2.goalEggs === 0 && r2.snails >= 2, JSON.stringify(r2));
+  ok(2, 'valurile si copacii nu dau diamante; copacii dau melci (monstri ai copiilor, wasSnail)', r2.waves && r2.total && r2.goalEggs === 0 && r2.snails >= 2, JSON.stringify(r2));
 
   // 3. a defeated small enemy leaves exactly one diamond, and the team total grows when it is picked up
   const r3 = await ev(() => {

@@ -105,25 +105,35 @@ const STR = {
     'L:fest.v2': 'Medalii pentru eroi! Steluțele îi îmbrățișează pe {0} și pe {1}. Bravo!',
     'duel.george': 'George cel Rău',
     'lvl.glade.name': 'Poiana Licuricilor',
-    'lvl.glade.intro': 'George cel Rău, dinozaurul cu coroană, a ascuns cristalele curcubeu prin junglă! Boon și Killer, adunați-le: sunt cadoul pentru petrecere. Boon își rotește ghearele. Killer aruncă mingi. Dacă prietenul tău se face mic, mergi la el și apasă pe cerc! Apasă stick-ul stâng ca să fugi.',
-    'lvl.robots.name': 'Jungla Roboților',
-    'lvl.robots.intro': 'Printre copaci dorm roboții lui George. Treceți încet pe lângă ei! Un robot lovit de două ori dispare. Florile uriașe care sclipesc ascund cristale: scuturați-le cu ghearele sau cu mingea.',
-    'lvl.snails.name': 'Râul Melcilor Lipicioși',
-    'lvl.snails.intro': 'Pe malul râului, melcii lipicioși au lăsat urme în care mergeți greu. Treceți apa pe pod sau pe pietre și feriți-vă de melcii care se târăsc pe cărări!',
+    'lvl.glade.intro': 'Salut! Eu sunt Boon. George cel Rău a ascuns cristalele curcubeu prin junglă! Și eu sunt Killer! Cristalele le au monștrii lui George. Hai să-i prindem! Cu ✕ îmi rotesc ghearele. Killer aruncă mingi. Dacă unul cade, celălalt vine repede și apasă ○! Apasă stick-ul ca să fugi. Rrrr, hai!',
+    'lvl.glade.talk': 'B: Salut! Eu sunt Boon. George cel Rău a ascuns cristalele curcubeu prin junglă!\nK: Și eu sunt Killer! Cristalele le au monștrii lui George. Hai să-i prindem!\nB: Cu ✕ îmi rotesc ghearele. Killer aruncă mingi.\nK: Dacă unul cade, celălalt vine repede și apasă ○!\nB: Apasă stick-ul ca să fugi. Rrrr, hai!',
+    'lvl.robots.name': 'Jungla Monștrilor',
+    'lvl.robots.intro': 'Șșt! Aici dorm monștrii lui George. Trecem încet pe lângă ei. Dacă se trezesc, îi lovim de două ori. Florile mari care sclipesc ascund cristale. Lovește-le! Fiecare trebuie să găsească cincisprezece cristale.',
+    'lvl.robots.talk': 'K: Șșt! Aici dorm monștrii lui George.\nB: Trecem încet pe lângă ei. Dacă se trezesc, îi lovim de două ori.\nK: Florile mari care sclipesc ascund cristale. Lovește-le!\nB: Fiecare trebuie să găsească cincisprezece cristale.',
+    'lvl.snails.name': 'Râul Lipicios',
+    'lvl.snails.intro': 'Uite râul! Pe mal sunt urme lipicioase. Prin ele mergem încet. Trecem apa pe pod sau sărim pe pietre. Ai prea multe cristale? Dă-mi unul cu L1! Și atenție: când avem jumătate din cristale, vine George!',
+    'lvl.snails.talk': 'B: Uite râul! Pe mal sunt urme lipicioase. Prin ele mergem încet.\nK: Trecem apa pe pod sau sărim pe pietre.\nB: Ai prea multe cristale? Dă-mi unul cu L1!\nK: Și atenție: când avem jumătate din cristale, vine George!',
     'lvl.ridge.name': 'Culmea Vântului',
-    'lvl.ridge.intro': 'Pe culme bate vântul, iar păsările mari vă pot ridica pe sus! Feriți-vă de umbra lor sau speriați-le cu ghearele și cu mingea. Atenție la nisipul mișcător!',
+    'lvl.ridge.intro': 'Ce vânt bate pe culme! Păsările mari ne pot ridica în aer. Fugi de umbra lor! Sau le speriem cu ghearele și cu mingea. Atenție la nisipul mișcător. Stăm aproape unul de altul!',
+    'lvl.ridge.talk': 'K: Ce vânt bate pe culme!\nB: Păsările mari ne pot ridica în aer. Fugi de umbra lor!\nK: Sau le speriem cu ghearele și cu mingea.\nB: Atenție la nisipul mișcător. Stăm aproape unul de altul!',
     'lvl.vines.name': 'Stânca Lianelor',
-    'lvl.vines.intro': 'Lianele atârnă pe stâncă. Se spune că în spatele lor este o ușă spre o ascunzătoare, cu o stea pe care puțini au găsit-o. Căutați cu atenție!',
+    'lvl.vines.intro': 'Lianele atârnă pe stâncă. Se zice că în spatele lor e o ușă secretă. Și acolo e o stea pe care puțini au găsit-o! Căutăm cu atenție peste tot. La sfârșit intrăm amândoi în cuib!',
+    'lvl.vines.talk': 'B: Lianele atârnă pe stâncă. Se zice că în spatele lor e o ușă secretă.\nK: Și acolo e o stea pe care puțini au găsit-o!\nB: Căutăm cu atenție peste tot.\nK: La sfârșit intrăm amândoi în cuib!',
     'lvl.canyon.name': 'Canionul Podurilor de Lumină',
-    'lvl.canyon.intro': 'George cel Rău s-a întors și a furat steluțele! Porniți după el. Aveți puteri noi: apăsați □. Boon aruncă oase-bumerang. Killer își învârte mănușile. Apăsați stick-ul ca să fugiți. Dacă prietenul e lovit, aveți zece secunde: ○!',
+    'lvl.canyon.intro': 'George s-a întors și a furat steluțele! Avem puteri noi! Apasă □: eu îmi învârt mănușile. Și eu arunc oase-bumerang! Podul de lumină apare dacă stăm amândoi pe plăcile care sclipesc. Dacă unul cade, celălalt are zece secunde să-l ajute cu ○!',
+    'lvl.canyon.talk': 'B: George s-a întors și a furat steluțele!\nK: Avem puteri noi! Apasă □: eu îmi învârt mănușile.\nB: Și eu arunc oase-bumerang!\nK: Podul de lumină apare dacă stăm amândoi pe plăcile care sclipesc.\nB: Dacă unul cade, celălalt are zece secunde să-l ajute cu ○!',
     'lvl.lake.name': 'Lacul Nuferilor Uriași',
-    'lvl.lake.intro': 'Lacul e prea adânc. Unul urcă pe plută. Celălalt învârte manivela cu puterea lui care se rotește. Apoi faceți schimb.',
+    'lvl.lake.intro': 'Lacul e prea adânc ca să trecem înot. Unul urcă pe plută. Celălalt învârte manivela de pe mal. Manivela o învârt cu ✕. Killer o învârte cu □. Apoi facem schimb! Pe a doua apă curentul trage pluta înapoi: învârte repede!',
+    'lvl.lake.talk': 'B: Lacul e prea adânc ca să trecem înot.\nK: Unul urcă pe plută. Celălalt învârte manivela de pe mal.\nB: Manivela o învârt cu ✕. Killer o învârte cu □.\nK: Apoi facem schimb! Pe a doua apă curentul trage pluta înapoi: învârte repede!',
     'lvl.works.name': 'Atelierul lui George',
-    'lvl.works.intro': 'George cel Rău își construiește roboții aici! Zidurile se deschid doar dacă loviți țintele: cele turcoaz sunt ale lui Boon, cele albastre ale lui Killer. Atenție la benzile rulante și la roțile dințate!',
+    'lvl.works.intro': 'Aici își face George monștrii! Zidurile se deschid doar dacă lovim țintele. Țintele albastre sunt ale mele. Cele turcoaz sunt ale lui Boon. La al doilea zid le lovim pe rând. Și ferește-te de benzile care te duc! Butonul roșu îi face pe monștri să danseze!',
+    'lvl.works.talk': 'K: Aici își face George monștrii!\nB: Zidurile se deschid doar dacă lovim țintele.\nK: Țintele albastre sunt ale mele. Cele turcoaz sunt ale lui Boon.\nB: La al doilea zid le lovim pe rând. Și ferește-te de benzile care te duc!\nK: Butonul roșu îi face pe monștri să danseze!',
     'lvl.road.name': 'Drumul Torțelor',
-    'lvl.road.intro': 'Torțele se aprind când treceți pe lângă ele. Este ultimul drum până la arena lui George. Gropi, roboți, melci și vânt: rămâneți împreună!',
+    'lvl.road.intro': 'Torțele se aprind când trecem pe lângă ele. E ultimul drum până la arena lui George. Gropi, monștri și vânt... Nu ne despărțim! Împreună suntem cei mai tari. Rrrr!',
+    'lvl.road.talk': 'K: Torțele se aprind când trecem pe lângă ele.\nB: E ultimul drum până la arena lui George.\nK: Gropi, monștri și vânt... Nu ne despărțim!\nB: Împreună suntem cei mai tari. Rrrr!',
     'lvl.arena.name': 'Arena lui George',
-    'lvl.arena.intro': 'George cel Rău stă pe tronul lui de piatră, între torțe și soldați cu sulițe. Boon, zgârie tronul cu ghearele ca să îl dărâmi! Killer, când George cade, lovește-l cu mingea! De {0} ori!'
+    'lvl.arena.intro': 'Asta e arena lui George! Stă pe tronul lui de piatră. Eu zgârii tronul cu ghearele, ca să cadă George! Și când George cade, eu îl lovesc cu mingea! De {0} ori! Împreună putem!',
+    'lvl.arena.talk': 'K: Asta e arena lui George! Stă pe tronul lui de piatră.\nB: Eu zgârii tronul cu ghearele, ca să cadă George!\nK: Și când George cade, eu îl lovesc cu mingea!\nB: De {0} ori! Împreună putem!'
   },
   en: {
     title: 'Bubu and Leo', subtitle: 'The Golden Eggs',
@@ -202,25 +212,35 @@ const STR = {
     'L:fest.v2': 'Medals for the heroes! The little stars hug {0} and {1}. Well done!',
     'duel.george': 'George the Bad',
     'lvl.glade.name': 'Firefly Glade',
-    'lvl.glade.intro': 'George the Bad, the dinosaur with the crown, hid the rainbow crystals all over the jungle! Boon and Killer, gather them: they are the present for the party. Boon spins his claws. Killer throws balls. If your friend turns tiny, go to them and press the circle! Press the left stick to run.',
-    'lvl.robots.name': 'The Robot Jungle',
-    'lvl.robots.intro': "George's robots sleep among the trees. Tiptoe past them! A robot that is hit twice disappears. The giant sparkling flowers hide crystals: shake them with the claws or with the ball.",
-    'lvl.snails.name': 'Sticky Snail River',
-    'lvl.snails.intro': 'On the river bank the sticky snails left trails that slow you down. Cross the water on the bridge or on the stones, and watch out for the snails crawling along the tracks!',
+    'lvl.glade.intro': 'Hi! I\'m Boon. George the Bad hid the rainbow crystals all over the jungle! And I\'m Killer! George\'s monsters have the crystals. Let\'s catch them! With ✕ I spin my claws. Killer throws balls. If one of us falls, the other runs over and presses ○! Press the stick to run. Rrrr, come on!',
+    'lvl.glade.talk': 'B: Hi! I\'m Boon. George the Bad hid the rainbow crystals all over the jungle!\nK: And I\'m Killer! George\'s monsters have the crystals. Let\'s catch them!\nB: With ✕ I spin my claws. Killer throws balls.\nK: If one of us falls, the other runs over and presses ○!\nB: Press the stick to run. Rrrr, come on!',
+    'lvl.robots.name': 'The Monster Jungle',
+    'lvl.robots.intro': 'Shh! George\'s monsters sleep here. We tiptoe past them. If they wake up, we hit them twice. The big sparkly flowers hide crystals. Hit them! Each of us has to find fifteen crystals.',
+    'lvl.robots.talk': 'K: Shh! George\'s monsters sleep here.\nB: We tiptoe past them. If they wake up, we hit them twice.\nK: The big sparkly flowers hide crystals. Hit them!\nB: Each of us has to find fifteen crystals.',
+    'lvl.snails.name': 'Sticky River',
+    'lvl.snails.intro': 'Look, the river! There are sticky trails on the bank. We walk slowly in them. We cross the water on the bridge or jump on the stones. Too many crystals? Give me one with L1! And watch out: when we have half of the crystals, George comes!',
+    'lvl.snails.talk': 'B: Look, the river! There are sticky trails on the bank. We walk slowly in them.\nK: We cross the water on the bridge or jump on the stones.\nB: Too many crystals? Give me one with L1!\nK: And watch out: when we have half of the crystals, George comes!',
     'lvl.ridge.name': 'Windy Ridge',
-    'lvl.ridge.intro': 'The wind blows on the ridge, and the big birds can lift you up! Stay out of their shadow or scare them with the claws and the ball. Mind the quicksand!',
+    'lvl.ridge.intro': 'So windy on the ridge! The big birds can lift us up in the air. Run away from their shadow! Or we scare them with the claws and the ball. Watch out for the quicksand. We stay close together!',
+    'lvl.ridge.talk': 'K: So windy on the ridge!\nB: The big birds can lift us up in the air. Run away from their shadow!\nK: Or we scare them with the claws and the ball.\nB: Watch out for the quicksand. We stay close together!',
     'lvl.vines.name': 'Vine Cliff',
-    'lvl.vines.intro': 'Vines hang down the cliff. They say there is a door behind them, to a hideout with a star that few have ever found. Look carefully!',
+    'lvl.vines.intro': 'Vines hang down the cliff. They say there is a secret door behind them. And there is a star that only a few have ever found! We look carefully everywhere. At the end we both go into the nest!',
+    'lvl.vines.talk': 'B: Vines hang down the cliff. They say there is a secret door behind them.\nK: And there is a star that only a few have ever found!\nB: We look carefully everywhere.\nK: At the end we both go into the nest!',
     'lvl.canyon.name': 'The Canyon of Light Bridges',
-    'lvl.canyon.intro': 'George the Bad came back and stole the little stars! Go after him. You have new powers: press □. Boon throws boomerang bones. Killer spins his gloves. Press the stick to run. If your friend gets hit you have ten seconds: ○!',
+    'lvl.canyon.intro': 'George came back and stole the little stars! We have new powers! Press □: I spin my gloves. And I throw boomerang bones! The light bridge appears when we both stand on the shiny plates. If one of us falls, the other has ten seconds to help with ○!',
+    'lvl.canyon.talk': 'B: George came back and stole the little stars!\nK: We have new powers! Press □: I spin my gloves.\nB: And I throw boomerang bones!\nK: The light bridge appears when we both stand on the shiny plates.\nB: If one of us falls, the other has ten seconds to help with ○!',
     'lvl.lake.name': 'The Lake of Giant Lilies',
-    'lvl.lake.intro': 'The lake is too deep. One of you climbs on the raft. The other turns the crank with the power that spins. Then swap.',
+    'lvl.lake.intro': 'The lake is too deep to swim across. One of us climbs on the raft. The other turns the crank on the bank. I turn the crank with ✕. Killer turns it with □. Then we swap! On the second water the current pulls the raft back: turn fast!',
+    'lvl.lake.talk': 'B: The lake is too deep to swim across.\nK: One of us climbs on the raft. The other turns the crank on the bank.\nB: I turn the crank with ✕. Killer turns it with □.\nK: Then we swap! On the second water the current pulls the raft back: turn fast!',
     'lvl.works.name': "George's Workshop",
-    'lvl.works.intro': 'George the Bad builds his robots here! The walls open only when you hit the targets: the turquoise ones are Boon\'s, the blue ones are Killer\'s. Watch out for the conveyor belts and the rolling gears!',
+    'lvl.works.intro': 'This is where George makes his monsters! The walls only open if we hit the targets. The blue targets are mine. The turquoise ones are Boon\'s. At the second wall we hit them in order. And watch out for the moving belts! The red button makes the monsters dance!',
+    'lvl.works.talk': 'K: This is where George makes his monsters!\nB: The walls only open if we hit the targets.\nK: The blue targets are mine. The turquoise ones are Boon\'s.\nB: At the second wall we hit them in order. And watch out for the moving belts!\nK: The red button makes the monsters dance!',
     'lvl.road.name': 'Torch Road',
-    'lvl.road.intro': "The torches light up as you walk past. This is the last road to George's arena. Pits, robots, snails and wind: stay together!",
+    'lvl.road.intro': 'The torches light up when we walk past them. It\'s the last road to George\'s arena. Pits, monsters and wind... We don\'t split up! Together we\'re the strongest. Rrrr!',
+    'lvl.road.talk': 'K: The torches light up when we walk past them.\nB: It\'s the last road to George\'s arena.\nK: Pits, monsters and wind... We don\'t split up!\nB: Together we\'re the strongest. Rrrr!',
     'lvl.arena.name': "George's Arena",
-    'lvl.arena.intro': 'George the Bad sits on his stone throne, among torches and soldiers with spears. Boon, scratch the throne with your claws to bring him down! Killer, when George falls, hit him with the ball! {0} times!'
+    'lvl.arena.intro': 'This is George\'s arena! He sits on his stone throne. I scratch the throne with my claws, so George falls down! And when George falls, I hit him with the ball! {0} times! Together we can do it!',
+    'lvl.arena.talk': 'K: This is George\'s arena! He sits on his stone throne.\nB: I scratch the throne with my claws, so George falls down!\nK: And when George falls, I hit him with the ball!\nB: {0} times! Together we can do it!'
   }
 };
 /* T('key') gives the text in the chosen language. {0} and {1} are filled in from the extra arguments.
@@ -233,7 +253,9 @@ function T(k, a, b) {
   if (s == null) return k;
   return a == null ? s : s.replace('{0}', a).replace('{1}', b == null ? '' : b);
 }
-const lvlName = def => T('lvl.' + def.key + '.name'), lvlIntro = def => T('lvl.' + def.key + '.intro', CONFIG.boss.hits);   // {0} = how many goals the boss needs
+const lvlName = def => T('lvl.' + def.key + '.name'), lvlIntro = def => T('lvl.' + def.key + '.intro', CONFIG.boss.hits);
+/* The start card as a talk between the heroes (tools/voci/intro.py): [{ w: 0 Boon / 1 Killer, text }], or null for a chapter without one. */
+const lvlTalk = def => { const k = 'lvl.' + def.key + '.talk', s = T(k, CONFIG.boss.hits); return s && s !== k ? s.split('\n').map(l => ({ w: l[0] === 'K' ? 1 : 0, text: l.slice(3) })) : null; };   // {0} = how many goals the boss needs
 const eggWord = n => T(n === 1 ? 'egg1' : 'eggN'), starWord = n => T(n === 1 ? 'star1' : 'starN');
 /* Readable name of a keyboard key, for the "choose the keys" screen. */
 function keyName(code) {

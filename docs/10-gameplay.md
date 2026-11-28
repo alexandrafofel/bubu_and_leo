@@ -557,3 +557,11 @@ Retetele `raft1` si `raft2` (`src/065-mech.js`) au regula `'raft'`. Fiecare poar
 - Se poarta ca robotul sau melcul pe care il inlocuiesc (`wasSnail` tine viteza mai mica a melcului). Dorm, se trezesc, danseaza la butonul rosu, lasa diamant ca orice inamic mic (`hurtSmall`).
 - `kidLook` foloseste un numarator, nu numerele intamplatoare ale nivelului: harta nivelului nu se schimba. Numaratorul se pune pe 0 la fiecare construire a nivelului.
 - Desenul: `drawKidEnemy` (`src/055-lupta.js`). Fara imagine, se deseneaza robotul.
+
+
+## Update 28 noiembrie 2026: toti inamicii mici sunt desenele copiilor
+
+- Sunt zece: cei cinci de pe 27 noiembrie si inca cinci (dragonul `kid_dragon`, ciclopul `kid_cyclops`, liliacul cu coarne `kid_bat`, zmeul cu coroana `kid_kite`, regele cu coroana plutitoare `kid_king`), aprobati de proprietara (`art/krea-ref/*-aprobat.*`, desenele in `art/krea-ref/monstru*-desen.jpg`, `dragon-desen.jpg`).
+- `CONFIG.kids.every` este 1: fiecare robot, melc si inamic aruncat de George e un monstru al copiilor, pe rand (`CONFIG.kids.looks`). Numarul pe nivel e acelasi ca inainte. Micul George ramane.
+- Nivelul 2 se numeste "Jungla Monștrilor", nivelul 3 "Râul Lipicios" (urmele lipicioase raman, melcii nu mai sunt).
+- Traducerile replicilor `beetleWake`, `beetleStun`, `guardGone` spun "monstru" in loc de "robot" (sunetul e acelasi).

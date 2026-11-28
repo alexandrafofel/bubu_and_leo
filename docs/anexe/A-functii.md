@@ -4,7 +4,7 @@
 
 Fiecare functie, functie sageata si metoda din cod, in ordinea din fisier. Coloana "Comentariul din cod" este textul scris chiar langa functie. Explicatiile pe larg sunt in capitolele din docs/.
 
-Total: 727 intrari.
+Total: 733 intrari.
 
 ## 01-config.js
 
@@ -18,10 +18,11 @@ Nicio functie.
 | 12 | `applyGameConfig()` | functie | Puts the chosen game's own heroes, villain and boss values into CONFIG. |
 | 15 | `TG(id, k, ...a)` | functie | A text of one of the two games, whichever game is being played (for the screen where the game is chosen). |
 | 27 | `playerOf(k)` | functie sageata | which player (0 or 1) plays hero k |
-| 228 | `T(k, a, b)` | functie | T('key') gives the text in the chosen language. {0} and {1} are filled in from the extra arguments. In the second game a text with the key 'L:key' takes the place of 'key' (its own title, its own words for crystals...). |
-| 236 | `lvlName(def)` | functie sageata | {0} = how many goals the boss needs |
-| 237 | `eggWord(n)` | functie sageata |  |
-| 239 | `keyName(code)` | functie | Readable name of a keyboard key, for the "choose the keys" screen. |
+| 248 | `T(k, a, b)` | functie | T('key') gives the text in the chosen language. {0} and {1} are filled in from the extra arguments. In the second game a text with the key 'L:key' takes the place of 'key' (its own title, its own words for crystals...). |
+| 256 | `lvlName(def)` | functie sageata |  |
+| 258 | `lvlTalk(def)` | functie sageata | {0} = how many goals the boss needs |
+| 259 | `eggWord(n)` | functie sageata |  |
+| 261 | `keyName(code)` | functie | Readable name of a keyboard key, for the "choose the keys" screen. |
 
 ## 02-core.js
 
@@ -134,106 +135,110 @@ Nicio functie.
 | 232 | `music(key)` | functie |  |
 | 337 | `syl(b, t, k, s, V)` | functie | One syllable. Two triangle waves (the note and its octave) go through two "mouth" filters; a little of the plain note keeps the tune clear. Loud enough to be heard next to the other sounds, also in a controller's small speaker. |
 | 360 | `voiceSet()` | functie sageata |  |
-| 361 | `loadVoices()` | functie |  |
-| 377 | `voiceBufFor(A, buf)` | functie |  |
-| 392 | `padVoiceIn(b)` | functie | The speech chain of a small speaker: lift 1 - 4 kHz, where a tiny speaker is loud and words are understood, and make it louder. |
-| 401 | `voiceSay(k, id, quiet)` | functie |  |
-| 410 | `talk(k, key)` | functie | Talk(k, key): hero k says a line for this moment. Routed like the hero's other sounds (own speaker when one was chosen). Returns the id of the line that was said (so the game can show the balloon and fill the dictionary), or -1. |
-| 436 | `voiceInfo(k, id)` | functie sageata |  |
-| 443 | `egg(b, t, n)` | metoda | --- the heroes' own sounds (volume "Sunete personaje"; they can play in the controller) --- |
-| 444 | `give(b, t)` | metoda | an egg leaves: two warm marimba notes, going up |
-| 445 | `star(b, t)` | metoda |  |
-| 446 | `giant(b, t)` | metoda |  |
-| 447 | `stomp(b, t)` | metoda |  |
-| 448 | `kick(b, t, p)` | metoda |  |
-| 449 | `bounce(b, t)` | metoda |  |
-| 450 | `bonk(b, t)` | metoda |  |
-| 451 | `drop(b, t)` | metoda |  |
-| 452 | `squelch(b, t)` | metoda |  |
-| 453 | `step(b, t, x)` | metoda | x = hero * 2 + (left or right foot) |
-| 459 | `wake(b, t)` | metoda | --- the world (volume "Sunete ambientale") --- |
-| 460 | `stun(b, t)` | metoda |  |
-| 461 | `pop(b, t)` | metoda |  |
-| 462 | `rustle(b, t)` | metoda |  |
-| 463 | `butterfly(b, t)` | metoda |  |
-| 464 | `wave(b, t)` | metoda |  |
-| 465 | `win(b, t)` | metoda |  |
-| 466 | `caw(b, t)` | metoda |  |
-| 467 | `whoosh(b, t)` | metoda |  |
-| 468 | `swish(b, t)` | metoda |  |
-| 469 | `lantern(b, t)` | metoda |  |
-| 470 | `firework(b, t)` | metoda |  |
-| 471 | `ui(b, t)` | metoda |  |
-| 472 | `no(b, t)` | metoda |  |
-| 473 | `ok(b, t)` | metoda |  |
-| 474 | `thud(b, t)` | metoda |  |
-| 475 | `goal(b, t)` | metoda |  |
-| 476 | `crack(b, t)` | metoda |  |
-| 477 | `splash(b, t)` | metoda |  |
-| 478 | `tonk(b, t)` | metoda | the ball bounces off a guardian that is not tired yet |
-| 479 | `warn(b, t)` | metoda | a guardian gets ready to attack |
-| 480 | `squeak(b, t, p)` | metoda | a guardian got hit |
-| 481 | `tired(b, t)` | metoda |  |
-| 482 | `duel(b, t)` | metoda |  |
-| 483 | `flee(b, t)` | metoda |  |
-| 484 | `heal(b, t)` | metoda | a friend helped a hero up |
-| 485 | `grab(b, t)` | metoda | a bird picks a hero up |
-| 486 | `poof(b, t)` | metoda | a small enemy disappears |
-| 487 | `bird(b, t)` | metoda | a big bird is coming |
-| 492 | `egg(b, t, n)` | metoda | a crystal rings like glass |
-| 493 | `star(b, t)` | metoda |  |
-| 494 | `giant(b, t)` | metoda |  |
-| 495 | `stomp(b, t)` | metoda | Boon's claws: three quick swishes |
-| 496 | `kick(b, t, p)` | metoda | Killer's kick: a springy "boing" |
-| 497 | `plate(b, t)` | metoda | a stone plate clicks, a little bell rings (T7.2) |
-| 498 | `bridge(b, t, n)` | metoda | a plank of light appears: one glass note of a scale (T7.4) |
-| 499 | `crank(b, t, n)` | metoda | four soft wooden clicks, a little higher each turn (T8) |
-| 500 | `raftGo(b, t)` | metoda | the raft moves: soft water |
-| 501 | `boing(b, t)` | metoda | a lily pad springs (T8) |
-| 502 | `plateOff(b, t)` | metoda | let go: the same bell, lower |
-| 503 | `cage(b, t)` | metoda | the lock clicks twice, then a happy arpeggio (T7.2) |
-| 504 | `bounce(b, t)` | metoda |  |
-| 505 | `bonk(b, t)` | metoda | a hero shrinks |
-| 506 | `heal(b, t)` | metoda | a hero grows back |
-| 507 | `drop(b, t)` | metoda |  |
-| 508 | `squelch(b, t)` | metoda |  |
-| 509 | `step(b, t, x)` | metoda |  |
-| 514 | `wake(b, t)` | metoda | a robot switches on: beep-beep |
-| 515 | `stun(b, t)` | metoda | a robot runs down |
-| 516 | `poof(b, t)` | metoda |  |
-| 517 | `caw(b, t)` | metoda | George's roar: low and warm, never harsh |
-| 518 | `pop(b, t)` | metoda |  |
-| 519 | `rustle(b, t)` | metoda |  |
-| 520 | `butterfly(b, t)` | metoda | the rocket |
-| 521 | `wave(b, t)` | metoda |  |
-| 522 | `win(b, t)` | metoda |  |
-| 523 | `lantern(b, t)` | metoda | a torch catches fire |
-| 524 | `warn(b, t)` | metoda |  |
-| 525 | `tonk(b, t)` | metoda |  |
-| 526 | `squeak(b, t, p)` | metoda | George got hit |
-| 527 | `tired(b, t)` | metoda |  |
-| 528 | `duel(b, t)` | metoda |  |
-| 529 | `flee(b, t)` | metoda |  |
-| 530 | `goal(b, t)` | metoda |  |
-| 531 | `dash(b, t)` | metoda | starting to run: a short soft "whoosh" going up |
-| 533 | `bone(b, t, v)` | metoda | Boon throws the bones: three low "fup-fup-fup" with a tremble, and the bones knocking on a wall: a warm wooden "tock" |
-| 534 | `tock(b, t)` | metoda |  |
-| 536 | `gloves(b, t)` | metoda | Killer's whirl gloves: two "fuip" going up and a soft rubbery squeak |
-| 538 | `tick(b, t, v)` | metoda | The ten seconds: a soft wooden knock every second (higher in the last three), and the three kind notes of "Încă o dată!" |
-| 540 | `click(b, t)` | metoda | a mechanism clicks before it moves (T6.9): a short soft wooden "tic" with a spark of air |
-| 542 | `gateOpen(b, t)` | metoda | a gate opens for the first time (T7.1): a warm rising marimba arpeggio of four notes, a soft breath of air and one high bell |
-| 543 | `retry(b, t)` | metoda |  |
-| 550 | `play(name, arg, k, vol)` | functie | play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. |
-| 561 | `canSink()` | functie sageata | ---- the controller's own speaker (only when the system shows it as an audio output) ---- |
-| 563 | `listOutputs(ask)` | functie | Chrome only tells the names of the speakers after the microphone permission was given (ask = true asks for it). |
-| 572 | `setSink(k, dev)` | functie | dev = { id, label } or null for the computer's speakers |
-| 592 | `swapOuts()` | functie |  |
-| 598 | `setVol(k, v)` | metoda |  |
-| 599 | `setDuck(d)` | metoda |  |
-| 606 | `init()` | metoda |  |
-| 611 | `pick()` | metoda |  |
-| 617 | `say(txt, keep)` | metoda |  |
-| 632 | `stop()` | metoda |  |
+| 364 | `introHas(key)` | functie |  |
+| 365 | `introStop()` | functie |  |
+| 366 | `introSay(key)` | functie |  |
+| 372 | `next(i)` | functie sageata |  |
+| 390 | `loadVoices()` | functie |  |
+| 406 | `voiceBufFor(A, buf)` | functie |  |
+| 421 | `padVoiceIn(b)` | functie | The speech chain of a small speaker: lift 1 - 4 kHz, where a tiny speaker is loud and words are understood, and make it louder. |
+| 430 | `voiceSay(k, id, quiet)` | functie |  |
+| 439 | `talk(k, key)` | functie | Talk(k, key): hero k says a line for this moment. Routed like the hero's other sounds (own speaker when one was chosen). Returns the id of the line that was said (so the game can show the balloon and fill the dictionary), or -1. |
+| 465 | `voiceInfo(k, id)` | functie sageata |  |
+| 472 | `egg(b, t, n)` | metoda | --- the heroes' own sounds (volume "Sunete personaje"; they can play in the controller) --- |
+| 473 | `give(b, t)` | metoda | an egg leaves: two warm marimba notes, going up |
+| 474 | `star(b, t)` | metoda |  |
+| 475 | `giant(b, t)` | metoda |  |
+| 476 | `stomp(b, t)` | metoda |  |
+| 477 | `kick(b, t, p)` | metoda |  |
+| 478 | `bounce(b, t)` | metoda |  |
+| 479 | `bonk(b, t)` | metoda |  |
+| 480 | `drop(b, t)` | metoda |  |
+| 481 | `squelch(b, t)` | metoda |  |
+| 482 | `step(b, t, x)` | metoda | x = hero * 2 + (left or right foot) |
+| 488 | `wake(b, t)` | metoda | --- the world (volume "Sunete ambientale") --- |
+| 489 | `stun(b, t)` | metoda |  |
+| 490 | `pop(b, t)` | metoda |  |
+| 491 | `rustle(b, t)` | metoda |  |
+| 492 | `butterfly(b, t)` | metoda |  |
+| 493 | `wave(b, t)` | metoda |  |
+| 494 | `win(b, t)` | metoda |  |
+| 495 | `caw(b, t)` | metoda |  |
+| 496 | `whoosh(b, t)` | metoda |  |
+| 497 | `swish(b, t)` | metoda |  |
+| 498 | `lantern(b, t)` | metoda |  |
+| 499 | `firework(b, t)` | metoda |  |
+| 500 | `ui(b, t)` | metoda |  |
+| 501 | `no(b, t)` | metoda |  |
+| 502 | `ok(b, t)` | metoda |  |
+| 503 | `thud(b, t)` | metoda |  |
+| 504 | `goal(b, t)` | metoda |  |
+| 505 | `crack(b, t)` | metoda |  |
+| 506 | `splash(b, t)` | metoda |  |
+| 507 | `tonk(b, t)` | metoda | the ball bounces off a guardian that is not tired yet |
+| 508 | `warn(b, t)` | metoda | a guardian gets ready to attack |
+| 509 | `squeak(b, t, p)` | metoda | a guardian got hit |
+| 510 | `tired(b, t)` | metoda |  |
+| 511 | `duel(b, t)` | metoda |  |
+| 512 | `flee(b, t)` | metoda |  |
+| 513 | `heal(b, t)` | metoda | a friend helped a hero up |
+| 514 | `grab(b, t)` | metoda | a bird picks a hero up |
+| 515 | `poof(b, t)` | metoda | a small enemy disappears |
+| 516 | `bird(b, t)` | metoda | a big bird is coming |
+| 521 | `egg(b, t, n)` | metoda | a crystal rings like glass |
+| 522 | `star(b, t)` | metoda |  |
+| 523 | `giant(b, t)` | metoda |  |
+| 524 | `stomp(b, t)` | metoda | Boon's claws: three quick swishes |
+| 525 | `kick(b, t, p)` | metoda | Killer's kick: a springy "boing" |
+| 526 | `plate(b, t)` | metoda | a stone plate clicks, a little bell rings (T7.2) |
+| 527 | `bridge(b, t, n)` | metoda | a plank of light appears: one glass note of a scale (T7.4) |
+| 528 | `crank(b, t, n)` | metoda | four soft wooden clicks, a little higher each turn (T8) |
+| 529 | `raftGo(b, t)` | metoda | the raft moves: soft water |
+| 530 | `boing(b, t)` | metoda | a lily pad springs (T8) |
+| 531 | `plateOff(b, t)` | metoda | let go: the same bell, lower |
+| 532 | `cage(b, t)` | metoda | the lock clicks twice, then a happy arpeggio (T7.2) |
+| 533 | `bounce(b, t)` | metoda |  |
+| 534 | `bonk(b, t)` | metoda | a hero shrinks |
+| 535 | `heal(b, t)` | metoda | a hero grows back |
+| 536 | `drop(b, t)` | metoda |  |
+| 537 | `squelch(b, t)` | metoda |  |
+| 538 | `step(b, t, x)` | metoda |  |
+| 543 | `wake(b, t)` | metoda | a robot switches on: beep-beep |
+| 544 | `stun(b, t)` | metoda | a robot runs down |
+| 545 | `poof(b, t)` | metoda |  |
+| 546 | `caw(b, t)` | metoda | George's roar: low and warm, never harsh |
+| 547 | `pop(b, t)` | metoda |  |
+| 548 | `rustle(b, t)` | metoda |  |
+| 549 | `butterfly(b, t)` | metoda | the rocket |
+| 550 | `wave(b, t)` | metoda |  |
+| 551 | `win(b, t)` | metoda |  |
+| 552 | `lantern(b, t)` | metoda | a torch catches fire |
+| 553 | `warn(b, t)` | metoda |  |
+| 554 | `tonk(b, t)` | metoda |  |
+| 555 | `squeak(b, t, p)` | metoda | George got hit |
+| 556 | `tired(b, t)` | metoda |  |
+| 557 | `duel(b, t)` | metoda |  |
+| 558 | `flee(b, t)` | metoda |  |
+| 559 | `goal(b, t)` | metoda |  |
+| 560 | `dash(b, t)` | metoda | starting to run: a short soft "whoosh" going up |
+| 562 | `bone(b, t, v)` | metoda | Boon throws the bones: three low "fup-fup-fup" with a tremble, and the bones knocking on a wall: a warm wooden "tock" |
+| 563 | `tock(b, t)` | metoda |  |
+| 565 | `gloves(b, t)` | metoda | Killer's whirl gloves: two "fuip" going up and a soft rubbery squeak |
+| 567 | `tick(b, t, v)` | metoda | The ten seconds: a soft wooden knock every second (higher in the last three), and the three kind notes of "Încă o dată!" |
+| 569 | `click(b, t)` | metoda | a mechanism clicks before it moves (T6.9): a short soft wooden "tic" with a spark of air |
+| 571 | `gateOpen(b, t)` | metoda | a gate opens for the first time (T7.1): a warm rising marimba arpeggio of four notes, a soft breath of air and one high bell |
+| 572 | `retry(b, t)` | metoda |  |
+| 579 | `play(name, arg, k, vol)` | functie | play('egg', 3, k): k = the hero who made the sound. Their sounds go to their own speaker when one was chosen. |
+| 590 | `canSink()` | functie sageata | ---- the controller's own speaker (only when the system shows it as an audio output) ---- |
+| 592 | `listOutputs(ask)` | functie | Chrome only tells the names of the speakers after the microphone permission was given (ask = true asks for it). |
+| 601 | `setSink(k, dev)` | functie | dev = { id, label } or null for the computer's speakers |
+| 621 | `swapOuts()` | functie |  |
+| 627 | `setVol(k, v)` | metoda |  |
+| 628 | `setDuck(d)` | metoda |  |
+| 635 | `init()` | metoda |  |
+| 640 | `pick()` | metoda |  |
+| 646 | `say(txt, keep)` | metoda |  |
+| 661 | `stop()` | metoda |  |
 
 ## 04-input.js
 
@@ -735,52 +740,53 @@ Nicio functie.
 | 421 | `drawChapters(c, t)` | functie |  |
 | 433 | `drawIntroIcon(c, kind, x, y, t, Lx)` | functie | ---------- level story card ---------- |
 | 454 | `drawIntroIconL(c, kind, x, y, t, Lx)` | functie | The pictures on the story card of the second game. Returns false for a picture that is the same in both games. |
-| 478 | `drawDim(c, a)` | functie |  |
-| 479 | `drawIntro(c, t)` | functie |  |
-| 491 | `drawLoading(c, t)` | functie |  |
-| 498 | `levelMedals()` | functie | Three little medals give the bigger player something extra to aim for. |
-| 499 | `drawMedal(c, i, x, y, got, t)` | functie |  |
-| 516 | `drawRetry(c, t)` | functie | "Încă o dată!": the only screen the children see when nobody came in time. No "Game Over", no red, no dark: the two heroes hold hands, the level starts again right after. |
-| 537 | `drawLevelEnd(c, t)` | functie |  |
-| 576 | `menuNav(o, key, rows)` | functie | ---------- menus: pause and settings ---------- A menu is a list of rows. A row is one of: go { label, ok() } a button opt { label, value, chg(dir) } a choice, changed with left / right (or OK) slide { label, v, chg(dir), set(v) } a volume slider, 0 to 1 text { label } a line of text, cannot be chosen |
-| 591 | `drawMenu(c, t, title, rows, sel, o)` | functie |  |
-| 631 | `pauseRows()` | functie | ---------- pause ---------- |
-| 632 | `leave(go)` | functie sageata |  |
-| 642 | `resumeGame()` | functie |  |
-| 643 | `updatePause()` | functie |  |
-| 649 | `drawPause(c, t)` | functie |  |
-| 656 | `openSettings()` | functie | ---------- settings ---------- |
-| 660 | `closeSettings()` | functie |  |
-| 664 | `setMsg(m)` | functie |  |
-| 665 | `setPage(page, p)` | functie |  |
-| 666 | `settingsBack()` | functie |  |
-| 670 | `toggleFullscreen()` | functie |  |
-| 678 | `findSpeakers(k)` | functie |  |
-| 695 | `pickSpeaker(k, d)` | functie |  |
-| 707 | `captureKey(k, f)` | functie |  |
-| 720 | `settingsRows()` | functie |  |
-| 722 | `vol(label, id, test)` | functie sageata |  |
-| 763 | `updateSettings(dt)` | functie |  |
-| 776 | `drawPadTester(c, x, y, g, t)` | functie |  |
-| 778 | `b(n)` | functie sageata |  |
-| 806 | `drawPadBody(c, x, y, cw, k, t)` | functie |  |
-| 808 | `step(n, yy, done, label, w)` | functie sageata |  |
-| 813 | `small(str, yy, col)` | functie sageata |  |
-| 826 | `drawSettings(c, t)` | functie |  |
-| 839 | `restoreSpeakers(ask)` | functie | Chrome only tells the names of the speakers while it has the microphone permission, and for a page opened from a file it forgets that permission when the page is closed. So when the saved speaker is not in the list, the question is asked again (ask = true). If the speaker is still not there, the start screen says so: the sounds are then on the computer. |
-| 851 | `startEnding()` | functie | ---------- the Sunset Festival ---------- |
-| 880 | `updateEnding(dt)` | functie |  |
-| 899 | `drawEndingL(c, t)` | functie | The end of the second game: the Rainbow Party. The crystals are the present, the heroes get medals, and little stars fly in and hug them. |
-| 904 | `bob(k)` | functie sageata |  |
-| 958 | `drawEnding(c, t)` | functie |  |
-| 964 | `bob(k)` | functie sageata |  |
-| 998 | `dictList(k)` | functie |  |
-| 999 | `openDict()` | functie |  |
-| 1003 | `closeDict()` | functie |  |
-| 1004 | `dictSay(k, i)` | functie |  |
-| 1008 | `updateDict(dt)` | functie |  |
-| 1012 | `setK(k)` | functie sageata |  |
-| 1028 | `drawDict(c, t)` | functie |  |
+| 479 | `drawDim(c, a)` | functie |  |
+| 480 | `drawIntro(c, t)` | functie |  |
+| 497 | `drawIntroTalk(c, talk, def, x, y, cw, t)` | functie | The start card as a talk: the three pictures, smaller, then the heroes' lines, each with the hero's name in his color. The line the heroes are saying now (Snd.introLine) is full; the others are a little paler. |
+| 514 | `drawLoading(c, t)` | functie |  |
+| 521 | `levelMedals()` | functie | Three little medals give the bigger player something extra to aim for. |
+| 522 | `drawMedal(c, i, x, y, got, t)` | functie |  |
+| 539 | `drawRetry(c, t)` | functie | "Încă o dată!": the only screen the children see when nobody came in time. No "Game Over", no red, no dark: the two heroes hold hands, the level starts again right after. |
+| 560 | `drawLevelEnd(c, t)` | functie |  |
+| 599 | `menuNav(o, key, rows)` | functie | ---------- menus: pause and settings ---------- A menu is a list of rows. A row is one of: go { label, ok() } a button opt { label, value, chg(dir) } a choice, changed with left / right (or OK) slide { label, v, chg(dir), set(v) } a volume slider, 0 to 1 text { label } a line of text, cannot be chosen |
+| 614 | `drawMenu(c, t, title, rows, sel, o)` | functie |  |
+| 654 | `pauseRows()` | functie | ---------- pause ---------- |
+| 655 | `leave(go)` | functie sageata |  |
+| 665 | `resumeGame()` | functie |  |
+| 666 | `updatePause()` | functie |  |
+| 672 | `drawPause(c, t)` | functie |  |
+| 679 | `openSettings()` | functie | ---------- settings ---------- |
+| 683 | `closeSettings()` | functie |  |
+| 687 | `setMsg(m)` | functie |  |
+| 688 | `setPage(page, p)` | functie |  |
+| 689 | `settingsBack()` | functie |  |
+| 693 | `toggleFullscreen()` | functie |  |
+| 701 | `findSpeakers(k)` | functie |  |
+| 718 | `pickSpeaker(k, d)` | functie |  |
+| 730 | `captureKey(k, f)` | functie |  |
+| 743 | `settingsRows()` | functie |  |
+| 745 | `vol(label, id, test)` | functie sageata |  |
+| 786 | `updateSettings(dt)` | functie |  |
+| 799 | `drawPadTester(c, x, y, g, t)` | functie |  |
+| 801 | `b(n)` | functie sageata |  |
+| 829 | `drawPadBody(c, x, y, cw, k, t)` | functie |  |
+| 831 | `step(n, yy, done, label, w)` | functie sageata |  |
+| 836 | `small(str, yy, col)` | functie sageata |  |
+| 849 | `drawSettings(c, t)` | functie |  |
+| 862 | `restoreSpeakers(ask)` | functie | Chrome only tells the names of the speakers while it has the microphone permission, and for a page opened from a file it forgets that permission when the page is closed. So when the saved speaker is not in the list, the question is asked again (ask = true). If the speaker is still not there, the start screen says so: the sounds are then on the computer. |
+| 874 | `startEnding()` | functie | ---------- the Sunset Festival ---------- |
+| 903 | `updateEnding(dt)` | functie |  |
+| 922 | `drawEndingL(c, t)` | functie | The end of the second game: the Rainbow Party. The crystals are the present, the heroes get medals, and little stars fly in and hug them. |
+| 927 | `bob(k)` | functie sageata |  |
+| 981 | `drawEnding(c, t)` | functie |  |
+| 987 | `bob(k)` | functie sageata |  |
+| 1021 | `dictList(k)` | functie |  |
+| 1022 | `openDict()` | functie |  |
+| 1026 | `closeDict()` | functie |  |
+| 1027 | `dictSay(k, i)` | functie |  |
+| 1031 | `updateDict(dt)` | functie |  |
+| 1035 | `setK(k)` | functie sageata |  |
+| 1051 | `drawDict(c, t)` | functie |  |
 
 ## 10-main.js
 

@@ -295,3 +295,14 @@ Cartonasul `drawLevelEnd` are 900 de inaltime. Sub rezultate are cate un rand pe
 Capitolele celui de-al doilea joc sunt: nivelurile 1 - 6 (randul de sus, Partea întâi), nivelul 7 si lupta mare (randul de jos, Partea a doua). Lupta mare e mereu ultima (`chapters()`, `06-level.js`). Fara nivelurile Partii a doua, lupta mare sta pe randul de sus, dupa nivelul 6.
 
 Dupa nivelul 6 urmeaza nivelul 7, dupa nivelul 7 lupta mare, apoi finalul si ecranul de start. Salvarea pastreaza ordinea in `sl.order`; o salvare din ordinea veche se pune la zi la incarcare (`remapSave`, `09-screens.js`).
+
+
+## Update 28 noiembrie 2026: cartonasul de inceput, spus de eroi
+
+- Fiecare capitol are un dialog intre Boon si Killer, care le explica copiilor ce au de facut: `STR` `lvl.<cheie>.talk`, cate o replica pe rand, `B: ` sau `K: ` in fata. `lvlTalk(def)` le da ca lista. `lvl.<cheie>.intro` are acelasi text, legat (pentru vocea care citea inainte).
+- Cartonasul (`drawIntroTalk`, `09-screens.js`): cele trei imagini mai mici, apoi replicile, cu numele eroului in culoarea lui. Replica spusa acum are un fond usor in culoarea eroului; celelalte sunt mai palide.
+- Vocile: fiecare replica e un clip inregistrat cu vocea eroului (Boon: Seed Audio, copil mic; Killer: ElevenLabs Jessica), in romana si in engleza. `Snd.introSay(cheie)` le spune pe rand, fiecare din difuzorul controllerului eroului ei (ca si cuvintele). ✕ le opreste (`Snd.introStop`). Fara clipuri, citeste vocea de sistem, ca inainte.
+- Sursa replicilor: `tools/voci/intro.py` (textul aratat si textul spus: butoanele se spun in cuvinte). Lantul: Krea (`generate_audio`) in `tools/voci/intro-raw/`, `tools/voci/intro_split.py` taie clipurile, `python3 tools/pack-intro.py` scrie `src/018-intro-voci.js` (nu se editeaza). Clipurile au fost verificate cu Whisper: fiecare e pe replica lui.
+- Reglaj: `CONFIG.words.introGain`, `introGap`, `introDelay`.
+- O replica schimbata se schimba in `intro.py` si in `STR`, apoi se inregistreaza din nou (altfel vocea spune textul vechi). `tests/intro-voci.js` verifica numarul si ordinea.
+- Replica de la arena spune "de șase ori" (`CONFIG.lupta` boss `hits`); pe cartonas numarul vine din `{0}`.
