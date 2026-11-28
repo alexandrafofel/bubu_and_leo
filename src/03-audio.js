@@ -358,6 +358,35 @@ const Snd = (() => {
      When a key has no clip, or the clips are not decoded yet, the old synthesized word is used. */
   const voice = { buf: [[], []], by: [{}, {}], ready: false, last: [-1, -1], lastKey: [{}, {}], until: [0, 0], said: [{ t: -99 }, { t: -99 }] };
   const voiceSet = () => (typeof VOICE_DATA !== 'undefined' && VOICE_DATA[GAME]) || null;
+  /* The start card of a chapter, said by the heroes (INTRO_VOICE, tools/voci/intro.py): one line after the other,
+     each from its hero's controller when it has one (like the words). The card shows which line is being said (introLine). */
+  const intro = { key: null, lang: null, n: 0, idx: -1, src: null, timer: 0, run: 0 };
+  function introHas(key) { return typeof INTRO_VOICE !== 'undefined' && !!(INTRO_VOICE[Opt.lang] || INTRO_VOICE.ro || {})[key]; }
+  function introStop() { intro.run++; intro.idx = -1; clearTimeout(intro.timer); try { if (intro.src) intro.src.stop(); } catch (e) { /* ignore */ } intro.src = null; }
+  function introSay(key) {
+    introStop();
+    if (!ac || ac.state !== 'running' || !introHas(key)) return false;
+    const L = (INTRO_VOICE[Opt.lang] || INTRO_VOICE.ro)[key], run = intro.run, bufs = new Array(L.length);
+    intro.key = key; intro.n = L.length;
+    let left = L.length;
+    const next = i => {
+      if (run !== intro.run) return;
+      if (i >= L.length || !bufs[i]) { intro.idx = -1; return; }
+      const w = L[i].w, b = (outs[w] && outs[w].context.state === 'running') ? outs[w] : chrBus, A = b.context;
+      const src = A.createBufferSource(), g = A.createGain();
+      src.buffer = voiceBufFor(A, bufs[i]); g.gain.value = (CONFIG.words.gain[w] || 1) * (CONFIG.words.introGain || 1);
+      src.connect(g); g.connect(b === chrBus ? b : padVoiceIn(b));
+      src.onended = () => { if (run === intro.run) intro.timer = setTimeout(() => next(i + 1), (CONFIG.words.introGap || 0.4) * 1000); };
+      intro.idx = i; intro.src = src; src.start(A.currentTime + 0.02 + (b.lead || 0));
+    };
+    L.forEach((ln, i) => {
+      try {
+        const bin = atob(ln.d), u = new Uint8Array(bin.length); for (let j = 0; j < bin.length; j++) u[j] = bin.charCodeAt(j);
+        ac.decodeAudioData(u.buffer, b => { bufs[i] = b; if (--left === 0 && run === intro.run) intro.timer = setTimeout(() => next(0), (CONFIG.words.introDelay || 0.6) * 1000); }, () => { --left; });
+      } catch (e) { --left; }
+    });
+    return true;
+  }
   function loadVoices() {
     const set = voiceSet(); if (!set || voice.ready || voice.loading) return;
     voice.loading = true;
@@ -371,11 +400,38 @@ const Snd = (() => {
     }));
   }
   /* A line of the voice. quiet = 0..1 (a hum or a puff is quieter). Returns the id of the line, or -1. */
+  /* A line on another output (a controller speaker) is played from a copy made at that output's own sample rate
+     (a controller runs at 32 kHz or 16 kHz; the clips were decoded at the computer's rate). Made once, in the background. */
+  const reRate = new Map();
+  function voiceBufFor(A, buf) {
+    if (A === ac || buf.sampleRate === A.sampleRate) return buf;
+    const key = buf, m = reRate.get(key) || {}; reRate.set(key, m);
+    if (m[A.sampleRate] && m[A.sampleRate] !== 'busy') return m[A.sampleRate];
+    if (!m[A.sampleRate] && window.OfflineAudioContext) {
+      m[A.sampleRate] = 'busy';
+      try {
+        const o = new OfflineAudioContext(buf.numberOfChannels, Math.ceil(buf.duration * A.sampleRate), A.sampleRate), s = o.createBufferSource();
+        s.buffer = buf; s.connect(o.destination); s.start();
+        o.startRendering().then(r => { m[A.sampleRate] = r; }, () => { m[A.sampleRate] = buf; });
+      } catch (e) { m[A.sampleRate] = buf; }
+    }
+    return buf;                                   // this time the original (the browser converts it); the copy is ready next time
+  }
+  /* The speech chain of a small speaker: lift 1 - 4 kHz, where a tiny speaker is loud and words are understood, and make it louder. */
+  function padVoiceIn(b) {
+    if (b.voiceIn) return b.voiceIn;
+    const A = b.context, g = A.createGain(), pk = A.createBiquadFilter(), lo = A.createBiquadFilter();
+    pk.type = 'peaking'; pk.frequency.value = 2200; pk.Q.value = 0.7; pk.gain.value = 6;
+    lo.type = 'lowshelf'; lo.frequency.value = 350; lo.gain.value = -6;          // the low part of a voice only makes a tiny speaker rattle
+    g.gain.value = CONFIG.words.padGain || 1;
+    g.connect(lo); lo.connect(pk); pk.connect(b);
+    return (b.voiceIn = g);
+  }
   function voiceSay(k, id, quiet) {
     const buf = voice.buf[k][id], b = (outs[k] && outs[k].context.state === 'running') ? outs[k] : chrBus; if (!buf) return -1;
     const A = b.context, src = A.createBufferSource(), g = A.createGain();
-    src.buffer = buf; g.gain.value = (CONFIG.words.gain[k] || 1) * (quiet == null ? 1 : quiet);
-    src.connect(g); g.connect(b); src.start(A.currentTime + 0.01 + (b.lead || 0));
+    src.buffer = voiceBufFor(A, buf); g.gain.value = (CONFIG.words.gain[k] || 1) * (quiet == null ? 1 : quiet);
+    src.connect(g); g.connect(b === chrBus ? b : padVoiceIn(b)); src.start(A.currentTime + 0.01 + (b.lead || 0));
     return id;
   }
   /* Talk(k, key): hero k says a line for this moment. Routed like the hero's other sounds (own speaker when one was chosen).
@@ -565,7 +621,7 @@ const Snd = (() => {
   function swapOuts() { const t = outs[0]; outs[0] = outs[1]; outs[1] = t; }
 
   return {
-    init, play, talk, voiceInfo, sayWord: (k, id) => voiceSay(k, id), voiceReady: () => voice.ready, voiceCount: k => voice.buf[k].filter(Boolean).length, music, ambience, canSink, listOutputs, setSink, swapOuts, names: () => Object.keys(fx), names2: () => Object.keys(fx2), words: id => BABBLE[id || GAME] || BABBLE.bubu, debug: () => ({ ac, master, outs, sinks, chrBus, ambBus }),
+    init, play, talk, voiceInfo, introHas, introSay, introStop, introLine: () => intro.idx, sayWord: (k, id) => voiceSay(k, id), voiceReady: () => voice.ready, voiceCount: k => voice.buf[k].filter(Boolean).length, music, ambience, canSink, listOutputs, setSink, swapOuts, names: () => Object.keys(fx), names2: () => Object.keys(fx2), words: id => BABBLE[id || GAME] || BABBLE.bubu, debug: () => ({ ac, master, outs, sinks, chrBus, ambBus }),
     get ready() { return !!ac && ac.state === 'running'; },
     vol,
     setVol(k, v) { if (!(k in vol) || !isFinite(v)) return; vol[k] = clamp(Math.round(v * 10) / 10, 0, 1); applyVol(); },

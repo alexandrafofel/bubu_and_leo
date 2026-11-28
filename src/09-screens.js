@@ -458,6 +458,7 @@ function drawIntroIconL(c, kind, x, y, t, Lx) {
   else if (kind === 'boon') { drawBoon(c, x - 26, y + 70, { scale: 1.15, t: t, claw: (t * 0.7) % 1.6 < 0.8 ? ((t * 0.7) % 1.6) / 0.8 : -1 }); iconX(c, x + 58, y - 52, 22, Math.sin(t * 6)); }
   else if (kind === 'killer') { drawKiller(c, x - 16, y + 70, { scale: 1.1, t: t }); drawBall(c, x + 50, y + 44 - Math.abs(Math.sin(t * 5)) * 26, 17, t * 3); iconX(c, x + 58, y - 52, 22, Math.sin(t * 6)); }
   else if (kind === 'ciori') drawGeorge(c, x - 22, y + 66, { scale: 1.02, t: t, mood: 'angry' });
+  else if (kind === 'robot' && CONFIG.kids.on && artOn() && artOk('kid_dragon')) drawArtChar(c, 'kid_dragon', x, y + 62, { face: 1, t: t }, 120, 0.5);   // George's monsters are the children's drawings now
   else if (kind === 'robot') { c.translate(x, y + 62); c.scale(1.5, 1.5); drawRobot(c, { x: 0, y: 0, state: 'sleep', seed: 1, face: 1 }, t); }
   else if (kind === 'cone') drawSnail(c, x, y + 30, t, { r: 40, seed: 1 });
   else if (kind === 'bird') drawBird(c, x - 8, y + 10, { t: t, scale: 0.82, face: 1 });
@@ -483,10 +484,32 @@ function drawIntro(c, t) {
   card(c, x, y, cw, ch, '#FFF6E2', 61);
   text(c, L.boss ? T('t.final') : T('t.level', L.idx + 1), W / 2, y + 74, 40, '#B9802E', { halo: 0, shadow: 0, weight: 'bold' });
   fitText(c, lvlName(def), W / 2, y + 160, 96, cw - 120, '#C4573D', { title: true, halo: 0 });
-  def.icons.forEach((k, i) => drawIntroIcon(c, k, W / 2 + (i - 1) * 270, y + 340, t));
-  const lines = wrapLines(c, lvlIntro(def), cw - 160, 38);
-  lines.forEach((ln, i) => text(c, ln, W / 2, y + 490 + i * 50, 38, '#6A4250', { halo: 0, shadow: 0 }));
+  const talk = lvlTalk(def);
+  if (!talk) {
+    def.icons.forEach((k, i) => drawIntroIcon(c, k, W / 2 + (i - 1) * 270, y + 340, t));
+    const lines = wrapLines(c, lvlIntro(def), cw - 160, 38);
+    lines.forEach((ln, i) => text(c, ln, W / 2, y + 490 + i * 50, 38, '#6A4250', { halo: 0, shadow: 0 }));
+  } else drawIntroTalk(c, talk, def, x, y, cw, t);
   if (UI.introT > 0.8) prompt(c, pressText(), W / 2, y + ch - 62, 52, t);
+}
+/* The start card as a talk: the three pictures, smaller, then the heroes' lines, each with the hero's name in his color.
+   The line the heroes are saying now (Snd.introLine) is full; the others are a little paler. */
+function drawIntroTalk(c, talk, def, x, y, cw, t) {
+  c.save(); c.translate(W / 2, y + 288); c.scale(0.72, 0.72); c.translate(-W / 2, -(y + 288));
+  def.icons.forEach((k, i) => drawIntroIcon(c, k, W / 2 + (i - 1) * 300, y + 288, t));
+  c.restore();
+  const now = Snd.introLine(), HS = CONFIG.lupta.heroes, size = talk.length > 4 ? 31 : 34, lh = size * 1.28, tx = x + 250, mw = cw - 330;
+  const rows = talk.map(ln => wrapLines(c, ln.text, mw, size));
+  let yy = y + 392 + Math.max(0, (6 - rows.reduce((a, r) => a + r.length, 0)) * lh * 0.3);
+  talk.forEach((ln, i) => {
+    const on = now < 0 || now === i, col = (HS[ln.w] && HS[ln.w].color) || '#6A4250';
+    c.globalAlpha = on ? 1 : 0.55;
+    if (now === i) { c.fillStyle = rgba(col, 0.14); c.beginPath(); c.roundRect(x + 70, yy - lh * 0.72, cw - 140, rows[i].length * lh + 10, 22); c.fill(); }
+    text(c, ((HS[ln.w] && HS[ln.w].name) || '') + ':', tx - 20, yy, size, col, { halo: 0, shadow: 0, weight: 'bold', align: 'right' });
+    rows[i].forEach((r, j) => text(c, r, tx, yy + j * lh, size, '#6A4250', { halo: 0, shadow: 0, align: 'left' }));
+    yy += rows[i].length * lh + 8;
+  });
+  c.globalAlpha = 1;
 }
 function drawLoading(c, t) {
   drawBackdrop(c, UI.titleBg); drawDim(c, 0.5);

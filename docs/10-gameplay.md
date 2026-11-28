@@ -548,3 +548,20 @@ Retetele `raft1` si `raft2` (`src/065-mech.js`) au regula `'raft'`. Fiecare poar
 **Nivelul 8, tintele:** `targetHit(inp, k)` aprinde tinta 0.4 s (`CONFIG.mech.targetOn`). `targetReach` (190) e raza in care o putere conteaza. In G6 tintele eroului care lipseste sunt "facute" (`inputVirtual`).
 
 **Racheta** (nu e parte din T8, dar a venit odata cu el): vezi sectiunea "Racheta" de mai sus.
+
+
+## Update 27 noiembrie 2026: inamicii desenati de copii
+
+- Copiii au desenat cinci inamici (`art/krea-ref/inamici-copii-desen.jpg`). Krea i-a pictat in stilul jocului: masinuta cu tepi si cap portocaliu (`kid_car`), pasarea-cameleon (`kid_bird`), broasca-soparla (`kid_frog`), baiatul cu acadea pe roti (`kid_boy`), pinguinul-soricel care face cu mana (`kid_penguin`).
+- Fiecare al doilea inamic mic devine unul dintre ei, pe rand (`CONFIG.kids.every`, `kidLook`): robotii de pe camp, melcii din copacii luminosi si inamicii aruncati de George. Numarul total de inamici ramane acelasi. Micul George ramane cum era.
+- Se poarta ca robotul sau melcul pe care il inlocuiesc (`wasSnail` tine viteza mai mica a melcului). Dorm, se trezesc, danseaza la butonul rosu, lasa diamant ca orice inamic mic (`hurtSmall`).
+- `kidLook` foloseste un numarator, nu numerele intamplatoare ale nivelului: harta nivelului nu se schimba. Numaratorul se pune pe 0 la fiecare construire a nivelului.
+- Desenul: `drawKidEnemy` (`src/055-lupta.js`). Fara imagine, se deseneaza robotul.
+
+
+## Update 28 noiembrie 2026: toti inamicii mici sunt desenele copiilor
+
+- Sunt zece: cei cinci de pe 27 noiembrie si inca cinci (dragonul `kid_dragon`, ciclopul `kid_cyclops`, liliacul cu coarne `kid_bat`, zmeul cu coroana `kid_kite`, regele cu coroana plutitoare `kid_king`), aprobati de proprietara (`art/krea-ref/*-aprobat.*`, desenele in `art/krea-ref/monstru*-desen.jpg`, `dragon-desen.jpg`).
+- `CONFIG.kids.every` este 1: fiecare robot, melc si inamic aruncat de George e un monstru al copiilor, pe rand (`CONFIG.kids.looks`). Numarul pe nivel e acelasi ca inainte. Micul George ramane.
+- Nivelul 2 se numeste "Jungla Monștrilor", nivelul 3 "Râul Lipicios" (urmele lipicioase raman, melcii nu mai sunt).
+- Traducerile replicilor `beetleWake`, `beetleStun`, `guardGone` spun "monstru" in loc de "robot" (sunetul e acelasi).

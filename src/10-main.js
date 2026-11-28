@@ -84,7 +84,7 @@ function update(dt) {
       if (UI.skipIntro) { UI.skipIntro = false; Game.state = 'play'; Snd.setDuck(1); }      // after a restart the heroes start right away
       else {
         Game.state = 'intro'; UI.introT = 0; Snd.setDuck(0.45);
-        Voice.say(lvlName(P.L.def) + '. ' + lvlIntro(P.L.def));
+        if (!Snd.introSay(P.L.def.key)) Voice.say(lvlName(P.L.def) + '. ' + lvlIntro(P.L.def));      // the heroes say the card; without their clips, the reading voice
       }
     }
   } else if (st === 'retry') {
@@ -92,7 +92,7 @@ function update(dt) {
     if (UI.retryT > CONFIG.rescue.retryScreen) { UI.skipIntro = true; Snd.setDuck(1); Game.goLevel(Game.levelIdx); }      // the same chapter, without its story again
   } else if (st === 'intro') {
     UI.introT += dt;
-    if (UI.introT > 0.8 && pressedGo()) { Voice.stop(); Snd.setDuck(1); Snd.play('ok'); Game.state = 'play'; say(0, 'hello'); say(1, 'hello'); }
+    if (UI.introT > 0.8 && pressedGo()) { Voice.stop(); Snd.introStop(); Snd.setDuck(1); Snd.play('ok'); Game.state = 'play'; say(0, 'hello'); say(1, 'hello'); }
   } else if (st === 'play') {
     if (Game.paused) updatePause();
     else {

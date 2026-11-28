@@ -335,6 +335,7 @@ function drawHero(c, k, x, y, o) {
 function drawSleeper(c, b, t) {
   if (b.look === 'snail') return drawSnail(c, b.x, b.y, t, b);          // T15: a snail that came out of a glowing tree
   if (b.look === 'mini') return drawMiniGeorge(c, b, t);                // T15: Little George
+  if (isKidLook(b.look)) return drawKidEnemy(c, b, t);                  // the enemies drawn by the children (CONFIG.kids)
   if (isLupta()) drawRobot(c, b, t); else drawBeetle(c, b, t);
 }
 /* The small enemy that comes down a lane: a rolling pinecone, or a sticky snail. */

@@ -426,6 +426,25 @@ function drawRobot(c, b, t) {
   } else if (b.state === 'wake') text(c, '!', b.x, b.y - 96, 52, '#FF9A4A', { weight: 'bold' });
 }
 
+/* An enemy drawn by the children (CONFIG.kids, art/krea/kid_*): the picture, a shadow, a little sleep or a "!" like the robots.
+   Without the picture (art off or missing) it is drawn as a robot. */
+function drawKidEnemy(c, b, t) {
+  const n = b.look, K = CONFIG.kids;
+  if (!(artOn() && artOk(n))) return drawRobot(c, b, t);
+  const f = (b.face || 1) * (K.face[n] || 1), h = K.size[n] || 80, sl = b.state === 'sleep';
+  c.fillStyle = rgba(SHADOW, 0.24); c.beginPath(); c.ellipse(b.x, b.y + 2, 32, 10, 0, 0, TAU); c.fill();
+  c.save(); c.translate(b.x, b.y);
+  if (b.state === 'knock') { c.translate(0, -h / 2); c.rotate(t * 9); c.translate(0, h / 2); }
+  if (sl) c.globalAlpha = 0.92;
+  drawArtChar(c, n, 0, 0, { face: f, t: t + (b.seed || 0), moving: b.dance || b.state === 'chase' || b.state === 'return', walk: t * (b.dance ? 20 : 12) + (b.seed || 0), squash: sl ? 0.08 : 0 }, h, 0.5);
+  c.globalAlpha = 1; c.restore();
+  if (sl) {
+    const zs = sprite('zzzL', 30, 34, cc => { text(cc, 'z', 15, 17, 28, '#C4BEF0', { halo: 0, shadow: 0, weight: 'bold' }); }), fz = b.face || 1;
+    for (let i = 0; i < 3; i++) { const p = ((t * 0.5 + i * 0.33 + b.seed) % 1), k = 0.6 + p * 0.6; c.globalAlpha = 0.9 * (1 - p); c.drawImage(zs, b.x + 20 * fz + p * 26 - 15 * k, b.y - h - p * 44 - 17 * k, 30 * k, 34 * k); }
+    c.globalAlpha = 1;
+  } else if (b.state === 'wake') text(c, '!', b.x, b.y - h - 22, 52, '#FF9A4A', { weight: 'bold' });
+}
+
 /* Little George (T15): George, small, in other colors (green and blue instead of pink and brown). He follows the nearest hero and never hits.
    Painted once per walk frame into a sprite (the colors come from a hue filter, applied only then), so a frame costs one drawImage. */
 function drawMiniGeorge(c, b, t) {

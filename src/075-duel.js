@@ -146,7 +146,7 @@ function georgeEnemies(n, follow) {
     d.proj.push({ sx: d.x, sy: d.y - 40 - d.z, tx: sp.x, ty: sp.y, t: -i * 0.25, dur: Gc.flight, rot: 0, kind: 'enemy',
       onLand: p => {
         P.L.beetles.push({ hx: p.tx, hy: p.ty, x: p.tx, y: p.ty, vx: 0, vy: 0, state: 'wake', t: 0.5, face: Math.random() < 0.5 ? 1 : -1, seed: Math.random() * 10, r: 28,
-          thrown: true, follow: !!follow, chase: follow ? Gc.chaseSpeed : 0, hp, maxHp: hp, born: 0.4, cool: 0 });
+          thrown: true, follow: !!follow, chase: follow ? Gc.chaseSpeed : 0, hp, maxHp: hp, born: 0.4, cool: 0, look: kidLook() });
         Snd.play('thud'); burst(p.tx, p.ty - 10, 12, { kind: 'dust', cols: ['#FFF3E0', '#F3E2C0'], speed: 160, life: 0.6, size: 14, g: -20, drag: 2 });
       } });
   }
